@@ -10,12 +10,11 @@ import math
 import matplotlib.axes
 from matplotlib.patches import Arc, Rectangle
 
-from renovation.constants import RIGHT_ANGLE_IN_DEGREES
-from renovation.elements.options import get_element_option
-from renovation.elements.info import DimensionArrow
-
+from ..constants import RIGHT_ANGLE_IN_DEGREES
+from ..utils import rotate_point, render_label_and_id
 from .element import Element
-from renovation.utils import rotate_point, render_label_and_id
+from .info import DimensionArrow
+from .options import get_element_option
 
 
 class Door(Element):

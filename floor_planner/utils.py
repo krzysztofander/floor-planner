@@ -1,13 +1,15 @@
 """
-Utities for renovation project.
+Utities for floor_planner project.
 
 Author: Krzysztof Bartczak
 """
 
 import math
-import matplotlib.axes
-from renovation.elements.options import get_label_color, get_id_color
 from functools import lru_cache
+
+import matplotlib.axes
+
+from .elements.options import get_label_color, get_id_color
 
 @lru_cache
 def _rotate_point(anchor_point: tuple[float, float],

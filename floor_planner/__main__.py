@@ -6,17 +6,19 @@ Author: Nikolay Lysenko
 
 
 import argparse
+import copy
 from pathlib import Path
 from collections import defaultdict
 
 import yaml
 
-from renovation.elements import create_elements_registry
-from renovation.floor_plan import FloorPlan
-from renovation.project import Project
-from renovation.markdown_report import generate_elements_report
-from renovation.variables import validate_constants, resolve_constants, resolve_element_params
-from renovation.elements.room import Room
+from floor_planner import elements
+from floor_planner.elements import create_elements_registry
+from floor_planner.floor_plan import FloorPlan
+from floor_planner.project import Project
+from floor_planner.markdown_report import generate_elements_report
+from floor_planner.variables import validate_constants, resolve_constants, resolve_element_params
+from floor_planner.elements.room import Room
 
 def load_reusable_elements(reusable_elements_config: dict, config_dir: Path) -> dict:
     """
@@ -92,8 +94,6 @@ def main() -> None:
     with open(config_path) as config_file:
         settings = yaml.load(config_file, Loader=yaml.FullLoader)
 
-    from renovation import elements
-
     # Reset ID counters for consistent IDs
     elements.reset_id_counters()
 
@@ -133,7 +133,6 @@ def main() -> None:
         floor_plan_options = floor_plan_params.get('options', {})
         if floor_plan_options:
             # Create a merged options dict
-            import copy
             merged_options = copy.deepcopy(default_options)
             for element_type, type_options in floor_plan_options.items():
                 # Skip if type_options is None (all properties commented out in YAML)
@@ -159,7 +158,6 @@ def main() -> None:
                 element_type = element_params.get('type')
                 if element_type == 'room':
                     # Create room with nested elements
-                    import copy
                     room_params = copy.deepcopy(element_params)
                     room = Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_constants)
                     floor_plan.add_element(room)
@@ -176,7 +174,6 @@ def main() -> None:
                     all_elements.append(element)
                     elements_by_id[element.id] = element
         for element_params in floor_plan_params.get('elements', []):
-            import copy
             element_params_copy = copy.deepcopy(element_params)
             element_type = element_params_copy.get('type')
             if element_type == 'room':
