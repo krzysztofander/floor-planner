@@ -5,6 +5,8 @@ Author: Nikolay Lysenko
 """
 
 
+from floor_planner.elements.furniture.bed import DoubleBed
+
 from .basic import Wall, WallND, Window
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
@@ -14,6 +16,7 @@ from .lighting import CeilingLamp, LEDStrip, Switch, WallLamp
 from .multipurpose import Line, Polygon, Circle
 from .room import Room
 from .furniture.storage import GenericStorage, Storage40, Storage60
+from .furniture.bed import DoubleBed
 
 
 def create_elements_registry() -> dict[str, type(Element)]:
@@ -42,7 +45,8 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'circle': Circle,
         'generic_storage': GenericStorage,
         'storage60': Storage60,
-        'storage40': Storage40
+        'storage40': Storage40,
+        'double_bed':  DoubleBed
     }
     return registry
 
