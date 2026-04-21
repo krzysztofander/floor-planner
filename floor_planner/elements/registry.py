@@ -13,6 +13,7 @@ from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, Switch, WallLamp
 from .multipurpose import Line, Polygon, Circle
 from .room import Room
+from .furniture.storage import GenericStorage, Storage40, Storage60
 
 
 def create_elements_registry() -> dict[str, type(Element)]:
@@ -38,7 +39,10 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'wallnd': WallND,
         'wall_lamp': WallLamp,
         'window': Window,
-        'circle': Circle
+        'circle': Circle,
+        'generic_storage': GenericStorage,
+        'storage60': Storage60,
+        'storage40': Storage40
     }
     return registry
 

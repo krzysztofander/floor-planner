@@ -11,12 +11,12 @@ import matplotlib.axes
 from matplotlib.patches import Arc, Rectangle
 
 from ..utils import rotate_point, render_label_and_id, text_readability_rotation
-from .element import Element
+from .element import Element, RectangularElement
 from .info import DimensionArrow
 from .options import get_dimensions, get_element_option, get_show_invisible
 
 
-class WallND(Element):
+class WallND(RectangularElement):
     """
     Straight wall without dimensions.
 
@@ -67,35 +67,6 @@ class WallND(Element):
         # Room properties (set by Room class if this wall is part of a room)
         self.is_room_wall = False
         self.room_id = None
-
-    def get_corners(self) -> list[tuple[float, float]]:
-        """
-        Calculate the 4 corners of the wall considering rotation.
-
-        :return:
-            list of 4 (x, y) tuples representing corners in order:
-            bottom-left, bottom-right, top-right, top-left (before rotation)
-        """
-        angle_rad = math.radians(self.orientation_angle)
-        cos_a = math.cos(angle_rad)
-        sin_a = math.sin(angle_rad)
-
-        # Define corners relative to anchor point (anchor is bottom-left)
-        corners_relative = [
-            (0, 0),  # bottom-left (anchor)
-            (self.length, 0),  # bottom-right
-            (self.length, self.thickness),  # top-right
-            (0, self.thickness)  # top-left
-        ]
-
-        # Rotate and translate each corner
-        corners = []
-        for x, y in corners_relative:
-            rotated_x = x * cos_a - y * sin_a + self.anchor_point[0]
-            rotated_y = x * sin_a + y * cos_a + self.anchor_point[1]
-            corners.append((rotated_x, rotated_y))
-
-        return corners
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw straight wall."""
@@ -173,7 +144,7 @@ class Wall(WallND):
             )
             dimension.draw(ax)
 
-class Window(Element):
+class Window(RectangularElement):
     """Window in a wall."""
 
     def __init__(
@@ -222,38 +193,10 @@ class Window(Element):
         self.anchor_point = anchor_point
         self.length = length
         self.overall_thickness = overall_thickness
+        self.thickness = overall_thickness  #for get_corners function
         self.single_line_thickness = single_line_thickness
         self.orientation_angle = orientation_angle
         self.color = color
-
-    def get_corners(self) -> list[tuple[float, float]]:
-        """
-        Calculate the 4 corners of the window considering rotation.
-
-        :return:
-            list of 4 (x, y) tuples representing corners in order:
-            bottom-left, bottom-right, top-right, top-left (before rotation)
-        """
-        angle_rad = math.radians(self.orientation_angle)
-        cos_a = math.cos(angle_rad)
-        sin_a = math.sin(angle_rad)
-
-        # Define corners relative to anchor point (anchor is bottom-left)
-        corners_relative = [
-            (0, 0),  # bottom-left (anchor)
-            (self.length, 0),  # bottom-right
-            (self.length, self.overall_thickness),  # top-right
-            (0, self.overall_thickness)  # top-left
-        ]
-
-        # Rotate and translate each corner
-        corners = []
-        for x, y in corners_relative:
-            rotated_x = x * cos_a - y * sin_a + self.anchor_point[0]
-            rotated_y = x * sin_a + y * cos_a + self.anchor_point[1]
-            corners.append((rotated_x, rotated_y))
-
-        return corners
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw window."""

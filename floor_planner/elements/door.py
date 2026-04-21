@@ -12,12 +12,12 @@ from matplotlib.patches import Arc, Rectangle
 
 from ..constants import RIGHT_ANGLE_IN_DEGREES
 from ..utils import rotate_point, render_label_and_id
-from .element import Element
+from .element import RectangularElement
 from .info import DimensionArrow
 from .options import get_element_option
 
 
-class Door(Element):
+class Door(RectangularElement):
     door_schematic_line_thickness = 0.04
     """Single door."""
 
@@ -67,6 +67,7 @@ class Door(Element):
         super().__init__(label=label)
         self.anchor_point = anchor_point
         self.doorway_width = doorway_width
+        self.length = doorway_width #for get_corners function
         self.door_width = door_width
         self.frame_width = (doorway_width - door_width) / 2
         self.thickness = thickness
@@ -76,37 +77,6 @@ class Door(Element):
         self.hinges_point = 1 - hinges_point  if opening_outside else hinges_point
         self.opening_outside = opening_outside
         self.color = color
-
-    def get_corners(self) -> list[tuple[float, float]]:
-        """
-        Calculate the 4 corners of the doorway considering rotation.
-
-        :return:
-            list of 4 (x, y) tuples representing corners in order:
-            corners of the full doorway bounding box
-        """
-        angle_rad = math.radians(self.orientation_angle)
-        cos_a = math.cos(angle_rad)
-        sin_a = math.sin(angle_rad)
-
-        # Define corners relative to anchor point
-        # The doorway spans doorway_width along orientation_angle direction
-        # and thickness perpendicular to it (inward/negative perpendicular)
-        corners_relative = [
-            (0, 0),  # anchor
-            (self.doorway_width * cos_a, self.doorway_width * sin_a),  # along orientation
-            (self.doorway_width * cos_a - self.thickness * sin_a,
-             self.doorway_width * sin_a + self.thickness * cos_a),  # opposite corner
-            (-self.thickness * sin_a, self.thickness * cos_a)  # perpendicular from anchor
-        ]
-
-        # Translate each corner by anchor point
-        corners = [
-            (x + self.anchor_point[0], y + self.anchor_point[1])
-            for x, y in corners_relative
-        ]
-
-        return corners
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the door, its opening trajectory, and the door frame."""
