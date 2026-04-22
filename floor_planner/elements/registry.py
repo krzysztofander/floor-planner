@@ -7,7 +7,7 @@ Author: Nikolay Lysenko
 
 from floor_planner.elements.furniture.bed import DoubleBed, SingleBed
 from floor_planner.elements.furniture.appliances import (
-    Dishwasher, Fridge, Freezer, WashingMachine, Dryer
+    Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
 )
 
 from .basic import Wall, WallND, Window
@@ -21,7 +21,7 @@ from .room import Room
 from .furniture.storage import GenericStorage, Storage40, Storage60
 from .furniture.bed import DoubleBed, SingleBed
 from .furniture.appliances import (
-    Dishwasher, Fridge, Freezer, WashingMachine, Dryer
+    Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
 )
 
 
@@ -58,7 +58,10 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'fridge': Fridge,
         'freezer': Freezer,
         'washing_machine': WashingMachine,
-        'dryer': Dryer
+        'dryer': Dryer,
+        'stovetop': Stovetop,
+        'single_sink': SingleSink,
+        'double_sink': DoubleSink
     }
     return registry
 

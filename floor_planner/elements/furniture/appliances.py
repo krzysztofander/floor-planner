@@ -607,3 +607,341 @@ class Dryer(RectangularElement):
             label_prefix="",
             id_prefix=""
         )
+
+
+class Stovetop(RectangularElement):
+    """
+    Stovetop appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Stovetop` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.6  # Standard stovetop width
+        self.thickness = 0.6  # Standard stovetop depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw stovetop."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Draw 4 circles representing burners/heat plates (2x2 grid)
+        burner_radius = 0.08
+        spacing_x = self.length / 3
+        spacing_y = self.thickness / 3
+        
+        # Positions for 4 burners
+        burner_positions = [
+            (spacing_x, spacing_y),  # Bottom left
+            (spacing_x * 2, spacing_y),  # Bottom right
+            (spacing_x, spacing_y * 2),  # Top left
+            (spacing_x * 2, spacing_y * 2)  # Top right
+        ]
+        
+        for burner_x, burner_y in burner_positions:
+            burner_pos = rotate_point(
+                self.anchor_point,
+                burner_x,
+                burner_y,
+                math.radians(self.orientation_angle)
+            )
+            
+            burner = Circle(
+                burner_pos,
+                radius=burner_radius,
+                facecolor='none',
+                edgecolor=draw_color,
+                linewidth=1.0
+            )
+            ax.add_patch(burner)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Stovetop',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class SingleSink(RectangularElement):
+    """
+    Single sink appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `SingleSink` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.9  # Single sink length
+        self.thickness = 0.6  # Single sink width
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw single sink."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Left half: rectangle representing the basin
+        basin_width = self.length / 2 - 0.1
+        basin_height = self.thickness - 0.2
+        basin_x = 0.05
+        basin_y = 0.1
+        
+        basin_pos = rotate_point(
+            self.anchor_point,
+            basin_x,
+            basin_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        basin = Rectangle(
+            basin_pos,
+            basin_width,
+            basin_height,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(basin)
+        
+        # Right half: 4 parallel lines representing drain/drying area
+        num_lines = 4
+        line_start_x = self.length / 2 + 0.1
+        line_end_x = self.length - 0.1
+        
+        for i in range(num_lines):
+            y_pos = 0.15 + i * (self.thickness - 0.3) / (num_lines - 1)
+            
+            start_point = rotate_point(
+                self.anchor_point,
+                line_start_x,
+                y_pos,
+                math.radians(self.orientation_angle)
+            )
+            end_point = rotate_point(
+                self.anchor_point,
+                line_end_x,
+                y_pos,
+                math.radians(self.orientation_angle)
+            )
+            
+            line = Line2D(
+                [start_point[0], end_point[0]],
+                [start_point[1], end_point[1]],
+                color=draw_color,
+                linewidth=0.5
+            )
+            ax.add_line(line)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Single Sink',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class DoubleSink(RectangularElement):
+    """
+    Double sink appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `DoubleSink` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 1.2  # Double sink length (wider than single)
+        self.thickness = 0.6  # Double sink width
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw double sink."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Left basin: rectangle
+        basin_width = self.length / 2 - 0.15
+        basin_height = self.thickness - 0.2
+        
+        # Left basin
+        left_basin_x = 0.05
+        left_basin_y = 0.1
+        
+        left_basin_pos = rotate_point(
+            self.anchor_point,
+            left_basin_x,
+            left_basin_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        left_basin = Rectangle(
+            left_basin_pos,
+            basin_width,
+            basin_height,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(left_basin)
+        
+        # Right basin
+        right_basin_x = self.length / 2 + 0.1
+        right_basin_y = 0.1
+        
+        right_basin_pos = rotate_point(
+            self.anchor_point,
+            right_basin_x,
+            right_basin_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        right_basin = Rectangle(
+            right_basin_pos,
+            basin_width,
+            basin_height,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(right_basin)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Double Sink',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
