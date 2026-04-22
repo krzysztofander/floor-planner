@@ -1,0 +1,332 @@
+"""
+Draw bathroom fixtures
+
+Author: Krzysztof Bartczak
+"""
+
+
+import math
+
+import matplotlib.axes
+from matplotlib.patches import Arc, Rectangle, Circle, Ellipse
+from matplotlib.lines import Line2D
+
+from ...utils import rotate_point, render_label_and_id, text_readability_rotation
+from ..element import Element, RectangularElement
+from ..options import get_show_invisible
+
+
+class Shower(RectangularElement):
+    """
+    Shower stall
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the fixture
+        :param color:
+            color to use for drawing the fixture
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Shower` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.9  # Standard shower stall size
+        self.thickness = 0.9  # Standard shower stall size
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw shower."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Showerhead in corner (top corner)
+        showerhead_x = self.length * 0.2
+        showerhead_y = self.thickness * 0.8
+        
+        showerhead_pos = rotate_point(
+            self.anchor_point,
+            showerhead_x,
+            showerhead_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        # Showerhead circle
+        showerhead = Circle(
+            showerhead_pos,
+            radius=0.06,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(showerhead)
+        
+        # Water spray lines
+        num_spray_lines = 5
+        spray_length = 0.15
+        for i in range(num_spray_lines):
+            angle_offset = -60 + i * 30  # Spray pattern
+            spray_angle = math.radians(angle_offset)
+            
+            spray_end_x = showerhead_x + spray_length * math.cos(spray_angle)
+            spray_end_y = showerhead_y + spray_length * math.sin(spray_angle)
+            
+            spray_end = rotate_point(
+                self.anchor_point,
+                spray_end_x,
+                spray_end_y,
+                math.radians(self.orientation_angle)
+            )
+            
+            spray_line = Line2D(
+                [showerhead_pos[0], spray_end[0]],
+                [showerhead_pos[1], spray_end[1]],
+                color=draw_color,
+                linewidth=0.5
+            )
+            ax.add_line(spray_line)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Shower',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class Bathtub(RectangularElement):
+    """
+    Bathtub
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the fixture
+        :param color:
+            color to use for drawing the fixture
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Bathtub` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 1.7  # Standard bathtub length
+        self.thickness = 0.7  # Standard bathtub width
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw bathtub."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Inner oval representing the tub basin
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        
+        center_rotated = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        # Ellipse for bathtub basin
+        tub_ellipse = Ellipse(
+            center_rotated,
+            width=self.length - 0.2,
+            height=self.thickness - 0.2,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(tub_ellipse)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Bathtub',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class Basin(RectangularElement):
+    """
+    Bathroom basin/sink
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the fixture
+        :param color:
+            color to use for drawing the fixture
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Basin` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.6  # Basin width
+        self.thickness = 0.5  # Basin depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw basin."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Basin bowl (circle or oval)
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        
+        center_rotated = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        # Circle for basin bowl
+        basin_bowl = Circle(
+            center_rotated,
+            radius=0.15,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(basin_bowl)
+        
+        # Faucet indicator (small circle at back)
+        faucet_x = center_x
+        faucet_y = self.thickness - 0.1
+        
+        faucet_pos = rotate_point(
+            self.anchor_point,
+            faucet_x,
+            faucet_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        faucet = Circle(
+            faucet_pos,
+            radius=0.03,
+            facecolor=draw_color,
+            edgecolor=draw_color
+        )
+        ax.add_patch(faucet)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Basin',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )

@@ -1,0 +1,161 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "pngoutput"
+default_options:
+  Wall:
+    label_color: gray
+    dimensions: false
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [12, 8]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1.0
+  grid_minor_step: 0.5
+reusable_elements:
+  furniture_elements:
+    # Title
+    - type: text_box
+      anchor_point: [0.5, 7.5]
+      lines:
+        - "Furniture & Appliances Demo"
+      transparency: 0.0
+      
+    # Beds Section
+    - type: text_box
+      anchor_point: [0.5, 6.8]
+      lines:
+        - "Beds:"
+      transparency: 0.0
+      
+    - type: double_bed
+      anchor_point: [0.5, 5.0]
+      orientation_angle: 0
+      color: blue
+      label: "Double Bed"
+      
+    - type: single_bed
+      anchor_point: [3.0, 5.0]
+      orientation_angle: 0
+      color: blue
+      label: "Single Bed"
+      
+    # Kitchen Appliances Section
+    - type: text_box
+      anchor_point: [0.5, 4.3]
+      lines:
+        - "Kitchen Appliances:"
+      transparency: 0.0
+      
+    - type: fridge
+      anchor_point: [0.5, 3.0]
+      orientation_angle: 0
+      color: darkgreen
+      label: "Fridge"
+      
+    - type: freezer
+      anchor_point: [1.5, 3.0]
+      orientation_angle: 0
+      color: darkgreen
+      label: "Freezer"
+      
+    - type: dishwasher
+      anchor_point: [2.7, 3.0]
+      orientation_angle: 0
+      color: darkgreen
+      label: "Dishwasher"
+      
+    - type: stovetop
+      anchor_point: [3.9, 3.0]
+      orientation_angle: 0
+      color: darkgreen
+      label: "Stovetop"
+      
+    - type: single_sink
+      anchor_point: [5.1, 3.0]
+      orientation_angle: 0
+      color: darkgreen
+      label: "Single Sink"
+      
+    - type: double_sink
+      anchor_point: [6.2, 3.0]
+      orientation_angle: 0
+      color: darkgreen
+      label: "Double Sink"
+      
+    # Laundry Appliances Section
+    - type: text_box
+      anchor_point: [0.5, 1.8]
+      lines:
+        - "Laundry Appliances:"
+      transparency: 0.0
+      
+    - type: washing_machine
+      anchor_point: [0.5, 1.0]
+      orientation_angle: 0
+      color: purple
+      label: "Washing Machine"
+      
+    - type: dryer
+      anchor_point: [1.5, 1.0]
+      orientation_angle: 0
+      color: purple
+      label: "Dryer"
+      
+    # Bathroom Fixtures Section
+    - type: text_box
+      anchor_point: [3.5, 1.8]
+      lines:
+        - "Bathroom Fixtures:"
+      transparency: 0.0
+      
+    - type: shower
+      anchor_point: [4.0, 1.0]
+      orientation_angle: 0
+      color: teal
+      label: "Shower"
+      
+    - type: bathtub
+      anchor_point: [5.2, 1.0]
+      orientation_angle: 0
+      color: teal
+      label: "Bathtub"
+      
+    - type: basin
+      anchor_point: [7.1, 1.0]
+      orientation_angle: 0
+      color: teal
+      label: "Basin"
+      
+    # Rotated examples
+    - type: text_box
+      anchor_point: [5.0, 6.8]
+      lines:
+        - "Rotated Examples:"
+      transparency: 0.0
+      
+    - type: single_bed
+      anchor_point: [5.5, 5.0]
+      orientation_angle: 90
+      color: red
+      label: "Rotated Bed"
+      
+    - type: washing_machine
+      anchor_point: [7.0, 5.0]
+      orientation_angle: 45
+      color: orange
+      label: "Rotated WM"
+      
+    - type: fridge
+      anchor_point: [5.5, 3.0]
+      orientation_angle: 270
+      color: brown
+      label: "Rotated Fridge"
+
+floor_plans:
+  - title:
+      text: "Furniture & Appliances Demo"
+      font_size: 18
+    inherited_elements:
+      - furniture_elements
