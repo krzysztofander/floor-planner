@@ -1,0 +1,609 @@
+"""
+Draw kitchen and laundry appliances
+
+Author: Krzysztof Bartczak
+"""
+
+
+import math
+
+import matplotlib.axes
+from matplotlib.patches import Arc, Rectangle, Circle, FancyBboxPatch
+from matplotlib.lines import Line2D
+
+from ...utils import rotate_point, render_label_and_id, text_readability_rotation
+from ..element import Element, RectangularElement
+from ..options import get_show_invisible
+
+
+class Dishwasher(RectangularElement):
+    """
+    Dishwasher appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance;
+            it is measured between X-axis and the appliance in positive direction (counterclockwise);
+            initial appliance is rotated around anchor point to get the desired orientation
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Dishwasher` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.6  # Standard dishwasher width
+        self.thickness = 0.6  # Standard dishwasher depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw dishwasher."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Draw double S pattern (mirrored and turned 90 degrees) with circle through middle
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        
+        # S-curve parameters
+        curve_width = 0.3
+        curve_height = 0.12
+        
+        # First S curve (upper)
+        # Create S using two arcs
+        # Upper right arc
+        upper_right_arc = Arc(
+            rotate_point(
+                self.anchor_point,
+                center_x + curve_width / 4,
+                center_y + curve_height / 2,
+                math.radians(self.orientation_angle)
+            ),
+            curve_width / 2,
+            curve_height,
+            angle=self.orientation_angle,
+            theta1=180,
+            theta2=0,
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(upper_right_arc)
+        
+        # Upper left arc
+        upper_left_arc = Arc(
+            rotate_point(
+                self.anchor_point,
+                center_x - curve_width / 4,
+                center_y + curve_height / 2,
+                math.radians(self.orientation_angle)
+            ),
+            curve_width / 2,
+            curve_height,
+            angle=self.orientation_angle,
+            theta1=0,
+            theta2=180,
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(upper_left_arc)
+        
+        # Second S curve (lower) - mirrored
+        # Lower right arc
+        lower_right_arc = Arc(
+            rotate_point(
+                self.anchor_point,
+                center_x + curve_width / 4,
+                center_y - curve_height / 2,
+                math.radians(self.orientation_angle)
+            ),
+            curve_width / 2,
+            curve_height,
+            angle=self.orientation_angle,
+            theta1=180,
+            theta2=0,
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(lower_right_arc)
+        
+        # Lower left arc
+        lower_left_arc = Arc(
+            rotate_point(
+                self.anchor_point,
+                center_x - curve_width / 4,
+                center_y - curve_height / 2,
+                math.radians(self.orientation_angle)
+            ),
+            curve_width / 2,
+            curve_height,
+            angle=self.orientation_angle,
+            theta1=0,
+            theta2=180,
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(lower_left_arc)
+        
+        # Circle crossing through the middle of the SS pattern
+        circle_pos = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        middle_circle = Circle(
+            circle_pos,
+            radius=0.084,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(middle_circle)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Dishwasher',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class Fridge(RectangularElement):
+    """
+    Refrigerator appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Fridge` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.7  # Standard fridge width
+        self.thickness = 0.7  # Standard fridge depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw fridge."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Draw snowflake symbol in center
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        snowflake_size = 0.15
+        
+        # Draw 6 lines radiating from center (snowflake pattern)
+        for i in range(6):
+            angle = i * math.pi / 3  # 60 degrees apart
+            
+            # Main arm
+            start_x = center_x
+            start_y = center_y
+            end_x = center_x + snowflake_size * math.cos(angle)
+            end_y = center_y + snowflake_size * math.sin(angle)
+            
+            start_point = rotate_point(
+                self.anchor_point,
+                start_x,
+                start_y,
+                math.radians(self.orientation_angle)
+            )
+            end_point = rotate_point(
+                self.anchor_point,
+                end_x,
+                end_y,
+                math.radians(self.orientation_angle)
+            )
+            
+            line = Line2D(
+                [start_point[0], end_point[0]],
+                [start_point[1], end_point[1]],
+                color=draw_color,
+                linewidth=0.8
+            )
+            ax.add_line(line)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Fridge',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class Freezer(RectangularElement):
+    """
+    Freezer appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Freezer` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.6  # Standard freezer width
+        self.thickness = 0.6  # Standard freezer depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw freezer."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Draw two snowflakes
+        snowflake_size = 0.12
+        
+        # Position for two snowflakes (left and right of center)
+        snowflake_positions = [
+            (self.length * 0.35, self.thickness / 2),
+            (self.length * 0.65, self.thickness / 2)
+        ]
+        
+        for sf_center_x, sf_center_y in snowflake_positions:
+            # Draw 6 lines radiating from center (snowflake pattern)
+            for i in range(6):
+                angle = i * math.pi / 3  # 60 degrees apart
+                
+                # Main arm
+                start_x = sf_center_x
+                start_y = sf_center_y
+                end_x = sf_center_x + snowflake_size * math.cos(angle)
+                end_y = sf_center_y + snowflake_size * math.sin(angle)
+                
+                start_point = rotate_point(
+                    self.anchor_point,
+                    start_x,
+                    start_y,
+                    math.radians(self.orientation_angle)
+                )
+                end_point = rotate_point(
+                    self.anchor_point,
+                    end_x,
+                    end_y,
+                    math.radians(self.orientation_angle)
+                )
+                
+                line = Line2D(
+                    [start_point[0], end_point[0]],
+                    [start_point[1], end_point[1]],
+                    color=draw_color,
+                    linewidth=0.8
+                )
+                ax.add_line(line)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Freezer',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class WashingMachine(RectangularElement):
+    """
+    Washing machine appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `WashingMachine` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.6  # Standard washing machine width
+        self.thickness = 0.6  # Standard washing machine depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw washing machine."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Draw two concentric circles representing the drum
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        center_rotated = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        # Outer circle
+        outer_circle = Circle(
+            center_rotated,
+            radius=0.2,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(outer_circle)
+        
+        # Inner circle
+        inner_circle = Circle(
+            center_rotated,
+            radius=0.13,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(inner_circle)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Washing Machine',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class Dryer(RectangularElement):
+    """
+    Dryer appliance
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the appliance
+        :param color:
+            color to use for drawing the appliance
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Dryer` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.6  # Standard dryer width
+        self.thickness = 0.6  # Standard dryer depth
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw dryer."""
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return
+            draw_color = 'red'
+        else:
+            draw_color = self.color
+
+        # Main rectangle
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor='none',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(patch)
+       
+        # Draw two concentric circles representing the drum (same as washing machine)
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        center_rotated = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        # Outer circle
+        outer_circle = Circle(
+            center_rotated,
+            radius=0.2,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(outer_circle)
+        
+        # Inner circle
+        inner_circle = Circle(
+            center_rotated,
+            radius=0.13,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(inner_circle)
+        
+        # Solid small circle in the center (differentiates from washing machine)
+        center_dot = Circle(
+            center_rotated,
+            radius=0.04,
+            facecolor=draw_color,
+            edgecolor=draw_color
+        )
+        ax.add_patch(center_dot)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Dryer',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
