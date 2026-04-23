@@ -8,11 +8,11 @@ Author: Krzysztof Bartczak
 import math
 
 import matplotlib.axes
-from matplotlib.patches import Arc, Rectangle, Circle, FancyBboxPatch
+from matplotlib.patches import Arc, Rectangle, Circle
 from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
-from ..element import Element, RectangularElement
+from ..element import RectangularElement
 from ..options import get_show_invisible
 
 
@@ -26,7 +26,7 @@ class Dishwasher(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -197,7 +197,9 @@ class Fridge(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            length: float = 0.6,  # Standard fridge width
+            thickness: float = 0.6,  # Standard fridge depth
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -208,6 +210,10 @@ class Fridge(RectangularElement):
             bottom left point is anchor point if `orientation_angle == 0`
         :param orientation_angle:
             angle (in degrees) that specifies orientation of the appliance
+        :param length:
+            length of the appliance (in meters)
+        :param thickness:
+            thickness of the appliance (in meters)  
         :param color:
             color to use for drawing the appliance
         :param label:
@@ -217,8 +223,8 @@ class Fridge(RectangularElement):
         """
         super().__init__(label=label)
         self.anchor_point = anchor_point
-        self.length = 0.7  # Standard fridge width
-        self.thickness = 0.7  # Standard fridge depth
+        self.length = length
+        self.thickness = thickness
         self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
@@ -302,7 +308,9 @@ class Freezer(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            length: float = 0.6,  # Standard freezer width
+            thickness: float = 0.6,  # Standard freezer depth
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -313,6 +321,10 @@ class Freezer(RectangularElement):
             bottom left point is anchor point if `orientation_angle == 0`
         :param orientation_angle:
             angle (in degrees) that specifies orientation of the appliance
+        :param length:
+            length of the appliance (in meters)
+        :param thickness:
+            thickness of the appliance (in meters)
         :param color:
             color to use for drawing the appliance
         :param label:
@@ -322,8 +334,8 @@ class Freezer(RectangularElement):
         """
         super().__init__(label=label)
         self.anchor_point = anchor_point
-        self.length = 0.6  # Standard freezer width
-        self.thickness = 0.6  # Standard freezer depth
+        self.length = length
+        self.thickness = thickness
         self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
@@ -412,7 +424,7 @@ class WashingMachine(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -511,7 +523,7 @@ class Dryer(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -619,7 +631,7 @@ class Stovetop(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -718,7 +730,7 @@ class SingleSink(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            color: str = 'grey',
             label: str | None = None
     ):
         """
@@ -840,7 +852,7 @@ class DoubleSink(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
-            color: str = 'black',
+            color: str = 'grey',
             label: str | None = None
     ):
         """
