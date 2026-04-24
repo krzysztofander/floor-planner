@@ -100,6 +100,37 @@ class GenericStorage(RectangularElement):
             ls='solid',
             color=draw_color
         )
+        
+        # Display thickness value at center
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        center = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        thickness_cm = self.thickness * 100
+        text_angle = text_readability_rotation(self.orientation_angle)
+        ax.text(
+            center[0],
+            center[1],
+            f"{thickness_cm:.0f}",
+            fontsize=10,
+            color=draw_color,
+            ha='center',
+            va='center',
+            rotation=text_angle,
+            weight='normal',
+            bbox=dict(
+                facecolor='white',
+                alpha=0.8,
+                edgecolor='none',
+                boxstyle='round,pad=0.3'
+            )
+        )
+        
         # Render label and ID
         render_label_and_id(
             ax,
