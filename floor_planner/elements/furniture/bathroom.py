@@ -320,3 +320,125 @@ class Basin(RectangularElement):
             label_prefix="",
             id_prefix=""
         )
+
+
+class Toilet(RectangularElement):
+    """
+    Toilet
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the fixture
+        :param color:
+            color to use for drawing the fixture
+        :param label:
+            optional label for the element
+        :return:
+            freshly created instance of `Toilet` class
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = 0.7  # Standard toilet length (front to back)
+        self.thickness = 0.4  # Standard toilet width
+        self.orientation_angle = orientation_angle
+        self.color = color
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw toilet."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        # Draw toilet with tank facing down at orientation 0
+        center_x = self.thickness / 2
+        center_y = self.length / 2
+        
+        center = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        # Main outer ellipse
+        outer_ellipse = Ellipse(
+            center,
+            width=self.thickness,
+            height=self.length,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        ax.add_patch(outer_ellipse)
+       
+        # Tank
+        tank_width = self.thickness * 0.84
+        tank_height = 0.18
+        tank_x = (self.thickness - tank_width) / 2
+        tank_y = 0
+        
+        tank_anchor = rotate_point(
+            self.anchor_point,
+            tank_x,
+            tank_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        tank = Rectangle(
+            tank_anchor,
+            tank_width,
+            tank_height,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(tank)
+       
+        # Inner ellipse (toilet bowl opening)
+        bowl_center_x = self.thickness / 2
+        bowl_center_y = self.length * 0.65
+        
+        bowl_center = rotate_point(
+            self.anchor_point,
+            bowl_center_x,
+            bowl_center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        inner_ellipse = Ellipse(
+            bowl_center,
+            width=self.thickness - 0.15,
+            height=0.35,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.0
+        )
+        ax.add_patch(inner_ellipse)
+
+        render_label_and_id(
+            ax,
+            self,
+            'Toilet',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )

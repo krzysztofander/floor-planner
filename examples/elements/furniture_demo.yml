@@ -305,7 +305,7 @@ reusable_elements:
   bathroom_elements:
     # Title
     - type: text_box
-      anchor_point: [0.5, 5.5]
+      anchor_point: [0.5, 6.5]
       lines:
         - "Bathroom Fixtures - Rotation Test"
         - "Each row shows: 0°, 90°, 180°, 270°"
@@ -313,83 +313,110 @@ reusable_elements:
       
     # Row 1: Shower
     - type: text_box
-      anchor_point: [0.2, 4.8]
+      anchor_point: [0.2, 5.8]
       lines:
         - "Shower"
       transparency: 0.0
     - type: shower
-      anchor_point: [1.5, 4.3]
+      anchor_point: [1.5, 5.3]
       orientation_angle: 0
       color: teal
       label: "0°"
     - type: shower
-      anchor_point: [3.5, 4.3]
+      anchor_point: [3.5, 5.3]
       orientation_angle: 90
       color: teal
       label: "90°"
     - type: shower
-      anchor_point: [5.5, 4.3]
+      anchor_point: [5.5, 5.3]
       orientation_angle: 180
       color: teal
       label: "180°"
     - type: shower
-      anchor_point: [7.5, 4.3]
+      anchor_point: [7.5, 5.3]
       orientation_angle: 270
       color: teal
       label: "270°"
       
     # Row 2: Bathtub
     - type: text_box
-      anchor_point: [0.2, 3.0]
+      anchor_point: [0.2, 4.0]
       lines:
         - "Bathtub"
       transparency: 0.0
     - type: bathtub
-      anchor_point: [1.5, 2.5]
+      anchor_point: [1.5, 3.5]
       orientation_angle: 0
       color: cyan
       label: "0°"
     - type: bathtub
-      anchor_point: [3.5, 2.5]
+      anchor_point: [3.5, 3.5]
       orientation_angle: 90
       color: cyan
       label: "90°"
     - type: bathtub
-      anchor_point: [5.5, 2.5]
+      anchor_point: [5.5, 3.5]
       orientation_angle: 180
       color: cyan
       label: "180°"
     - type: bathtub
-      anchor_point: [7.5, 2.5]
+      anchor_point: [7.5, 3.5]
       orientation_angle: 270
       color: cyan
       label: "270°"
       
     # Row 3: Basin
     - type: text_box
-      anchor_point: [0.2, 1.2]
+      anchor_point: [0.2, 2.5]
       lines:
         - "Basin"
       transparency: 0.0
     - type: basin
-      anchor_point: [1.5, 0.7]
+      anchor_point: [1.5, 2.0]
       orientation_angle: 0
       color: turquoise
       label: "0°"
     - type: basin
-      anchor_point: [3.5, 0.7]
+      anchor_point: [3.5, 2.0]
       orientation_angle: 90
       color: turquoise
       label: "90°"
     - type: basin
-      anchor_point: [5.5, 0.7]
+      anchor_point: [5.5, 2.0]
       orientation_angle: 180
       color: turquoise
       label: "180°"
     - type: basin
-      anchor_point: [7.5, 0.7]
+      anchor_point: [7.5, 2.0]
       orientation_angle: 270
       color: turquoise
+      label: "270°"
+      
+    # Row 4: Toilet
+    - type: text_box
+      anchor_point: [0.2, 1.2]
+      lines:
+        - "Toilet"
+      transparency: 0.0
+    - type: toilet
+      anchor_point: [1.5, 0.7]
+      orientation_angle: 0
+      color: darkmagenta
+      label: "0°"
+    - type: toilet
+      anchor_point: [3.5, 0.7]
+      orientation_angle: 90
+      color: darkmagenta
+      label: "90°"
+    - type: toilet
+      anchor_point: [5.5, 0.7]
+      orientation_angle: 180
+      color: darkmagenta
+      label: "180°"
+    - type: toilet
+      anchor_point: [7.5, 0.7]
+      orientation_angle: 270
+      color: darkmagenta
       label: "270°"
 
 floor_plans:
