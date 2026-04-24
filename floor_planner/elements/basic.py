@@ -13,7 +13,7 @@ from matplotlib.patches import Arc, Rectangle
 from ..utils import rotate_point, render_label_and_id, text_readability_rotation
 from .element import Element, RectangularElement
 from .info import DimensionArrow
-from .options import get_dimensions, get_element_option, get_show_invisible
+from .options import get_dimensions, get_element_option
 
 
 class WallND(RectangularElement):
@@ -70,15 +70,9 @@ class WallND(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw straight wall."""
-        # Check if wall is invisible
-        if self.color == 'invisible':
-            # Skip drawing if show_invisible is not enabled
-            if not get_show_invisible():
-                return
-            # Draw in red if show_invisible is enabled
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # It this wall have thickness < 0.01 than make it 0.01 so it is actually drawn.
         # future feature: used dashed line here.
@@ -124,9 +118,8 @@ class Wall(WallND):
         super().draw(ax)
 
         # Skip dimension drawing if wall is invisible and show_invisible is not enabled
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
+        if self.get_draw_color() is None:
+            return
 
         # Check if dimensions should be drawn
         if get_dimensions():

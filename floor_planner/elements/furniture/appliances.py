@@ -13,7 +13,6 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import RectangularElement
-from ..options import get_show_invisible
 
 
 class Dishwasher(RectangularElement):
@@ -56,12 +55,9 @@ class Dishwasher(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dishwasher."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -231,12 +227,9 @@ class Fridge(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw fridge."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -342,12 +335,9 @@ class Freezer(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw freezer."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -452,12 +442,9 @@ class WashingMachine(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw washing machine."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -551,12 +538,9 @@ class Dryer(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dryer."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -659,12 +643,9 @@ class Stovetop(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw stovetop."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -758,12 +739,9 @@ class SingleSink(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw single sink."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -880,12 +858,9 @@ class DoubleSink(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw double sink."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(

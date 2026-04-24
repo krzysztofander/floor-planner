@@ -13,7 +13,6 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import Element, RectangularElement
-from ..options import get_show_invisible
 
 
 class Shower(RectangularElement):
@@ -54,12 +53,9 @@ class Shower(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw shower."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -169,12 +165,9 @@ class Bathtub(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw bathtub."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(
@@ -261,12 +254,9 @@ class Basin(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw basin."""
-        if self.color == 'invisible':
-            if not get_show_invisible():
-                return
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Main rectangle
         patch = Rectangle(

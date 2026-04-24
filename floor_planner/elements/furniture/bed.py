@@ -13,7 +13,6 @@ from matplotlib.patches import Arc, Rectangle
 from ...utils import rotate_point, render_label_and_id
 from ..element import Element, RectangularElement
 from ..info import DimensionArrow
-from ..options import get_show_invisible
 
 class MultiBed(RectangularElement):
     """
@@ -44,15 +43,9 @@ class MultiBed(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw double bed."""
-        # Check if bed is invisible
-        if self.color == 'invisible':
-            # Skip drawing if show_invisible is not enabled
-            if not get_show_invisible():
-                return
-            # Draw in red if show_invisible is enabled
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         linewidth = self.thickness 
 

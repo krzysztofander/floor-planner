@@ -13,7 +13,7 @@ from matplotlib.patches import Arc, Rectangle
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import Element, RectangularElement
 from ..info import DimensionArrow
-from ..options import get_dimensions, get_element_option, get_show_invisible
+from ..options import get_dimensions, get_element_option
 
 
 class GenericStorage(RectangularElement):
@@ -66,15 +66,9 @@ class GenericStorage(RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw storage box."""
-        # Check if storage box is invisible
-        if self.color == 'invisible':
-            # Skip drawing if show_invisible is not enabled
-            if not get_show_invisible():
-                return
-            # Draw in red if show_invisible is enabled
-            draw_color = 'red'
-        else:
-            draw_color = self.color
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         linewidth = self.thickness * 3
 

@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 
 import matplotlib.axes
 
-from .options import generate_element_id
+from .options import generate_element_id, get_show_invisible
 
 from ..utils import rotate_point
 import math
@@ -47,6 +47,19 @@ class RectangularElement(Element):
         """
         super().__init__(label=label)
 
+    def get_draw_color(self) -> str | None:
+        """
+        Get the color to use for drawing, handling invisible elements.
+
+        :return:
+            color string to use for drawing, 'red' if element is invisible and show_invisible is True,
+            or None if element is invisible and should not be drawn
+        """
+        if self.color == 'invisible':
+            if not get_show_invisible():
+                return None
+            return 'red'
+        return self.color
 
     @abstractmethod
     def draw(self, ax: matplotlib.axes.Axes) -> None:
