@@ -1,0 +1,30 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [5, 5]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1.0
+  grid_minor_step: 0.5
+reusable_elements:
+  test_furniture:
+    - type: desk
+      anchor_point: [1.0, 2.0]
+      orientation_angle: 0
+      color: brown
+
+floor_plans:
+  - title:
+      text: "Test Desk"
+      font_size: 18
+    bottom_left_corner: [0, 0]
+    top_right_corner: [5, 5]
+    scale_numerator: 1
+    scale_denominator: 50
+    grid_major_step: 1.0
+    grid_minor_step: 0.5
+    inherited_elements:
+      - test_furniture

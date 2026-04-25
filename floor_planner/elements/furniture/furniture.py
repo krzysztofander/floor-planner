@@ -269,8 +269,8 @@ class Chair(RectangularElement):
         ax.add_patch(patch)
        
         # Draw backrest (thicker line at back)
-        backrest_y = self.thickness
-        backrest_thickness = 0.08
+        backrest_y = 0
+        backrest_thickness = 0.12
         
         backrest_start = rotate_point(
             self.anchor_point,
@@ -366,7 +366,7 @@ class Sofa(RectangularElement):
         ax.add_patch(patch)
        
         # Draw backrest (thicker line at back)
-        backrest_y = self.thickness
+        backrest_y = 0
         
         backrest_start = rotate_point(
             self.anchor_point,

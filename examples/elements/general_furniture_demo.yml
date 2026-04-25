@@ -1,0 +1,188 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+default_options:
+  Wall:
+    label_color: gray
+    dimensions: false
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [12, 10]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1.0
+  grid_minor_step: 0.5
+reusable_elements:
+  furniture_elements:
+    # Title
+    - type: text_box
+      anchor_point: [0.5, 9]
+      lines:
+        - "General Furniture - Rotation Test"
+        - "Each row shows: 0°, 90°, 180°, 270°"
+      transparency: 0.0
+      
+    # Row 1: Desk
+    - type: text_box
+      anchor_point: [0.2, 8]
+      lines:
+        - "Desk"
+      transparency: 0.0
+    - type: desk
+      anchor_point: [1.5, 7.2]
+      orientation_angle: 0
+      color: brown
+      label: "0°"
+    - type: desk
+      anchor_point: [3.5, 7.2]
+      orientation_angle: 90
+      color: brown
+      label: "90°"
+    - type: desk
+      anchor_point: [5.5, 7.2]
+      orientation_angle: 180
+      color: brown
+      label: "180°"
+    - type: desk
+      anchor_point: [7.5, 7.2]
+      orientation_angle: 270
+      color: brown
+      label: "270°"
+      
+    # Row 2: Chair
+    - type: text_box
+      anchor_point: [0.2, 6.5]
+      lines:
+        - "Chair"
+      transparency: 0.0
+    - type: chair
+      anchor_point: [1.5, 5.8]
+      orientation_angle: 0
+      color: darkgray
+      label: "0°"
+    - type: chair
+      anchor_point: [2.5, 5.8]
+      orientation_angle: 90
+      color: darkgray
+      label: "90°"
+    - type: chair
+      anchor_point: [3.5, 5.8]
+      orientation_angle: 180
+      color: darkgray
+      label: "180°"
+    - type: chair
+      anchor_point: [4.5, 5.8]
+      orientation_angle: 270
+      color: darkgray
+      label: "270°"
+      
+    # Row 3: Dining Table
+    - type: text_box
+      anchor_point: [0.2, 5]
+      lines:
+        - "Dining Table"
+      transparency: 0.0
+    - type: dining_table
+      anchor_point: [1.5, 4.0]
+      length: 1.8
+      thickness: 0.9
+      orientation_angle: 0
+      color: brown
+      label: "0°"
+    - type: dining_table
+      anchor_point: [4.0, 4.0]
+      length: 1.8
+      thickness: 0.9
+      orientation_angle: 90
+      color: brown
+      label: "90°"
+    - type: dining_table
+      anchor_point: [6.5, 4.0]
+      length: 1.8
+      thickness: 0.9
+      orientation_angle: 180
+      color: brown
+      label: "180°"
+    - type: dining_table
+      anchor_point: [9.0, 4.0]
+      length: 1.8
+      thickness: 0.9
+      orientation_angle: 270
+      color: brown
+      label: "270°"
+      
+    # Row 4: 2-seat Sofa
+    - type: text_box
+      anchor_point: [0.2, 3]
+      lines:
+        - "2-Seat Sofa"
+      transparency: 0.0
+    - type: sofa
+      anchor_point: [1.5, 2.0]
+      num_seats: 2
+      orientation_angle: 0
+      color: darkslateblue
+      label: "0°"
+    - type: sofa
+      anchor_point: [4.0, 2.0]
+      num_seats: 2
+      orientation_angle: 90
+      color: darkslateblue
+      label: "90°"
+    - type: sofa
+      anchor_point: [6.5, 2.0]
+      num_seats: 2
+      orientation_angle: 180
+      color: darkslateblue
+      label: "180°"
+    - type: sofa
+      anchor_point: [9.0, 2.0]
+      num_seats: 2
+      orientation_angle: 270
+      color: darkslateblue
+      label: "270°"
+      
+    # Row 5: 3-seat Sofa
+    - type: text_box
+      anchor_point: [0.2, 1.2]
+      lines:
+        - "3-Seat Sofa"
+      transparency: 0.0
+    - type: sofa
+      anchor_point: [1.5, 0.2]
+      num_seats: 3
+      orientation_angle: 0
+      color: darkgreen
+      label: "0°"
+    - type: sofa
+      anchor_point: [4.5, 0.2]
+      num_seats: 3
+      orientation_angle: 90
+      color: darkgreen
+      label: "90°"
+    - type: sofa
+      anchor_point: [7.5, 0.2]
+      num_seats: 3
+      orientation_angle: 180
+      color: darkgreen
+      label: "180°"
+    - type: sofa
+      anchor_point: [10.5, 0.2]
+      num_seats: 3
+      orientation_angle: 270
+      color: darkgreen
+      label: "270°"
+
+floor_plans:
+  - title:
+      text: "General Furniture - Rotation Test"
+      font_size: 18
+    bottom_left_corner: [0, 0]
+    top_right_corner: [12, 10]
+    scale_numerator: 1
+    scale_denominator: 50
+    grid_major_step: 1.0
+    grid_minor_step: 0.5
+    inherited_elements:
+      - furniture_elements
