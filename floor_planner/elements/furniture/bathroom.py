@@ -66,7 +66,7 @@ class Shower(RectangularElement):
             facecolor='none',
             fill=False,
             edgecolor=draw_color,
-            linewidth=1.5
+            linewidth=2
         )
         ax.add_patch(patch)
        
@@ -294,7 +294,7 @@ class Basin(RectangularElement):
         
         # Faucet indicator (small circle at back)
         faucet_x = center_x
-        faucet_y = self.thickness - 0.1
+        faucet_y =  0.1
         
         faucet_pos = rotate_point(
             self.anchor_point,
