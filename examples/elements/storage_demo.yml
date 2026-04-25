@@ -1,0 +1,118 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+default_options:
+  Wall:
+    label_color: gray
+    dimensions: false
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [10, 8]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1.0
+  grid_minor_step: 0.5
+reusable_elements:
+  storage_elements:
+    # Title
+    - type: text_box
+      anchor_point: [0.5, 7]
+      lines:
+        - "Storage Elements - Thickness Display Test"
+        - "Each storage shows its thickness in cm at center"
+      transparency: 0.0
+      
+    # Row 1: GenericStorage with different thicknesses
+    - type: text_box
+      anchor_point: [0.2, 6]
+      lines:
+        - "Generic Storage"
+      transparency: 0.0
+    - type: generic_storage
+      anchor_point: [1.5, 5.5]
+      length: 2.0
+      thickness: 0.4
+      orientation_angle: 0
+      color: brown
+      label: "40cm"
+    - type: generic_storage
+      anchor_point: [4.0, 5.5]
+      length: 2.0
+      thickness: 0.6
+      orientation_angle: 0
+      color: brown
+      label: "60cm"
+    - type: generic_storage
+      anchor_point: [6.5, 5.5]
+      length: 2.0
+      thickness: 0.8
+      orientation_angle: 0
+      color: brown
+      label: "80cm"
+      
+    # Row 2: Rotated storage
+    - type: text_box
+      anchor_point: [0.2, 4]
+      lines:
+        - "Rotated 90°"
+      transparency: 0.0
+    - type: generic_storage
+      anchor_point: [1.5, 3.5]
+      length: 2.0
+      thickness: 0.5
+      orientation_angle: 90
+      color: darkgreen
+      label: "50cm"
+    - type: generic_storage
+      anchor_point: [3.5, 3.5]
+      length: 2.0
+      thickness: 0.7
+      orientation_angle: 90
+      color: darkgreen
+      label: "70cm"
+    - type: generic_storage
+      anchor_point: [5.5, 3.5]
+      length: 2.0
+      thickness: 0.9
+      orientation_angle: 90
+      color: darkgreen
+      label: "90cm"
+      
+    # Row 3: Different orientations
+    - type: text_box
+      anchor_point: [0.2, 2]
+      lines:
+        - "Various angles"
+      transparency: 0.0
+    - type: generic_storage
+      anchor_point: [1.5, 1.0]
+      length: 1.5
+      thickness: 0.45
+      orientation_angle: 0
+      color: darkblue
+    - type: generic_storage
+      anchor_point: [3.5, 1.0]
+      length: 1.5
+      thickness: 0.55
+      orientation_angle: 45
+      color: darkblue
+    - type: generic_storage
+      anchor_point: [5.5, 1.0]
+      length: 1.5
+      thickness: 0.65
+      orientation_angle: 135
+      color: darkblue
+
+floor_plans:
+  - title:
+      text: "Storage Elements - Thickness Display"
+      font_size: 18
+    bottom_left_corner: [0, 0]
+    top_right_corner: [10, 8]
+    scale_numerator: 1
+    scale_denominator: 50
+    grid_major_step: 1.0
+    grid_minor_step: 0.5
+    elements_keys:
+      - storage_elements

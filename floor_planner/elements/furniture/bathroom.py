@@ -26,7 +26,10 @@ class Shower(RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            length: float = 0.9,  # Standard shower stall size
+            thickness: float = 0.9  # Standard shower stall size
+
     ):
         """
         Initialize an instance.
@@ -45,8 +48,8 @@ class Shower(RectangularElement):
         """
         super().__init__(label=label)
         self.anchor_point = anchor_point
-        self.length = 0.9  # Standard shower stall size
-        self.thickness = 0.9  # Standard shower stall size
+        self.length = length
+        self.thickness = thickness
         self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
@@ -137,6 +140,8 @@ class Bathtub(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
+            length: float = 1.7,
+            thickness: float = 0.8,
             color: str = 'black',
             label: str | None = None
     ):
@@ -157,8 +162,8 @@ class Bathtub(RectangularElement):
         """
         super().__init__(label=label)
         self.anchor_point = anchor_point
-        self.length = 1.7  # Standard bathtub length
-        self.thickness = 0.7  # Standard bathtub width
+        self.length = length
+        self.thickness = thickness
         self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
