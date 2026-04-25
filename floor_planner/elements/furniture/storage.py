@@ -186,3 +186,73 @@ class Storage40(GenericStorage):
             color=color,
             label=label
         )
+
+
+class Tabletop(RectangularElement):
+    """
+    Storage box
+
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            length: float,
+            thickness: float = 0.6,
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None
+    ):
+     
+        super().__init__(label=label)
+        self.anchor_point = anchor_point
+        self.length = length
+        self.thickness = thickness
+        self.orientation_angle = orientation_angle
+        self.color = color
+
+        # Room properties (set by Room class if this storage box is part of a room)
+        self.room_id = None
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw storage box."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        linewidth = self.thickness * 3
+
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=linewidth
+        )
+        ax.add_patch(patch)
+        
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness*0.9,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=linewidth / 3
+        )
+        ax.add_patch(patch)
+
+        # Render label and ID
+        render_label_and_id(
+            ax,
+            self,
+            'Storage',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="__",
+            id_prefix="__"
+        )

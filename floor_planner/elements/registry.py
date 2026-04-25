@@ -20,7 +20,7 @@ from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, Switch, WallLamp
 from .multipurpose import Line, Polygon, Circle
 from .room import Room
-from .furniture.storage import GenericStorage, Storage40, Storage60
+from .furniture.storage import GenericStorage, Storage40, Storage60, Tabletop
 from .furniture.bed import DoubleBed, SingleBed
 from .furniture.appliances import (
     Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
@@ -56,6 +56,7 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'generic_storage': GenericStorage,
         'storage60': Storage60,
         'storage40': Storage40,
+        'tabletop': Tabletop,
         'double_bed': DoubleBed,
         'single_bed': SingleBed,
         'dishwasher': Dishwasher,
