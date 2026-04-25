@@ -10,6 +10,7 @@ from floor_planner.elements.furniture.appliances import (
     Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
 )
 from floor_planner.elements.furniture.bathroom import Shower, Bathtub, Basin, Toilet
+from floor_planner.elements.furniture.furniture import Desk, DiningTable, Chair, Sofa
 
 from .basic import Wall, WallND, Window
 from .door import Door
@@ -25,6 +26,7 @@ from .furniture.appliances import (
     Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
 )
 from .furniture.bathroom import Shower, Bathtub, Basin, Toilet
+from .furniture.furniture import Desk, DiningTable, Chair, Sofa
 
 
 def create_elements_registry() -> dict[str, type(Element)]:
@@ -67,7 +69,11 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'shower': Shower,
         'bathtub': Bathtub,
         'basin': Basin,
-        'toilet': Toilet
+        'toilet': Toilet,
+        'desk': Desk,
+        'dining_table': DiningTable,
+        'chair': Chair,
+        'sofa': Sofa
     }
     return registry
 
