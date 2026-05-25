@@ -192,3 +192,50 @@ def render_label_and_id(
         _render_text(ax, position, id_prefix + element.id, rotation, id_color, centered=centered)
 
 
+def render_text_as_label_and_id(
+        ax: matplotlib.axes.Axes,
+        element,
+        text: str | None,
+        element_type: str,
+        position: tuple[float, float],
+        rotation: float,
+        centered: bool = False
+) -> None:
+    """
+    Render custom text and element ID.
+    
+    Similar to render_label_and_id but uses explicit text parameter
+    for the label instead of element.label. This avoids the need for 
+    temporary label swapping when rendering combined/computed labels.
+
+    :param ax:
+        matplotlib axes to draw on
+    :param element:
+        element instance with .id attribute
+    :param text:
+        custom text to render as label (if None or empty, uses element.label)
+    :param element_type:
+        type name for color lookup
+    :param position:
+        (x, y) position for the text
+    :param rotation:
+        rotation angle in degrees
+    :param centered:
+        if True, text will be centered horizontally and vertically at the position
+    """
+    # Render text as label if provided and color is configured
+    if text:
+        label_color = get_label_color(element_type)
+        if label_color is not None:
+            _render_text(ax, position, text, rotation, label_color, centered=centered)
+    elif element.label is not None:
+        label_color = get_label_color(element_type)
+        if label_color is not None:
+            _render_text(ax, position, element.label, rotation, label_color, centered=centered)
+
+    # Render ID if color is configured
+    id_color = get_id_color(element_type)
+    if id_color is not None:
+        _render_text(ax, position, element.id, rotation, id_color, centered=centered)
+
+

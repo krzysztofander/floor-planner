@@ -137,26 +137,17 @@ class CircularVegetation(VegetationElement):
     
     def _render_label_and_id(self, ax: matplotlib.axes.Axes, element_type: str) -> None:
         """Render label and ID for circular element."""
+        from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        if label_text:
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type=element_type,
-                position=(self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1]),
-                rotation=0
-            )
-            self.label = original_label
-        elif self.label:
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type=element_type,
-                position=(self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1]),
-                rotation=0
-            )
+        position = (self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1])
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type=element_type,
+            position=position,
+            rotation=0
+        )
 
 
 class Tree(CircularVegetation):
@@ -248,7 +239,17 @@ class Tree(CircularVegetation):
             self._render_species_and_bloom(ax, 'Tree', 0.2)
 
         # Render label and ID
-        self._render_label_and_id(ax, 'Tree')
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        position = (self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1])
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Tree',
+            position=position,
+            rotation=0
+        )
 
 
 class Shrub(CircularVegetation):
@@ -330,7 +331,17 @@ class Shrub(CircularVegetation):
             self._render_species_and_bloom(ax, 'Shrub', 0.15)
 
         # Render label and ID
-        self._render_label_and_id(ax, 'Shrub')
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        position = (self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1])
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Shrub',
+            position=position,
+            rotation=0
+        )
 
 
 class Hedge(VegetationElement, RectangularElement):
@@ -433,7 +444,25 @@ class Hedge(VegetationElement, RectangularElement):
             self._render_species_and_bloom(ax)
 
         # Render label and ID
-        self._render_label_and_id(ax)
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        center = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        position = (center[0], center[1] + self.thickness / 2 + 0.2)
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Hedge',
+            position=position,
+            rotation=self.orientation_angle
+        )
 
     def _render_species_and_bloom(self, ax: matplotlib.axes.Axes) -> None:
         """Render species and bloom info in center of hedge."""
@@ -504,45 +533,6 @@ class Hedge(VegetationElement, RectangularElement):
                     centered=True
                 )
 
-    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
-        """Render label and ID for hedge."""
-        label_text = self._build_label_text()
-        if label_text:
-            center_x = self.length / 2
-            center_y = self.thickness / 2
-            center = rotate_point(
-                self.anchor_point,
-                center_x,
-                center_y,
-                math.radians(self.orientation_angle)
-            )
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Hedge',
-                position=(center[0], center[1] + self.thickness / 2 + 0.2),
-                rotation=self.orientation_angle
-            )
-            self.label = original_label
-        elif self.label:
-            center_x = self.length / 2
-            center_y = self.thickness / 2
-            center = rotate_point(
-                self.anchor_point,
-                center_x,
-                center_y,
-                math.radians(self.orientation_angle)
-            )
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Hedge',
-                position=(center[0], center[1] + self.thickness / 2 + 0.2),
-                rotation=self.orientation_angle
-            )
-
 
 class Lawn(RectangularElement):
     """Lawn/grass area element."""
@@ -602,7 +592,25 @@ class Lawn(RectangularElement):
         self._draw_grass_texture(ax)
 
         # Render label and ID
-        self._render_label_and_id(ax)
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        center_x = self.length / 2
+        center_y = self.width / 2
+        center = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        position = (center[0], center[1])
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Lawn',
+            position=position,
+            rotation=self.orientation_angle
+        )
 
     def _draw_grass_texture(self, ax: matplotlib.axes.Axes) -> None:
         """Draw subtle texture lines to indicate grass."""
@@ -639,45 +647,6 @@ class Lawn(RectangularElement):
                 color='#228B22',
                 linewidth=0.3,
                 alpha=0.4
-            )
-
-    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
-        """Render label and ID for lawn."""
-        label_text = self._build_label_text()
-        if label_text:
-            center_x = self.length / 2
-            center_y = self.width / 2
-            center = rotate_point(
-                self.anchor_point,
-                center_x,
-                center_y,
-                math.radians(self.orientation_angle)
-            )
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Lawn',
-                position=(center[0], center[1]),
-                rotation=self.orientation_angle
-            )
-            self.label = original_label
-        elif self.label:
-            center_x = self.length / 2
-            center_y = self.width / 2
-            center = rotate_point(
-                self.anchor_point,
-                center_x,
-                center_y,
-                math.radians(self.orientation_angle)
-            )
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Lawn',
-                position=(center[0], center[1]),
-                rotation=self.orientation_angle
             )
 
     def _build_label_text(self) -> str:

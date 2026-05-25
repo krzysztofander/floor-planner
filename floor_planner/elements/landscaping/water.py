@@ -86,7 +86,17 @@ class Fountain(Element):
             self._draw_simple_pattern(ax)
 
         # Render label and ID
-        self._render_label_and_id(ax)
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        position = (self.anchor[0], self.anchor[1] + self.diameter / 2 + 0.3)
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Fountain',
+            position=position,
+            rotation=0
+        )
 
     def _draw_tiered_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw concentric circles for tiered fountain."""
@@ -151,29 +161,6 @@ class Fountain(Element):
                 alpha=0.5
             )
             ax.add_patch(ripple)
-
-    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
-        """Render label and ID for fountain."""
-        label_text = self._build_label_text()
-        if label_text:
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Fountain',
-                position=(self.anchor[0], self.anchor[1] + self.diameter / 2 + 0.3),
-                rotation=0
-            )
-            self.label = original_label
-        elif self.label:
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Fountain',
-                position=(self.anchor[0], self.anchor[1] + self.diameter / 2 + 0.3),
-                rotation=0
-            )
 
     def _build_label_text(self) -> str:
         """Build label text with style and height info."""
@@ -241,7 +228,17 @@ class Pond(Element):
         self._draw_water_ripples(ax)
 
         # Render label and ID
-        self._render_label_and_id(ax)
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        position = (self.anchor[0], self.anchor[1] + self.width / 2 + 0.3)
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Pond',
+            position=position,
+            rotation=0
+        )
 
     def _draw_oval_pond(self, ax: matplotlib.axes.Axes) -> None:
         """Draw oval-shaped pond using ellipse."""
@@ -399,29 +396,6 @@ class Pond(Element):
                 )
                 ax.add_patch(ripple)
 
-    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
-        """Render label and ID for pond."""
-        label_text = self._build_label_text()
-        if label_text:
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Pond',
-                position=(self.anchor[0], self.anchor[1] + self.width / 2 + 0.3),
-                rotation=0
-            )
-            self.label = original_label
-        elif self.label:
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Pond',
-                position=(self.anchor[0], self.anchor[1] + self.width / 2 + 0.3),
-                rotation=0
-            )
-
     def _build_label_text(self) -> str:
         """Build label text with shape info."""
         parts = []
@@ -517,7 +491,17 @@ class RectPool(Element):
         self._draw_water_shimmer(ax, x, y)
 
         # Render label and ID
-        self._render_label_and_id(ax)
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        position = (self.anchor[0], self.anchor[1] + self.height / 2 + 0.4)
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Pool',
+            position=position,
+            rotation=0
+        )
 
     def _draw_lane_lines(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
         """Draw lane divider lines."""
@@ -571,29 +555,6 @@ class RectPool(Element):
                 alpha=random.uniform(0.1, 0.3)
             )
             ax.add_patch(shimmer)
-
-    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
-        """Render label and ID for pool."""
-        label_text = self._build_label_text()
-        if label_text:
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Pool',
-                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
-                rotation=0
-            )
-            self.label = original_label
-        elif self.label:
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Pool',
-                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
-                rotation=0
-            )
 
     def _build_label_text(self) -> str:
         """Build label text with dimensions."""
@@ -679,7 +640,17 @@ class OvalPool(Element):
         self._draw_water_shimmer(ax)
 
         # Render label and ID
-        self._render_label_and_id(ax)
+        from ...utils import render_text_as_label_and_id
+        label_text = self._build_label_text()
+        position = (self.anchor[0], self.anchor[1] + self.height / 2 + 0.4)
+        render_text_as_label_and_id(
+            ax=ax,
+            element=self,
+            text=label_text,
+            element_type='Pool',
+            position=position,
+            rotation=0
+        )
 
     def _draw_steps(self, ax: matplotlib.axes.Axes) -> None:
         """Draw semi-circular entry steps."""
@@ -720,29 +691,6 @@ class OvalPool(Element):
                 alpha=random.uniform(0.1, 0.3)
             )
             ax.add_patch(shimmer)
-
-    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
-        """Render label and ID for pool."""
-        label_text = self._build_label_text()
-        if label_text:
-            original_label = self.label
-            self.label = label_text
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Pool',
-                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
-                rotation=0
-            )
-            self.label = original_label
-        elif self.label:
-            render_label_and_id(
-                ax=ax,
-                element=self,
-                element_type='Pool',
-                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
-                rotation=0
-            )
 
     def _build_label_text(self) -> str:
         """Build label text with dimensions."""
