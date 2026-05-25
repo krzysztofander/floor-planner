@@ -77,9 +77,23 @@ Rooms have:
 - **Actual floor plans**: `/home/krzysztof/work/excercises/rzuty/`
 - **Virtual env**: `.venv/` in renovation folder
 
+## Feature Development Workflow
+
+### For Complex Multi-Step Features
+1. Check `docs/features/` for existing feature design documents
+2. Check `/memories/repo/planned-features.md` for planned work
+3. If implementing from a feature doc, follow its implementation plan
+4. Use session memory to track progress during development
+5. Update feature docs with learnings and decisions
+
+### For Simple Features
+- Add to `/memories/repo/planned-features.md` with steps
+- Implement directly with session memory tracking
+
 ## When Helping with Development
 - Check element types in `floor_planner/elements/` for available classes
 - Reference examples in `examples/templates/rooms/` for patterns
 - Respect the anchor point system when positioning elements
 - Use constants/variables for dimensions that might change
 - Test changes by running against example configs
+- See `docs/features/README.md` for detailed feature development workflow
