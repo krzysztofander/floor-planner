@@ -1,10 +1,11 @@
 PYTHON = .venv/bin/python3
 PYSRC = $(wildcard floor_planner/*.py)
 PYSRC += $(wildcard floor_planner/elements/*.py)
+PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
 
-.PHONY: all clean room_templates playground elements  furniture simple
+.PHONY: all clean room_templates playground elements furniture simple landscaping
 
-all: room_templates elements furniture playground simple
+all: room_templates elements furniture playground simple landscaping
 
 # ==========================================
 
@@ -62,6 +63,15 @@ $(SIMPLE_PNG): examples/simple_no_rooms/simple_floor_plan.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
+# LANDSCAPING
+# -----------
+LANDSCAPING_PNG = examples/landscaping/Vegetation\ Elements.png
+landscaping: $(LANDSCAPING_PNG)
+
+$(LANDSCAPING_PNG): examples/landscaping/vegetation_demo.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
 
 # Clean generated outputs
 clean:
@@ -69,4 +79,5 @@ clean:
 	rm -f $(ELEMENTS_PNG)
 	rm -f $(DOORS_AND_WINDOWS_PNG)
 	rm -f $(SIMPLE_PNG)
+	rm -f $(LANDSCAPING_PNG)
 

@@ -143,8 +143,29 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                         f.write(f"| {element.id} | {element_type} |\n")
                     f.write("\n")
 
+        # Report landscaping elements with detailed information
+        landscaping_types = ['Tree', 'Shrub', 'Hedge']
+        for element_type in landscaping_types:
+            if element_type in grouped:
+                f.write(f"## {element_type}s\n\n")
+                f.write(f"Total count: {len(grouped[element_type])}\n\n")
+                f.write("| ID | Species | Height (m) | Bloom Season | Bloom Color |\n")
+                f.write("|---|---|---|---|---|\n")
+                for element in grouped[element_type]:
+                    species = element.species if hasattr(element, 'species') and element.species else '-'
+                    height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
+                    bloom_season = '-'
+                    if hasattr(element, 'bloom_season_start') and element.bloom_season_start:
+                        if hasattr(element, 'bloom_season_end') and element.bloom_season_end:
+                            bloom_season = f"{element.bloom_season_start} - {element.bloom_season_end}"
+                        else:
+                            bloom_season = element.bloom_season_start
+                    bloom_color = element.bloom_color if hasattr(element, 'bloom_color') and element.bloom_color else '-'
+                    f.write(f"| {element.id} | {species} | {height} | {bloom_season} | {bloom_color} |\n")
+                f.write("\n")
+
         # Report other element types
-        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room']]
+        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge']]
         if other_types:
             f.write("## Other Elements\n\n")
             for element_type in sorted(other_types):

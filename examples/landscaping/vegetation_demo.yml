@@ -1,0 +1,187 @@
+project:
+  dpi: 600
+  pdf_file: null
+  png_dir: "."
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [20, 15]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: null
+  grid_minor_step: null
+
+default_options:
+  label_color: 'black'
+  dimensions: false
+  id_color: 'gray'
+
+reusable_elements:
+  # Row 1: Plants with bloom season data (top row)
+  # Row 2: Plants without bloom season data (bottom row)
+  vegetation:
+    # Row 1 - With bloom season
+    - type: tree
+      anchor: [3.0, 10.0]
+      diameter: 3.0
+      height: 6.0
+      trunk_diameter: 0.4
+      color: '#90EE90'
+      label: 'Cherry'
+      species: 'cherry'
+      bloom_season_start: '15.04'
+      bloom_season_end: '30.04'
+      bloom_color: '#FFB6C1'
+    
+    - type: shrub
+      anchor: [8.0, 10.0]
+      diameter: 1.5
+      height: 1.2
+      color: '#90EE90'
+      label: 'Lavender'
+      species: 'lavandula'
+      bloom_season_start: '15.06'
+      bloom_season_end: '31.08'
+      bloom_color: '#E6E6FA'
+    
+    - type: hedge
+      anchor: [12.0, 9.75]
+      length: 4.0
+      thickness: 0.5
+      height: 1.5
+      orientation_angle: 0
+      color: '#556B2F'
+      label: 'Flowering Hedge'
+      species: 'ligustrum'
+      bloom_season_start: '01.04'
+      bloom_season_end: '30.04'
+      bloom_color: '#FFD700'
+    
+    # Row 2 - Without bloom season
+    - type: tree
+      anchor: [3.0, 5.0]
+      diameter: 3.0
+      height: 6.0
+      trunk_diameter: 0.4
+      color: '#228B22'
+      label: 'Oak'
+      species: 'quercus'
+    
+    - type: shrub
+      anchor: [8.0, 5.0]
+      diameter: 1.5
+      height: 1.2
+      color: '#90EE90'
+      label: 'Rose Bush'
+      species: 'rosa'
+    
+    - type: hedge
+      anchor: [12.0, 4.75]
+      length: 4.0
+      thickness: 0.5
+      height: 1.5
+      orientation_angle: 0
+      color: '#556B2F'
+      label: 'Privacy Hedge'
+      species: 'ligustrum'
+
+floor_plans:
+  # Case 1: No species text, no bloom overlay
+  - title:
+      text: 'Case 1: No Species - No Bloom'
+      font_size: 16
+    options:
+      Tree:
+        show_species: false
+        show_bloom: false
+      Shrub:
+        show_species: false
+        show_bloom: false
+      Hedge:
+        show_species: false
+        show_bloom: false
+    inherited_elements:
+      - vegetation
+    elements:
+      - type: text_box
+        anchor_point: [8.0, 1.5]
+        lines:
+          - 'Row 1 (top): with bloom data | Row 2 (bottom): without bloom data'
+          - 'Neither species nor bloom text displayed'
+        font_size: 10
+        transparency: 0.0
+
+  # Case 2: Just species text (no bloom)
+  - title:
+      text: 'Case 2: Species Only - No Bloom'
+      font_size: 16
+    options:
+      Tree:
+        show_species: true
+        show_bloom: false
+      Shrub:
+        show_species: true
+        show_bloom: false
+      Hedge:
+        show_species: true
+        show_bloom: false
+    inherited_elements:
+      - vegetation
+    elements:
+      - type: text_box
+        anchor_point: [8.0, 1.5]
+        lines:
+          - 'Row 1 (top): with bloom data | Row 2 (bottom): without bloom data'
+          - 'Species names shown in center (black text)'
+        font_size: 10
+        transparency: 0.0
+
+  # Case 3: Bloom overlay only (no species text)
+  - title:
+      text: 'Case 3: Bloom Overlay Only - No Species Text'
+      font_size: 16
+    options:
+      Tree:
+        show_species: false
+        show_bloom: true
+      Shrub:
+        show_species: false
+        show_bloom: true
+      Hedge:
+        show_species: false
+        show_bloom: true
+    inherited_elements:
+      - vegetation
+    elements:
+      - type: text_box
+        anchor_point: [8.0, 1.5]
+        lines:
+          - 'Row 1 (top): with bloom data showing overlays | Row 2 (bottom): without bloom data'
+          - 'Bloom text visible (dark red) but no species'
+        font_size: 10
+        transparency: 0.0
+
+  # Case 4: Both species text and bloom overlay
+  - title:
+      text: 'Case 4: Species + Bloom (Both)'
+      font_size: 16
+    options:
+      Tree:
+        show_species: true
+        show_bloom: true
+      Shrub:
+        show_species: true
+        show_bloom: true
+      Hedge:
+        show_species: true
+        show_bloom: true
+    inherited_elements:
+      - vegetation
+    elements:
+      - type: text_box
+        anchor_point: [8.0, 1.5]
+        lines:
+          - 'Row 1 (top): with bloom data showing both | Row 2 (bottom): only species'
+          - 'Both species (black) and bloom text (dark red) visible when available'
+        font_size: 10
+        transparency: 0.0

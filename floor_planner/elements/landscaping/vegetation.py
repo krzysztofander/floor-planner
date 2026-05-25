@@ -1,0 +1,544 @@
+"""
+Vegetation elements: trees, shrubs, hedges.
+
+Author: Krzysztof Bartczak
+"""
+
+import math
+
+import matplotlib.axes
+from matplotlib.patches import Circle, Rectangle
+
+from ...utils import rotate_point, render_label_and_id, _render_text
+from ..element import Element, RectangularElement
+from ..options import get_show_species, get_show_bloom
+
+
+class VegetationElement(Element):
+    """Base class for vegetation elements with common attributes."""
+    
+    def __init__(
+            self,
+            height: float,
+            label: str | None = None,
+            species: str | None = None,
+            bloom_season_start: str | None = None,
+            bloom_season_end: str | None = None,
+            bloom_color: str | None = None
+    ):
+        """Initialize common vegetation attributes."""
+        super().__init__(label=label)
+        self.height = height
+        self.species = species
+        self.bloom_season_start = bloom_season_start
+        self.bloom_season_end = bloom_season_end
+        self.bloom_color = bloom_color
+        self.room_id = None
+    
+    def _build_label_text(self) -> str:
+        """Build label text with species, height, and bloom info."""
+        parts = []
+        if self.label:
+            parts.append(self.label)
+        if self.species:
+            parts.append(f"({self.species})")
+        if self.height:
+            parts.append(f"h={self.height}m")
+        if self.bloom_season_start and self.bloom_season_end:
+            parts.append(f"bloom: {self.bloom_season_start}-{self.bloom_season_end}")
+        return " ".join(parts) if parts else ""
+
+
+class CircularVegetation(VegetationElement):
+    """Base class for circular vegetation elements (Tree, Shrub)."""
+    
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            diameter: float,
+            height: float,
+            color: str,
+            label: str | None = None,
+            species: str | None = None,
+            bloom_season_start: str | None = None,
+            bloom_season_end: str | None = None,
+            bloom_color: str | None = None
+    ):
+        """Initialize circular vegetation element."""
+        super().__init__(
+            height=height,
+            label=label,
+            species=species,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color
+        )
+        self.anchor = anchor
+        self.diameter = diameter
+        self.color = color
+    
+    def _draw_main_circle(self, ax: matplotlib.axes.Axes, alpha: float = 0.8) -> None:
+        """Draw the main circular shape (canopy/bush)."""
+        circle = Circle(
+            self.anchor,
+            self.diameter / 2,
+            facecolor=self.color,
+            edgecolor='darkgreen',
+            linewidth=1.5,
+            alpha=alpha
+        )
+        ax.add_patch(circle)
+    
+    def _render_species_and_bloom(self, ax: matplotlib.axes.Axes, element_type: str, vertical_offset: float) -> None:
+        """Render species and bloom info in center of circular element."""
+        has_species = self.species is not None
+        has_bloom = self.bloom_season_start or self.bloom_season_end
+        show_species = get_show_species(element_type)
+        show_bloom = get_show_bloom(element_type)
+        
+        if not has_species and not has_bloom:
+            return
+        
+        fontsize = 12
+        
+        # Render species at center (always horizontal) if enabled and present
+        if show_species and has_species:
+            species_y = self.anchor[1] + vertical_offset if (show_bloom and has_bloom) else self.anchor[1]
+            _render_text(
+                ax=ax,
+                position=(self.anchor[0], species_y),
+                text=self.species,
+                rotation=0,
+                color='black',
+                fontsize=fontsize,
+                centered=True
+            )
+        
+        # Render bloom info if present and enabled
+        if show_bloom and has_bloom:
+            bloom_text = ''
+            if self.bloom_season_start and self.bloom_season_end:
+                bloom_text = f"{self.bloom_season_start}-{self.bloom_season_end}"
+            elif self.bloom_season_start:
+                bloom_text = self.bloom_season_start
+            
+            if bloom_text:
+                # Position depends on whether species is shown
+                bloom_y = self.anchor[1] - vertical_offset if (show_species and has_species) else self.anchor[1]
+                _render_text(
+                    ax=ax,
+                    position=(self.anchor[0], bloom_y),
+                    text=bloom_text,
+                    rotation=0,
+                    color='darkred',
+                    fontsize=fontsize,
+                    centered=True
+                )
+    
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes, element_type: str) -> None:
+        """Render label and ID for circular element."""
+        label_text = self._build_label_text()
+        if label_text:
+            original_label = self.label
+            self.label = label_text
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type=element_type,
+                position=(self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1]),
+                rotation=0
+            )
+            self.label = original_label
+        elif self.label:
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type=element_type,
+                position=(self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1]),
+                rotation=0
+            )
+
+
+class Tree(CircularVegetation):
+    """Tree with circular canopy and trunk."""
+
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            diameter: float,
+            height: float,
+            trunk_diameter: float = 0.3,
+            color: str = '#228B22',
+            label: str | None = None,
+            species: str | None = None,
+            bloom_season_start: str | None = None,
+            bloom_season_end: str | None = None,
+            bloom_color: str | None = None
+    ):
+        """
+        Initialize a Tree instance.
+
+        :param anchor:
+            coordinates of anchor point (center of tree canopy)
+        :param diameter:
+            canopy diameter in meters
+        :param height:
+            tree height in meters (for label/info)
+        :param trunk_diameter:
+            trunk diameter in meters
+        :param color:
+            color for the canopy
+        :param label:
+            optional label for the tree
+        :param species:
+            optional species name
+        :param bloom_season_start:
+            optional bloom start date in dd.mm format
+        :param bloom_season_end:
+            optional bloom end date in dd.mm format
+        :param bloom_color:
+            optional bloom color (used during bloom season)
+        """
+        super().__init__(
+            anchor=anchor,
+            diameter=diameter,
+            height=height,
+            color=color,
+            label=label,
+            species=species,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color
+        )
+        self.trunk_diameter = trunk_diameter
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the tree with trunk and canopy."""
+        # Draw trunk (small circle)
+        trunk = Circle(
+            self.anchor,
+            self.trunk_diameter / 2,
+            facecolor='#8B4513',  # saddle brown
+            edgecolor='#654321',
+            linewidth=1.0
+        )
+        ax.add_patch(trunk)
+
+        # Draw canopy using base class method
+        self._draw_main_circle(ax, alpha=0.7)
+
+        # Draw bloom overlay if enabled and in season
+        show_bloom = get_show_bloom('Tree')
+        if show_bloom and self.bloom_color and self.bloom_season_start and self.bloom_season_end:
+            bloom_halo = Circle(
+                self.anchor,
+                self.diameter / 2,
+                facecolor='none',
+                edgecolor=self.bloom_color,
+                linewidth=3.0,
+                linestyle='--',
+                alpha=0.6
+            )
+            ax.add_patch(bloom_halo)
+
+        # Render species and bloom text in center
+        show_species = get_show_species('Tree')
+        has_bloom = self.bloom_season_start or self.bloom_season_end
+        if show_species or (show_bloom and has_bloom):
+            self._render_species_and_bloom(ax, 'Tree', 0.2)
+
+        # Render label and ID
+        self._render_label_and_id(ax, 'Tree')
+
+
+class Shrub(CircularVegetation):
+    """Shrub with circular canopy."""
+
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            diameter: float,
+            height: float,
+            color: str = '#90EE90',
+            label: str | None = None,
+            species: str | None = None,
+            bloom_season_start: str | None = None,
+            bloom_season_end: str | None = None,
+            bloom_color: str | None = None
+    ):
+        """
+        Initialize a Shrub instance.
+
+        :param anchor:
+            coordinates of anchor point (center of shrub)
+        :param diameter:
+            shrub diameter in meters
+        :param height:
+            shrub height in meters (for label/info)
+        :param color:
+            color for the shrub
+        :param label:
+            optional label for the shrub
+        :param species:
+            optional species name
+        :param bloom_season_start:
+            optional bloom start date in dd.mm format
+        :param bloom_season_end:
+            optional bloom end date in dd.mm format
+        :param bloom_color:
+            optional bloom color (used during bloom season)
+        """
+        super().__init__(
+            anchor=anchor,
+            diameter=diameter,
+            height=height,
+            color=color,
+            label=label,
+            species=species,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color
+        )
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the shrub as a circle."""
+        # Draw main shrub circle using base class method
+        self._draw_main_circle(ax, alpha=0.8)
+
+        # Draw bloom overlay if enabled and in season
+        show_bloom = get_show_bloom('Shrub')
+        if show_bloom and self.bloom_color and self.bloom_season_start and self.bloom_season_end:
+            # Add multiple small circles to represent flowers
+            for i in range(5):
+                angle = i * (2 * math.pi / 5)
+                offset_x = (self.diameter / 3) * math.cos(angle)
+                offset_y = (self.diameter / 3) * math.sin(angle)
+                bloom = Circle(
+                    (self.anchor[0] + offset_x, self.anchor[1] + offset_y),
+                    self.diameter / 8,
+                    facecolor=self.bloom_color,
+                    edgecolor=self.bloom_color,
+                    linewidth=0.5,
+                    alpha=0.7
+                )
+                ax.add_patch(bloom)
+
+        # Render species and bloom text in center
+        show_species = get_show_species('Shrub')
+        has_bloom = self.bloom_season_start or self.bloom_season_end
+        if show_species or (show_bloom and has_bloom):
+            self._render_species_and_bloom(ax, 'Shrub', 0.15)
+
+        # Render label and ID
+        self._render_label_and_id(ax, 'Shrub')
+
+
+class Hedge(VegetationElement, RectangularElement):
+    """Linear hedge element."""
+
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            length: float,
+            thickness: float,
+            height: float,
+            color: str = '#556B2F',
+            orientation_angle: float = 0,
+            label: str | None = None,
+            species: str | None = None,
+            bloom_season_start: str | None = None,
+            bloom_season_end: str | None = None,
+            bloom_color: str | None = None
+    ):
+        """
+        Initialize a Hedge instance.
+
+        :param anchor:
+            coordinates of anchor point (bottom-left corner)
+        :param length:
+            hedge length in meters
+        :param thickness:
+            hedge thickness in meters
+        :param height:
+            hedge height in meters (for label/info)
+        :param color:
+            color for the hedge
+        :param orientation_angle:
+            rotation angle in degrees
+        :param label:
+            optional label for the hedge
+        :param species:
+            optional species name
+        :param bloom_season_start:
+            optional bloom start date in dd.mm format
+        :param bloom_season_end:
+            optional bloom end date in dd.mm format
+        :param bloom_color:
+            optional bloom color (used during bloom season)
+        """
+        VegetationElement.__init__(
+            self,
+            height=height,
+            label=label,
+            species=species,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color
+        )
+        self.anchor_point = anchor
+        self.length = length
+        self.thickness = thickness
+        self.color = color
+        self.orientation_angle = orientation_angle
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the hedge as a thick rectangle."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        # Draw main hedge rectangle
+        hedge = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            edgecolor='darkgreen',
+            linewidth=1.5,
+            alpha=0.7
+        )
+        ax.add_patch(hedge)
+
+        # Draw bloom overlay if enabled and in season
+        show_bloom = get_show_bloom('Hedge')
+        if show_bloom and self.bloom_color and self.bloom_season_start and self.bloom_season_end:
+            bloom_overlay = Rectangle(
+                self.anchor_point,
+                self.length,
+                self.thickness,
+                angle=self.orientation_angle,
+                facecolor='none',
+                edgecolor=self.bloom_color,
+                linewidth=3.0,
+                linestyle='--',
+                alpha=0.6
+            )
+            ax.add_patch(bloom_overlay)
+
+        # Render species and bloom info in center
+        show_species = get_show_species('Hedge')
+        has_bloom = self.bloom_season_start or self.bloom_season_end
+        if show_species or (show_bloom and has_bloom):
+            self._render_species_and_bloom(ax)
+
+        # Render label and ID
+        self._render_label_and_id(ax)
+
+    def _render_species_and_bloom(self, ax: matplotlib.axes.Axes) -> None:
+        """Render species and bloom info in center of hedge."""
+        has_species = self.species is not None
+        has_bloom = self.bloom_season_start or self.bloom_season_end
+        show_species = get_show_species('Hedge')
+        show_bloom = get_show_bloom('Hedge')
+        
+        if not has_species and not has_bloom:
+            return
+        
+        # Calculate center position
+        center_x = self.length / 2
+        center_y = self.thickness / 2
+        center = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+        
+        fontsize = 12
+        offset = 0.15 if (has_bloom and show_species and has_species and show_bloom) else 0
+        
+        # Calculate offset perpendicular to hedge direction
+        angle_rad = math.radians(self.orientation_angle)
+        perp_angle_rad = angle_rad + math.pi / 2
+        
+        # Render species at center (rotated with hedge) if enabled and present
+        if show_species and has_species:
+            species_pos_x = center[0] + offset * math.cos(perp_angle_rad)
+            species_pos_y = center[1] + offset * math.sin(perp_angle_rad)
+            
+            _render_text(
+                ax=ax,
+                position=(species_pos_x, species_pos_y),
+                text=self.species,
+                rotation=self.orientation_angle,
+                color='black',
+                fontsize=fontsize,
+                centered=True
+            )
+        
+        # Render bloom info if present and enabled
+        if show_bloom and has_bloom:
+            bloom_text = ''
+            if self.bloom_season_start and self.bloom_season_end:
+                bloom_text = f"{self.bloom_season_start}-{self.bloom_season_end}"
+            elif self.bloom_season_start:
+                bloom_text = self.bloom_season_start
+            
+            if bloom_text:
+                # Position depends on whether species is shown
+                if show_species and has_species:
+                    bloom_pos_x = center[0] - offset * math.cos(perp_angle_rad)
+                    bloom_pos_y = center[1] - offset * math.sin(perp_angle_rad)
+                else:
+                    bloom_pos_x = center[0]
+                    bloom_pos_y = center[1]
+                    
+                _render_text(
+                    ax=ax,
+                    position=(bloom_pos_x, bloom_pos_y),
+                    text=bloom_text,
+                    rotation=self.orientation_angle,
+                    color='darkred',
+                    fontsize=fontsize,
+                    centered=True
+                )
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID for hedge."""
+        label_text = self._build_label_text()
+        if label_text:
+            center_x = self.length / 2
+            center_y = self.thickness / 2
+            center = rotate_point(
+                self.anchor_point,
+                center_x,
+                center_y,
+                math.radians(self.orientation_angle)
+            )
+            original_label = self.label
+            self.label = label_text
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Hedge',
+                position=(center[0], center[1] + self.thickness / 2 + 0.2),
+                rotation=self.orientation_angle
+            )
+            self.label = original_label
+        elif self.label:
+            center_x = self.length / 2
+            center_y = self.thickness / 2
+            center = rotate_point(
+                self.anchor_point,
+                center_x,
+                center_y,
+                math.radians(self.orientation_angle)
+            )
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Hedge',
+                position=(center[0], center[1] + self.thickness / 2 + 0.2),
+                rotation=self.orientation_angle
+            )

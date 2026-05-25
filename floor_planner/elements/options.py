@@ -66,6 +66,16 @@ def get_show_invisible() -> bool:
     return get_element_option('Wall', 'show_invisible', False)
 
 
+def get_show_species(element_type: str) -> bool:
+    """Get show_species configuration for landscaping elements (Tree, Shrub, Hedge)."""
+    return get_element_option(element_type, 'show_species', False)
+
+
+def get_show_bloom(element_type: str) -> bool:
+    """Get show_bloom configuration for landscaping elements (Tree, Shrub, Hedge)."""
+    return get_element_option(element_type, 'show_bloom', False)
+
+
 def generate_element_id(element_type: str, label: str | None = None) -> str:
     """Generate unique ID for an element.
     

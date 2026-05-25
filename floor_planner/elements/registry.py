@@ -28,6 +28,7 @@ from .furniture.appliances import (
 from .furniture.bathroom import Shower, Bathtub, Basin, Toilet
 from .furniture.furniture import Desk, DiningTable, Chair, Sofa
 from .furniture.decorations import FishTank
+from .landscaping import Tree, Shrub, Hedge
 
 
 def create_elements_registry() -> dict[str, type(Element)]:
@@ -76,7 +77,10 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'dining_table': DiningTable,
         'chair': Chair,
         'sofa': Sofa,
-        'fish_tank': FishTank
+        'fish_tank': FishTank,
+        'tree': Tree,
+        'shrub': Shrub,
+        'hedge': Hedge
     }
     return registry
 

@@ -191,13 +191,30 @@ Vegetation elements with bloom_season_start and bloom_season_end will:
 
 ## Implementation Plan
 
-### Phase 1: Vegetation Foundation (4-6 hours)
-- [ ] Create `floor_planner/elements/landscaping/` package structure
-- [ ] Implement `Tree` class with diameter, height, trunk_diameter, bloom attributes
-- [ ] Implement `Shrub` class with diameter, height, bloom attributes
-- [ ] Implement `Hedge` class with length, thickness, height, bloom attributes
-- [ ] Add bloom season rendering logic (date parsing, color overlay)
-- [ ] Register vegetation elements in registry
+### Phase 1: Vegetation Foundation ✅ COMPLETE (May 25, 2024)
+- ✅ Create `floor_planner/elements/landscaping/` package structure
+- ✅ Implement `Tree` class with diameter, height, trunk_diameter, bloom attributes
+- ✅ Implement `Shrub` class with diameter, height, bloom attributes
+- ✅ Implement `Hedge` class with length, thickness, height, bloom attributes
+- ✅ Add bloom season rendering logic (color overlay for trees/hedges, flower circles for shrubs)
+- ✅ Register vegetation elements in registry
+- ✅ Create example config: `examples/landscaping/vegetation_demo.yml`
+- ✅ Add Makefile target: `make landscaping`
+- ✅ Verify with full regression test: `make all`
+
+**Implementation Notes**:
+- Registry keys must be lowercase ('tree', 'shrub', 'hedge')
+- Project config requires `dpi`, `pdf_file`, and `png_dir` keys
+- `render_label_and_id()` signature: `(ax, element, element_type, position, rotation, ...)`
+- Bloom overlays: dashed halos for trees/hedges, small circles for shrubs
+- All elements support species, height, and optional bloom seasons (dd.mm format)
+- **Species rendering**: Enable with `show_species: true` in element options (Tree/Shrub/Hedge)
+  - Species text renders in center of element
+  - Circular elements (Tree, Shrub): always horizontal text
+  - Hedges: text follows hedge rotation
+  - Bloom season renders below species when specified
+  - Bloom text color matches bloom_color attribute
+- **Markdown reports**: Include species, height, bloom season, and bloom color for all vegetation elements
 - [ ] Create `examples/landscaping/vegetation_demo.yml` with bloom examples
 - [ ] Run `make all` to test
 
