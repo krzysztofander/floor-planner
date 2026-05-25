@@ -430,3 +430,324 @@ class Pond(Element):
         if self.shape:
             parts.append(f"({self.shape})")
         return " ".join(parts) if parts else ""
+
+
+class RectPool(Element):
+    """Rectangular swimming pool element for garden/summer use."""
+
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            width: float,
+            height: float,
+            pool_color: str = '#00BFFF',
+            border_color: str = '#B0C4DE',
+            show_lanes: bool = False,
+            show_steps: bool = True,
+            label: str | None = None
+    ):
+        """
+        Initialize a RectPool instance.
+
+        :param anchor:
+            coordinates of center point
+        :param width:
+            pool width in meters
+        :param height:
+            pool height (length) in meters
+        :param pool_color:
+            color for pool water (default bright blue)
+        :param border_color:
+            color for pool edge/border
+        :param show_lanes:
+            whether to show lane lines
+        :param show_steps:
+            whether to show entry steps
+        :param label:
+            optional label for the pool
+        """
+        super().__init__(label=label)
+        self.anchor = anchor
+        self.width = width
+        self.height = height
+        self.pool_color = pool_color
+        self.border_color = border_color
+        self.show_lanes = show_lanes
+        self.show_steps = show_steps
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the rectangular swimming pool."""
+        x = self.anchor[0] - self.width / 2
+        y = self.anchor[1] - self.height / 2
+
+        # Draw pool border/edge
+        from matplotlib.patches import Rectangle
+        border = Rectangle(
+            (x - 0.15, y - 0.15),
+            self.width + 0.3,
+            self.height + 0.3,
+            facecolor=self.border_color,
+            edgecolor='black',
+            linewidth=2,
+            alpha=0.9
+        )
+        ax.add_patch(border)
+
+        # Draw water surface
+        water = Rectangle(
+            (x, y),
+            self.width,
+            self.height,
+            facecolor=self.pool_color,
+            edgecolor='#4682B4',
+            linewidth=1,
+            alpha=0.7
+        )
+        ax.add_patch(water)
+
+        # Draw lane lines if enabled
+        if self.show_lanes:
+            self._draw_lane_lines(ax, x, y)
+
+        # Draw steps if enabled
+        if self.show_steps:
+            self._draw_steps(ax, x, y)
+
+        # Draw water shimmer effect
+        self._draw_water_shimmer(ax, x, y)
+
+        # Render label and ID
+        self._render_label_and_id(ax)
+
+    def _draw_lane_lines(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
+        """Draw lane divider lines."""
+        # Draw 2-3 vertical lane lines
+        num_lanes = max(2, int(self.width / 2.5))
+        for i in range(1, num_lanes):
+            lane_x = x + (i / num_lanes) * self.width
+            # Dashed line
+            line_segments = 10
+            for j in range(line_segments):
+                if j % 2 == 0:  # Draw every other segment
+                    seg_y_start = y + (j / line_segments) * self.height
+                    seg_y_end = y + ((j + 0.8) / line_segments) * self.height
+                    ax.plot([lane_x, lane_x], [seg_y_start, seg_y_end],
+                           color='white', linewidth=1, alpha=0.6)
+
+    def _draw_steps(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
+        """Draw entry steps at one corner."""
+        # Draw steps in bottom-left corner
+        step_width = min(0.8, self.width * 0.2)
+        step_height = min(1.0, self.height * 0.25)
+        
+        num_steps = 3
+        for i in range(num_steps):
+            step_offset = (i / num_steps) * step_width
+            step_rect = mpatches.Rectangle(
+                (x + step_offset, y),
+                step_width - step_offset,
+                step_height,
+                facecolor='#4169E1',
+                edgecolor='white',
+                linewidth=0.8,
+                alpha=0.5
+            )
+            ax.add_patch(step_rect)
+
+    def _draw_water_shimmer(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
+        """Draw subtle water shimmer effects."""
+        random.seed(46)
+        # Draw a few random light reflections
+        num_shimmers = int(self.width * self.height * 0.5)
+        for _ in range(num_shimmers):
+            shimmer_x = x + random.uniform(0, self.width)
+            shimmer_y = y + random.uniform(0, self.height)
+            size = random.uniform(0.05, 0.15)
+            shimmer = Circle(
+                (shimmer_x, shimmer_y),
+                size,
+                facecolor='white',
+                edgecolor='none',
+                alpha=random.uniform(0.1, 0.3)
+            )
+            ax.add_patch(shimmer)
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID for pool."""
+        label_text = self._build_label_text()
+        if label_text:
+            original_label = self.label
+            self.label = label_text
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Pool',
+                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
+                rotation=0
+            )
+            self.label = original_label
+        elif self.label:
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Pool',
+                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
+                rotation=0
+            )
+
+    def _build_label_text(self) -> str:
+        """Build label text with dimensions."""
+        parts = []
+        if self.label:
+            parts.append(self.label)
+        parts.append(f"{self.width}m×{self.height}m")
+        return " ".join(parts)
+
+
+class OvalPool(Element):
+    """Oval swimming pool element for garden/summer use."""
+
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            width: float,
+            height: float,
+            pool_color: str = '#00BFFF',
+            border_color: str = '#B0C4DE',
+            show_steps: bool = True,
+            label: str | None = None
+    ):
+        """
+        Initialize an OvalPool instance.
+
+        :param anchor:
+            coordinates of center point
+        :param width:
+            pool width in meters
+        :param height:
+            pool height (length) in meters
+        :param pool_color:
+            color for pool water (default bright blue)
+        :param border_color:
+            color for pool edge/border
+        :param show_steps:
+            whether to show entry steps
+        :param label:
+            optional label for the pool
+        """
+        super().__init__(label=label)
+        self.anchor = anchor
+        self.width = width
+        self.height = height
+        self.pool_color = pool_color
+        self.border_color = border_color
+        self.show_steps = show_steps
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the oval swimming pool."""
+        from matplotlib.patches import Ellipse
+
+        # Draw pool border/edge (slightly larger ellipse)
+        border = Ellipse(
+            self.anchor,
+            self.width + 0.3,
+            self.height + 0.3,
+            facecolor=self.border_color,
+            edgecolor='black',
+            linewidth=2,
+            alpha=0.9
+        )
+        ax.add_patch(border)
+
+        # Draw water surface
+        water = Ellipse(
+            self.anchor,
+            self.width,
+            self.height,
+            facecolor=self.pool_color,
+            edgecolor='#4682B4',
+            linewidth=1,
+            alpha=0.7
+        )
+        ax.add_patch(water)
+
+        # Draw steps if enabled
+        if self.show_steps:
+            self._draw_steps(ax)
+
+        # Draw water shimmer effect
+        self._draw_water_shimmer(ax)
+
+        # Render label and ID
+        self._render_label_and_id(ax)
+
+    def _draw_steps(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw semi-circular entry steps."""
+        # Steps on one side (bottom)
+        step_center_x = self.anchor[0]
+        step_center_y = self.anchor[1] - self.height / 2 + 0.5
+        
+        # Draw 2-3 semi-circular steps
+        step_radii = [0.3, 0.5, 0.7]
+        for radius in step_radii:
+            step = Circle(
+                (step_center_x, step_center_y),
+                radius,
+                facecolor='#4169E1',
+                edgecolor='white',
+                linewidth=0.8,
+                alpha=0.4
+            )
+            ax.add_patch(step)
+
+    def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw subtle water shimmer effects."""
+        random.seed(47)
+        # Draw random light reflections within ellipse bounds
+        num_shimmers = int(self.width * self.height * 0.5)
+        for _ in range(num_shimmers):
+            # Generate points within ellipse
+            angle = random.uniform(0, 2 * math.pi)
+            r = random.uniform(0, 1) ** 0.5  # Square root for uniform distribution
+            shimmer_x = self.anchor[0] + r * (self.width / 2) * 0.9 * math.cos(angle)
+            shimmer_y = self.anchor[1] + r * (self.height / 2) * 0.9 * math.sin(angle)
+            size = random.uniform(0.05, 0.15)
+            shimmer = Circle(
+                (shimmer_x, shimmer_y),
+                size,
+                facecolor='white',
+                edgecolor='none',
+                alpha=random.uniform(0.1, 0.3)
+            )
+            ax.add_patch(shimmer)
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID for pool."""
+        label_text = self._build_label_text()
+        if label_text:
+            original_label = self.label
+            self.label = label_text
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Pool',
+                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
+                rotation=0
+            )
+            self.label = original_label
+        elif self.label:
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Pool',
+                position=(self.anchor[0], self.anchor[1] + self.height / 2 + 0.4),
+                rotation=0
+            )
+
+    def _build_label_text(self) -> str:
+        """Build label text with dimensions."""
+        parts = []
+        if self.label:
+            parts.append(self.label)
+        parts.append(f"{self.width}m×{self.height}m")
+        return " ".join(parts)

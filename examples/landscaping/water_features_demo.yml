@@ -82,6 +82,26 @@ reusable_elements:
       color: '#4682B4'
       border_color: '#2F4F4F'
       label: 'Irregular Pond'
+    
+    # Swimming Pools
+    - type: rect_pool
+      anchor: [20.0, 15.0]
+      width: 4.0
+      height: 8.0
+      pool_color: '#00BFFF'
+      border_color: '#B0C4DE'
+      show_lanes: true
+      show_steps: true
+      label: 'Rectangular Pool'
+    
+    - type: oval_pool
+      anchor: [20.0, 3.5]
+      width: 3.5
+      height: 6.0
+      pool_color: '#00BFFF'
+      border_color: '#B0C4DE'
+      show_steps: true
+      label: 'Oval Pool'
 
 floor_plans:
   - title:
@@ -111,7 +131,8 @@ floor_plans:
         lines:
           - 'Water Features Overview:'
           - 'Left: 3 fountain styles (tiered, spray, simple)'
-          - 'Middle/Right: 4 pond shapes (oval, kidney, rectangular, irregular)'
+          - 'Middle: 4 pond shapes (oval, kidney, rectangular, irregular)'
+          - 'Right: 2 pool types (rectangular with lanes, oval)'
           - 'All elements show water texture patterns and ripples'
         font_size: 10
         transparency: 0.0

@@ -28,7 +28,7 @@ from .furniture.appliances import (
 from .furniture.bathroom import Shower, Bathtub, Basin, Toilet
 from .furniture.furniture import Desk, DiningTable, Chair, Sofa
 from .furniture.decorations import FishTank
-from .landscaping import Tree, Shrub, Hedge, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse
+from .landscaping import Tree, Shrub, Hedge, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool
 
 
 def create_elements_registry() -> dict[str, type(Element)]:
@@ -86,6 +86,8 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'retaining_wall': RetainingWall,
         'fountain': Fountain,
         'pond': Pond,
+        'rect_pool': RectPool,
+        'oval_pool': OvalPool,
         'pergola': Pergola,
         'raised_bed': RaisedBed,
         'gazebo': Gazebo,

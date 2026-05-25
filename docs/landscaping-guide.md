@@ -90,6 +90,25 @@
 - `border_color`: str - Border/edge color (default: '#2F4F4F')
 - `label`: str | None - Custom label (optional)
 
+#### RectPool
+- `anchor`: tuple[float, float] - Center point of pool
+- `width`: float - Pool width in meters
+- `height`: float - Pool length in meters
+- `pool_color`: str - Pool water color (default: '#00BFFF' - bright blue)
+- `border_color`: str - Pool edge/border color (default: '#B0C4DE' - light steel blue)
+- `show_lanes`: bool - Whether to show lane lines (default: True)
+- `show_steps`: bool - Whether to show entry steps (default: True)
+- `label`: str | None - Custom label (optional)
+
+#### OvalPool
+- `anchor`: tuple[float, float] - Center point of pool
+- `width`: float - Pool width in meters
+- `height`: float - Pool length in meters
+- `pool_color`: str - Pool water color (default: '#00BFFF' - bright blue)
+- `border_color`: str - Pool edge/border color (default: '#B0C4DE' - light steel blue)
+- `show_steps`: bool - Whether to show entry steps (default: True)
+- `label`: str | None - Custom label (optional)
+
 ### Garden Structures
 
 #### Pergola

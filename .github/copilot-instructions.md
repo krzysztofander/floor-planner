@@ -97,3 +97,53 @@ Rooms have:
 - Use constants/variables for dimensions that might change
 - Test changes by running against example configs
 - See `docs/features/README.md` for detailed feature development workflow
+
+## Adding New Element Types
+
+**CRITICAL: When creating new element classes, you MUST update ALL of these files:**
+
+### Required Steps (All Mandatory):
+
+1. **Create the element class** in appropriate module:
+   - Basic elements: `floor_planner/elements/basic.py`
+   - Furniture: `floor_planner/elements/furniture/`
+   - Landscaping: `floor_planner/elements/landscaping/`
+   - Lighting: `floor_planner/elements/lighting.py`
+   - etc.
+
+2. **Export from package `__init__.py`**:
+   - Add import to `floor_planner/elements/landscaping/__init__.py` (or relevant subpackage)
+   - Add class name to `__all__` list
+   - Example: `from .water import Fountain, Pond, RectPool, OvalPool`
+
+3. **Export from main elements `__init__.py`**:
+   - Add import to `floor_planner/elements/__init__.py`
+   - Add class name to `__all__` list
+
+4. **Register in elements registry** (MOST COMMONLY FORGOTTEN):
+   - Add import at top of `floor_planner/elements/registry.py`
+   - Add entry to `create_elements_registry()` dict with snake_case type name
+   - Example: `'rect_pool': RectPool, 'oval_pool': OvalPool`
+   - **Without this step, the element type will not be recognized in YAML configs!**
+
+5. **Update documentation**:
+   - Add parameters to relevant guide in `docs/` (e.g., `docs/landscaping-guide.md`)
+   - Update or create example YAML files in `examples/`
+
+6. **Run regression tests**:
+   - Execute `make all` to ensure nothing broke
+   - Verify new elements render correctly
+
+### Common Mistake
+The most commonly forgotten step is #4 (registry.py). The element class can be perfectly implemented, but if it's not registered, users will get `KeyError: 'element_type'` when trying to use it in YAML configs.
+
+### Verification Checklist
+After adding a new element, verify:
+- [ ] Class implements `draw()` method inheriting from `Element`
+- [ ] Imported in subpackage `__init__.py`
+- [ ] Imported in `floor_planner/elements/__init__.py`
+- [ ] **Registered in `registry.py` with correct snake_case type name**
+- [ ] Documented in appropriate guide
+- [ ] Example added to relevant demo YAML
+- [ ] `make all` runs without errors
+- [ ] Element renders correctly in generated images
