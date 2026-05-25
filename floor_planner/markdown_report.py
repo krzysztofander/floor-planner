@@ -231,8 +231,71 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 f.write(f"| {element.id} | {label} | {shape} | {length} | {width} |\n")
             f.write("\n")
 
+        # Report garden structures
+        if 'Pergola' in grouped:
+            f.write("## Pergolas\n\n")
+            f.write(f"Total count: {len(grouped['Pergola'])}\n\n")
+            f.write("| ID | Label | Length (m) | Width (m) | Post Size (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['Pergola']:
+                label = element.label if element.label else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
+                post_size = f"{element.post_size:.2f}" if hasattr(element, 'post_size') and element.post_size else '-'
+                f.write(f"| {element.id} | {label} | {length} | {width} | {post_size} |\n")
+            f.write("\n")
+
+        if 'RaisedBed' in grouped:
+            f.write("## Raised Beds\n\n")
+            f.write(f"Total count: {len(grouped['RaisedBed'])}\n\n")
+            f.write("| ID | Label | Length (m) | Width (m) | Height (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['RaisedBed']:
+                label = element.label if element.label else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
+                height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
+                f.write(f"| {element.id} | {label} | {length} | {width} | {height} |\n")
+            f.write("\n")
+
+        if 'Gazebo' in grouped:
+            f.write("## Gazebos\n\n")
+            f.write(f"Total count: {len(grouped['Gazebo'])}\n\n")
+            f.write("| ID | Label | Diameter (m) |\n")
+            f.write("|---|---|---|\n")
+            for element in grouped['Gazebo']:
+                label = element.label if element.label else '-'
+                diameter = f"{element.diameter:.2f}" if hasattr(element, 'diameter') and element.diameter else '-'
+                f.write(f"| {element.id} | {label} | {diameter} |\n")
+            f.write("\n")
+
+        if 'Deck' in grouped:
+            f.write("## Decks\n\n")
+            f.write(f"Total count: {len(grouped['Deck'])}\n\n")
+            f.write("| ID | Label | Length (m) | Width (m) |\n")
+            f.write("|---|---|---|---|\n")
+            for element in grouped['Deck']:
+                label = element.label if element.label else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
+                f.write(f"| {element.id} | {label} | {length} | {width} |\n")
+            f.write("\n")
+
+        if 'GardenHouse' in grouped:
+            f.write("## Garden Houses\n\n")
+            f.write(f"Total count: {len(grouped['GardenHouse'])}\n\n")
+            f.write("| ID | Label | Length (m) | Width (m) | Height (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['GardenHouse']:
+                label = element.label if element.label else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
+                height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
+                f.write(f"| {element.id} | {label} | {length} | {width} | {height} |\n")
+            f.write("\n")
+
         # Report other element types
-        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge', 'Fence', 'GardenPath', 'RetainingWall', 'Fountain', 'Pond']]
+        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge', 'Fence', 'GardenPath', 'RetainingWall', 'Fountain', 'Pond', 'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GardenHouse']]
         if other_types:
             f.write("## Other Elements\n\n")
             for element_type in sorted(other_types):

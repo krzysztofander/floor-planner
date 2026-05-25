@@ -1,5 +1,5 @@
 project:
-  dpi: 600
+  dpi: 300
   pdf_file: null
   png_dir: "."
 

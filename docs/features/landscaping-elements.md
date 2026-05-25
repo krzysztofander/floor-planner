@@ -271,12 +271,46 @@ Vegetation elements with bloom_season_start and bloom_season_end will:
 - Added to Makefile with separate target for water features demo
 - Full regression test passes: `make all`
 
-### Phase 4: Garden Structures (3-4 hours)
-- [ ] Implement `Pergola` class (posts + beams outline)
-- [ ] Implement `RaisedBed` class
-- [ ] Implement `Gazebo`, `Deck`, `GardenHouse` classes
-- [ ] Create `examples/landscaping/structures_demo.yml`
-- [ ] Run `make all` to test
+### Phase 4: Garden Structures ✅ COMPLETE (May 25, 2026)
+- ✅ Implement `Pergola` class (posts + beams outline)
+- ✅ Implement `RaisedBed` class
+- ✅ Implement `Gazebo`, `Deck`, `GardenHouse` classes
+- ✅ Create `examples/landscaping/structures_demo.yml`
+- ✅ Run `make all` to test
+
+**Implementation Notes**:
+- Created `floor_planner/elements/landscaping/structures.py` with five classes
+- **Pergola**: Rectangular structure with corner posts and cross beams
+  - Perimeter outline (2.5px linewidth)
+  - Corner posts as filled squares (post_size parameter)
+  - Cross beams as dashed lines along width (every ~1m)
+  - Supports rotation via orientation_angle
+- **RaisedBed**: Rectangle with border and soil fill
+  - Outer border (border_color) with configurable thickness
+  - Inner soil fill (fill_color, 70% alpha)
+  - Height parameter for label display
+- **Gazebo**: Octagonal structure with roof
+  - Main platform: 8-sided polygon (0.8 alpha)
+  - Roof: larger 8-sided polygon with dashed border (1.15x diameter, 0.6 alpha)
+  - 8 corner posts as circles at vertices (0.15m diameter)
+  - Uses anchor as center point
+- **Deck**: Rectangle with wood plank pattern
+  - Main deck area (0.7 alpha)
+  - Parallel plank lines perpendicular to length (every ~15cm)
+  - Supports rotation
+- **GardenHouse**: Rectangular building with door and 4-sided roof
+  - Main walls (0.8 alpha, 2.0px border)
+  - 4-sided roof with 0.3m overhang (dashed border, 0.6 alpha)
+  - Ridge line showing roof peak (center line)
+  - Door on width side (front): 90cm or 40% of length, centered
+  - Door handle as small golden circle (0.05m, 85% from left edge)
+  - Height parameter for label display
+  - Door is on the width side as specified
+- All structures extend `RectangularElement` except Gazebo (extends `Element`)
+- Registry keys: 'pergola', 'raised_bed', 'gazebo', 'deck', 'garden_house' (lowercase, underscores)
+- Added to markdown_report.py with dedicated sections for each structure type
+- Added to Makefile with separate target for structures demo
+- Full regression test passes: `make all`
 
 ### Phase 5: Integration & Documentation (2-3 hours)
 - [ ] Create comprehensive site plan example

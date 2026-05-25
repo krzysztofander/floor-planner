@@ -1,0 +1,163 @@
+project:
+  dpi: 300
+  pdf_file: null
+  png_dir: "."
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [25, 20]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: null
+  grid_minor_step: null
+
+default_options:
+  label_color: 'black'
+  dimensions: false
+  id_color: 'gray'
+
+reusable_elements:
+  garden_structures:
+    # Pergola
+    - type: pergola
+      anchor: [2.0, 2.0]
+      length: 4.0
+      width: 3.0
+      post_size: 0.2
+      orientation_angle: 0
+      color: '#8B4513'
+      label: 'Outdoor Pergola'
+    
+    - type: pergola
+      anchor: [2.0, 8.0]
+      length: 3.5
+      width: 3.5
+      post_size: 0.25
+      orientation_angle: 45
+      color: '#A0522D'
+      label: 'Diagonal Pergola'
+    
+    # Raised Beds
+    - type: raised_bed
+      anchor: [9.0, 2.0]
+      length: 3.0
+      width: 1.2
+      height: 0.4
+      border_thickness: 0.15
+      fill_color: '#654321'
+      border_color: '#8B4513'
+      orientation_angle: 0
+      label: 'Vegetable Bed'
+    
+    - type: raised_bed
+      anchor: [9.0, 5.0]
+      length: 2.5
+      width: 2.5
+      height: 0.6
+      border_thickness: 0.2
+      fill_color: '#704214'
+      border_color: '#A0522D'
+      orientation_angle: 0
+      label: 'Herb Garden'
+    
+    # Gazebo
+    - type: gazebo
+      anchor: [15.5, 4.5]
+      diameter: 4.0
+      color: '#DEB887'
+      roof_color: '#8B4513'
+      label: 'Garden Gazebo'
+    
+    # Deck
+    - type: deck
+      anchor: [2.0, 13.0]
+      length: 5.0
+      width: 4.0
+      color: '#D2691E'
+      orientation_angle: 0
+      label: 'Patio Deck'
+    
+    - type: deck
+      anchor: [10.0, 13.0]
+      length: 3.5
+      width: 3.5
+      color: '#CD853F'
+      orientation_angle: 30
+      label: 'Small Deck'
+    
+    # Garden House
+    - type: garden_house
+      anchor: [17.0, 13.0]
+      length: 3.0
+      width: 2.5
+      height: 2.5
+      color: '#DEB887'
+      roof_color: '#8B4513'
+      orientation_angle: 0
+      label: 'Tool Shed'
+    
+    - type: garden_house
+      anchor: [17.0, 9.0]
+      length: 2.5
+      width: 2.0
+      height: 2.2
+      color: '#F5DEB3'
+      roof_color: '#A0522D'
+      orientation_angle: 90
+      label: 'Storage'
+
+floor_plans:
+  - title:
+      text: 'Garden Structures Demo'
+      font_size: 18
+    inherited_elements:
+      - garden_structures
+    elements:
+      # Section headers
+      - type: text_box
+        anchor_point: [2.0, 0.5]
+        lines:
+          - 'PERGOLAS'
+        font_size: 11
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [9.0, 0.5]
+        lines:
+          - 'RAISED BEDS'
+        font_size: 11
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [14.0, 0.5]
+        lines:
+          - 'GAZEBO'
+        font_size: 11
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [2.0, 11.5]
+        lines:
+          - 'DECKS'
+        font_size: 11
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [17.0, 11.5]
+        lines:
+          - 'GARDEN HOUSES'
+        font_size: 11
+        transparency: 0.0
+      
+      # Overview description
+      - type: text_box
+        anchor_point: [1.0, 18.0]
+        lines:
+          - 'Garden Structures Overview:'
+          - 'Top Left: 2 pergolas (standard & diagonal) with posts and beams'
+          - 'Top Middle: 2 raised beds for vegetables/herbs'
+          - 'Top Right: Octagonal gazebo with roof'
+          - 'Bottom Left: 2 decks with plank patterns'
+          - 'Bottom Right: 2 garden houses with doors and 4-sided roofs'
+        font_size: 9
+        transparency: 0.0
