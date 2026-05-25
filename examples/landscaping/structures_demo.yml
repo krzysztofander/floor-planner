@@ -108,7 +108,7 @@ reusable_elements:
 
 floor_plans:
   - title:
-      text: 'Garden Structures Demo'
+      text: 'Garden_Structures_Demo'
       font_size: 18
     inherited_elements:
       - garden_structures

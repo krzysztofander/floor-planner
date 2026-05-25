@@ -27,7 +27,7 @@ default_options:
 # Complete site plan demonstrating all landscaping elements integrated together
 floor_plans:
   - title:
-      text: "Comprehensive Landscaping Site Plan"
+      text: "Comprehensive_Landscaping_Site_Plan"
       font_size: 16
     elements:
       # PERIMETER - Privacy hedge across back

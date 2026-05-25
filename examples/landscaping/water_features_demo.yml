@@ -85,7 +85,7 @@ reusable_elements:
 
 floor_plans:
   - title:
-      text: 'Water Features Demo'
+      text: 'Water_Features_Demo'
       font_size: 18
     inherited_elements:
       - water_features

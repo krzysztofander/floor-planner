@@ -72,10 +72,10 @@ Rooms have:
 - Elements positioned relative to room's anchor point
 
 ## File Locations
-- **Source code**: `/home/krzysztof/work/excercises/renovation/floor_planner/`
-- **Examples**: `/home/krzysztof/work/excercises/renovation/examples/`
+- **Source code**: `/home/krzysztof/work/excercises/floor_planner/floor_planner/`
+- **Examples**: `/home/krzysztof/work/excercises/floor_planner/examples/`
 - **Actual floor plans**: `/home/krzysztof/work/excercises/rzuty/`
-- **Virtual env**: `.venv/` in renovation folder
+- **Virtual env**: `.venv/` in floor_planner folder
 
 ## Feature Development Workflow
 

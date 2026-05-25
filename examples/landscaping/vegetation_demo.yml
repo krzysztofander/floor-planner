@@ -88,7 +88,7 @@ reusable_elements:
 floor_plans:
   # Case 1: No species text, no bloom overlay
   - title:
-      text: 'Case 1: No Species - No Bloom'
+      text: 'Case_1_No_Species_No_Bloom'
       font_size: 16
     options:
       Tree:

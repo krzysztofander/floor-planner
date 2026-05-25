@@ -30,7 +30,7 @@ $(ROOM_TEMPLATES_ROOT)/%/output/some_floor.png: $(ROOM_TEMPLATES_ROOT)/%/project
 
 # INDIVIDUAL ELEMENTS
 # -------------------
-ELEMENTS_PNG = examples/elements/Individual\ elements.png
+ELEMENTS_PNG = examples/elements/Individual_elements.png
 elements: $(ELEMENTS_PNG)
 
 $(ELEMENTS_PNG): examples/elements/all_elements.yml $(PYSRC)
@@ -38,7 +38,7 @@ $(ELEMENTS_PNG): examples/elements/all_elements.yml $(PYSRC)
 	$(PYTHON) -m floor_planner -c $<
 
 
-FURNITURE_PNG = examples/elements/Beds\ - \Rotation\ Test.png
+FURNITURE_PNG = examples/elements/Beds_Rotation_Test.png
 furniture: $(FURNITURE_PNG)
 
 $(FURNITURE_PNG): examples/elements/furniture_demo.yml $(PYSRC)
@@ -47,7 +47,7 @@ $(FURNITURE_PNG): examples/elements/furniture_demo.yml $(PYSRC)
 
 # PLAYGROUND
 # ----------
-DOORS_AND_WINDOWS_PNG = examples/playground/Doors\ and\ windows.png
+DOORS_AND_WINDOWS_PNG = examples/playground/Doors_and_windows.png
 playground: $(DOORS_AND_WINDOWS_PNG)
 
 $(DOORS_AND_WINDOWS_PNG): examples/playground/doors_and_windows.yml $(PYSRC)
@@ -56,7 +56,7 @@ $(DOORS_AND_WINDOWS_PNG): examples/playground/doors_and_windows.yml $(PYSRC)
 
 #OTHER
 #-----
-SIMPLE_PNG = examples/simple_no_rooms/Plain\ floor\ plan.png
+SIMPLE_PNG = examples/simple_no_rooms/Plain_floor_plan.png
 simple: $(SIMPLE_PNG)
 
 $(SIMPLE_PNG): examples/simple_no_rooms/simple_floor_plan.yml $(PYSRC)
@@ -65,10 +65,10 @@ $(SIMPLE_PNG): examples/simple_no_rooms/simple_floor_plan.yml $(PYSRC)
 
 # LANDSCAPING
 # -----------
-LANDSCAPING_VEGETATION_PNG = examples/landscaping/Case\ 1\:\ No\ Species\ -\ No\ Bloom.png
-LANDSCAPING_HARDSCAPE_PNG = examples/landscaping/Hardscape\ Elements\ Demo.png
-LANDSCAPING_WATER_PNG = examples/landscaping/Water\ Features\ Demo.png
-LANDSCAPING_STRUCTURES_PNG = examples/landscaping/Garden\ Structures\ Demo.png
+LANDSCAPING_VEGETATION_PNG = examples/landscaping/Case_1_No_Species_No_Bloom.png
+LANDSCAPING_HARDSCAPE_PNG = examples/landscaping/Hardscape_Elements_Demo.png
+LANDSCAPING_WATER_PNG = examples/landscaping/Water_Features_Demo.png
+LANDSCAPING_STRUCTURES_PNG = examples/landscaping/Garden_Structures_Demo.png
 LANDSCAPING_PNG = $(LANDSCAPING_VEGETATION_PNG) $(LANDSCAPING_HARDSCAPE_PNG) $(LANDSCAPING_WATER_PNG) $(LANDSCAPING_STRUCTURES_PNG)
 landscaping: $(LANDSCAPING_PNG)
 
@@ -90,7 +90,7 @@ $(LANDSCAPING_STRUCTURES_PNG): examples/landscaping/structures_demo.yml $(PYSRC)
 
 # EXTRAS
 # ------
-EXTRAS_PNG = examples/landscaping/Comprehensive\ Landscaping\ Site\ Plan.png
+EXTRAS_PNG = examples/landscaping/Comprehensive_Landscaping_Site_Plan.png
 extras: $(EXTRAS_PNG)
 
 $(EXTRAS_PNG): examples/landscaping/site_plan_complete.yml $(PYSRC)

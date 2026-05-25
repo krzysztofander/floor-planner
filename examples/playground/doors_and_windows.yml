@@ -382,7 +382,7 @@ reusable_elements:
 
 floor_plans:
   - title:
-      text: "Doors and windows"
+      text: "Doors_and_windows"
       font_size: 18
     #layout:
     #  bottom_left_corner: [0,0]

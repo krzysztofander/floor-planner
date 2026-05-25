@@ -135,7 +135,7 @@ reusable_elements:
 
 floor_plans:
   - title:
-      text: 'Hardscape Elements Demo'
+      text: 'Hardscape_Elements_Demo'
       font_size: 18
     inherited_elements:
       - hardscape_elements

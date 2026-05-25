@@ -421,7 +421,7 @@ reusable_elements:
 
 floor_plans:
   - title:
-      text: "Beds - Rotation Test"
+      text: "Beds_Rotation_Test"
       font_size: 18
     inherited_elements:
       - beds_elements
