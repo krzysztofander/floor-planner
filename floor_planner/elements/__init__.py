@@ -21,7 +21,7 @@ from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .multipurpose import Line, Polygon
 from .room import Room
-from .landscaping import Tree, Shrub, Hedge
+from .landscaping import Tree, Shrub, Hedge, Fence, GardenPath, RetainingWall
 from .registry import create_elements_registry
 
 
@@ -45,6 +45,9 @@ ___all__ = [
     'Tree',
     'Shrub',
     'Hedge',
+    'Fence',
+    'GardenPath',
+    'RetainingWall',
     'create_elements_registry',
     'get_label_color',
     'get_dimensions',

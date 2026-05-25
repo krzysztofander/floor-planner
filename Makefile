@@ -65,10 +65,16 @@ $(SIMPLE_PNG): examples/simple_no_rooms/simple_floor_plan.yml $(PYSRC)
 
 # LANDSCAPING
 # -----------
-LANDSCAPING_PNG = examples/landscaping/Vegetation\ Elements.png
+LANDSCAPING_VEGETATION_PNG = examples/landscaping/Case\ 1\:\ No\ Species\ -\ No\ Bloom.png
+LANDSCAPING_HARDSCAPE_PNG = examples/landscaping/Hardscape\ Elements\ Demo.png
+LANDSCAPING_PNG = $(LANDSCAPING_VEGETATION_PNG) $(LANDSCAPING_HARDSCAPE_PNG)
 landscaping: $(LANDSCAPING_PNG)
 
-$(LANDSCAPING_PNG): examples/landscaping/vegetation_demo.yml $(PYSRC)
+$(LANDSCAPING_VEGETATION_PNG): examples/landscaping/vegetation_demo.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(LANDSCAPING_HARDSCAPE_PNG): examples/landscaping/hardscape_demo.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

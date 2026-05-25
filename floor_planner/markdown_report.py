@@ -164,8 +164,48 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                     f.write(f"| {element.id} | {species} | {height} | {bloom_season} | {bloom_color} |\n")
                 f.write("\n")
 
+        # Report hardscaping elements
+        if 'Fence' in grouped:
+            f.write("## Fences\n\n")
+            f.write(f"Total count: {len(grouped['Fence'])}\n\n")
+            f.write("| ID | Label | Style | Height (m) | Length (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['Fence']:
+                label = element.label if element.label else '-'
+                style = element.style if hasattr(element, 'style') and element.style else '-'
+                height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                f.write(f"| {element.id} | {label} | {style} | {height} | {length} |\n")
+            f.write("\n")
+
+        if 'GardenPath' in grouped:
+            f.write("## Garden Paths\n\n")
+            f.write(f"Total count: {len(grouped['GardenPath'])}\n\n")
+            f.write("| ID | Label | Material | Length (m) | Width (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['GardenPath']:
+                label = element.label if element.label else '-'
+                material = element.material if hasattr(element, 'material') and element.material else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
+                f.write(f"| {element.id} | {label} | {material} | {length} | {width} |\n")
+            f.write("\n")
+
+        if 'RetainingWall' in grouped:
+            f.write("## Retaining Walls\n\n")
+            f.write(f"Total count: {len(grouped['RetainingWall'])}\n\n")
+            f.write("| ID | Label | Height (m) | Length (m) | Thickness (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['RetainingWall']:
+                label = element.label if element.label else '-'
+                height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                thickness = f"{element.thickness:.2f}" if hasattr(element, 'thickness') and element.thickness else '-'
+                f.write(f"| {element.id} | {label} | {height} | {length} | {thickness} |\n")
+            f.write("\n")
+
         # Report other element types
-        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge']]
+        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge', 'Fence', 'GardenPath', 'RetainingWall']]
         if other_types:
             f.write("## Other Elements\n\n")
             for element_type in sorted(other_types):

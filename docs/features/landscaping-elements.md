@@ -215,16 +215,34 @@ Vegetation elements with bloom_season_start and bloom_season_end will:
   - Bloom season renders below species when specified
   - Bloom text color matches bloom_color attribute
 - **Markdown reports**: Include species, height, bloom season, and bloom color for all vegetation elements
-- [ ] Create `examples/landscaping/vegetation_demo.yml` with bloom examples
-- [ ] Run `make all` to test
+- [✅] Create `examples/landscaping/vegetation_demo.yml` with bloom examples
+- [✅] Run `make all` to test
 
-### Phase 2: Hardscaping (3-4 hours)
-- [ ] Implement `Fence` class with style variations
-- [ ] Implement `GardenPath` class with material patterns
-- [ ] Implement `RetainingWall` class
-- [ ] Add pattern rendering for different materials
-- [ ] Create `examples/landscaping/hardscape_demo.yml`
-- [ ] Run `make all` to test
+### Phase 2: Hardscaping ✅ COMPLETE (May 25, 2024)
+- ✅ Implement `Fence` class with style variations
+- ✅ Implement `GardenPath` class with material patterns
+- ✅ Implement `RetainingWall` class
+- ✅ Add pattern rendering for different materials
+- ✅ Create `examples/landscaping/hardscape_demo.yml`
+- ✅ Run `make all` to test
+
+**Implementation Notes**:
+- Created `floor_planner/elements/landscaping/hardscape.py` with three classes
+- **Fence styles**: 'solid', 'picket', 'chain-link', 'rail'
+  - Picket: vertical lines every 15cm
+  - Chain-link: diagonal cross-hatch pattern
+  - Rail: 3 horizontal rails at 0.25, 0.5, 0.75 positions
+- **GardenPath materials**: 'gravel', 'stone', 'paving', 'wood', 'mulch'
+  - Gravel: random dots for texture (seed 42 for consistency)
+  - Stone: irregular polygons for flagstones
+  - Paving: regular grid pattern
+  - Wood: parallel lines for planks (perpendicular to path)
+  - Mulch: random short lines for organic texture (seed 43)
+- **RetainingWall**: horizontal courses + vertical mortar lines for stone texture
+- All elements extend `RectangularElement` and support rotation via `orientation_angle`
+- Registry keys: 'fence', 'garden_path', 'retaining_wall' (lowercase, underscores)
+- Added to `Makefile` with separate target for hardscape demo
+- Full regression test passes: `make all`
 
 ### Phase 3: Water Features (2-3 hours)
 - [ ] Implement `Pond` class with shape variations
