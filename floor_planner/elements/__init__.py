@@ -21,7 +21,7 @@ from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .multipurpose import Line, Polygon
 from .room import Room
-from .landscaping import Tree, Shrub, Hedge, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool
+from .landscaping import Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool
 from .registry import create_elements_registry
 
 
@@ -45,6 +45,7 @@ ___all__ = [
     'Tree',
     'Shrub',
     'Hedge',
+    'Lawn',
     'Fence',
     'GardenPath',
     'RetainingWall',

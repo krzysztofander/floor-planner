@@ -40,6 +40,14 @@
 - `bloom_color`: str | None - Bloom color (hex or color name, optional)
 - `label`: str | None - Custom label (optional)
 
+#### Lawn
+- `anchor`: tuple[float, float] - Bottom-left corner point
+- `length`: float - Lawn length in meters
+- `width`: float - Lawn width in meters
+- `color`: str - Grass color (default: '#7CFC00' - bright green)
+- `orientation_angle`: float - Rotation angle in degrees (default: 0)
+- `label`: str | None - Custom label (optional)
+
 ### Hardscaping
 
 #### Fence

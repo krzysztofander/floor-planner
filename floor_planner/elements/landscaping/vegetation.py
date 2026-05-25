@@ -542,3 +542,148 @@ class Hedge(VegetationElement, RectangularElement):
                 position=(center[0], center[1] + self.thickness / 2 + 0.2),
                 rotation=self.orientation_angle
             )
+
+
+class Lawn(RectangularElement):
+    """Lawn/grass area element."""
+
+    def __init__(
+            self,
+            anchor: tuple[float, float],
+            length: float,
+            width: float,
+            color: str = '#7CFC00',
+            orientation_angle: float = 0,
+            label: str | None = None
+    ):
+        """
+        Initialize a Lawn instance.
+
+        :param anchor:
+            coordinates of anchor point (bottom-left corner)
+        :param length:
+            lawn length in meters
+        :param width:
+            lawn width in meters
+        :param color:
+            color for the lawn (default: bright green)
+        :param orientation_angle:
+            rotation angle in degrees
+        :param label:
+            optional label for the lawn
+        """
+        super().__init__(label=label)
+        self.anchor_point = anchor
+        self.length = length
+        self.width = width
+        self.color = color
+        self.orientation_angle = orientation_angle
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the lawn as a filled rectangle with grass texture."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        # Draw main lawn rectangle
+        lawn = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.width,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            edgecolor='#228B22',
+            linewidth=1.0,
+            alpha=0.6
+        )
+        ax.add_patch(lawn)
+
+        # Add subtle grass texture pattern
+        self._draw_grass_texture(ax)
+
+        # Render label and ID
+        self._render_label_and_id(ax)
+
+    def _draw_grass_texture(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw subtle texture lines to indicate grass."""
+        import random
+        random.seed(42)  # Consistent pattern
+        
+        # Draw some random short lines to simulate grass blades
+        num_lines = int(self.length * self.width * 2)  # Density based on area
+        num_lines = min(num_lines, 50)  # Cap at 50 to avoid clutter
+        
+        for _ in range(num_lines):
+            # Random position within lawn
+            local_x = random.uniform(0, self.length)
+            local_y = random.uniform(0, self.width)
+            
+            # Small random line
+            line_length = 0.08
+            line_angle = random.uniform(0, 2 * math.pi)
+            
+            # Start and end points of grass blade (in local coordinates)
+            x1_local = local_x
+            y1_local = local_y
+            x2_local = local_x + line_length * math.cos(line_angle)
+            y2_local = local_y + line_length * math.sin(line_angle)
+            
+            # Rotate points according to lawn orientation
+            angle_rad = math.radians(self.orientation_angle)
+            p1 = rotate_point(self.anchor_point, x1_local, y1_local, angle_rad)
+            p2 = rotate_point(self.anchor_point, x2_local, y2_local, angle_rad)
+            
+            ax.plot(
+                [p1[0], p2[0]],
+                [p1[1], p2[1]],
+                color='#228B22',
+                linewidth=0.3,
+                alpha=0.4
+            )
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID for lawn."""
+        label_text = self._build_label_text()
+        if label_text:
+            center_x = self.length / 2
+            center_y = self.width / 2
+            center = rotate_point(
+                self.anchor_point,
+                center_x,
+                center_y,
+                math.radians(self.orientation_angle)
+            )
+            original_label = self.label
+            self.label = label_text
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Lawn',
+                position=(center[0], center[1]),
+                rotation=self.orientation_angle
+            )
+            self.label = original_label
+        elif self.label:
+            center_x = self.length / 2
+            center_y = self.width / 2
+            center = rotate_point(
+                self.anchor_point,
+                center_x,
+                center_y,
+                math.radians(self.orientation_angle)
+            )
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='Lawn',
+                position=(center[0], center[1]),
+                rotation=self.orientation_angle
+            )
+
+    def _build_label_text(self) -> str:
+        """Build label text with dimensions."""
+        parts = []
+        if self.label:
+            parts.append(self.label)
+        parts.append(f"{self.length}m×{self.width}m")
+        return " ".join(parts)

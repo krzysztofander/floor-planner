@@ -91,6 +91,23 @@ floor_plans:
         color: '#3CB371'
         label: 'Maple'
       
+      # FRONT LAWN AREAS
+      - type: lawn
+        anchor: [1.5, 2.0]
+        length: 8.0
+        width: 5.0
+        orientation_angle: 0
+        color: '#7CFC00'
+        label: 'Front Lawn Left'
+      
+      - type: lawn
+        anchor: [15.0, 2.0]
+        length: 8.5
+        width: 5.0
+        orientation_angle: 0
+        color: '#7CFC00'
+        label: 'Front Lawn Right'
+      
       # FLOWERING SHRUBS NEAR ENTRANCE
       - type: shrub
         anchor: [10.5, 9.0]
@@ -131,6 +148,15 @@ floor_plans:
         orientation_angle: 0
         color: '#8B4513'
         label: 'Pergola'
+      
+      # BACKYARD LAWN
+      - type: lawn
+        anchor: [6.0, 15.5]
+        length: 12.0
+        width: 2.5
+        orientation_angle: 0
+        color: '#32CD32'
+        label: 'Back Lawn'
       
       # WATER FEATURES
       - type: pond
