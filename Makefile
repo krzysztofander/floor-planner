@@ -67,7 +67,8 @@ $(SIMPLE_PNG): examples/simple_no_rooms/simple_floor_plan.yml $(PYSRC)
 # -----------
 LANDSCAPING_VEGETATION_PNG = examples/landscaping/Case\ 1\:\ No\ Species\ -\ No\ Bloom.png
 LANDSCAPING_HARDSCAPE_PNG = examples/landscaping/Hardscape\ Elements\ Demo.png
-LANDSCAPING_PNG = $(LANDSCAPING_VEGETATION_PNG) $(LANDSCAPING_HARDSCAPE_PNG)
+LANDSCAPING_WATER_PNG = examples/landscaping/Water\ Features\ Demo.png
+LANDSCAPING_PNG = $(LANDSCAPING_VEGETATION_PNG) $(LANDSCAPING_HARDSCAPE_PNG) $(LANDSCAPING_WATER_PNG)
 landscaping: $(LANDSCAPING_PNG)
 
 $(LANDSCAPING_VEGETATION_PNG): examples/landscaping/vegetation_demo.yml $(PYSRC)
@@ -75,6 +76,10 @@ $(LANDSCAPING_VEGETATION_PNG): examples/landscaping/vegetation_demo.yml $(PYSRC)
 	$(PYTHON) -m floor_planner -c $<
 
 $(LANDSCAPING_HARDSCAPE_PNG): examples/landscaping/hardscape_demo.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(LANDSCAPING_WATER_PNG): examples/landscaping/water_features_demo.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

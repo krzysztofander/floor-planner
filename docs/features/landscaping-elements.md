@@ -244,17 +244,37 @@ Vegetation elements with bloom_season_start and bloom_season_end will:
 - Added to `Makefile` with separate target for hardscape demo
 - Full regression test passes: `make all`
 
-### Phase 3: Water Features (2-3 hours)
-- [ ] Implement `Pond` class with shape variations
-- [ ] Implement `Fountain` class
-- [ ] Add water texture/pattern rendering
-- [ ] Create `examples/landscaping/water_features_demo.yml`
-- [ ] Run `make all` to test
+### Phase 3: Water Features ✅ COMPLETE (May 25, 2026)
+- ✅ Implement `Fountain` class
+- ✅ Implement `Pond` class
+- ✅ Add water texture/pattern rendering
+- ✅ Create `examples/landscaping/water_features_demo.yml`
+- ✅ Run `make all` to test
+
+**Implementation Notes**:
+- Created `floor_planner/elements/landscaping/water.py` with two classes
+- **Fountain styles**: 'tiered', 'spray', 'simple'
+  - Tiered: concentric circles with water ripples around each tier (8 ripples per tier)
+  - Spray: radial spray lines from center with droplets at endpoints
+  - Simple: concentric dashed ripples for basic fountain
+  - All draw basin (solid) + water surface (semi-transparent) + style-specific pattern
+- **Pond shapes**: 'oval', 'kidney', 'rectangular', 'irregular'
+  - Oval: matplotlib Ellipse patches (border + water surface)
+  - Kidney: 32-point polygon with indent on one side (0.6 factor from π*0.3 to π*0.7)
+  - Rectangular: FancyBboxPatch with rounded corners
+  - Irregular: 20-point polygon with random radius variation (0.7-1.0, seed 44)
+  - All shapes include water ripples (5 random positions, seed 45, white dashed circles)
+- Both elements extend `Element` base class (not RectangularElement)
+- Fountain uses anchor as center point, Pond uses anchor as center
+- Registry keys: 'fountain', 'pond' (lowercase)
+- Added to markdown_report.py with dedicated sections showing style/shape, dimensions
+- Added to Makefile with separate target for water features demo
+- Full regression test passes: `make all`
 
 ### Phase 4: Garden Structures (3-4 hours)
 - [ ] Implement `Pergola` class (posts + beams outline)
 - [ ] Implement `RaisedBed` class
-- [ ] Optional: `Gazebo`, `Deck` classes
+- [ ] Implement `Gazebo`, `Deck`, `GardenHouse` classes
 - [ ] Create `examples/landscaping/structures_demo.yml`
 - [ ] Run `make all` to test
 
@@ -267,13 +287,6 @@ Vegetation elements with bloom_season_start and bloom_season_end will:
 - [ ] Add color palette suggestions for natural elements
 - [ ] Create landscaping best practices guide
 
-### Phase 6: Advanced Features (Optional, 4-6 hours)
-- [ ] Plant symbols library (top-down botanical symbols)
-- [ ] Path curves and corners
-- [ ] Irregular pond shapes with bezier curves
-- [ ] Seasonal color variations
-- [ ] Shadow/sun direction indicators
-- [ ] Scale-appropriate detail (hide texture at small scales)
 
 ## Testing Strategy
 
@@ -293,7 +306,7 @@ Create demonstration configs:
 
 1. **`vegetation_demo.yml`** - All vegetation types with labels, heights, and bloom season examples
 2. **`hardscape_demo.yml`** - Fences, paths, walls in various styles
-3. **`water_features_demo.yml`** - Ponds and fountains
+3. **`water_features_demo.yml`** - fountains
 4. **`complete_site_plan.yml`** - Full property with:
    - Building outline (existing functionality)
    - Trees around perimeter

@@ -204,8 +204,35 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 f.write(f"| {element.id} | {label} | {height} | {length} | {thickness} |\n")
             f.write("\n")
 
+        # Report water features
+        if 'Fountain' in grouped:
+            f.write("## Fountains\n\n")
+            f.write(f"Total count: {len(grouped['Fountain'])}\n\n")
+            f.write("| ID | Label | Style | Height (m) | Diameter (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['Fountain']:
+                label = element.label if element.label else '-'
+                style = element.style if hasattr(element, 'style') and element.style else '-'
+                height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
+                diameter = f"{element.diameter:.2f}" if hasattr(element, 'diameter') and element.diameter else '-'
+                f.write(f"| {element.id} | {label} | {style} | {height} | {diameter} |\n")
+            f.write("\n")
+
+        if 'Pond' in grouped:
+            f.write("## Ponds\n\n")
+            f.write(f"Total count: {len(grouped['Pond'])}\n\n")
+            f.write("| ID | Label | Shape | Length (m) | Width (m) |\n")
+            f.write("|---|---|---|---|---|\n")
+            for element in grouped['Pond']:
+                label = element.label if element.label else '-'
+                shape = element.shape if hasattr(element, 'shape') and element.shape else '-'
+                length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
+                width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
+                f.write(f"| {element.id} | {label} | {shape} | {length} | {width} |\n")
+            f.write("\n")
+
         # Report other element types
-        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge', 'Fence', 'GardenPath', 'RetainingWall']]
+        other_types = [t for t in grouped.keys() if t not in ['Wall', 'WallND', 'Window', 'Door', 'Room', 'Tree', 'Shrub', 'Hedge', 'Fence', 'GardenPath', 'RetainingWall', 'Fountain', 'Pond']]
         if other_types:
             f.write("## Other Elements\n\n")
             for element_type in sorted(other_types):
