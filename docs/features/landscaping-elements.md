@@ -32,25 +32,38 @@ Users will be able to add landscaping elements with natural YAML syntax:
 # Vegetation
 - type: Tree
   anchor: [5.0, 3.0]
-  canopy_diameter: 4.0
+  diameter: 4.0  # canopy diameter
+  height: 8.0  # tree height in meters
   trunk_diameter: 0.5
-  species: 'oak'  # optional, for label
+  species: 'oak'  # optional
   color: '#228B22'  # forest green
-  label: 'Oak Tree'
+  label: 'Oak Tree'  # optional
+  bloom_season_start: '15.04'  # optional, dd.mm format
+  bloom_season_end: '30.05'  # optional, dd.mm format
+  bloom_color: '#FFB6C1'  # optional, light pink
 
 - type: Shrub
   anchor: [2.0, 1.0]
   diameter: 1.5
+  height: 1.2  # shrub height in meters
   color: '#90EE90'  # light green
-  count: 3  # optional, for grouped shrubs
-  spacing: 0.5  # distance between if count > 1
+  species: 'krzewuszka'  # optional
+  label: 'Rose Bush'  # optional
+  bloom_season_start: '01.06'  # optional, dd.mm format
+  bloom_season_end: '30.09'  # optional, dd.mm format
+  bloom_color: '#FF69B4'  # optional, hot pink
 
 - type: Hedge
   anchor: [0, 0]
   length: 10.0
   thickness: 0.6
-  height: 1.5  # for info/label
+  height: 1.5
+  species: 'ligustr'  # optional
   color: '#556B2F'  # dark olive green
+  label: 'Privacy Hedge'  # optional
+  bloom_season_start: '01.05'  # optional, dd.mm format
+  bloom_season_end: '15.06'  # optional, dd.mm format
+  bloom_color: '#FFFFFF'  # optional, white flowers
 
 # Hardscaping
 - type: Fence
@@ -69,23 +82,7 @@ Users will be able to add landscaping elements with natural YAML syntax:
   color: '#D3D3D3'  # light gray
   pattern: 'gravel'  # optional texture
 
-- type: RetainingWall
-  anchor: [10, 0]
-  length: 6.0
-  height: 0.8
-  thickness: 0.3
-  material: 'stone'
-  color: '#808080'
-
 # Water Features
-- type: Pond
-  anchor: [8, 8]
-  shape: 'irregular'  # circle, oval, irregular, kidney
-  width: 3.0
-  length: 4.0  # for oval/irregular
-  color: '#4682B4'  # steel blue
-  border_width: 0.3  # optional shore/border
-
 - type: Fountain
   anchor: [15, 15]
   diameter: 1.5
@@ -143,12 +140,29 @@ Most elements will extend `RectangularElement` or create custom shapes:
 # vegetation.py
 class Tree(Element):
     """Circular canopy tree representation"""
-    def __init__(self, anchor_point, canopy_diameter, trunk_diameter, color, ...):
+    def __init__(self, anchor_point, diameter, height, trunk_diameter, color,
+                 label=None, species=None, bloom_season_start=None, 
+                 bloom_season_end=None, bloom_color=None):
         # Two circles: trunk (small) + canopy (large)
+        # Height used for label/info display
+        # Bloom season rendering if dates provided
+
+class Shrub(Element):
+    """Single shrub element"""
+    def __init__(self, anchor_point, diameter, height, color,
+                 label=None, species=None, bloom_season_start=None,
+                 bloom_season_end=None, bloom_color=None):
+        # Single circle representing shrub canopy
+        # Height for label/info display
+        # Bloom rendering if season provided
         
 class Hedge(RectangularElement):
     """Linear hedge element"""
-    # Similar to Wall but with vegetation styling
+    def __init__(self, anchor_point, length, thickness, height, color,
+                 label=None, species=None, bloom_season_start=None,
+                 bloom_season_end=None, bloom_color=None):
+        # Similar to Wall but with vegetation styling
+        # Bloom rendering for flowering hedges
 
 # hardscape.py  
 class Fence(RectangularElement):
@@ -161,23 +175,30 @@ class GardenPath(RectangularElement):
 ```
 
 #### Rendering Strategy
-- **Trees**: Two concentric circles (trunk + canopy), optional leaf texture
-- **Shrubs**: Single circle or cluster of circles
-- **Hedges**: Thick line with green fill, optional texture pattern
-- **Fences**: Line with vertical/horizontal pattern based on style
+- **Trees**: Two concentric circles (trunk + canopy), optional leaf texture, height shown in label, bloom color overlay if in season
+- **Shrubs**: Single circle, height shown in label, bloom color overlay if in season
+- **Hedges**: Thick line with green fill, optional texture pattern, height in label, bloom color overlay if in season
+- **Fences**: Line with vertical/horizontal pattern based on style, height in label
 - **Paths**: Rectangle with material texture (dots for gravel, grid for paving)
 - **Ponds**: Irregular polygon or ellipse with wavy border
 - **Structures**: Outline/wireframe rendering showing posts and beams
+
+#### Bloom Season Rendering
+Vegetation elements with bloom_season_start and bloom_season_end will:
+- Display bloom_color as an overlay or halo during bloom period
+- Show bloom dates in label/info if displayed
+- Use dd.mm format for date ranges (e.g., "15.04-30.05")
 
 ## Implementation Plan
 
 ### Phase 1: Vegetation Foundation (4-6 hours)
 - [ ] Create `floor_planner/elements/landscaping/` package structure
-- [ ] Implement `Tree` class (circular canopy + trunk)
-- [ ] Implement `Shrub` class (single or grouped)
-- [ ] Implement `Hedge` class (extends RectangularElement)
+- [ ] Implement `Tree` class with diameter, height, trunk_diameter, bloom attributes
+- [ ] Implement `Shrub` class with diameter, height, bloom attributes
+- [ ] Implement `Hedge` class with length, thickness, height, bloom attributes
+- [ ] Add bloom season rendering logic (date parsing, color overlay)
 - [ ] Register vegetation elements in registry
-- [ ] Create `examples/landscaping/vegetation_demo.yml`
+- [ ] Create `examples/landscaping/vegetation_demo.yml` with bloom examples
 - [ ] Run `make all` to test
 
 ### Phase 2: Hardscaping (3-4 hours)
@@ -222,17 +243,20 @@ class GardenPath(RectangularElement):
 ## Testing Strategy
 
 ### Unit Tests (if framework exists)
-- Tree rendering at various sizes
-- Grouped shrubs with different spacing
+- Tree rendering at various sizes and heights
+- Tree and shrub bloom season rendering with date ranges
+- Shrub rendering with height labels
+- Hedge bloom color overlays
 - Fence patterns render correctly
 - Pond shape variations
 - Element rotation for all types
+- Bloom date parsing (dd.mm format validation)
 
 ### Integration Tests
 
 Create demonstration configs:
 
-1. **`vegetation_demo.yml`** - All vegetation types with labels
+1. **`vegetation_demo.yml`** - All vegetation types with labels, heights, and bloom season examples
 2. **`hardscape_demo.yml`** - Fences, paths, walls in various styles
 3. **`water_features_demo.yml`** - Ponds and fountains
 4. **`complete_site_plan.yml`** - Full property with:
@@ -271,6 +295,7 @@ Update `all` target: `all: room_templates elements furniture playground simple l
 - **How detailed should plant symbols be?** → Simple geometric shapes first, optional botanical symbols later
 - **Support curved paths?** → Phase 6, start with straight segments
 - **Layer ordering (trees over paths vs paths over trees)?** → Follow element order in config (painter's algorithm)
+- **Bloom season rendering?** → Show bloom_color as overlay/halo, include dates in labels (dd.mm format)
 
 ### Technical Considerations
 - **Performance with many trees?** → Monitor, optimize if needed
@@ -300,8 +325,8 @@ Update `all` target: `all: room_templates elements furniture playground simple l
 ## Future Enhancements (Beyond This Feature)
 - Topography lines for sloped properties
 - Sun path and shadow analysis
-- Plant growth simulation (show mature sizes)
-- Seasonal palettes (spring, summer, fall, winter)
+- Plant growth simulation (show mature sizes vs young plants)
+- Advanced seasonal palettes (spring foliage, fall colors, winter bare branches) - basic bloom season already implemented
 - Irrigation system elements
 - Lighting plan elements (outdoor lights)
 - Property line and setback visualization
