@@ -73,6 +73,37 @@ Elements defined withing a room are anchored to the room anchor point. This give
 It is recommended to work with rooms instead of individual elements.
 *Easiest start is to copy room and main project file from `examples/templates/rooms`*
 
+## Landscaping Elements
+This fork includes comprehensive landscaping elements for creating site plans and garden designs:
+
+### Vegetation
+- **Trees** - with canopy, trunk, species, bloom seasons, and height labels
+- **Shrubs** - circular bushes with optional bloom patterns
+- **Hedges** - linear hedges with rotation, species, and bloom overlays
+
+### Hardscaping
+- **Fences** - multiple styles (solid, picket, chain-link, rail)
+- **Garden Paths** - various materials (gravel, stone, paving, wood, mulch)
+- **Retaining Walls** - stone course patterns
+
+### Water Features
+- **Fountains** - tiered, spray, and simple styles
+- **Ponds** - multiple shapes (oval, kidney, rectangular, irregular)
+
+### Garden Structures
+- **Pergolas** - posts and beam outlines
+- **Raised Beds** - for vegetable gardens
+- **Gazebos** - octagonal structures
+- **Decks** - wooden plank patterns
+- **Garden Houses** - sheds with doors and roofs
+
+All landscaping elements support:
+- Rotation via `orientation_angle` parameter
+- Custom colors and labels
+- Integration with floor plans and site layouts
+
+See `examples/landscaping/` for demonstrations of each element type, and `examples/templates/rooms/backyard_garden/` for a reusable outdoor space template.
+
 ## Capabilities
 There are no build in limitations. With this module it is possible to draw a complex plans like below.
 Use of rooms in separate YAML files, constants and variables helps in offsetting one peace to another and lets to simulate 'what if' in case one wonder if moving or making a wall or door in given place make sense.

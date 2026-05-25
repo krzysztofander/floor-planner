@@ -312,14 +312,36 @@ Vegetation elements with bloom_season_start and bloom_season_end will:
 - Added to Makefile with separate target for structures demo
 - Full regression test passes: `make all`
 
-### Phase 5: Integration & Documentation (2-3 hours)
-- [ ] Create comprehensive site plan example
-- [ ] Create room template for outdoor spaces
-- [ ] Update Makefile to include landscaping examples
-- [ ] Add landscaping section to README.md
-- [ ] Document all element parameters
-- [ ] Add color palette suggestions for natural elements
-- [ ] Create landscaping best practices guide
+### Phase 5: Integration & Documentation ✅ COMPLETE (May 25, 2026)
+- ✅ Create comprehensive site plan example
+- ✅ Create room template for outdoor spaces
+- ✅ Update Makefile to include landscaping examples
+- ✅ Add landscaping section to README.md
+- ✅ Document all element parameters, including existing ones
+- ✅ Add color palette suggestions for natural elements
+- ✅ Create landscaping best practices guide
+
+**Implementation Notes**:
+- Created `examples/landscaping/site_plan_complete.yml` demonstrating all landscaping elements in an integrated design
+  - 25x20m site with trees, shrubs, hedges, fences, paths, raised beds, garden house, patio, pergola, pond, fountain, gazebo, and retaining wall
+  - Shows realistic layout with proper spacing and design principles
+  - Includes species names and bloom seasons
+- Created `examples/templates/rooms/backyard_garden/` room template
+  - Reusable outdoor space template with patio, pergola, path, raised beds, pond, gazebo, hedge, fence, trees, shrubs, and shed
+  - Demonstrates room concept for outdoor spaces
+  - Easy to customize and integrate into larger site plans
+- Makefile fully updated in Phase 4 with landscaping targets
+- Updated README.md with comprehensive landscaping section
+  - Overview of all element categories
+  - Quick reference to examples and templates
+  - Integration guidance
+- Created `docs/landscaping-guide.md` with complete documentation
+  - Full parameter reference for all 13 landscaping element types
+  - Color palette suggestions organized by category (vegetation, earth tones, water, blooms, fencing)
+  - Best practices guide with 15 tips covering planning, design principles, technical tips, and rendering options
+  - Example workflows for site plan development, iterative design, and contractor documentation
+  - Common design patterns (formal garden, cottage garden, modern minimalist, water garden)
+- All regression tests pass with reduced DPI (300) to keep images under 8000px limit
 
 
 ## Testing Strategy

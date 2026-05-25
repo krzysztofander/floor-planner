@@ -99,7 +99,7 @@ class CircularVegetation(VegetationElement):
         if not has_species and not has_bloom:
             return
         
-        fontsize = 12
+        fontsize = 10
         
         # Render species at center (always horizontal) if enabled and present
         if show_species and has_species:
@@ -131,7 +131,7 @@ class CircularVegetation(VegetationElement):
                     text=bloom_text,
                     rotation=0,
                     color='darkred',
-                    fontsize=fontsize,
+                    fontsize=fontsize-2,
                     centered=True
                 )
     
@@ -455,7 +455,7 @@ class Hedge(VegetationElement, RectangularElement):
             math.radians(self.orientation_angle)
         )
         
-        fontsize = 12
+        fontsize = 10
         offset = 0.15 if (has_bloom and show_species and has_species and show_bloom) else 0
         
         # Calculate offset perpendicular to hedge direction
