@@ -12,9 +12,10 @@ import numpy as np
 from matplotlib.patches import Polygon
 
 from .element import Element
+from .vertical_levels import VertInfoAnnotations
 
 
-class DimensionArrow(Element):
+class DimensionArrow(VertInfoAnnotations, Element):
     """Dimension arrow."""
 
     def __init__(
@@ -64,6 +65,10 @@ class DimensionArrow(Element):
         self.font_size = font_size
         self.annotate_above = annotate_above
         self.color = color
+
+    def _default_height(self) -> float:
+        """Return default height for dimension arrows (info elements have no physical height)."""
+        return 0.0
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dimension arrow."""
@@ -135,6 +140,7 @@ class DimensionArrow(Element):
         shift_vector = np.array([[self.anchor_point[0], self.anchor_point[1]]])
         vertices = rotated_vertices + shift_vector
         arrow = Polygon(vertices, facecolor=self.color)
+        arrow.set_zorder(self.get_zorder())
         ax.add_patch(arrow)
 
         initial_text_center = [
@@ -153,7 +159,7 @@ class DimensionArrow(Element):
         )
 
 
-class TextBox(Element):
+class TextBox(VertInfoAnnotations, Element):
     """Text box."""
 
     def __init__(
@@ -189,6 +195,11 @@ class TextBox(Element):
         self.color = color
         self.transparency = transparency
         self.edgecolor = edgecolor
+
+    def _default_height(self) -> float:
+        """Return default height for text boxes (info elements have no physical height)."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw text box."""
         ax.text(

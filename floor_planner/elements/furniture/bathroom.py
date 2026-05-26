@@ -13,9 +13,10 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import Element, RectangularElement
+from ..vertical_levels import VertInfoLvl03
 
 
-class Shower(RectangularElement):
+class Shower(VertInfoLvl03, RectangularElement):
     """
     Shower stall
 
@@ -62,6 +63,10 @@ class Shower(RectangularElement):
 
         )
 
+    def _default_height(self) -> float:
+        """Return default height for shower."""
+        return 2.1
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw shower."""
         draw_color = self.get_draw_color()
@@ -79,6 +84,7 @@ class Shower(RectangularElement):
             edgecolor=draw_color,
             linewidth=2
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Showerhead in corner (top corner)
@@ -100,6 +106,7 @@ class Shower(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        showerhead.set_zorder(self.get_zorder())
         ax.add_patch(showerhead)
         
         # Water spray lines
@@ -138,7 +145,7 @@ class Shower(RectangularElement):
         )
 
 
-class Bathtub(RectangularElement):
+class Bathtub(VertInfoLvl03, RectangularElement):
     """
     Bathtub
 
@@ -184,6 +191,10 @@ class Bathtub(RectangularElement):
 
         )
 
+    def _default_height(self) -> float:
+        """Return default height for bathtub."""
+        return 0.6
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw bathtub."""
         draw_color = self.get_draw_color()
@@ -201,6 +212,7 @@ class Bathtub(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Inner oval representing the tub basin
@@ -224,6 +236,7 @@ class Bathtub(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        tub_ellipse.set_zorder(self.get_zorder())
         ax.add_patch(tub_ellipse)
 
         render_label_and_id(
@@ -237,7 +250,7 @@ class Bathtub(RectangularElement):
         )
 
 
-class Basin(RectangularElement):
+class Basin(VertInfoLvl03, RectangularElement):
     """
     Bathroom basin/sink
 
@@ -274,6 +287,10 @@ class Basin(RectangularElement):
             label=label
         )  # Basin width  # Basin depth
 
+    def _default_height(self) -> float:
+        """Return default height for basin."""
+        return 0.85
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw basin."""
         draw_color = self.get_draw_color()
@@ -291,6 +308,7 @@ class Basin(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Basin bowl (circle or oval)
@@ -312,6 +330,7 @@ class Basin(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        basin_bowl.set_zorder(self.get_zorder())
         ax.add_patch(basin_bowl)
         
         # Faucet indicator (small circle at back)
@@ -331,6 +350,7 @@ class Basin(RectangularElement):
             facecolor=draw_color,
             edgecolor=draw_color
         )
+        faucet.set_zorder(self.get_zorder())
         ax.add_patch(faucet)
 
         render_label_and_id(
@@ -344,7 +364,7 @@ class Basin(RectangularElement):
         )
 
 
-class Toilet(RectangularElement):
+class Toilet(VertInfoLvl03, RectangularElement):
     """
     Toilet
 
@@ -381,6 +401,10 @@ class Toilet(RectangularElement):
             label=label
         )  # Standard toilet length (front to back)  # Standard toilet width
 
+    def _default_height(self) -> float:
+        """Return default height for toilet."""
+        return 0.5
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw toilet."""
         draw_color = self.get_draw_color()
@@ -408,6 +432,7 @@ class Toilet(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        outer_ellipse.set_zorder(self.get_zorder())
         ax.add_patch(outer_ellipse)
        
         # Tank
@@ -432,6 +457,7 @@ class Toilet(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        tank.set_zorder(self.get_zorder())
         ax.add_patch(tank)
        
         # Inner ellipse (toilet bowl opening)
@@ -454,6 +480,7 @@ class Toilet(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        inner_ellipse.set_zorder(self.get_zorder())
         ax.add_patch(inner_ellipse)
 
         render_label_and_id(

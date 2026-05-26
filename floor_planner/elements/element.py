@@ -19,12 +19,17 @@ import math
 class Element(ABC):
     """Abstract element."""
 
+    # Class-level counter for ensuring unique v_anchor values
+    _element_counter: int = 0
+
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
             color: tuple[int, int, int] | str | None = None,
             label: str | None = None,
-            id: str | None = None
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None
     ):
         """
         Initialize an instance.
@@ -39,6 +44,14 @@ class Element(ABC):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param v_anchor:
+            optional vertical anchor point in meters (height above floor/ground);
+            if None, uses element's default from _default_v_anchor();
+            used for z-ordering in 2D rendering and future 3D positioning
+        :param height:
+            optional physical height of element in meters;
+            if None, uses element's default from _default_height();
+            used for semantic meaning and future 3D rendering
         """
         self.anchor_point = anchor_point
         self.color = color
@@ -47,6 +60,20 @@ class Element(ABC):
         self.id = id if id else generate_element_id(self.__class__.__name__, label)
         # Room association (set by Room class when element is part of a room)
         self.room_id: str | None = None
+        
+        # Vertical positioning with element counter for unique v_anchor
+        base_v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
+        
+        # Increment class counter for this instance
+        Element._element_counter += 1
+        self._element_instance_number = Element._element_counter
+        
+        # Add tiny offset to ensure unique v_anchor for deterministic ordering
+        # 0.0001 per element ensures no collisions while keeping semantic meaning
+        self.v_anchor = base_v_anchor + (0.0001 * self._element_instance_number)
+        
+        # Physical height
+        self.height = height if height is not None else self._default_height()
 
     def get_draw_color(self) -> str | tuple[int, int, int] | None:
         """
@@ -61,6 +88,43 @@ class Element(ABC):
                 return None
             return 'red'
         return self.color
+
+    def _default_v_anchor(self) -> float:
+        """
+        Get default vertical anchor for this element type.
+        
+        Override in subclass or use VertInfo mixin for standard levels.
+        Base implementation returns 0.0 (floor/ground level).
+        
+        :return:
+            vertical anchor in meters (height above floor/ground)
+        """
+        return 0.0
+
+    def _default_height(self) -> float:
+        """
+        Get default physical height for this element type.
+        
+        Override in subclass to specify element height.
+        Base implementation returns 0.0 (no height/point element).
+        
+        :return:
+            element height in meters
+        """
+        return 0.0
+
+    def get_zorder(self) -> float:
+        """
+        Calculate matplotlib zorder based on v_anchor.
+        
+        Returns v_anchor directly - matplotlib accepts float zorder values.
+        Element counter offset ensures unique zorder for every element,
+        providing deterministic drawing order.
+        
+        :return:
+            zorder value for matplotlib (v_anchor with counter offset)
+        """
+        return self.v_anchor
 
     @abstractmethod
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -78,7 +142,9 @@ class RectangularElement(Element):
             thickness: float,
             color: tuple[int, int, int] | str | None = None,
             label: str | None = None,
-            id: str | None = None
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None
     ):
         """
         Initialize an instance.
@@ -99,8 +165,19 @@ class RectangularElement(Element):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param v_anchor:
+            optional vertical anchor point in meters; if None, uses default
+        :param height:
+            optional physical height in meters; if None, uses default
         """
-        super().__init__(anchor_point=anchor_point, color=color, label=label, id=id)
+        super().__init__(
+            anchor_point=anchor_point,
+            color=color,
+            label=label,
+            id=id,
+            v_anchor=v_anchor,
+            height=height
+        )
         self.orientation_angle = orientation_angle
         self.length = length
         self.thickness = thickness
@@ -148,7 +225,9 @@ class SurfaceElement(RectangularElement):
             width: float,
             color: tuple[int, int, int] | str | None = None,
             label: str | None = None,
-            id: str | None = None
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None
     ):
         """
         Initialize an instance.
@@ -169,6 +248,10 @@ class SurfaceElement(RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param v_anchor:
+            optional vertical anchor point in meters; if None, uses default
+        :param height:
+            optional physical height in meters; if None, uses default
         """
         # Pass width as thickness to parent for geometry calculations
         super().__init__(
@@ -178,7 +261,9 @@ class SurfaceElement(RectangularElement):
             thickness=width,  # width maps to thickness for geometry
             color=color,
             label=label,
-            id=id
+            id=id,
+            v_anchor=v_anchor,
+            height=height
         )
         # Expose width as semantic property for clarity
         self.width = width
@@ -198,7 +283,9 @@ class CircularElement(Element):
             diameter: float,
             color: tuple[int, int, int] | str | None = None,
             label: str | None = None,
-            id: str | None = None
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None
     ):
         """
         Initialize an instance.
@@ -213,8 +300,19 @@ class CircularElement(Element):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param v_anchor:
+            optional vertical anchor point in meters; if None, uses default
+        :param height:
+            optional physical height in meters; if None, uses default
         """
-        super().__init__(anchor_point=anchor_point, color=color, label=label, id=id)
+        super().__init__(
+            anchor_point=anchor_point,
+            color=color,
+            label=label,
+            id=id,
+            v_anchor=v_anchor,
+            height=height
+        )
         self.diameter = diameter
 
     @property

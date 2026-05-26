@@ -14,9 +14,10 @@ from ...utils import rotate_point, render_label_and_id, text_readability_rotatio
 from ..element import Element, RectangularElement
 from ..info import DimensionArrow
 from ..options import get_dimensions, get_element_option
+from ..vertical_levels import VertInfoLvl03
 
 
-class GenericStorage(RectangularElement):
+class GenericStorage(VertInfoLvl03, RectangularElement):
     """
     Storage box
 
@@ -72,6 +73,10 @@ class GenericStorage(RectangularElement):
 
         # Room properties (set by Room class if this storage box is part of a room)
 
+    def _default_height(self) -> float:
+        """Return default height for storage."""
+        return 2.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw storage box."""
         draw_color = self.get_draw_color()
@@ -90,6 +95,7 @@ class GenericStorage(RectangularElement):
             edgecolor=draw_color,
             linewidth=linewidth
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
 
         corners = self.get_corners()
@@ -196,7 +202,7 @@ class Storage40(GenericStorage):
         )
 
 
-class Tabletop(RectangularElement):
+class Tabletop(VertInfoLvl03, RectangularElement):
     """
     Storage box
 
@@ -237,6 +243,10 @@ class Tabletop(RectangularElement):
 
         # Room properties (set by Room class if this storage box is part of a room)
 
+    def _default_height(self) -> float:
+        """Return default height for tabletop."""
+        return 0.75
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw storage box."""
         draw_color = self.get_draw_color()
@@ -255,6 +265,7 @@ class Tabletop(RectangularElement):
             edgecolor=draw_color,
             linewidth=linewidth
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
         
         patch = Rectangle(
@@ -267,6 +278,7 @@ class Tabletop(RectangularElement):
             edgecolor=draw_color,
             linewidth=linewidth / 3
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
 
         # Render label and ID

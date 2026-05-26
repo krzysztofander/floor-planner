@@ -16,6 +16,7 @@ Comprehensive parameter documentation for all non-landscaping elements in the fl
 11. [Furniture - Bathroom](#furniture---bathroom)
 12. [Furniture - General](#furniture---general)
 13. [Furniture - Decorations](#furniture---decorations)
+14. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
 
 ---
 
@@ -546,3 +547,134 @@ Fish tank / aquarium.
 ### Visibility
 - Elements inherit visibility settings from global options
 - Can be controlled via options like `show_invisible` and element-specific color settings
+
+---
+
+## Vertical Positioning (v_anchor and height)
+
+All elements support vertical positioning through two parameters that control their rendering order and enable future 3D visualization.
+
+### v_anchor (Vertical Anchor)
+
+**Type:** `float | None`  
+**Default:** Element-specific (see table below)  
+**Range:** 0.0 - 10.0 (higher = rendered on top)
+
+The `v_anchor` parameter determines the vertical position and rendering order (z-order) of elements:
+
+- **Rendering Order**: Elements with higher `v_anchor` values are drawn on top of those with lower values
+- **Automatic Offsetting**: Each element instance receives a unique offset of `0.0001 × instance_number` added to its base `v_anchor`, ensuring deterministic rendering order even for elements at the same level
+- **YAML Order Preservation**: Elements defined first in YAML are instantiated first, so they render first (behind) within the same level
+
+**Default v_anchor Values by Element Type:**
+
+| Level | v_anchor | Element Types | Description |
+|-------|----------|---------------|-------------|
+| Ground | 0.00 | Floor surfaces, lawns, paths | Ground-level elements |
+| Structural | 0.01 | Walls, decks, fences | Structural elements |
+| Mid-Level | 0.02 | Doors, trees, shrubs, pools | Mid-height elements |
+| Furniture | 0.03 | Tables, chairs, beds, appliances | Furniture and fixtures |
+| Wall Outlets | 0.30 | PowerOutlet | Electrical outlets on walls |
+| Windows | 1.00 | Window | Windows in walls |
+| Switches | 1.20 | Switch | Light switches |
+| Wall Lamps | 2.00 | WallLamp | Wall-mounted lighting |
+| Ceiling | 2.70 | CeilingLamp | Ceiling fixtures |
+| Annotations | 3.50 | DimensionArrow, TextBox | Info elements (always on top) |
+
+**When to Override:**
+- You want a specific element to render above/below its default layer
+- Creating custom layering effects
+- Debugging rendering order issues
+
+**YAML Example:**
+```yaml
+elements:
+  - element_type: desk
+    anchor_point: [2.0, 3.0]
+    # Uses default v_anchor: 0.03 (furniture level)
+  
+  - element_type: desk
+    anchor_point: [4.0, 3.0]
+    v_anchor: 2.5  # Override: render this desk very high (unusual but possible)
+```
+
+### height
+
+**Type:** `float | None`  
+**Default:** Element-specific (see table below)  
+**Unit:** meters  
+**Range:** 0.0+ (physical height in meters)
+
+The `height` parameter represents the physical height of elements:
+
+- **Current Use**: Semantic metadata (not used for 2D rendering)
+- **Future Use**: Will enable 3D visualization and elevation views
+- **Info Elements**: Annotation elements (DimensionArrow, TextBox) have `height = 0.0` as they're non-physical
+
+**Default Heights by Element Type:**
+
+| Element Type | Default Height (m) | Description |
+|--------------|-------------------|-------------|
+| **Structural** |
+| Wall, WallND | 2.7 | Standard room height |
+| Window | 1.4 | Typical window height |
+| Door | 2.1 | Standard door height |
+| **Furniture** |
+| Desk, Table | 0.75 | Standard desk/table height |
+| Chair, Sofa | 0.9 | Seating height with backrest |
+| Bed | 0.5 | Mattress height |
+| Wardrobe, Bookshelf | 2.0 | Tall storage furniture |
+| **Appliances** |
+| Refrigerator | 1.8 | Standard fridge height |
+| Stove, Dishwasher | 0.9 | Counter-height appliances |
+| WashingMachine | 0.85 | Standard washer height |
+| **Bathroom** |
+| Toilet, Bidet | 0.4 | Fixture height |
+| Bathtub | 0.6 | Tub height |
+| Sink | 0.85 | Sink height |
+| **Landscaping** |
+| Hedge, Shrub | 1.5 | Small hedge/shrub |
+| DecidTree, EverTree | 5.0 - 10.0 | Tree heights |
+| Lawn, Path, Deck | 0.0 | Ground-level surfaces |
+| **Lighting** |
+| CeilingLamp | 0.2 | Fixture depth |
+| WallLamp | 0.3 | Sconce depth |
+| **Annotations** |
+| DimensionArrow, TextBox | 0.0 | Non-physical elements |
+
+**When to Override:**
+- Modeling specific furniture dimensions
+- Creating elevation views
+- Preparing for 3D visualization
+- Accurate space planning with vertical constraints
+
+**YAML Example:**
+```yaml
+elements:
+  - element_type: bookshelf
+    anchor_point: [1.0, 2.0]
+    # Uses default height: 2.0m
+  
+  - element_type: bookshelf
+    anchor_point: [3.0, 2.0]
+    height: 2.5  # Override: taller bookshelf
+```
+
+### Implementation Details
+
+**Automatic Element Counter:**
+- Each Element instantiation increments a class-level counter
+- Counter value is stored as `_element_instance_number`
+- Final `v_anchor = base_v_anchor + (0.0001 × _element_instance_number)`
+- This ensures unique z-order values without collisions
+
+**Method Resolution Order (MRO):**
+- Elements inherit from VertInfo mixin classes (e.g., `VertInfoLvl03`)
+- Mixin MUST come first in inheritance: `class Desk(VertInfoLvl03, RectangularElement)`
+- Mixins provide `_default_v_anchor()` method
+- Elements override `_default_height()` method
+
+**Z-Order in Matplotlib:**
+- The `get_zorder()` method returns the final `v_anchor` value
+- Passed to matplotlib as `patch.set_zorder(self.get_zorder())`
+- Matplotlib handles float z-order values automatically (no manual sorting needed)

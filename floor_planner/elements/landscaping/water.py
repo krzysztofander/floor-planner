@@ -12,9 +12,10 @@ import random
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import Element, CircularElement, SurfaceElement, RectangularElement
+from ..vertical_levels import VertInfoLvl02
 
 
-class Fountain(CircularElement):
+class Fountain(VertInfoLvl02, CircularElement):
     """Fountain element with water spray pattern."""
 
     def __init__(
@@ -55,6 +56,10 @@ class Fountain(CircularElement):
         self.style = style
         self.basin_color = basin_color
 
+    def _default_height(self) -> float:
+        """Return default height for fountain."""
+        return 1.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fountain with style-specific water pattern."""
         # Draw basin
@@ -66,6 +71,7 @@ class Fountain(CircularElement):
             linewidth=1.5,
             alpha=0.8
         )
+        basin.set_zorder(self.get_zorder())
         ax.add_patch(basin)
 
         # Draw water surface
@@ -77,6 +83,7 @@ class Fountain(CircularElement):
             linewidth=0.5,
             alpha=0.6
         )
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
         # Draw water pattern based on style
@@ -114,6 +121,7 @@ class Fountain(CircularElement):
                 linewidth=1.0,
                 alpha=0.7
             )
+            tier_circle.set_zorder(self.get_zorder())
             ax.add_patch(tier_circle)
             # Draw small water ripples around each tier
             num_ripples = 8
@@ -123,6 +131,7 @@ class Fountain(CircularElement):
                 y = self.anchor_point[1] + radius * math.sin(angle)
                 ripple = Circle((x, y), 0.05, facecolor=self.color, 
                               edgecolor='none', alpha=0.4)
+                ripple.set_zorder(self.get_zorder())
                 ax.add_patch(ripple)
 
     def _draw_spray_pattern(self, ax: matplotlib.axes.Axes) -> None:
@@ -162,6 +171,7 @@ class Fountain(CircularElement):
                 linestyle='--',
                 alpha=0.5
             )
+            ripple.set_zorder(self.get_zorder())
             ax.add_patch(ripple)
 
     def _build_label_text(self) -> str:
@@ -255,6 +265,7 @@ class Pond(Element):
             linewidth=1.5,
             alpha=0.8
         )
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
         
         # Water surface
@@ -267,6 +278,7 @@ class Pond(Element):
             linewidth=0.5,
             alpha=0.6
         )
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
     def _draw_kidney_pond(self, ax: matplotlib.axes.Axes) -> None:
@@ -291,6 +303,7 @@ class Pond(Element):
         # Border
         border = Polygon(points, facecolor=self.border_color, 
                         edgecolor='black', linewidth=1.5, alpha=0.8)
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
         
         # Water surface (slightly smaller)
@@ -309,6 +322,7 @@ class Pond(Element):
         
         water = Polygon(water_points, facecolor=self.color,
                        edgecolor=self.color, linewidth=0.5, alpha=0.6)
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
     def _draw_rectangular_pond(self, ax: matplotlib.axes.Axes) -> None:
@@ -329,6 +343,7 @@ class Pond(Element):
             linewidth=1.5,
             alpha=0.8
         )
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
         
         # Water surface
@@ -342,6 +357,7 @@ class Pond(Element):
             linewidth=0.5,
             alpha=0.6
         )
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
     def _draw_irregular_pond(self, ax: matplotlib.axes.Axes) -> None:
@@ -363,6 +379,7 @@ class Pond(Element):
         # Border
         border = Polygon(points, facecolor=self.border_color,
                         edgecolor='black', linewidth=1.5, alpha=0.8)
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
         
         # Water surface (slightly smaller)
@@ -370,6 +387,7 @@ class Pond(Element):
                         p[1] * 0.95 + self.anchor_point[1] * 0.05] for p in points]
         water = Polygon(water_points, facecolor=self.color,
                        edgecolor=self.color, linewidth=0.5, alpha=0.6)
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
     def _draw_water_ripples(self, ax: matplotlib.axes.Axes) -> None:
@@ -395,6 +413,7 @@ class Pond(Element):
                     linestyle='--',
                     alpha=0.3
                 )
+                ripple.set_zorder(self.get_zorder())
                 ax.add_patch(ripple)
 
     def _build_label_text(self) -> str:
@@ -407,7 +426,7 @@ class Pond(Element):
         return " ".join(parts) if parts else ""
 
 
-class RectPool(RectangularElement):
+class RectPool(VertInfoLvl02, RectangularElement):
     """Rectangular swimming pool element for garden/summer use."""
 
     def __init__(
@@ -457,6 +476,10 @@ class RectPool(RectangularElement):
         self.show_lanes = show_lanes
         self.show_steps = show_steps
 
+    def _default_height(self) -> float:
+        """Return default height for rectangular pool."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the rectangular swimming pool."""
         draw_color = self.get_draw_color()
@@ -475,6 +498,7 @@ class RectPool(RectangularElement):
             linewidth=2,
             alpha=0.9
         )
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
 
         # Draw water surface
@@ -488,6 +512,7 @@ class RectPool(RectangularElement):
             linewidth=1,
             alpha=0.7
         )
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
         # Draw lane lines if enabled
@@ -551,6 +576,7 @@ class RectPool(RectangularElement):
                 linewidth=0.8,
                 alpha=0.5
             )
+            step_rect.set_zorder(self.get_zorder())
             ax.add_patch(step_rect)
 
     def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
@@ -571,6 +597,7 @@ class RectPool(RectangularElement):
                 edgecolor='none',
                 alpha=random.uniform(0.1, 0.3)
             )
+            shimmer.set_zorder(self.get_zorder())
             ax.add_patch(shimmer)
 
     def _build_label_text(self) -> str:
@@ -582,7 +609,7 @@ class RectPool(RectangularElement):
         return " ".join(parts)
 
 
-class OvalPool(RectangularElement):
+class OvalPool(VertInfoLvl02, RectangularElement):
     """Oval swimming pool element for garden/summer use."""
 
     def __init__(
@@ -628,6 +655,10 @@ class OvalPool(RectangularElement):
         self.border_color = border_color
         self.show_steps = show_steps
 
+    def _default_height(self) -> float:
+        """Return default height for oval pool."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the oval swimming pool."""
         from matplotlib.patches import Ellipse
@@ -660,6 +691,7 @@ class OvalPool(RectangularElement):
             alpha=0.9,
             transform=transform
         )
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
 
         # Draw water surface
@@ -673,6 +705,7 @@ class OvalPool(RectangularElement):
             alpha=0.7,
             transform=transform
         )
+        water.set_zorder(self.get_zorder())
         ax.add_patch(water)
 
         # Draw steps if enabled
@@ -716,6 +749,7 @@ class OvalPool(RectangularElement):
                 linewidth=0.8,
                 alpha=0.4
             )
+            step.set_zorder(self.get_zorder())
             ax.add_patch(step)
 
     def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
@@ -739,6 +773,7 @@ class OvalPool(RectangularElement):
                 edgecolor='none',
                 alpha=random.uniform(0.1, 0.3)
             )
+            shimmer.set_zorder(self.get_zorder())
             ax.add_patch(shimmer)
 
     def _build_label_text(self) -> str:

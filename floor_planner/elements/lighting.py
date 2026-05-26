@@ -12,9 +12,10 @@ from matplotlib.patches import Arc, Circle, Rectangle
 
 from ..constants import RIGHT_ANGLE_IN_DEGREES
 from .element import Element
+from .vertical_levels import VertInfoCeiling, VertInfoWallLamps, VertInfoSwitches
 
 
-class CeilingLamp(Element):
+class CeilingLamp(VertInfoCeiling, Element):
     """Ceiling lamp represented by a circle and a cross inside."""
 
     def __init__(
@@ -46,6 +47,10 @@ class CeilingLamp(Element):
         self.line_width = line_width
         self.color = color
 
+    def _default_height(self) -> float:
+        """Return default height for ceiling lamp."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw ceiling lamp."""
         radius = 0.5 * self.symbol_diameter
@@ -56,6 +61,7 @@ class CeilingLamp(Element):
             lw=self.line_width,
             edgecolor=self.color
         )
+        circle.set_zorder(self.get_zorder())
         ax.add_patch(circle)
 
         ax.plot(
@@ -84,7 +90,7 @@ class CeilingLamp(Element):
         )
 
 
-class WallLamp(Element):
+class WallLamp(VertInfoWallLamps, Element):
     """Wall lamp (e.g., sconce)."""
 
     def __init__(
@@ -127,6 +133,10 @@ class WallLamp(Element):
         self.line_width = line_width
         self.color = color
 
+    def _default_height(self) -> float:
+        """Return default height for wall lamp."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw wall lamp."""
         orientation_angle_in_radians = math.radians(self.orientation_angle)
@@ -145,6 +155,7 @@ class WallLamp(Element):
             lw=self.line_width,
             edgecolor=self.color
         )
+        stub.set_zorder(self.get_zorder())
         ax.add_patch(stub)
 
         orthogonal_angle_in_radians = orientation_angle_in_radians + math.pi / 2
@@ -162,6 +173,7 @@ class WallLamp(Element):
             lw=self.line_width,
             color=self.color
         )
+        arc.set_zorder(self.get_zorder())
         ax.add_patch(arc)
 
         cross_angles = [
@@ -250,6 +262,7 @@ class LEDStrip(Element):
             edgecolor=self.color,
             lw=self.line_width
         )
+        rectangle.set_zorder(self.get_zorder())
         ax.add_patch(rectangle)
 
         orientation_angle_in_radians = math.radians(self.orientation_angle)
@@ -272,6 +285,7 @@ class LEDStrip(Element):
                 lw=self.line_width,
                 edgecolor=self.color
             )
+            circle.set_zorder(self.get_zorder())
             ax.add_patch(circle)
 
 
@@ -321,6 +335,10 @@ class Switch(Element):
         self.pass_through = pass_through
         self.line_width = line_width
         self.color = color
+
+    def _default_height(self) -> float:
+        """Return default height for switch."""
+        return 0.0
 
     def __draw_key_symbol__(
             self,
@@ -381,6 +399,7 @@ class Switch(Element):
         circle = Circle(
             circle_center, radius, fill=True, facecolor=self.color, edgecolor=self.color, lw=0.1
         )
+        circle.set_zorder(self.get_zorder())
         ax.add_patch(circle)
 
         key_angle = self.orientation_angle + RIGHT_ANGLE_IN_DEGREES

@@ -14,9 +14,10 @@ from ..utils import rotate_point, render_label_and_id, text_readability_rotation
 from .element import Element, RectangularElement
 from .info import DimensionArrow
 from .options import get_dimensions, get_element_option
+from .vertical_levels import VertInfoLvl01, VertInfoWindows
 
 
-class WallND(RectangularElement):
+class WallND(VertInfoLvl01, RectangularElement):
     """
     Straight wall without dimensions.
 
@@ -69,6 +70,10 @@ class WallND(RectangularElement):
         # Room properties (set by Room class if this wall is part of a room)
         self.is_room_wall = False
 
+    def _default_height(self) -> float:
+        """Return default height for walls (standard room height)."""
+        return 2.7
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw straight wall."""
         draw_color = self.get_draw_color()
@@ -92,6 +97,7 @@ class WallND(RectangularElement):
             facecolor=draw_color,
             alpha=alfa
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
 
         # Render label and ID
@@ -138,7 +144,7 @@ class Wall(WallND):
             )
             dimension.draw(ax)
 
-class Window(RectangularElement):
+class Window(VertInfoWindows, RectangularElement):
     """Window in a wall."""
 
     def __init__(
@@ -194,6 +200,10 @@ class Window(RectangularElement):
         self.overall_thickness = overall_thickness
         self.single_line_thickness = single_line_thickness
 
+    def _default_height(self) -> float:
+        """Return default height for windows."""
+        return 1.4
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw window."""
         first_line = Rectangle(
@@ -203,6 +213,7 @@ class Window(RectangularElement):
             angle=self.orientation_angle,
             facecolor=self.color
         )
+        first_line.set_zorder(self.get_zorder())
         ax.add_patch(first_line)
 
         window_emptyness_anchor_point = rotate_point(anchor_point=self.anchor_point,
@@ -216,6 +227,7 @@ class Window(RectangularElement):
             angle=self.orientation_angle,
             facecolor='white'
         )
+        window_emptyness.set_zorder(self.get_zorder())
         ax.add_patch(window_emptyness)
 
         second_anchor_point = rotate_point(anchor_point=self.anchor_point,
@@ -229,6 +241,7 @@ class Window(RectangularElement):
             angle=self.orientation_angle,
             facecolor=self.color
         )
+        second_line.set_zorder(self.get_zorder())
         ax.add_patch(second_line)
 
         # Render label and ID at midpoint between the two lines and centered horizontally

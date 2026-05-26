@@ -10,9 +10,10 @@ import matplotlib.patches as mpatches
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement
+from ..vertical_levels import VertInfoLvl01, VertInfoLvl00
 
 
-class Fence(RectangularElement):
+class Fence(VertInfoLvl01, RectangularElement):
     """Fence element with style variations."""
 
     def __init__(
@@ -57,6 +58,10 @@ class Fence(RectangularElement):
         self.style = style
         self.height = height
 
+    def _default_height(self) -> float:
+        """Return default height for fence."""
+        return 1.8
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fence with style-specific patterns."""
         draw_color = self.get_draw_color()
@@ -74,6 +79,7 @@ class Fence(RectangularElement):
             linewidth=1.0,
             alpha=0.8
         )
+        fence.set_zorder(self.get_zorder())
         ax.add_patch(fence)
 
         # Add style-specific pattern
@@ -192,7 +198,7 @@ class Fence(RectangularElement):
         return " ".join(parts) if parts else ""
 
 
-class GardenPath(SurfaceElement):
+class GardenPath(VertInfoLvl00, SurfaceElement):
     """Garden path with material patterns."""
 
     def __init__(
@@ -233,6 +239,10 @@ class GardenPath(SurfaceElement):
         )
         self.material = material
 
+    def _default_height(self) -> float:
+        """Return default height for garden path."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the path with material-specific pattern."""
         draw_color = self.get_draw_color()
@@ -250,6 +260,7 @@ class GardenPath(SurfaceElement):
             linewidth=1.0,
             alpha=0.7
         )
+        path.set_zorder(self.get_zorder())
         ax.add_patch(path)
 
         # Add material-specific pattern
@@ -412,7 +423,7 @@ class GardenPath(SurfaceElement):
         return " ".join(parts) if parts else ""
 
 
-class RetainingWall(RectangularElement):
+class RetainingWall(VertInfoLvl01, RectangularElement):
     """Retaining wall element."""
 
     def __init__(
@@ -453,6 +464,10 @@ class RetainingWall(RectangularElement):
         )
         self.height = height
 
+    def _default_height(self) -> float:
+        """Return default height for retaining wall."""
+        return 1.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the retaining wall with stone texture."""
         draw_color = self.get_draw_color()
@@ -470,6 +485,7 @@ class RetainingWall(RectangularElement):
             linewidth=1.5,
             alpha=0.9
         )
+        wall.set_zorder(self.get_zorder())
         ax.add_patch(wall)
 
         # Add stone pattern

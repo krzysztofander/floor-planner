@@ -13,9 +13,10 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import RectangularElement
+from ..vertical_levels import VertInfoLvl03
 
 
-class Dishwasher(RectangularElement):
+class Dishwasher(VertInfoLvl03, RectangularElement):
     """
     Dishwasher appliance
 
@@ -54,6 +55,10 @@ class Dishwasher(RectangularElement):
             label=label
         )  # Standard dishwasher width  # Standard dishwasher depth
 
+    def _default_height(self) -> float:
+        """Return default height for dishwasher."""
+        return 0.85
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dishwasher."""
         draw_color = self.get_draw_color()
@@ -71,6 +76,7 @@ class Dishwasher(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw double S pattern (mirrored and turned 90 degrees) with circle through middle
@@ -99,6 +105,7 @@ class Dishwasher(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        upper_right_arc.set_zorder(self.get_zorder())
         ax.add_patch(upper_right_arc)
         
         # Upper left arc
@@ -117,6 +124,7 @@ class Dishwasher(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        upper_left_arc.set_zorder(self.get_zorder())
         ax.add_patch(upper_left_arc)
         
         # Second S curve (lower) - mirrored
@@ -136,6 +144,7 @@ class Dishwasher(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        lower_right_arc.set_zorder(self.get_zorder())
         ax.add_patch(lower_right_arc)
         
         # Lower left arc
@@ -154,6 +163,7 @@ class Dishwasher(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        lower_left_arc.set_zorder(self.get_zorder())
         ax.add_patch(lower_left_arc)
         
         # Circle crossing through the middle of the SS pattern
@@ -171,6 +181,7 @@ class Dishwasher(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        middle_circle.set_zorder(self.get_zorder())
         ax.add_patch(middle_circle)
 
         render_label_and_id(
@@ -184,7 +195,7 @@ class Dishwasher(RectangularElement):
         )
 
 
-class Fridge(RectangularElement):
+class Fridge(VertInfoLvl03, RectangularElement):
     """
     Refrigerator appliance
 
@@ -234,6 +245,10 @@ class Fridge(RectangularElement):
 
         )
 
+    def _default_height(self) -> float:
+        """Return default height for fridge."""
+        return 1.8
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw fridge."""
         draw_color = self.get_draw_color()
@@ -251,6 +266,7 @@ class Fridge(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw snowflake symbol in center
@@ -300,7 +316,7 @@ class Fridge(RectangularElement):
         )
 
 
-class Freezer(RectangularElement):
+class Freezer(VertInfoLvl03, RectangularElement):
     """
     Freezer appliance
 
@@ -350,6 +366,10 @@ class Freezer(RectangularElement):
 
         )
 
+    def _default_height(self) -> float:
+        """Return default height for freezer."""
+        return 1.8
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw freezer."""
         draw_color = self.get_draw_color()
@@ -367,6 +387,7 @@ class Freezer(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw two snowflakes
@@ -421,7 +442,7 @@ class Freezer(RectangularElement):
         )
 
 
-class WashingMachine(RectangularElement):
+class WashingMachine(VertInfoLvl03, RectangularElement):
     """
     Washing machine appliance
 
@@ -458,6 +479,10 @@ class WashingMachine(RectangularElement):
             label=label
         )  # Standard washing machine width  # Standard washing machine depth
 
+    def _default_height(self) -> float:
+        """Return default height for washing machine."""
+        return 0.85
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw washing machine."""
         draw_color = self.get_draw_color()
@@ -475,6 +500,7 @@ class WashingMachine(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw two concentric circles representing the drum
@@ -495,6 +521,7 @@ class WashingMachine(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        outer_circle.set_zorder(self.get_zorder())
         ax.add_patch(outer_circle)
         
         # Inner circle
@@ -505,6 +532,7 @@ class WashingMachine(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        inner_circle.set_zorder(self.get_zorder())
         ax.add_patch(inner_circle)
 
         render_label_and_id(
@@ -518,7 +546,7 @@ class WashingMachine(RectangularElement):
         )
 
 
-class Dryer(RectangularElement):
+class Dryer(VertInfoLvl03, RectangularElement):
     """
     Dryer appliance
 
@@ -555,6 +583,10 @@ class Dryer(RectangularElement):
             label=label
         )  # Standard dryer width  # Standard dryer depth
 
+    def _default_height(self) -> float:
+        """Return default height for dryer."""
+        return 0.85
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dryer."""
         draw_color = self.get_draw_color()
@@ -572,6 +604,7 @@ class Dryer(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw two concentric circles representing the drum (same as washing machine)
@@ -592,6 +625,7 @@ class Dryer(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        outer_circle.set_zorder(self.get_zorder())
         ax.add_patch(outer_circle)
         
         # Inner circle
@@ -602,6 +636,7 @@ class Dryer(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        inner_circle.set_zorder(self.get_zorder())
         ax.add_patch(inner_circle)
         
         # Solid small circle in the center (differentiates from washing machine)
@@ -611,6 +646,7 @@ class Dryer(RectangularElement):
             facecolor=draw_color,
             edgecolor=draw_color
         )
+        center_dot.set_zorder(self.get_zorder())
         ax.add_patch(center_dot)
 
         render_label_and_id(
@@ -624,7 +660,7 @@ class Dryer(RectangularElement):
         )
 
 
-class Stovetop(RectangularElement):
+class Stovetop(VertInfoLvl03, RectangularElement):
     """
     Stovetop appliance
 
@@ -661,6 +697,10 @@ class Stovetop(RectangularElement):
             label=label
         )  # Standard stovetop width  # Standard stovetop depth
 
+    def _default_height(self) -> float:
+        """Return default height for stovetop."""
+        return 0.85
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw stovetop."""
         draw_color = self.get_draw_color()
@@ -678,6 +718,7 @@ class Stovetop(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw 4 circles representing burners/heat plates (2x2 grid)
@@ -708,6 +749,7 @@ class Stovetop(RectangularElement):
                 edgecolor=draw_color,
                 linewidth=1.0
             )
+            burner.set_zorder(self.get_zorder())
             ax.add_patch(burner)
 
         render_label_and_id(
@@ -721,7 +763,7 @@ class Stovetop(RectangularElement):
         )
 
 
-class SingleSink(RectangularElement):
+class SingleSink(VertInfoLvl03, RectangularElement):
     """
     Single sink appliance
 
@@ -758,6 +800,10 @@ class SingleSink(RectangularElement):
             label=label
         )  # Single sink length  # Single sink width
 
+    def _default_height(self) -> float:
+        """Return default height for single sink."""
+        return 0.9
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw single sink."""
         draw_color = self.get_draw_color()
@@ -775,6 +821,7 @@ class SingleSink(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Left half: rectangle representing the basin
@@ -799,6 +846,7 @@ class SingleSink(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        basin.set_zorder(self.get_zorder())
         ax.add_patch(basin)
         
         # Right half: 4 parallel lines representing drain/drying area
@@ -841,7 +889,7 @@ class SingleSink(RectangularElement):
         )
 
 
-class DoubleSink(RectangularElement):
+class DoubleSink(VertInfoLvl03, RectangularElement):
     """
     Double sink appliance
 
@@ -878,6 +926,10 @@ class DoubleSink(RectangularElement):
             label=label
         )  # Double sink length (wider than single)  # Double sink width
 
+    def _default_height(self) -> float:
+        """Return default height for double sink."""
+        return 0.9
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw double sink."""
         draw_color = self.get_draw_color()
@@ -895,6 +947,7 @@ class DoubleSink(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Left basin: rectangle
@@ -921,6 +974,7 @@ class DoubleSink(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        left_basin.set_zorder(self.get_zorder())
         ax.add_patch(left_basin)
         
         # Right basin
@@ -943,6 +997,7 @@ class DoubleSink(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        right_basin.set_zorder(self.get_zorder())
         ax.add_patch(right_basin)
 
         render_label_and_id(

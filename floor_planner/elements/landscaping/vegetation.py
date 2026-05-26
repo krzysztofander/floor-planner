@@ -12,6 +12,7 @@ from matplotlib.patches import Circle, Rectangle
 from ...utils import rotate_point, render_label_and_id, _render_text
 from ..element import Element, RectangularElement, SurfaceElement, CircularElement
 from ..options import get_show_species, get_show_bloom
+from ..vertical_levels import VertInfoLvl02, VertInfoLvl00
 
 
 class VegetationElement:
@@ -50,7 +51,7 @@ class VegetationElement:
         return " ".join(parts) if parts else ""
 
 
-class CircularVegetation(CircularElement):
+class CircularVegetation(VertInfoLvl02, CircularElement):
     """Base class for circular vegetation elements (Tree, Shrub)."""
     
     def __init__(
@@ -101,6 +102,7 @@ class CircularVegetation(CircularElement):
             linewidth=1.5,
             alpha=alpha
         )
+        circle.set_zorder(self.get_zorder())
         ax.add_patch(circle)
     
     def _render_species_and_bloom(self, ax: matplotlib.axes.Axes, element_type: str, vertical_offset: float) -> None:
@@ -227,6 +229,7 @@ class Tree(CircularVegetation):
             edgecolor='#654321',
             linewidth=1.0
         )
+        trunk.set_zorder(self.get_zorder())
         ax.add_patch(trunk)
 
         # Draw canopy using base class method
@@ -244,6 +247,7 @@ class Tree(CircularVegetation):
                 linestyle='--',
                 alpha=0.6
             )
+            bloom_halo.set_zorder(self.get_zorder())
             ax.add_patch(bloom_halo)
 
         # Render species and bloom text in center
@@ -336,6 +340,7 @@ class Shrub(CircularVegetation):
                     linewidth=0.5,
                     alpha=0.7
                 )
+                bloom.set_zorder(self.get_zorder())
                 ax.add_patch(bloom)
 
         # Render species and bloom text in center
@@ -358,7 +363,7 @@ class Shrub(CircularVegetation):
         )
 
 
-class Hedge(VegetationElement, RectangularElement):
+class Hedge(VertInfoLvl02, VegetationElement, RectangularElement):
     """Linear hedge element."""
 
     def __init__(
@@ -419,6 +424,9 @@ class Hedge(VegetationElement, RectangularElement):
             bloom_color=bloom_color
         )
 
+    def _default_height(self) -> float:
+        """Return default height for hedge."""
+        return 1.8
     
     def _build_label_text(self) -> str:
         """Build label text with species, height, and bloom info."""
@@ -476,6 +484,7 @@ class Hedge(VegetationElement, RectangularElement):
             linewidth=1.5,
             alpha=0.7
         )
+        hedge.set_zorder(self.get_zorder())
         ax.add_patch(hedge)
 
         # Draw bloom overlay if enabled and in season
@@ -492,6 +501,7 @@ class Hedge(VegetationElement, RectangularElement):
                 linestyle='--',
                 alpha=0.6
             )
+            bloom_overlay.set_zorder(self.get_zorder())
             ax.add_patch(bloom_overlay)
 
         # Render species and bloom info in center
@@ -591,7 +601,7 @@ class Hedge(VegetationElement, RectangularElement):
                 )
 
 
-class Lawn(SurfaceElement):
+class Lawn(VertInfoLvl00, SurfaceElement):
     """Lawn/grass area element."""
 
     def __init__(
@@ -628,6 +638,10 @@ class Lawn(SurfaceElement):
             label=label
         )
 
+    def _default_height(self) -> float:
+        """Return default height for lawn."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the lawn as a filled rectangle with grass texture."""
         draw_color = self.get_draw_color()
@@ -645,6 +659,7 @@ class Lawn(SurfaceElement):
             linewidth=1.0,
             alpha=0.6
         )
+        lawn.set_zorder(self.get_zorder())
         ax.add_patch(lawn)
 
         # Add subtle grass texture pattern

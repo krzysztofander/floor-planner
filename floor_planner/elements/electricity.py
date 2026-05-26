@@ -12,9 +12,10 @@ from matplotlib.patches import Arc, Circle
 
 from ..constants import RIGHT_ANGLE_IN_DEGREES
 from .element import Element
+from .vertical_levels import VertInfoOutlets
 
 
-class PowerOutlet(Element):
+class PowerOutlet(VertInfoOutlets, Element):
     """Power outlet."""
 
     def __init__(
@@ -66,6 +67,10 @@ class PowerOutlet(Element):
         self.line_width = line_width
         self.color = color
 
+    def _default_height(self) -> float:
+        """Return default height for power outlet."""
+        return 0.0
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw power outlet."""
         arc = Arc(
@@ -77,6 +82,7 @@ class PowerOutlet(Element):
             lw=self.line_width,
             color=self.color
         )
+        arc.set_zorder(self.get_zorder())
         ax.add_patch(arc)
 
         half_length = 0.5 * self.length
@@ -163,6 +169,7 @@ class PowerOutlet(Element):
                 lw=self.line_width,
                 edgecolor=self.color
             )
+            circle.set_zorder(self.get_zorder())
             ax.add_patch(circle)
 
 
@@ -221,6 +228,7 @@ class ElectricalCable(Element):
         circle = Circle(
             circle_center, radius, fill=True, facecolor=self.color, edgecolor=self.color, lw=0.1
         )
+        circle.set_zorder(self.get_zorder())
         ax.add_patch(circle)
 
         for i in range(self.n_arcs):
@@ -237,4 +245,5 @@ class ElectricalCable(Element):
                 lw=self.line_width,
                 color=self.color
             )
+            arc.set_zorder(self.get_zorder())
             ax.add_patch(arc)

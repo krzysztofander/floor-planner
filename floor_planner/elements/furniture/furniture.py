@@ -13,9 +13,10 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import RectangularElement
+from ..vertical_levels import VertInfoLvl03
 
 
-class Desk(RectangularElement):
+class Desk(VertInfoLvl03, RectangularElement):
     """
     Desk with standard dimensions
 
@@ -63,6 +64,10 @@ class Desk(RectangularElement):
 
         )  # Standard desk width  # Standard desk depth
 
+    def _default_height(self) -> float:
+        """Return default height for desk."""
+        return 0.75
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw desk."""
         draw_color = self.get_draw_color()
@@ -80,6 +85,7 @@ class Desk(RectangularElement):
             edgecolor=draw_color,
             linewidth=2.0
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw desk legs (small circles at corners)
@@ -107,6 +113,7 @@ class Desk(RectangularElement):
                 edgecolor=draw_color,
                 linewidth=1.0
             )
+            leg.set_zorder(self.get_zorder())
             ax.add_patch(leg)
         
         # Render label and ID
@@ -119,7 +126,7 @@ class Desk(RectangularElement):
         )
 
 
-class DiningTable(RectangularElement):
+class DiningTable(VertInfoLvl03, RectangularElement):
     """
     Dining table with configurable dimensions
 
@@ -171,6 +178,10 @@ class DiningTable(RectangularElement):
 
         )
 
+    def _default_height(self) -> float:
+        """Return default height for dining table."""
+        return 0.75
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dining table."""
         draw_color = self.get_draw_color()
@@ -188,6 +199,7 @@ class DiningTable(RectangularElement):
             edgecolor=draw_color,
             linewidth=2.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw table legs (circles at corners)
@@ -215,6 +227,7 @@ class DiningTable(RectangularElement):
                 edgecolor=draw_color,
                 linewidth=1.0
             )
+            leg.set_zorder(self.get_zorder())
             ax.add_patch(leg)
         
         # Render label and ID
@@ -227,7 +240,7 @@ class DiningTable(RectangularElement):
         )
 
 
-class Chair(RectangularElement):
+class Chair(VertInfoLvl03, RectangularElement):
     """
     Chair with standard dimensions
 
@@ -266,6 +279,10 @@ class Chair(RectangularElement):
             label=label
         )
 
+    def _default_height(self) -> float:
+        """Return default height for chair."""
+        return 0.9
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw chair."""
         draw_color = self.get_draw_color()
@@ -283,6 +300,7 @@ class Chair(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw backrest (thicker line at back)
@@ -320,7 +338,7 @@ class Chair(RectangularElement):
         )
 
 
-class Sofa(RectangularElement):
+class Sofa(VertInfoLvl03, RectangularElement):
     """
     N-element sofa with configurable number of seats
 
@@ -367,6 +385,10 @@ class Sofa(RectangularElement):
             label=label
         )
 
+    def _default_height(self) -> float:
+        """Return default height for sofa."""
+        return 0.85
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw sofa."""
         draw_color = self.get_draw_color()
@@ -384,6 +406,7 @@ class Sofa(RectangularElement):
             edgecolor=draw_color,
             linewidth=2.5
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw backrest (thicker line at back)
@@ -430,6 +453,7 @@ class Sofa(RectangularElement):
             edgecolor=draw_color,
             linewidth=2.0
         )
+        left_armrest.set_zorder(self.get_zorder())
         ax.add_patch(left_armrest)
         
         # Right armrest
@@ -448,6 +472,7 @@ class Sofa(RectangularElement):
             edgecolor=draw_color,
             linewidth=2.0
         )
+        right_armrest.set_zorder(self.get_zorder())
         ax.add_patch(right_armrest)
         
         # Draw seat dividers (vertical lines between seats)

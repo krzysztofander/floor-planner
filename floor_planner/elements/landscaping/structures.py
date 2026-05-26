@@ -11,6 +11,7 @@ import math
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement, CircularElement, Element
+from ..vertical_levels import VertInfoLvl01, VertInfoLvl02
 
 
 class Pergola(SurfaceElement):
@@ -85,6 +86,7 @@ class Pergola(SurfaceElement):
             linewidth=2.5,
             alpha=0.8
         )
+        perimeter.set_zorder(self.get_zorder())
         ax.add_patch(perimeter)
 
     def _draw_posts(self, ax: matplotlib.axes.Axes, color: str) -> None:
@@ -119,6 +121,7 @@ class Pergola(SurfaceElement):
                 linewidth=1.0,
                 alpha=0.9
             )
+            post.set_zorder(self.get_zorder())
             ax.add_patch(post)
 
     def _draw_cross_beams(self, ax: matplotlib.axes.Axes, color: str) -> None:
@@ -246,6 +249,7 @@ class RaisedBed(SurfaceElement):
             linewidth=1.5,
             alpha=0.9
         )
+        border.set_zorder(self.get_zorder())
         ax.add_patch(border)
 
         # Draw soil fill (inner rectangle)
@@ -264,6 +268,7 @@ class RaisedBed(SurfaceElement):
             edgecolor='none',
             alpha=0.7
         )
+        fill.set_zorder(self.get_zorder())
         ax.add_patch(fill)
 
         # Render label and ID
@@ -312,7 +317,7 @@ class RaisedBed(SurfaceElement):
         return " ".join(parts) if parts else ""
 
 
-class Gazebo(CircularElement):
+class Gazebo(VertInfoLvl02, CircularElement):
     """Gazebo structure with octagonal shape and roof."""
 
     def __init__(
@@ -344,6 +349,10 @@ class Gazebo(CircularElement):
             label=label
         )
         self.roof_color = roof_color
+
+    def _default_height(self) -> float:
+        """Return default height for gazebo."""
+        return 2.5
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the gazebo with octagonal shape and roof."""
@@ -379,6 +388,7 @@ class Gazebo(CircularElement):
             linestyle=linestyle,
             alpha=alpha
         )
+        octagon.set_zorder(self.get_zorder())
         ax.add_patch(octagon)
 
     def _draw_posts(self, ax: matplotlib.axes.Axes) -> None:
@@ -400,6 +410,7 @@ class Gazebo(CircularElement):
                 linewidth=0.8,
                 alpha=0.9
             )
+            post.set_zorder(self.get_zorder())
             ax.add_patch(post)
 
     def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
@@ -434,7 +445,7 @@ class Gazebo(CircularElement):
         return " ".join(parts) if parts else ""
 
 
-class Deck(SurfaceElement):
+class Deck(VertInfoLvl01, SurfaceElement):
     """Deck/patio platform element."""
 
     def __init__(
@@ -471,6 +482,10 @@ class Deck(SurfaceElement):
             label=label
         )
 
+    def _default_height(self) -> float:
+        """Return default height for deck."""
+        return 0.3
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the deck with wood plank pattern."""
         draw_color = self.get_draw_color()
@@ -488,6 +503,7 @@ class Deck(SurfaceElement):
             linewidth=1.5,
             alpha=0.7
         )
+        deck.set_zorder(self.get_zorder())
         ax.add_patch(deck)
 
         # Draw wood plank lines (perpendicular to length)
@@ -621,6 +637,7 @@ class GardenHouse(SurfaceElement):
             linewidth=2.0,
             alpha=0.8
         )
+        walls.set_zorder(self.get_zorder())
         ax.add_patch(walls)
 
         # Draw 4-sided roof (extends beyond walls)
@@ -662,6 +679,7 @@ class GardenHouse(SurfaceElement):
             linestyle='--',
             alpha=0.6
         )
+        roof.set_zorder(self.get_zorder())
         ax.add_patch(roof)
         
         # Draw ridge line (center line showing roof peak)

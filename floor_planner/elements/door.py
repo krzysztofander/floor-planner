@@ -15,9 +15,10 @@ from ..utils import rotate_point, render_label_and_id
 from .element import RectangularElement
 from .info import DimensionArrow
 from .options import get_element_option
+from .vertical_levels import VertInfoLvl02
 
 
-class Door(RectangularElement):
+class Door(VertInfoLvl02, RectangularElement):
     door_schematic_line_thickness = 0.04
     """Single door."""
 
@@ -76,9 +77,13 @@ class Door(RectangularElement):
         self.door_width = door_width
         self.frame_width = (doorway_width - door_width) / 2
         self.to_the_right = to_the_right
-		# If opening outside, take the opposite hinges point so "1.0" is always extended hinges
+        # If opening outside, take the opposite hinges point so "1.0" is always extended hinges
         self.hinges_point = 1 - hinges_point  if opening_outside else hinges_point
         self.opening_outside = opening_outside
+
+    def _default_height(self) -> float:
+        """Return default height for doors (standard door height)."""
+        return 2.1
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the door, its opening trajectory, and the door frame."""
@@ -94,6 +99,7 @@ class Door(RectangularElement):
             angle=frame_orientation_angle,
             facecolor=self.color
         )
+        frame_with_hinges.set_zorder(self.get_zorder())
         ax.add_patch(frame_with_hinges)
         # Draw a whole in the wall
         shift = self.frame_width
@@ -108,6 +114,7 @@ class Door(RectangularElement):
             angle=frame_orientation_angle,
             facecolor='white'
         )
+        whole_in_a_wall.set_zorder(self.get_zorder())
         ax.add_patch(whole_in_a_wall)
         # Draw a part of frame opposite to the hinges.
         shift = self.frame_width + self.door_width
@@ -122,6 +129,7 @@ class Door(RectangularElement):
             angle=frame_orientation_angle,
             facecolor=self.color
         )
+        frame_without_hinges.set_zorder(self.get_zorder())
         ax.add_patch(frame_without_hinges)
         # Draw dimension arrow for the doorway width if specified in options
         if get_element_option("Door","dimensions"):
@@ -170,6 +178,7 @@ class Door(RectangularElement):
                         facecolor=self.color
                         #facecolor='orange'
             )
+        door.set_zorder(self.get_zorder())
         ax.add_patch(door)
 
         extra_degrees_for_smooth_connection = 2
@@ -197,6 +206,7 @@ class Door(RectangularElement):
             color=self.color,
             linewidth=1
         )
+        arc.set_zorder(self.get_zorder())
         ax.add_patch(arc)
 
         # Render label and ID at hinges point with rotation offset

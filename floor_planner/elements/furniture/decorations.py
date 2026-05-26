@@ -13,9 +13,10 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import RectangularElement
+from ..vertical_levels import VertInfoLvl03
 
 
-class FishTank(RectangularElement):
+class FishTank(VertInfoLvl03, RectangularElement):
     """
     Fish tank / aquarium
 
@@ -67,6 +68,10 @@ class FishTank(RectangularElement):
 
         )
 
+    def _default_height(self) -> float:
+        """Return default height for fish tank."""
+        return 0.5
+
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw fish tank with a fish symbol."""
         draw_color = self.get_draw_color()
@@ -84,6 +89,7 @@ class FishTank(RectangularElement):
             edgecolor=draw_color,
             linewidth=2
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         # Draw a fish symbol in the center
@@ -110,6 +116,7 @@ class FishTank(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        fish_body.set_zorder(self.get_zorder())
         ax.add_patch(fish_body)
         
         # Fish tail (triangle)
@@ -136,6 +143,7 @@ class FishTank(RectangularElement):
             edgecolor=draw_color,
             linewidth=1.0
         )
+        tail.set_zorder(self.get_zorder())
         ax.add_patch(tail)
         
         # Fish eye (small circle)
@@ -156,4 +164,5 @@ class FishTank(RectangularElement):
             edgecolor=draw_color,
             linewidth=0.5
         )
+        eye.set_zorder(self.get_zorder())
         ax.add_patch(eye)

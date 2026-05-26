@@ -13,8 +13,9 @@ from matplotlib.patches import Arc, Rectangle
 from ...utils import rotate_point, render_label_and_id
 from ..element import Element, RectangularElement
 from ..info import DimensionArrow
+from ..vertical_levels import VertInfoLvl03
 
-class MultiBed(RectangularElement):
+class MultiBed(VertInfoLvl03, RectangularElement):
     """
     Multibed draws single or double bed.
 
@@ -48,6 +49,9 @@ class MultiBed(RectangularElement):
 
         # Room properties (set by Room class if this storage box is part of a room)
 
+    def _default_height(self) -> float:
+        """Return default height for bed."""
+        return 0.5
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw double bed."""
@@ -67,6 +71,7 @@ class MultiBed(RectangularElement):
             edgecolor=draw_color,
             linewidth=linewidth
         )
+        patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
        
         pillow_x = 0.6
@@ -89,6 +94,7 @@ class MultiBed(RectangularElement):
                 edgecolor=draw_color,
                 linewidth=linewidth
             )
+            patch.set_zorder(self.get_zorder())
             ax.add_patch(patch)
 
         # Render label and ID

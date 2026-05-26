@@ -97,6 +97,7 @@ class Polygon(Element):
             facecolor=self.color,
             edgecolor=self.color
         )
+        polygon.set_zorder(self.get_zorder())
         ax.add_patch(polygon)
 
 class Circle(Element):
@@ -135,4 +136,5 @@ class Circle(Element):
             facecolor=self.color,
             edgecolor=self.color
         )
+        circle.set_zorder(self.get_zorder())
         ax.add_patch(circle)
