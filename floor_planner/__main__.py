@@ -212,7 +212,15 @@ def main() -> None:
 
         floor_plans.append(floor_plan)
 
-    project = Project(floor_plans, settings['project']['dpi'])
+    # Handle visualisation_dir option
+    visualisation_dir = settings['project'].get('visualisation_dir')
+    if visualisation_dir is not None:
+        vis_dir_path = config_dir / visualisation_dir
+        if not vis_dir_path.exists():
+            vis_dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created visualisation directory: {vis_dir_path}")
+
+    project = Project(floor_plans, settings['project']['dpi'], visualisation_dir)
     pdf_path = settings['project'].get('pdf_file')
     if pdf_path is not None:
         pdf_path = config_dir / pdf_path

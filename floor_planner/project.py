@@ -19,7 +19,8 @@ class Project:
     def __init__(
             self,
             floor_plans: list[FloorPlan],
-            dpi: Union[float, Literal["figure"]] = "figure"
+            dpi: Union[float, Literal["figure"]] = "figure",
+            visualisation_dir: str | None = None
     ):
         """
         Initialize an instance.
@@ -28,11 +29,15 @@ class Project:
             floor plans
         :param dpi:
             DPI (dots-per-inch), number of pixels per inch of space in output file
+        :param visualisation_dir:
+            optional directory for 3D visualization assets; if specified, acts as a switch
+            to enable 3D asset generation in the future
         :return:
             freshly created instance of `Project` class
         """
         self.floor_plans = floor_plans
         self.dpi = dpi
+        self.visualisation_dir = visualisation_dir
 
     def render_to_pdf(self, output_path: str) -> None:
         """
