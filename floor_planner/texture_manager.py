@@ -181,15 +181,30 @@ class TextureManager:
             # Return absolute paths directly
             result = {}
             for face, filename in default_textures.items():
-                default_path = self.default_texture_dir / filename
-                # Check if exists in defaults, otherwise use fallback
-                if default_path.exists():
-                    result[face] = str(default_path.resolve())
-                elif self.fallback_texture_dir and (self.fallback_texture_dir / filename).exists():
-                    result[face] = str((self.fallback_texture_dir / filename).resolve())
+                # Try .png first (for alpha channel support), then .jpg
+                png_filename = filename.replace('.jpg', '.png')
+                default_png_path = self.default_texture_dir / png_filename
+                default_jpg_path = self.default_texture_dir / filename
+                
+                # Check PNG first, then JPG in defaults
+                if default_png_path.exists():
+                    result[face] = str(default_png_path.resolve())
+                elif default_jpg_path.exists():
+                    result[face] = str(default_jpg_path.resolve())
+                # Then check fallback directory
+                elif self.fallback_texture_dir:
+                    fallback_png = self.fallback_texture_dir / png_filename
+                    fallback_jpg = self.fallback_texture_dir / filename
+                    if fallback_png.exists():
+                        result[face] = str(fallback_png.resolve())
+                    elif fallback_jpg.exists():
+                        result[face] = str(fallback_jpg.resolve())
+                    else:
+                        # Use default path (will be caught later)
+                        result[face] = str(default_jpg_path.resolve())
                 else:
                     # If neither exists, use default path (will be caught later)
-                    result[face] = str(default_path.resolve())
+                    result[face] = str(default_jpg_path.resolve())
             return result
         
         elif isinstance(texture_spec, str):
@@ -237,20 +252,30 @@ class TextureManager:
                 # Fall back to default in defaults folder first
                 default_textures = self.get_default_textures(element_type)
                 if face in default_textures:
-                    texture_path = self.default_texture_dir / default_textures[face]
+                    filename = default_textures[face]
                 elif 'all' in default_textures:
-                    texture_path = self.default_texture_dir / default_textures['all']
+                    filename = default_textures['all']
                 else:
-                    texture_path = self.default_texture_dir / 'default.jpg'
+                    filename = 'default.jpg'
+                
+                # Try .png first, then .jpg
+                png_filename = filename.replace('.jpg', '.png')
+                texture_path = self.default_texture_dir / png_filename
+                if not texture_path.exists():
+                    texture_path = self.default_texture_dir / filename
                 
                 # If still not found, check fallback directory
                 if not texture_path.exists() and self.fallback_texture_dir:
-                    fallback_path = self.fallback_texture_dir / texture_path.name
-                    if fallback_path.exists():
-                        print(f"  Using fallback: {fallback_path.name}")
-                        texture_path = fallback_path
+                    fallback_png = self.fallback_texture_dir / png_filename
+                    fallback_jpg = self.fallback_texture_dir / filename
+                    if fallback_png.exists():
+                        print(f"  Using fallback: {fallback_png.name}")
+                        texture_path = fallback_png
+                    elif fallback_jpg.exists():
+                        print(f"  Using fallback: {fallback_jpg.name}")
+                        texture_path = fallback_jpg
                     else:
-                        print(f"  Fallback not found either: {fallback_path}")
+                        print(f"  Fallback not found either: {fallback_jpg}")
             
             resolved[face] = texture_path.resolve()
         

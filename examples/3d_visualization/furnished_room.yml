@@ -78,6 +78,7 @@ floor_plans:
       - type: sofa
         anchor_point: [0.4, 1.2]
         orientation_angle: 0
+        num_seats: 3
         color: darkblue
         label: "Sofa"
       
@@ -92,7 +93,7 @@ floor_plans:
         anchor_point: [1.5, 2.0]
         orientation_angle: 0
         length: 0.8
-        width: 0.8
+        thickness: 0.8
         color: brown
         label: "Coffee Table"
       
@@ -101,8 +102,7 @@ floor_plans:
         anchor_point: [3.3, 3.6]
         orientation_angle: 180
         length: 1.5
-        width: 0.4
-        height: 0.5
+        thickness: 0.4
         color: black
         label: "TV Stand"
       
@@ -111,38 +111,33 @@ floor_plans:
         anchor_point: [0.2, 3.3]
         orientation_angle: 180
         length: 1.2
-        width: 0.3
-        height: 1.8
+        thickness: 0.3
         color: brown
         label: "Bookshelf"
       
       # Lighting fixtures
       - type: ceiling_lamp
         anchor_point: [2.5, 2.0]
-        diameter: 0.4
+        symbol_diameter: 0.4
         color: yellow
         label: "Main Light"
-        circle_segments: 32  # Very smooth for ceiling fixture
       
       - type: ceiling_lamp
         anchor_point: [1.0, 1.5]
-        diameter: 0.25
+        symbol_diameter: 0.25
         color: yellow
         label: "Accent Light 1"
-        circle_segments: 12  # Coarser for small fixture
       
       - type: ceiling_lamp
         anchor_point: [4.0, 2.5]
-        diameter: 0.25
+        symbol_diameter: 0.25
         color: yellow
         label: "Accent Light 2"
-        circle_segments: 12
       
       - type: wall_lamp
         anchor_point: [0, 2.5]
         orientation_angle: 270
-        length: 0.15
-        width: 0.15
+        symbol_diameter: 0.15
         color: white
         label: "Wall Sconce"
       
@@ -151,21 +146,18 @@ floor_plans:
         anchor_point: [1.0, 0]
         orientation_angle: 0
         length: 0.1
-        width: 0.05
         color: white
       
       - type: power_outlet
         anchor_point: [3.5, 0]
         orientation_angle: 0
         length: 0.1
-        width: 0.05
         color: white
       
       - type: switch
         anchor_point: [0.8, 0]
         orientation_angle: 0
-        length: 0.08
-        width: 0.08
+        symbol_length: 0.08
         color: white
       
       # Decorative plant

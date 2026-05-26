@@ -33,7 +33,8 @@ class Door(VertInfoLvl02, RectangularElement):
             color: str = 'black',
             hinges_point: float = 0.95,
             opening_outside: bool = False,
-            label: str | None = None
+            label: str | None = None,
+            **kwargs
     ):
         """
         Initialize an instance.
@@ -62,6 +63,8 @@ class Door(VertInfoLvl02, RectangularElement):
             relative position of the hinges along the doorway (0.0 = start, 1.0 = end, 0.5 = middle)
         :param label:
             optional label for the element
+        :param kwargs:
+            additional parameters (e.g., texture_scale, textures, v_anchor, height, id)
         :return:
             freshly created instance of `Door` class
         """
@@ -71,7 +74,8 @@ class Door(VertInfoLvl02, RectangularElement):
             length=doorway_width,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            **kwargs
         )
         self.doorway_width = doorway_width
         self.door_width = door_width

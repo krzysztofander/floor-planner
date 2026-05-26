@@ -139,8 +139,8 @@ class OBJExporter:
                 self.global_vertices.append((x, y, z))
             obj_file.write("\n")
             
-            # Write texture coordinates (simple box mapping for now)
-            texcoords = self._generate_box_texcoords(len(vertices))
+            # Write texture coordinates (box mapping with optional tiling)
+            texcoords = self._generate_box_texcoords(element, vertices)
             for u, v in texcoords:
                 obj_file.write(f"vt {u:.6f} {v:.6f}\n")
                 self.global_texcoords.append((u, v))
@@ -289,35 +289,112 @@ class OBJExporter:
             mtl_file.write(f"Ks {format_mtl_color(props['Ks'])}\n")
             mtl_file.write(f"Ns {props['Ns']:.1f}\n")
             
+            # Check if texture is PNG (supports alpha channel)
+            is_png = texture_path.suffix.lower() == '.png'
+            
+            # Add transparency support for PNG files
+            if is_png:
+                mtl_file.write(f"d 1.0\n")  # Dissolve (opacity): 1.0 = fully opaque
+                mtl_file.write(f"Tr 0.0\n")  # Transparency: 0.0 = fully opaque (alternative format)
+            
             # Texture reference (relative to MTL file location)
             texture_rel_path = self.texture_manager.get_relative_texture_path(texture_path)
             mtl_file.write(f"map_Kd {texture_rel_path}\n")
+            
+            # Add alpha map for PNG files (uses same texture's alpha channel)
+            if is_png:
+                mtl_file.write(f"map_d {texture_rel_path}\n")
+            
             mtl_file.write("\n")
     
-    def _generate_box_texcoords(self, vertex_count: int) -> list[tuple[float, float]]:
+    def _generate_box_texcoords(self, element, vertices: list[tuple[float, float, float]]) -> list[tuple[float, float]]:
         """
-        Generate simple box-mapped texture coordinates.
+        Generate proper box-mapped texture coordinates with optional tiling.
+        
+        Supports texture tiling/repeating by checking element's `texture_scale` parameter.
+        If texture_scale is set (e.g., 0.2 meters), texture will repeat every 0.2 meters.
+        
+        For standard 8-vertex box (4 bottom + 4 top):
+        - Bottom vertices get v=0 (bottom of texture)
+        - Top vertices get v=1 (top of texture) * vertical_repeat
+        - u varies 0→1*horizontal_repeat around the perimeter
         
         Args:
-            vertex_count: Number of vertices
+            element: The floor plan element (to access dimensions and texture_scale)
+            vertices: List of vertex coordinates (to calculate actual dimensions)
             
         Returns:
-            List of (u, v) texture coordinates (0.0 to 1.0)
+            List of (u, v) texture coordinates
         """
-        # Simple box mapping: 4 corners repeated for all faces
-        base_coords = [
-            (0.0, 0.0),  # bottom-left
-            (1.0, 0.0),  # bottom-right
-            (1.0, 1.0),  # top-right
-            (0.0, 1.0),  # top-left
-        ]
+        vertex_count = len(vertices)
         
-        # Repeat for all vertices
-        coords = []
-        for i in range(vertex_count):
-            coords.append(base_coords[i % 4])
+        # Get texture scale parameter (size of one tile in meters)
+        # If not set or 0, stretch texture to fit (no tiling)
+        texture_scale = getattr(element, 'texture_scale', None)
         
-        return coords
+        if vertex_count == 8 and texture_scale and texture_scale > 0:
+            # Calculate physical dimensions from vertices
+            # For a box: vertices 0-3 are bottom face, 4-7 are top face
+            # Horizontal dimensions (length and thickness)
+            length = ((vertices[1][0] - vertices[0][0])**2 + 
+                     (vertices[1][2] - vertices[0][2])**2)**0.5
+            thickness = ((vertices[3][0] - vertices[0][0])**2 + 
+                        (vertices[3][2] - vertices[0][2])**2)**0.5
+            # Vertical dimension (height)
+            height = abs(vertices[4][1] - vertices[0][1])
+            
+            # Calculate UV repeats based on physical size
+            u_repeat_length = length / texture_scale
+            u_repeat_thickness = thickness / texture_scale
+            v_repeat = height / texture_scale
+            
+            # Generate UVs with tiling
+            # For simplicity, use length for front/back faces, thickness for left/right
+            coords = [
+                # Bottom vertices (v=0) - use horizontal tiling
+                (0.0, 0.0),                      # 0: bottom-left
+                (u_repeat_length, 0.0),         # 1: bottom-right (front edge)
+                (u_repeat_thickness, 0.0),      # 2: bottom-right (back edge)
+                (0.0, 0.0),                      # 3: bottom-left (back)
+                # Top vertices (v=v_repeat) - use vertical tiling
+                (0.0, v_repeat),                 # 4: top-left
+                (u_repeat_length, v_repeat),    # 5: top-right (front edge)
+                (u_repeat_thickness, v_repeat), # 6: top-right (back edge)
+                (0.0, v_repeat),                 # 7: top-left (back)
+            ]
+            return coords
+            
+        elif vertex_count == 8:
+            # Standard box without tiling: 8 vertices (4 bottom + 4 top)
+            # Stretch texture to fit (0-1 UVs)
+            coords = [
+                # Bottom vertices (v=0)
+                (0.0, 0.0),  # 0: bottom-left
+                (1.0, 0.0),  # 1: bottom-right
+                (1.0, 0.0),  # 2: bottom-right (back)
+                (0.0, 0.0),  # 3: bottom-left (back)
+                # Top vertices (v=1)
+                (0.0, 1.0),  # 4: top-left
+                (1.0, 1.0),  # 5: top-right
+                (1.0, 1.0),  # 6: top-right (back)
+                (0.0, 1.0),  # 7: top-left (back)
+            ]
+            return coords
+        else:
+            # Fallback for non-standard vertex counts
+            # Simple box mapping: 4 corners repeated
+            base_coords = [
+                (0.0, 0.0),  # bottom-left
+                (1.0, 0.0),  # bottom-right
+                (1.0, 1.0),  # top-right
+                (0.0, 1.0),  # top-left
+            ]
+            
+            coords = []
+            for i in range(vertex_count):
+                coords.append(base_coords[i % 4])
+            
+            return coords
     
     def _calculate_normals(self, vertices: list[tuple[float, float, float]], 
                           indices: list[tuple[int, int, int]]) -> list[tuple[float, float, float]]:

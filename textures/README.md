@@ -83,10 +83,30 @@ mv textures/defaults/*.jpg textures/fallback/
 
 ## Texture Requirements
 
-- **Format**: JPEG (.jpg)
+- **Format**: 
+  - **PNG (.png)** - Preferred for transparency support (alpha channel)
+  - **JPEG (.jpg)** - Standard for opaque textures
 - **Size**: 1024x1024 recommended (512x512 minimum)
-- **Quality**: 85-95 JPEG quality
+- **Quality**: 85-95 JPEG quality (or PNG-8/PNG-24 for transparency)
 - **Seamless**: Walls/floors should tile seamlessly
+
+### PNG Transparency Support
+
+The system **automatically detects PNG files** and enables alpha channel transparency in 3D models:
+
+- **Use PNG for**: Windows (glass transparency), fences, plants with cutouts, water features
+- **Automatic priority**: System checks for `.png` first, then falls back to `.jpg`
+- **MTL support**: PNG textures get `map_d` (alpha map) directives automatically
+
+**Example:**
+```bash
+# Both files exist in defaults/
+textures/defaults/window.jpg   # Opaque window texture
+textures/defaults/window.png   # Glass with alpha transparency
+
+# System will use window.png automatically (PNG has priority)
+python -m floor_planner -c myconfig.yml
+```
 
 ## Filenames
 

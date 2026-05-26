@@ -90,10 +90,20 @@ $(LANDSCAPING_STRUCTURES_PNG): examples/landscaping/structures_demo.yml $(PYSRC)
 
 # EXTRAS
 # ------
-EXTRAS_PNG = examples/landscaping/Comprehensive_Landscaping_Site_Plan.png
+EXTRAS_PNG = examples/landscaping/Comprehensive_Landscaping_Site_Plan.png 
+EXTRAS_PNG += examples/3d_visualization/Simple_Room_-_3D_Export_Demo.png
+EXTRAS_PNG += examples/3d_visualization/Furnished_Room_-_3D_Visualization.png
 extras: $(EXTRAS_PNG)
 
-$(EXTRAS_PNG): examples/landscaping/site_plan_complete.yml $(PYSRC)
+$(word 1,$(EXTRAS_PNG)): examples/landscaping/site_plan_complete.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 2,$(EXTRAS_PNG)): examples/3d_visualization/simple_room.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 3,$(EXTRAS_PNG)): examples/3d_visualization/furnished_room.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

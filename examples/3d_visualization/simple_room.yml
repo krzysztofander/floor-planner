@@ -7,7 +7,7 @@ project:
   png_dir: "."
   visualisation_dir: "visualisation_3d"  # Enable 3D OBJ/MTL export
 
-default_layout:
+default_layout: 
   bottom_left_corner: [0, 0]
   top_right_corner: [8, 6]
   scale_numerator: 1
@@ -27,21 +27,21 @@ floor_plans:
         orientation_angle: 0
         length: 4
         thickness: 0.15
-        color: gray
+        color: invisible
       
       - type: wall
         anchor_point: [4, 0]
         orientation_angle: 90
         length: 3
         thickness: 0.15
-        color: gray
+        color: invisible
       
       - type: wall
         anchor_point: [4, 3]
         orientation_angle: 180
         length: 4
         thickness: 0.15
-        color: gray
+        color: invisible
       
       - type: wall
         anchor_point: [0, 3]
@@ -69,24 +69,4 @@ floor_plans:
         single_line_thickness: 0.02
         color: lightblue
       
-      # Furniture
-      - type: double_bed
-        anchor_point: [0.3, 0.5]
-        orientation_angle: 0
-        color: navy
-      
-      - type: desk
-        anchor_point: [2.7, 2.3]
-        orientation_angle: 180
-        color: brown
-      
-      - type: chair
-        anchor_point: [3.0, 1.8]
-        orientation_angle: 0
-        color: black
-      
-      # Lighting
-      - type: ceiling_lamp
-        anchor_point: [2.0, 1.5]
-        symbol_diameter: 0.3
-        color: yellow
+  

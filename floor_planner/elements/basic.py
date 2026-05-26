@@ -32,7 +32,8 @@ class WallND(VertInfoLvl01, RectangularElement):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
-            room_edge: bool = False
+            room_edge: bool = False,
+            **kwargs
     ):
         """
         Initialize an instance.
@@ -54,6 +55,8 @@ class WallND(VertInfoLvl01, RectangularElement):
             optional label for the element
         :param room_edge:
             if True, this wall forms the boundary of a room (used for room validation and calculations)
+        :param kwargs:
+            additional parameters (e.g., texture_scale, textures, v_anchor, height, id)
         :return:
             freshly created instance of `WallND` class
         """
@@ -63,7 +66,8 @@ class WallND(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            **kwargs
         )
         self.room_edge = room_edge
 
@@ -155,7 +159,8 @@ class Window(VertInfoWindows, RectangularElement):
             single_line_thickness: float = -1,
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            **kwargs
     ):
         """
         Initialize an instance.
@@ -177,6 +182,9 @@ class Window(VertInfoWindows, RectangularElement):
             color to use for drawing the window
         :param label:
             optional label for the element
+        :param kwargs:
+            additional parameters (e.g., texture_scale, textures, v_anchor, height, id);
+            texture_scale defaults to 0.2 (0.2m x 0.2m tiles) for windows if not specified
         :return:
             freshly created instance of `Window` class
         """
@@ -188,6 +196,9 @@ class Window(VertInfoWindows, RectangularElement):
         if internal_thickness <= 0:
             raise ValueError("Window can not be drawn due to invalid thicknesses.")
 
+        # Set default texture_scale for windows to 0.2 (0.2m x 0.2m tiles)
+        if 'texture_scale' not in kwargs:
+            kwargs['texture_scale'] = 0.2
 
         super().__init__(
             anchor_point=anchor_point,
@@ -195,7 +206,8 @@ class Window(VertInfoWindows, RectangularElement):
             length=length,
             thickness=overall_thickness,
             color=color,
-            label=label
+            label=label,
+            **kwargs
         )
         self.overall_thickness = overall_thickness
         self.single_line_thickness = single_line_thickness

@@ -31,7 +31,8 @@ class Element(ABC):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -59,6 +60,11 @@ class Element(ABC):
             can be: string (single texture for all faces),
                    dict (different textures per face, e.g., {'front': 'a.jpg', 'back': 'b.jpg'}),
                    or None (use defaults from texture manager)
+        :param texture_scale:
+            optional texture tiling scale in meters (for 3D export only);
+            if set, texture repeats every N meters instead of stretching to fit;
+            examples: 0.1 (fine), 0.2 (medium), 0.5 (large tiles);
+            if None, texture stretches to fit entire surface (default)
         """
         self.anchor_point = anchor_point
         self.color = color
@@ -84,6 +90,7 @@ class Element(ABC):
         
         # 3D texture specification
         self.textures = textures
+        self.texture_scale = texture_scale
 
     def get_draw_color(self) -> str | tuple[int, int, int] | None:
         """
@@ -158,7 +165,8 @@ class RectangularElement(RectangularGeometry3D, Element):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -185,6 +193,8 @@ class RectangularElement(RectangularGeometry3D, Element):
             optional physical height in meters; if None, uses default
         :param textures:
             optional texture specification for 3D export; string or dict
+        :param texture_scale:
+            optional texture tiling scale in meters; if set, texture repeats every N meters
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -193,7 +203,8 @@ class RectangularElement(RectangularGeometry3D, Element):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            textures=textures
+            textures=textures,
+            texture_scale=texture_scale
         )
         self.orientation_angle = orientation_angle
         self.length = length
@@ -248,7 +259,8 @@ class SurfaceElement(RectangularElement):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -275,6 +287,8 @@ class SurfaceElement(RectangularElement):
             optional physical height in meters; if None, uses default
         :param textures:
             optional texture specification for 3D export; string or dict
+        :param texture_scale:
+            optional texture tiling scale in meters; if set, texture repeats every N meters
         """
         # Pass width as thickness to parent for geometry calculations
         super().__init__(
@@ -287,7 +301,8 @@ class SurfaceElement(RectangularElement):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            textures=textures
+            textures=textures,
+            texture_scale=texture_scale
         )
         # Expose width as semantic property for clarity
         self.width = width
@@ -313,7 +328,8 @@ class CircularElement(CircularGeometry3D, Element):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -334,6 +350,8 @@ class CircularElement(CircularGeometry3D, Element):
             optional physical height in meters; if None, uses default
         :param textures:
             optional texture specification for 3D export; string or dict
+        :param texture_scale:
+            optional texture tiling scale in meters; if set, texture repeats every N meters
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -342,7 +360,8 @@ class CircularElement(CircularGeometry3D, Element):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            textures=textures
+            textures=textures,
+            texture_scale=texture_scale
         )
         self.diameter = diameter
 

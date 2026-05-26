@@ -678,3 +678,102 @@ elements:
 - The `get_zorder()` method returns the final `v_anchor` value
 - Passed to matplotlib as `patch.set_zorder(self.get_zorder())`
 - Matplotlib handles float z-order values automatically (no manual sorting needed)
+
+---
+
+## 3D Visualization Parameters
+
+Parameters that control how elements appear in exported 3D models (OBJ/MTL format).
+
+### texture_scale (Texture Tiling)
+
+**Type:** `float | None`  
+**Default:** `None` (stretch texture to fit); **Exception: Windows default to 0.2**  
+**Unit:** meters  
+**Range:** 0.0+ (size of one texture tile in meters)
+
+The `texture_scale` parameter controls texture tiling/repeating on 3D surfaces:
+
+- **None (default for most elements)**: Texture stretches to fit the entire surface (0-1 UV coordinates)
+- **0.2 (default for windows)**: Window glass typically has visible frames/grids, so windows automatically use 0.2m × 0.2m tiling
+- **Set to value**: Texture repeats every N meters in both directions
+- **Common values**: 0.1 (fine tile), 0.2 (medium), 0.5 (large), 1.0 (very large)
+
+**How It Works:**
+- System calculates how many tiles fit: `repeats = physical_size / texture_scale`
+- UV coordinates scale accordingly: `u_max = width / texture_scale`
+- Example: 1.8m window with `texture_scale: 0.2` → repeats 9 times (1.8 / 0.2 = 9)
+
+**Use Cases:**
+- **Windows**: Tiled glass/frame patterns (0.2-0.5m typically)
+- **Walls**: Brick/tile patterns that should repeat
+- **Floors**: Tile or wood plank patterns
+- **Fences**: Repeating slat patterns
+
+**Important Notes:**
+- Texture must be seamless/tileable for good results
+- Smaller values = more repetition = higher detail
+- Larger values = less repetition = stretched look
+- Works best with PNG textures that have clear repeating patterns
+
+**YAML Example:**
+```yaml
+elements:
+  # Window with default tiling (0.2m tiles - automatic)
+  - type: window
+    anchor_point: [0, 3.5]
+    orientation_angle: 0
+    length: 1.8
+    overall_thickness: 0.15
+    color: lightblue
+    # No texture_scale needed - windows default to 0.2m tiles
+  
+  # Window with custom tiling
+  - type: window
+    anchor_point: [3, 3.5]
+    orientation_angle: 0
+    length: 2.4
+    overall_thickness: 0.15
+    color: lightblue
+    texture_scale: 0.5  # Override default: use larger 0.5m tiles
+  
+  # Wall with brick texture (must specify explicitly)
+  - type: wall
+    anchor_point: [0, 0]
+    orientation_angle: 0
+    length: 5.0
+    thickness: 0.2
+    color: gray
+    texture_scale: 0.5  # Each brick ~0.5m
+  
+  # Door without tiling (texture stretches to fit)
+  - type: door
+    anchor_point: [2.0, 0]
+    orientation_angle: 0
+    doorway_width: 1.0
+    door_width: 0.9
+    thickness: 0.2
+    # No texture_scale: texture stretches across entire door
+```
+
+**Visualization:**
+```
+Without texture_scale (stretch to fit):
+┌─────────────────┐
+│                 │  ← Single texture stretched
+│                 │
+└─────────────────┘
+
+With texture_scale: 0.2 (tiling):
+┌───┬───┬───┬───┬─┐
+│ T │ T │ T │ T │T│  ← Texture repeats 9 times
+│ T │ T │ T │ T │T│     (1.8m / 0.2m = 9)
+└───┴───┴───┴───┴─┘
+```
+
+**Technical Details:**
+- UV calculation: `u = position / texture_scale`
+- Applied to all faces: front, back, sides, top, bottom
+- Each face calculates repeats based on its own dimensions
+- Horizontal faces use width/depth for tiling
+- Vertical faces use width/height for tiling

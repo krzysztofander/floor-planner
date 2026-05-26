@@ -23,22 +23,22 @@ MATERIAL_PROPERTIES = {
     'wall': {
         'Ka': (0.8, 0.8, 0.8),      # Light gray ambient
         'Kd': (0.9, 0.9, 0.9),      # White-gray diffuse (paint/drywall)
-        'Ks': (0.1, 0.1, 0.1),      # Low specular (matte finish)
-        'Ns': 10.0,                  # Low shininess (flat paint)
+        'Ks': (0.2, 0.2, 0.2),      # Low specular (matte finish)
+        'Ns': 4,                  # Low shininess (flat paint)
     },
     
     'door': {
         'Ka': (0.5, 0.3, 0.2),      # Brown ambient
         'Kd': (0.6, 0.4, 0.2),      # Wood brown diffuse
-        'Ks': (0.2, 0.2, 0.2),      # Slight specular (semi-gloss wood)
-        'Ns': 30.0,                  # Medium-low shininess
+        'Ks': (1.2, 1.2, 1.2),      # Slight specular (semi-gloss wood)
+        'Ns': 20.0,                  # Medium-low shininess
     },
     
     'window': {
         'Ka': (0.7, 0.8, 0.9),      # Light blue ambient
         'Kd': (0.8, 0.9, 1.0),      # Glass blue-tint diffuse
-        'Ks': (0.9, 0.9, 0.9),      # High specular (glass reflective)
-        'Ns': 2000.0,                 # High shininess (glass)
+        'Ks': (4.9, 4.9, 4.9),      # High specular (glass reflective)
+        'Ns': 500.0,                # High shininess (glass)
     },
     
     'floor': {
@@ -68,8 +68,8 @@ MATERIAL_PROPERTIES = {
     'sofa': {
         'Ka': (0.4, 0.4, 0.4),      # Fabric gray ambient
         'Kd': (0.5, 0.5, 0.5),      # Upholstery gray diffuse
-        'Ks': (0.1, 0.1, 0.1),      # Very low specular (fabric)
-        'Ns': 10.0,                  # Very low shininess (matte fabric)
+        'Ks': (7.1, 7.1, 7.1),      #
+        'Ns': 100.0,                
     },
     
     'bed': {

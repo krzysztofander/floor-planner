@@ -1,0 +1,141 @@
+# Texture Tiling Demo
+# Demonstrates texture_scale parameter for repeating/tiling textures in 3D export
+
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "visualisation_3d"  # Enable 3D OBJ/MTL export
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [12, 8]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+floor_plans:
+  - title:
+      text: "Texture Tiling Comparison"
+      font_size: 18
+    
+    elements:
+      # ========================================
+      # Room 1: Windows WITHOUT tiling (stretch)
+      # ========================================
+      
+      # Walls for Room 1 (left side)
+      - type: wall
+        anchor_point: [0, 0]
+        orientation_angle: 0
+        length: 5
+        thickness: 0.2
+        color: gray
+        label: "Wall (no tiling)"
+      
+      - type: wall
+        anchor_point: [5, 0]
+        orientation_angle: 90
+        length: 3
+        thickness: 0.2
+        color: gray
+      
+      - type: wall
+        anchor_point: [5, 3]
+        orientation_angle: 180
+        length: 5
+        thickness: 0.2
+        color: gray
+      
+      - type: wall
+        anchor_point: [0, 3]
+        orientation_angle: 270
+        length: 3
+        thickness: 0.2
+        color: gray
+      
+      # Window WITHOUT explicit tiling (uses default 0.2m for windows)
+      - type: window
+        anchor_point: [1.5, 3]
+        orientation_angle: 180
+        length: 1.8
+        overall_thickness: 0.2
+        color: lightblue
+        label: "Default tiling (0.2m)"
+        # No texture_scale: windows default to 0.2m tiles
+      
+      # ========================================
+      # Room 2: Windows WITH tiling
+      # ========================================
+      
+      # Walls for Room 2 (right side)
+      - type: wall
+        anchor_point: [7, 0]
+        orientation_angle: 0
+        length: 5
+        thickness: 0.2
+        color: gray
+        label: "Wall (tiled)"
+        texture_scale: 0.5  # Brick pattern repeats every 0.5m
+      
+      - type: wall
+        anchor_point: [12, 0]
+        orientation_angle: 90
+        length: 3
+        thickness: 0.2
+        color: gray
+        texture_scale: 0.5
+      
+      - type: wall
+        anchor_point: [12, 3]
+        orientation_angle: 180
+        length: 5
+        thickness: 0.2
+        color: gray
+        texture_scale: 0.5
+      
+      - type: wall
+        anchor_point: [7, 3]
+        orientation_angle: 270
+        length: 3
+        thickness: 0.2
+        color: gray
+        texture_scale: 0.5
+      
+      # Window WITH tiling (0.2m tiles)
+      - type: window
+        anchor_point: [8.5, 3]
+        orientation_angle: 180
+        length: 1.8
+        overall_thickness: 0.2
+        color: lightblue
+        label: "Tiled 0.2m"
+        texture_scale: 0.2  # Texture repeats every 0.2m (9 times across 1.8m)
+      
+      # ========================================
+      # Comparison demonstration
+      # ========================================
+      
+      # Door in Room 1 (no tiling)
+      - type: door
+        anchor_point: [2.0, 0]
+        orientation_angle: 0
+        doorway_width: 1.0
+        door_width: 0.9
+        thickness: 0.2
+        to_the_right: false
+        color: brown
+        label: "Door (stretched)"
+      
+      # Door in Room 2 (with tiling)
+      - type: door
+        anchor_point: [9.0, 0]
+        orientation_angle: 0
+        doorway_width: 1.0
+        door_width: 0.9
+        thickness: 0.2
+        to_the_right: false
+        color: brown
+        label: "Door (tiled)"
+        texture_scale: 0.3  # Wood grain repeats every 0.3m
