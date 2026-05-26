@@ -64,14 +64,16 @@ class Door(RectangularElement):
         :return:
             freshly created instance of `Door` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.doorway_width = doorway_width
         self.length = doorway_width #for get_corners function
         self.door_width = door_width
         self.frame_width = (doorway_width - door_width) / 2
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.to_the_right = to_the_right
 		# If opening outside, take the opposite hinges point so "1.0" is always extended hinges
         self.hinges_point = 1 - hinges_point  if opening_outside else hinges_point

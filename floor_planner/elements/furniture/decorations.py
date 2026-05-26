@@ -51,11 +51,13 @@ class FishTank(RectangularElement):
         :return:
             freshly created instance of `FishTank` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 

@@ -20,7 +20,7 @@ reusable_elements:
   hardscape_elements:
     # Fences with different styles
     - type: fence
-      anchor: [2.0, 2.0]
+      anchor_point: [2.0, 2.0]
       length: 5.0
       style: 'solid'
       height: 1.8
@@ -30,7 +30,7 @@ reusable_elements:
       label: 'Solid Fence'
     
     - type: fence
-      anchor: [2.0, 5.0]
+      anchor_point: [2.0, 5.0]
       length: 5.0
       style: 'picket'
       height: 1.2
@@ -40,7 +40,7 @@ reusable_elements:
       label: 'Picket Fence'
     
     - type: fence
-      anchor: [2.0, 8.0]
+      anchor_point: [2.0, 8.0]
       length: 5.0
       style: 'chain-link'
       height: 1.5
@@ -50,7 +50,7 @@ reusable_elements:
       label: 'Chain-Link'
     
     - type: fence
-      anchor: [2.0, 11.0]
+      anchor_point: [2.0, 11.0]
       length: 5.0
       style: 'rail'
       height: 1.0
@@ -61,7 +61,7 @@ reusable_elements:
     
     # Garden paths with different materials
     - type: garden_path
-      anchor: [10.0, 2.0]
+      anchor_point: [10.0, 2.0]
       length: 6.0
       width: 1.2
       material: 'gravel'
@@ -70,7 +70,7 @@ reusable_elements:
       label: 'Gravel Path'
     
     - type: garden_path
-      anchor: [10.0, 5.0]
+      anchor_point: [10.0, 5.0]
       length: 6.0
       width: 1.2
       material: 'stone'
@@ -79,7 +79,7 @@ reusable_elements:
       label: 'Stone Path'
     
     - type: garden_path
-      anchor: [10.0, 8.0]
+      anchor_point: [10.0, 8.0]
       length: 6.0
       width: 1.2
       material: 'paving'
@@ -88,7 +88,7 @@ reusable_elements:
       label: 'Paving'
     
     - type: garden_path
-      anchor: [10.0, 11.0]
+      anchor_point: [10.0, 11.0]
       length: 6.0
       width: 1.2
       material: 'wood'
@@ -97,7 +97,7 @@ reusable_elements:
       label: 'Wood Deck'
     
     - type: garden_path
-      anchor: [10.0, 14.0]
+      anchor_point: [10.0, 14.0]
       length: 6.0
       width: 1.2
       material: 'mulch'
@@ -107,7 +107,7 @@ reusable_elements:
     
     # Retaining walls
     - type: retaining_wall
-      anchor: [19.0, 2.0]
+      anchor_point: [19.0, 2.0]
       length: 4.0
       height: 1.5
       thickness: 0.4
@@ -116,7 +116,7 @@ reusable_elements:
       label: 'Retaining Wall'
     
     - type: retaining_wall
-      anchor: [19.0, 6.0]
+      anchor_point: [19.0, 6.0]
       length: 3.0
       height: 2.0
       thickness: 0.5
@@ -125,7 +125,7 @@ reusable_elements:
       label: 'Angled Wall'
     
     - type: retaining_wall
-      anchor: [19.0, 10.0]
+      anchor_point: [19.0, 10.0]
       length: 5.0
       height: 1.0
       thickness: 0.3

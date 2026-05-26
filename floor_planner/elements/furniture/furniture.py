@@ -47,11 +47,13 @@ class Desk(RectangularElement):
         :return:
             freshly created instance of `Desk` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length  # Standard desk width
         self.thickness = thickness  # Standard desk depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -147,11 +149,13 @@ class DiningTable(RectangularElement):
         :return:
             freshly created instance of `DiningTable` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -241,11 +245,13 @@ class Chair(RectangularElement):
         :return:
             freshly created instance of `Chair` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.45  # Standard chair width
         self.thickness = 0.45  # Standard chair depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -336,13 +342,15 @@ class Sofa(RectangularElement):
         :return:
             freshly created instance of `Sofa` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.num_seats = num_seats
         self.seat_width = 0.8  # Width per seat
         self.length = num_seats * self.seat_width  # Total length
         self.thickness = 0.9  # Standard sofa depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 

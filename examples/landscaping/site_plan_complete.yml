@@ -32,7 +32,7 @@ floor_plans:
     elements:
       # PERIMETER - Privacy hedge across back
       - type: hedge
-        anchor: [0.5, 18.5]
+        anchor_point: [0.5, 18.5]
         length: 24.0
         thickness: 0.8
         height: 2.0
@@ -43,7 +43,7 @@ floor_plans:
       
       # FRONT BOUNDARY - Decorative picket fence
       - type: fence
-        anchor: [0.5, 0.5]
+        anchor_point: [0.5, 0.5]
         length: 11.0
         style: 'picket'
         height: 1.0
@@ -53,7 +53,7 @@ floor_plans:
         label: 'Front Fence Left'
       
       - type: fence
-        anchor: [14.0, 0.5]
+        anchor_point: [14.0, 0.5]
         length: 10.5
         style: 'picket'
         height: 1.0
@@ -64,7 +64,7 @@ floor_plans:
       
       # MAIN ENTRANCE PATH - Paving stones from street
       - type: garden_path
-        anchor: [11.5, 1.0]
+        anchor_point: [11.5, 1.0]
         length: 8.0
         width: 1.5
         material: 'paving'
@@ -74,7 +74,7 @@ floor_plans:
       
       # FRONT YARD TREES
       - type: tree
-        anchor: [5.0, 5.0]
+        anchor_point: [5.0, 5.0]
         diameter: 5.0
         height: 12.0
         trunk_diameter: 0.6
@@ -83,7 +83,7 @@ floor_plans:
         label: 'Mature Oak'
       
       - type: tree
-        anchor: [19.0, 5.0]
+        anchor_point: [19.0, 5.0]
         diameter: 4.5
         height: 10.0
         trunk_diameter: 0.5
@@ -93,7 +93,7 @@ floor_plans:
       
       # FRONT LAWN AREAS
       - type: lawn
-        anchor: [1.5, 2.0]
+        anchor_point: [1.5, 2.0]
         length: 8.0
         width: 5.0
         orientation_angle: 0
@@ -101,7 +101,7 @@ floor_plans:
         label: 'Front Lawn Left'
       
       - type: lawn
-        anchor: [15.0, 2.0]
+        anchor_point: [15.0, 2.0]
         length: 8.5
         width: 5.0
         orientation_angle: 0
@@ -110,7 +110,7 @@ floor_plans:
       
       # FLOWERING SHRUBS NEAR ENTRANCE
       - type: shrub
-        anchor: [10.5, 9.0]
+        anchor_point: [10.5, 9.0]
         diameter: 1.2
         height: 1.0
         species: 'Rose'
@@ -121,7 +121,7 @@ floor_plans:
         label: 'Rose Bush'
       
       - type: shrub
-        anchor: [13.5, 9.0]
+        anchor_point: [13.5, 9.0]
         diameter: 1.2
         height: 1.0
         species: 'Lavender'
@@ -133,7 +133,7 @@ floor_plans:
       
       # BACKYARD PATIO AREA
       - type: deck
-        anchor: [9.0, 10.5]
+        anchor_point: [9.0, 10.5]
         length: 6.0
         width: 4.0
         orientation_angle: 0
@@ -141,7 +141,7 @@ floor_plans:
         label: 'Patio Deck'
       
       - type: pergola
-        anchor: [10.0, 11.0]
+        anchor_point: [10.0, 11.0]
         length: 4.0
         width: 3.0
         post_size: 0.25
@@ -151,7 +151,7 @@ floor_plans:
       
       # BACKYARD LAWN
       - type: lawn
-        anchor: [6.0, 15.5]
+        anchor_point: [6.0, 15.5]
         length: 12.0
         width: 2.5
         orientation_angle: 0
@@ -160,7 +160,7 @@ floor_plans:
       
       # WATER FEATURES
       - type: pond
-        anchor: [20.0, 15.0]
+        anchor_point: [20.0, 15.0]
         length: 3.5
         width: 2.5
         shape: 'kidney'
@@ -169,7 +169,7 @@ floor_plans:
         label: 'Garden Pond'
       
       - type: fountain
-        anchor: [17.0, 14.5]
+        anchor_point: [17.0, 14.5]
         diameter: 1.2
         height: 0.8
         style: 'tiered'
@@ -179,7 +179,7 @@ floor_plans:
       
       # VEGETABLE GARDEN AREA
       - type: raised_bed
-        anchor: [2.0, 12.0]
+        anchor_point: [2.0, 12.0]
         length: 3.0
         width: 1.2
         height: 0.4
@@ -190,7 +190,7 @@ floor_plans:
         label: 'Vegetables'
       
       - type: raised_bed
-        anchor: [2.0, 13.5]
+        anchor_point: [2.0, 13.5]
         length: 3.0
         width: 1.2
         height: 0.4
@@ -201,7 +201,7 @@ floor_plans:
         label: 'Herbs'
       
       - type: raised_bed
-        anchor: [2.0, 15.0]
+        anchor_point: [2.0, 15.0]
         length: 3.0
         width: 1.2
         height: 0.4
@@ -213,7 +213,7 @@ floor_plans:
       
       # GARDEN SHED
       - type: garden_house
-        anchor: [2.0, 10.0]
+        anchor_point: [2.0, 10.0]
         length: 2.5
         width: 2.0
         height: 2.2
@@ -224,7 +224,7 @@ floor_plans:
       
       # BACKYARD TREES
       - type: tree
-        anchor: [18.0, 11.0]
+        anchor_point: [18.0, 11.0]
         diameter: 4.0
         height: 8.0
         trunk_diameter: 0.4
@@ -236,7 +236,7 @@ floor_plans:
         label: 'Cherry'
       
       - type: tree
-        anchor: [22.0, 7.0]
+        anchor_point: [22.0, 7.0]
         diameter: 2.5
         height: 6.0
         trunk_diameter: 0.25
@@ -246,7 +246,7 @@ floor_plans:
       
       # GAZEBO IN CORNER
       - type: gazebo
-        anchor: [22.0, 3.0]
+        anchor_point: [22.0, 3.0]
         diameter: 3.0
         color: '#DEB887'
         roof_color: '#8B4513'
@@ -254,7 +254,7 @@ floor_plans:
       
       # ORNAMENTAL SHRUBS AROUND GAZEBO
       - type: shrub
-        anchor: [20.0, 2.0]
+        anchor_point: [20.0, 2.0]
         diameter: 1.2
         height: 1.0
         species: 'Hydrangea'
@@ -265,7 +265,7 @@ floor_plans:
         label: 'Hydrangea'
       
       - type: shrub
-        anchor: [24.0, 2.0]
+        anchor_point: [24.0, 2.0]
         diameter: 1.2
         height: 1.0
         species: 'Azalea'
@@ -277,7 +277,7 @@ floor_plans:
       
       # PATHWAY TO GAZEBO
       - type: garden_path
-        anchor: [15.0, 2.5]
+        anchor_point: [15.0, 2.5]
         length: 6.0
         width: 1.0
         material: 'stone'
@@ -287,7 +287,7 @@ floor_plans:
       
       # RETAINING WALL ON SIDE
       - type: retaining_wall
-        anchor: [23.5, 8.0]
+        anchor_point: [23.5, 8.0]
         length: 7.0
         height: 1.2
         thickness: 0.3

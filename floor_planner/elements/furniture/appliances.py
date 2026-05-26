@@ -45,11 +45,13 @@ class Dishwasher(RectangularElement):
         :return:
             freshly created instance of `Dishwasher` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.6  # Standard dishwasher width
         self.thickness = 0.6  # Standard dishwasher depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -217,11 +219,13 @@ class Fridge(RectangularElement):
         :return:
             freshly created instance of `Fridge` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -325,11 +329,13 @@ class Freezer(RectangularElement):
         :return:
             freshly created instance of `Freezer` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -432,11 +438,13 @@ class WashingMachine(RectangularElement):
         :return:
             freshly created instance of `WashingMachine` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.6  # Standard washing machine width
         self.thickness = 0.6  # Standard washing machine depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -528,11 +536,13 @@ class Dryer(RectangularElement):
         :return:
             freshly created instance of `Dryer` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.6  # Standard dryer width
         self.thickness = 0.6  # Standard dryer depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -633,11 +643,13 @@ class Stovetop(RectangularElement):
         :return:
             freshly created instance of `Stovetop` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.6  # Standard stovetop width
         self.thickness = 0.6  # Standard stovetop depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -729,11 +741,13 @@ class SingleSink(RectangularElement):
         :return:
             freshly created instance of `SingleSink` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.9  # Single sink length
         self.thickness = 0.6  # Single sink width
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -848,11 +862,13 @@ class DoubleSink(RectangularElement):
         :return:
             freshly created instance of `DoubleSink` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 1.2  # Double sink length (wider than single)
         self.thickness = 0.6  # Double sink width
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 

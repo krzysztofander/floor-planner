@@ -41,8 +41,7 @@ class CeilingLamp(Element):
         :return:
             freshly created instance of `CeilingLamp` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(anchor_point=anchor_point, label=label)
         self.symbol_diameter = symbol_diameter
         self.line_width = line_width
         self.color = color
@@ -121,8 +120,7 @@ class WallLamp(Element):
         :return:
             freshly created instance of `WallLamp` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(anchor_point=anchor_point, label=label)
         self.symbol_diameter = symbol_diameter
         self.orientation_angle = orientation_angle
         self.stub_relative_depth = stub_relative_depth
@@ -233,8 +231,7 @@ class LEDStrip(Element):
         :return:
             freshly created instance of `LEDStrip` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(anchor_point=anchor_point, label=label)
         self.length = length
         self.width = width
         self.orientation_angle = orientation_angle
@@ -317,8 +314,7 @@ class Switch(Element):
         :return:
             freshly created instance of `Switch` class
         """
-        super().__init__(label=label)
-        self.anchor_point  = anchor_point
+        super().__init__(anchor_point=anchor_point, label=label)
         self.symbol_length = symbol_length
         self.orientation_angle = orientation_angle
         self.two_key = two_key

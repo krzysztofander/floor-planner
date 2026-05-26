@@ -19,16 +19,25 @@ import math
 class Element(ABC):
     """Abstract element."""
 
-    def __init__(self, label: str | None = None):
+    def __init__(
+            self,
+            anchor_point: tuple[float, float] | None = None,
+            label: str | None = None
+    ):
         """
         Initialize an instance.
 
+        :param anchor_point:
+            optional coordinates (x, y) in meters; meaning varies by element type
+            (e.g., bottom-left for rectangles, center for circles);
+            None for elements that use alternative positioning (Line, Polygon)
         :param label:
             optional label for the element
         """
         self.label = label
         # Generate unique ID based on class name and label
         self.id = generate_element_id(self.__class__.__name__, label)
+        self.anchor_point = anchor_point
 
     @abstractmethod
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -38,14 +47,26 @@ class Element(ABC):
 class RectangularElement(Element):
     """Element with rectangular shape."""
 
-    def __init__(self, label: str | None = None):
+    def __init__(
+            self,
+            anchor_point: tuple[float, float] | None = None,
+            orientation_angle: float = 0,
+            label: str | None = None
+    ):
         """
         Initialize an instance.
 
+        :param anchor_point:
+            coordinates (x, y) in meters; typically bottom-left corner for rectangles
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation;
+            measured between X-axis and the element in positive direction (counterclockwise);
+            initial element is rotated around anchor point to get the desired orientation
         :param label:
             optional label for the element
         """
-        super().__init__(label=label)
+        super().__init__(anchor_point=anchor_point, label=label)
+        self.orientation_angle = orientation_angle
 
     def get_draw_color(self) -> str | None:
         """

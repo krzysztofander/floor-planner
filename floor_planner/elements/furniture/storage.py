@@ -54,11 +54,13 @@ class GenericStorage(RectangularElement):
         :return:
             freshly created instance of `GenericStorage` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
 
         # Room properties (set by Room class if this storage box is part of a room)
@@ -204,11 +206,13 @@ class Tabletop(RectangularElement):
             label: str | None = None
     ):
      
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
 
         # Room properties (set by Room class if this storage box is part of a room)

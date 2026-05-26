@@ -29,11 +29,13 @@ class MultiBed(RectangularElement):
             color: str,
             label: str | None = None
     ):
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.is_double = thickness > 1.2
 
@@ -108,12 +110,14 @@ class DoubleBed(MultiBed):
             color: str = 'grey',
             label: str | None = None
     ):
-        super().__init__(label=label,
-                            anchor_point=anchor_point,
-                            orientation_angle=orientation_angle,
-                            length=2.15,
-                            thickness=1.7,
-                            color=color)
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=2.15,
+            thickness=1.7,
+            color=color,
+            label=label
+        )
 class SingleBed(MultiBed):
     """
     Single bed

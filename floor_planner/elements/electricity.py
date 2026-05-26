@@ -57,8 +57,7 @@ class PowerOutlet(Element):
         :return:
             freshly created instance of `PowerOutlet` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(anchor_point=anchor_point, label=label)
         self.length = length
         self.orientation_angle = orientation_angle
         self.waterproof = waterproof

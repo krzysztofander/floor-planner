@@ -20,7 +20,7 @@ reusable_elements:
   water_features:
     # Fountains with different styles
     - type: fountain
-      anchor: [4.0, 5.0]
+      anchor_point: [4.0, 5.0]
       diameter: 2.0
       height: 1.5
       style: 'tiered'
@@ -29,7 +29,7 @@ reusable_elements:
       label: 'Tiered Fountain'
     
     - type: fountain
-      anchor: [4.0, 10.0]
+      anchor_point: [4.0, 10.0]
       diameter: 2.5
       height: 2.0
       style: 'spray'
@@ -38,7 +38,7 @@ reusable_elements:
       label: 'Spray Fountain'
     
     - type: fountain
-      anchor: [4.0, 15.0]
+      anchor_point: [4.0, 15.0]
       diameter: 1.5
       height: 0.8
       style: 'simple'
@@ -48,7 +48,7 @@ reusable_elements:
     
     # Ponds with different shapes
     - type: pond
-      anchor: [12.0, 5.0]
+      anchor_point: [12.0, 5.0]
       length: 4.0
       width: 3.0
       shape: 'oval'
@@ -57,7 +57,7 @@ reusable_elements:
       label: 'Oval Pond'
     
     - type: pond
-      anchor: [12.0, 10.0]
+      anchor_point: [12.0, 10.0]
       length: 4.5
       width: 3.5
       shape: 'kidney'
@@ -66,7 +66,7 @@ reusable_elements:
       label: 'Kidney Pond'
     
     - type: pond
-      anchor: [12.0, 15.0]
+      anchor_point: [12.0, 15.0]
       length: 3.5
       width: 2.5
       shape: 'rectangular'
@@ -75,7 +75,7 @@ reusable_elements:
       label: 'Rectangular Pond'
     
     - type: pond
-      anchor: [20.0, 8.0]
+      anchor_point: [20.0, 8.0]
       length: 4.0
       width: 4.0
       shape: 'irregular'
@@ -85,7 +85,7 @@ reusable_elements:
     
     # Swimming Pools
     - type: rect_pool
-      anchor: [20.0, 15.0]
+      anchor_point: [20.0, 15.0]
       width: 4.0
       height: 8.0
       pool_color: '#00BFFF'
@@ -95,7 +95,7 @@ reusable_elements:
       label: 'Rectangular Pool'
     
     - type: oval_pool
-      anchor: [20.0, 3.5]
+      anchor_point: [20.0, 3.5]
       width: 3.5
       height: 6.0
       pool_color: '#00BFFF'

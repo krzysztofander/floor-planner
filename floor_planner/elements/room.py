@@ -46,9 +46,8 @@ class Room(Element):
         :raises ValueError:
             if walls don't form a valid rectangle or exactly 4 walls don't have room_edge=True
         """
-        super().__init__(label=label)
+        super().__init__(anchor_point=anchor_point, label=label)
 
-        self.anchor_point = anchor_point
         self.color = color
         self.walls = walls
         self.other_elements = other_elements or []

@@ -46,11 +46,13 @@ class Shower(RectangularElement):
         :return:
             freshly created instance of `Shower` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -160,11 +162,13 @@ class Bathtub(RectangularElement):
         :return:
             freshly created instance of `Bathtub` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -249,11 +253,13 @@ class Basin(RectangularElement):
         :return:
             freshly created instance of `Basin` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.6  # Basin width
         self.thickness = 0.5  # Basin depth
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 
@@ -355,11 +361,13 @@ class Toilet(RectangularElement):
         :return:
             freshly created instance of `Toilet` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = 0.7  # Standard toilet length (front to back)
         self.thickness = 0.4  # Standard toilet width
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_id = None
 

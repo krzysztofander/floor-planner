@@ -17,8 +17,8 @@ class Fence(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            length: float,
+            anchor_point: tuple[float, float] | None = None,
+            length: float | None = None,
             style: str = 'solid',
             height: float = 1.8,
             thickness: float = 0.1,
@@ -29,7 +29,7 @@ class Fence(RectangularElement):
         """
         Initialize a Fence instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             fence length in meters
@@ -46,14 +46,16 @@ class Fence(RectangularElement):
         :param label:
             optional label for the fence
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.style = style
         self.height = height
         self.thickness = thickness
         self.color = color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fence with style-specific patterns."""
@@ -195,9 +197,9 @@ class GardenPath(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            length: float,
-            width: float,
+            anchor_point: tuple[float, float] | None = None,
+            length: float | None = None,
+            width: float | None = None,
             material: str = 'gravel',
             color: str = '#D3D3D3',
             orientation_angle: float = 0,
@@ -206,7 +208,7 @@ class GardenPath(RectangularElement):
         """
         Initialize a GardenPath instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             path length in meters
@@ -221,13 +223,15 @@ class GardenPath(RectangularElement):
         :param label:
             optional label for the path
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.width = width
         self.material = material
         self.color = color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the path with material-specific pattern."""
@@ -413,9 +417,9 @@ class RetainingWall(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            length: float,
-            height: float,
+            anchor_point: tuple[float, float] | None = None,
+            length: float | None = None,
+            height: float | None = None,
             thickness: float = 0.3,
             color: str = '#696969',
             orientation_angle: float = 0,
@@ -424,7 +428,7 @@ class RetainingWall(RectangularElement):
         """
         Initialize a RetainingWall instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             wall length in meters
@@ -439,13 +443,15 @@ class RetainingWall(RectangularElement):
         :param label:
             optional label for the wall
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.height = height
         self.thickness = thickness
         self.color = color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the retaining wall with stone texture."""

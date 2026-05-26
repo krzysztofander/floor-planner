@@ -19,8 +19,8 @@ class Fountain(Element):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            diameter: float,
+            anchor_point: tuple[float, float] | None = None,
+            diameter: float | None = None,
             height: float = 0.5,
             style: str = 'tiered',
             color: str = '#87CEEB',
@@ -30,7 +30,7 @@ class Fountain(Element):
         """
         Initialize a Fountain instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of center point
         :param diameter:
             fountain basin diameter in meters
@@ -45,8 +45,7 @@ class Fountain(Element):
         :param label:
             optional label for the fountain
         """
-        super().__init__(label=label)
-        self.anchor = anchor
+        super().__init__(anchor_point=anchor_point, label=label)
         self.diameter = diameter
         self.height = height
         self.style = style
@@ -57,7 +56,7 @@ class Fountain(Element):
         """Draw the fountain with style-specific water pattern."""
         # Draw basin
         basin = Circle(
-            self.anchor,
+            self.anchor_point,
             self.diameter / 2,
             facecolor=self.basin_color,
             edgecolor='black',
@@ -68,7 +67,7 @@ class Fountain(Element):
 
         # Draw water surface
         water = Circle(
-            self.anchor,
+            self.anchor_point,
             self.diameter / 2 * 0.9,
             facecolor=self.color,
             edgecolor=self.color,
@@ -88,7 +87,7 @@ class Fountain(Element):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0], self.anchor[1] + self.diameter / 2 + 0.3)
+        position = (self.anchor_point[0], self.anchor_point[1] + self.diameter / 2 + 0.3)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -105,7 +104,7 @@ class Fountain(Element):
         for tier_ratio in tiers:
             radius = (self.diameter / 2) * tier_ratio
             tier_circle = Circle(
-                self.anchor,
+                self.anchor_point,
                 radius,
                 facecolor='none',
                 edgecolor=self.basin_color,
@@ -117,8 +116,8 @@ class Fountain(Element):
             num_ripples = 8
             for i in range(num_ripples):
                 angle = (i / num_ripples) * 2 * math.pi
-                x = self.anchor[0] + radius * math.cos(angle)
-                y = self.anchor[1] + radius * math.sin(angle)
+                x = self.anchor_point[0] + radius * math.cos(angle)
+                y = self.anchor_point[1] + radius * math.sin(angle)
                 ripple = Circle((x, y), 0.05, facecolor=self.color, 
                               edgecolor='none', alpha=0.4)
                 ax.add_patch(ripple)
@@ -132,16 +131,16 @@ class Fountain(Element):
         for i in range(num_sprays):
             angle = (i / num_sprays) * 2 * math.pi
             # Main spray line
-            x_end = self.anchor[0] + spray_length * math.cos(angle)
-            y_end = self.anchor[1] + spray_length * math.sin(angle)
-            ax.plot([self.anchor[0], x_end], [self.anchor[1], y_end],
+            x_end = self.anchor_point[0] + spray_length * math.cos(angle)
+            y_end = self.anchor_point[1] + spray_length * math.sin(angle)
+            ax.plot([self.anchor_point[0], x_end], [self.anchor_point[1], y_end],
                    color=self.color, linewidth=1.5, alpha=0.6)
             
             # Small droplets at the end
             for j in range(3):
                 offset = (j + 1) * 0.1
-                x_drop = self.anchor[0] + (spray_length + offset) * math.cos(angle)
-                y_drop = self.anchor[1] + (spray_length + offset) * math.sin(angle)
+                x_drop = self.anchor_point[0] + (spray_length + offset) * math.cos(angle)
+                y_drop = self.anchor_point[1] + (spray_length + offset) * math.sin(angle)
                 ax.plot(x_drop, y_drop, 'o', color=self.color, 
                        markersize=2, alpha=0.4)
 
@@ -152,7 +151,7 @@ class Fountain(Element):
         for ripple_ratio in ripples:
             radius = (self.diameter / 2) * ripple_ratio
             ripple = Circle(
-                self.anchor,
+                self.anchor_point,
                 radius,
                 facecolor='none',
                 edgecolor=self.color,
@@ -179,9 +178,9 @@ class Pond(Element):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            length: float,
-            width: float,
+            anchor_point: tuple[float, float] | None = None,
+            length: float | None = None,
+            width: float | None = None,
             shape: str = 'oval',
             color: str = '#4682B4',
             border_color: str = '#2F4F4F',
@@ -190,7 +189,7 @@ class Pond(Element):
         """
         Initialize a Pond instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of center point
         :param length:
             pond length in meters
@@ -205,8 +204,7 @@ class Pond(Element):
         :param label:
             optional label for the pond
         """
-        super().__init__(label=label)
-        self.anchor = anchor
+        super().__init__(anchor_point=anchor_point, label=label)
         self.length = length
         self.width = width
         self.shape = shape
@@ -230,7 +228,7 @@ class Pond(Element):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0], self.anchor[1] + self.width / 2 + 0.3)
+        position = (self.anchor_point[0], self.anchor_point[1] + self.width / 2 + 0.3)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -246,7 +244,7 @@ class Pond(Element):
         
         # Border
         border = Ellipse(
-            self.anchor,
+            self.anchor_point,
             self.length,
             self.width,
             facecolor=self.border_color,
@@ -258,7 +256,7 @@ class Pond(Element):
         
         # Water surface
         water = Ellipse(
-            self.anchor,
+            self.anchor_point,
             self.length * 0.9,
             self.width * 0.9,
             facecolor=self.color,
@@ -283,8 +281,8 @@ class Pond(Element):
             
             r_x = (self.length / 2) * indent_factor
             r_y = self.width / 2
-            x = self.anchor[0] + r_x * math.cos(angle)
-            y = self.anchor[1] + r_y * math.sin(angle)
+            x = self.anchor_point[0] + r_x * math.cos(angle)
+            y = self.anchor_point[1] + r_y * math.sin(angle)
             points.append([x, y])
         
         # Border
@@ -302,8 +300,8 @@ class Pond(Element):
             
             r_x = (self.length / 2) * 0.9 * indent_factor
             r_y = (self.width / 2) * 0.9
-            x = self.anchor[0] + r_x * math.cos(angle)
-            y = self.anchor[1] + r_y * math.sin(angle)
+            x = self.anchor_point[0] + r_x * math.cos(angle)
+            y = self.anchor_point[1] + r_y * math.sin(angle)
             water_points.append([x, y])
         
         water = Polygon(water_points, facecolor=self.color,
@@ -314,8 +312,8 @@ class Pond(Element):
         """Draw rectangular pond with rounded corners."""
         from matplotlib.patches import FancyBboxPatch
         
-        x = self.anchor[0] - self.length / 2
-        y = self.anchor[1] - self.width / 2
+        x = self.anchor_point[0] - self.length / 2
+        y = self.anchor_point[1] - self.width / 2
         
         # Border with rounded corners
         border = FancyBboxPatch(
@@ -355,8 +353,8 @@ class Pond(Element):
             r_variation = random.uniform(0.7, 1.0)
             r_x = (self.length / 2) * r_variation
             r_y = (self.width / 2) * r_variation
-            x = self.anchor[0] + r_x * math.cos(angle)
-            y = self.anchor[1] + r_y * math.sin(angle)
+            x = self.anchor_point[0] + r_x * math.cos(angle)
+            y = self.anchor_point[1] + r_y * math.sin(angle)
             points.append([x, y])
         
         # Border
@@ -365,8 +363,8 @@ class Pond(Element):
         ax.add_patch(border)
         
         # Water surface (slightly smaller)
-        water_points = [[p[0] * 0.95 + self.anchor[0] * 0.05,
-                        p[1] * 0.95 + self.anchor[1] * 0.05] for p in points]
+        water_points = [[p[0] * 0.95 + self.anchor_point[0] * 0.05,
+                        p[1] * 0.95 + self.anchor_point[1] * 0.05] for p in points]
         water = Polygon(water_points, facecolor=self.color,
                        edgecolor=self.color, linewidth=0.5, alpha=0.6)
         ax.add_patch(water)
@@ -380,8 +378,8 @@ class Pond(Element):
             # Random position within pond bounds
             offset_x = random.uniform(-self.length * 0.3, self.length * 0.3)
             offset_y = random.uniform(-self.width * 0.3, self.width * 0.3)
-            x = self.anchor[0] + offset_x
-            y = self.anchor[1] + offset_y
+            x = self.anchor_point[0] + offset_x
+            y = self.anchor_point[1] + offset_y
             
             # Draw concentric ripples
             for r in [0.1, 0.15, 0.2]:
@@ -411,9 +409,9 @@ class RectPool(Element):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            width: float,
-            height: float,
+            anchor_point: tuple[float, float] | None = None,
+            width: float | None = None,
+            height: float | None = None,
             pool_color: str = '#00BFFF',
             border_color: str = '#B0C4DE',
             show_lanes: bool = False,
@@ -423,7 +421,7 @@ class RectPool(Element):
         """
         Initialize a RectPool instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of center point
         :param width:
             pool width in meters
@@ -440,8 +438,8 @@ class RectPool(Element):
         :param label:
             optional label for the pool
         """
-        super().__init__(label=label)
-        self.anchor = anchor
+        super().__init__(anchor_point=anchor_point, label=label)
+        self.anchor_point = anchor_point
         self.width = width
         self.height = height
         self.pool_color = pool_color
@@ -451,8 +449,8 @@ class RectPool(Element):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the rectangular swimming pool."""
-        x = self.anchor[0] - self.width / 2
-        y = self.anchor[1] - self.height / 2
+        x = self.anchor_point[0] - self.width / 2
+        y = self.anchor_point[1] - self.height / 2
 
         # Draw pool border/edge
         from matplotlib.patches import Rectangle
@@ -493,7 +491,7 @@ class RectPool(Element):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0], self.anchor[1] + self.height / 2 + 0.4)
+        position = (self.anchor_point[0], self.anchor_point[1] + self.height / 2 + 0.4)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -570,9 +568,9 @@ class OvalPool(Element):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            width: float,
-            height: float,
+            anchor_point: tuple[float, float] | None = None,
+            width: float | None = None,
+            height: float | None = None,
             pool_color: str = '#00BFFF',
             border_color: str = '#B0C4DE',
             show_steps: bool = True,
@@ -581,7 +579,7 @@ class OvalPool(Element):
         """
         Initialize an OvalPool instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of center point
         :param width:
             pool width in meters
@@ -596,8 +594,8 @@ class OvalPool(Element):
         :param label:
             optional label for the pool
         """
-        super().__init__(label=label)
-        self.anchor = anchor
+        super().__init__(anchor_point=anchor_point, label=label)
+        self.anchor_point = anchor_point
         self.width = width
         self.height = height
         self.pool_color = pool_color
@@ -610,7 +608,7 @@ class OvalPool(Element):
 
         # Draw pool border/edge (slightly larger ellipse)
         border = Ellipse(
-            self.anchor,
+            self.anchor_point,
             self.width + 0.3,
             self.height + 0.3,
             facecolor=self.border_color,
@@ -622,7 +620,7 @@ class OvalPool(Element):
 
         # Draw water surface
         water = Ellipse(
-            self.anchor,
+            self.anchor_point,
             self.width,
             self.height,
             facecolor=self.pool_color,
@@ -642,7 +640,7 @@ class OvalPool(Element):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0], self.anchor[1] + self.height / 2 + 0.4)
+        position = (self.anchor_point[0], self.anchor_point[1] + self.height / 2 + 0.4)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -655,8 +653,8 @@ class OvalPool(Element):
     def _draw_steps(self, ax: matplotlib.axes.Axes) -> None:
         """Draw semi-circular entry steps."""
         # Steps on one side (bottom)
-        step_center_x = self.anchor[0]
-        step_center_y = self.anchor[1] - self.height / 2 + 0.5
+        step_center_x = self.anchor_point[0]
+        step_center_y = self.anchor_point[1] - self.height / 2 + 0.5
         
         # Draw 2-3 semi-circular steps
         step_radii = [0.3, 0.5, 0.7]
@@ -680,8 +678,8 @@ class OvalPool(Element):
             # Generate points within ellipse
             angle = random.uniform(0, 2 * math.pi)
             r = random.uniform(0, 1) ** 0.5  # Square root for uniform distribution
-            shimmer_x = self.anchor[0] + r * (self.width / 2) * 0.9 * math.cos(angle)
-            shimmer_y = self.anchor[1] + r * (self.height / 2) * 0.9 * math.sin(angle)
+            shimmer_x = self.anchor_point[0] + r * (self.width / 2) * 0.9 * math.cos(angle)
+            shimmer_y = self.anchor_point[1] + r * (self.height / 2) * 0.9 * math.sin(angle)
             size = random.uniform(0.05, 0.15)
             shimmer = Circle(
                 (shimmer_x, shimmer_y),

@@ -56,11 +56,13 @@ class WallND(RectangularElement):
         :return:
             freshly created instance of `WallND` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
-        self.orientation_angle = orientation_angle
         self.color = color
         self.room_edge = room_edge
 
@@ -182,13 +184,15 @@ class Window(RectangularElement):
             raise ValueError("Window can not be drawn due to invalid thicknesses.")
 
 
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.overall_thickness = overall_thickness
         self.thickness = overall_thickness  #for get_corners function
         self.single_line_thickness = single_line_thickness
-        self.orientation_angle = orientation_angle
         self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

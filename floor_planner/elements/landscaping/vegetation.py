@@ -54,7 +54,7 @@ class CircularVegetation(VegetationElement):
     
     def __init__(
             self,
-            anchor: tuple[float, float],
+            anchor_point: tuple[float, float],
             diameter: float,
             height: float,
             color: str,
@@ -73,14 +73,14 @@ class CircularVegetation(VegetationElement):
             bloom_season_end=bloom_season_end,
             bloom_color=bloom_color
         )
-        self.anchor = anchor
+        self.anchor_point = anchor_point
         self.diameter = diameter
         self.color = color
     
     def _draw_main_circle(self, ax: matplotlib.axes.Axes, alpha: float = 0.8) -> None:
         """Draw the main circular shape (canopy/bush)."""
         circle = Circle(
-            self.anchor,
+            self.anchor_point,
             self.diameter / 2,
             facecolor=self.color,
             edgecolor='darkgreen',
@@ -103,10 +103,10 @@ class CircularVegetation(VegetationElement):
         
         # Render species at center (always horizontal) if enabled and present
         if show_species and has_species:
-            species_y = self.anchor[1] + vertical_offset if (show_bloom and has_bloom) else self.anchor[1]
+            species_y = self.anchor_point[1] + vertical_offset if (show_bloom and has_bloom) else self.anchor_point[1]
             _render_text(
                 ax=ax,
-                position=(self.anchor[0], species_y),
+                position=(self.anchor_point[0], species_y),
                 text=self.species,
                 rotation=0,
                 color='black',
@@ -124,10 +124,10 @@ class CircularVegetation(VegetationElement):
             
             if bloom_text:
                 # Position depends on whether species is shown
-                bloom_y = self.anchor[1] - vertical_offset if (show_species and has_species) else self.anchor[1]
+                bloom_y = self.anchor_point[1] - vertical_offset if (show_species and has_species) else self.anchor_point[1]
                 _render_text(
                     ax=ax,
-                    position=(self.anchor[0], bloom_y),
+                    position=(self.anchor_point[0], bloom_y),
                     text=bloom_text,
                     rotation=0,
                     color='darkred',
@@ -139,7 +139,7 @@ class CircularVegetation(VegetationElement):
         """Render label and ID for circular element."""
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1])
+        position = (self.anchor_point[0] + self.diameter / 2 + 0.2, self.anchor_point[1])
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -155,9 +155,9 @@ class Tree(CircularVegetation):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            diameter: float,
-            height: float,
+            anchor_point: tuple[float, float],
+            diameter: float = 4.0,
+            height: float = 10.0,
             trunk_diameter: float = 0.3,
             color: str = '#228B22',
             label: str | None = None,
@@ -169,7 +169,7 @@ class Tree(CircularVegetation):
         """
         Initialize a Tree instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (center of tree canopy)
         :param diameter:
             canopy diameter in meters
@@ -191,7 +191,7 @@ class Tree(CircularVegetation):
             optional bloom color (used during bloom season)
         """
         super().__init__(
-            anchor=anchor,
+            anchor_point=anchor_point,
             diameter=diameter,
             height=height,
             color=color,
@@ -207,7 +207,7 @@ class Tree(CircularVegetation):
         """Draw the tree with trunk and canopy."""
         # Draw trunk (small circle)
         trunk = Circle(
-            self.anchor,
+            self.anchor_point,
             self.trunk_diameter / 2,
             facecolor='#8B4513',  # saddle brown
             edgecolor='#654321',
@@ -222,7 +222,7 @@ class Tree(CircularVegetation):
         show_bloom = get_show_bloom('Tree')
         if show_bloom and self.bloom_color and self.bloom_season_start and self.bloom_season_end:
             bloom_halo = Circle(
-                self.anchor,
+                self.anchor_point,
                 self.diameter / 2,
                 facecolor='none',
                 edgecolor=self.bloom_color,
@@ -241,7 +241,7 @@ class Tree(CircularVegetation):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1])
+        position = (self.anchor_point[0] + self.diameter / 2 + 0.2, self.anchor_point[1])
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -257,9 +257,9 @@ class Shrub(CircularVegetation):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            diameter: float,
-            height: float,
+            anchor_point: tuple[float, float],
+            diameter: float = 1.0,
+            height: float = 1.5,
             color: str = '#90EE90',
             label: str | None = None,
             species: str | None = None,
@@ -270,7 +270,7 @@ class Shrub(CircularVegetation):
         """
         Initialize a Shrub instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (center of shrub)
         :param diameter:
             shrub diameter in meters
@@ -290,7 +290,7 @@ class Shrub(CircularVegetation):
             optional bloom color (used during bloom season)
         """
         super().__init__(
-            anchor=anchor,
+            anchor_point=anchor_point,
             diameter=diameter,
             height=height,
             color=color,
@@ -315,7 +315,7 @@ class Shrub(CircularVegetation):
                 offset_x = (self.diameter / 3) * math.cos(angle)
                 offset_y = (self.diameter / 3) * math.sin(angle)
                 bloom = Circle(
-                    (self.anchor[0] + offset_x, self.anchor[1] + offset_y),
+                    (self.anchor_point[0] + offset_x, self.anchor_point[1] + offset_y),
                     self.diameter / 8,
                     facecolor=self.bloom_color,
                     edgecolor=self.bloom_color,
@@ -333,7 +333,7 @@ class Shrub(CircularVegetation):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor[0] + self.diameter / 2 + 0.2, self.anchor[1])
+        position = (self.anchor_point[0] + self.diameter / 2 + 0.2, self.anchor_point[1])
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -349,10 +349,10 @@ class Hedge(VegetationElement, RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            length: float,
-            thickness: float,
-            height: float,
+            anchor_point: tuple[float, float] | None = None,
+            length: float | None = None,
+            thickness: float | None = None,
+            height: float | None = None,
             color: str = '#556B2F',
             orientation_angle: float = 0,
             label: str | None = None,
@@ -364,7 +364,7 @@ class Hedge(VegetationElement, RectangularElement):
         """
         Initialize a Hedge instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             hedge length in meters
@@ -396,11 +396,15 @@ class Hedge(VegetationElement, RectangularElement):
             bloom_season_end=bloom_season_end,
             bloom_color=bloom_color
         )
-        self.anchor_point = anchor
+        RectangularElement.__init__(
+            self,
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.thickness = thickness
         self.color = color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the hedge as a thick rectangle."""
@@ -539,9 +543,9 @@ class Lawn(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
-            length: float,
-            width: float,
+            anchor_point: tuple[float, float] | None = None,
+            length: float | None = None,
+            width: float | None = None,
             color: str = '#7CFC00',
             orientation_angle: float = 0,
             label: str | None = None
@@ -549,7 +553,7 @@ class Lawn(RectangularElement):
         """
         Initialize a Lawn instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             lawn length in meters
@@ -562,12 +566,14 @@ class Lawn(RectangularElement):
         :param label:
             optional label for the lawn
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.width = width
         self.color = color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the lawn as a filled rectangle with grass texture."""

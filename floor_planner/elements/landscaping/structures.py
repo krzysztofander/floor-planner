@@ -18,7 +18,7 @@ class Pergola(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
+            anchor_point: tuple[float, float],
             length: float,
             width: float,
             post_size: float = 0.2,
@@ -29,7 +29,7 @@ class Pergola(RectangularElement):
         """
         Initialize a Pergola instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             pergola length in meters
@@ -44,12 +44,14 @@ class Pergola(RectangularElement):
         :param label:
             optional label for the pergola
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.width = width
         self.post_size = post_size
-        self.orientation_angle = orientation_angle
         self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -186,7 +188,7 @@ class RaisedBed(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
+            anchor_point: tuple[float, float],
             length: float,
             width: float,
             height: float = 0.4,
@@ -199,7 +201,7 @@ class RaisedBed(RectangularElement):
         """
         Initialize a RaisedBed instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             bed length in meters
@@ -218,15 +220,17 @@ class RaisedBed(RectangularElement):
         :param label:
             optional label for the raised bed
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.width = width
         self.height = height
         self.border_thickness = border_thickness
         self.fill_color = fill_color
         self.border_color = border_color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the raised bed with border and fill."""
@@ -312,7 +316,7 @@ class Gazebo(Element):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
+            anchor_point: tuple[float, float],
             diameter: float,
             color: str = '#DEB887',
             roof_color: str = '#8B4513',
@@ -321,7 +325,7 @@ class Gazebo(Element):
         """
         Initialize a Gazebo instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of center point
         :param diameter:
             gazebo diameter in meters
@@ -332,8 +336,7 @@ class Gazebo(Element):
         :param label:
             optional label for the gazebo
         """
-        super().__init__(label=label)
-        self.anchor = anchor
+        super().__init__(anchor_point=anchor_point, label=label)
         self.diameter = diameter
         self.color = color
         self.roof_color = roof_color
@@ -358,8 +361,8 @@ class Gazebo(Element):
         points = []
         for i in range(num_sides):
             angle = (i / num_sides) * 2 * math.pi
-            x = self.anchor[0] + radius * math.cos(angle)
-            y = self.anchor[1] + radius * math.sin(angle)
+            x = self.anchor_point[0] + radius * math.cos(angle)
+            y = self.anchor_point[1] + radius * math.sin(angle)
             points.append([x, y])
         
         alpha = 0.6 if is_roof else 0.8
@@ -382,8 +385,8 @@ class Gazebo(Element):
         
         for i in range(num_posts):
             angle = (i / num_posts) * 2 * math.pi
-            x = self.anchor[0] + radius * math.cos(angle)
-            y = self.anchor[1] + radius * math.sin(angle)
+            x = self.anchor_point[0] + radius * math.cos(angle)
+            y = self.anchor_point[1] + radius * math.sin(angle)
             
             post = Circle(
                 (x, y),
@@ -405,7 +408,7 @@ class Gazebo(Element):
                 ax=ax,
                 element=self,
                 element_type='Gazebo',
-                position=(self.anchor[0], self.anchor[1] + self.diameter / 2 + 0.3),
+                position=(self.anchor_point[0], self.anchor_point[1] + self.diameter / 2 + 0.3),
                 rotation=0
             )
             self.label = original_label
@@ -414,7 +417,7 @@ class Gazebo(Element):
                 ax=ax,
                 element=self,
                 element_type='Gazebo',
-                position=(self.anchor[0], self.anchor[1] + self.diameter / 2 + 0.3),
+                position=(self.anchor_point[0], self.anchor_point[1] + self.diameter / 2 + 0.3),
                 rotation=0
             )
 
@@ -432,7 +435,7 @@ class Deck(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
+            anchor_point: tuple[float, float],
             length: float,
             width: float,
             color: str = '#D2691E',
@@ -442,7 +445,7 @@ class Deck(RectangularElement):
         """
         Initialize a Deck instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             deck length in meters
@@ -455,12 +458,14 @@ class Deck(RectangularElement):
         :param label:
             optional label for the deck
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.width = width
         self.color = color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the deck with wood plank pattern."""
@@ -554,7 +559,7 @@ class GardenHouse(RectangularElement):
 
     def __init__(
             self,
-            anchor: tuple[float, float],
+            anchor_point: tuple[float, float],
             length: float,
             width: float,
             height: float = 2.5,
@@ -566,7 +571,7 @@ class GardenHouse(RectangularElement):
         """
         Initialize a GardenHouse instance.
 
-        :param anchor:
+        :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
             house length in meters
@@ -583,14 +588,16 @@ class GardenHouse(RectangularElement):
         :param label:
             optional label for the garden house
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            label=label
+        )
         self.length = length
         self.width = width
         self.height = height
         self.color = color
         self.roof_color = roof_color
-        self.orientation_angle = orientation_angle
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the garden house with walls, door, and 4-sided roof."""
