@@ -7,24 +7,15 @@ import re
 
 def validate_constants(constants_dict: dict, scope_name: str = "global") -> None:
     """
-    Validate that all constants are floating point numbers.
-
+    Deprecated: Constants validation is no longer needed.
+    Kept for backwards compatibility but does nothing.
+    
     :param constants_dict:
-        dictionary of constant name -> value mappings
+        dictionary of constant name -> value mappings (ignored)
     :param scope_name:
-        name of the scope (for error messages)
-    :raises ValueError:
-        if any constant is not a float
+        name of the scope (ignored)
     """
-    if not constants_dict:
-        return
-
-    for name, value in constants_dict.items():
-        if not isinstance(value, (int, float)):
-            raise ValueError(
-                f"Constant '{name}' in {scope_name} scope must be a number, "
-                f"got {type(value).__name__}: {value}"
-            )
+    pass
 
 
 def resolve_constants(value, constants_dict: dict):
@@ -86,25 +77,21 @@ def resolve_constants(value, constants_dict: dict):
         return value
 
 
-def resolve_element_params(params: dict, global_constants: dict, room_constants: dict = None, room_vars: dict = None) -> dict:
+def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = None) -> dict:
     """
-    Resolve constant and variable references in element parameters.
+    Resolve variable references in element parameters.
 
     :param params:
         element parameters dictionary
-    :param global_constants:
-        global constants dictionary
-    :param room_constants:
-        room-scoped constants dictionary (optional)
+    :param global_vars:
+        global variables dictionary
     :param room_vars:
         room-scoped variables dictionary (optional)
     :return:
-        params with constants and vars resolved
+        params with vars resolved
     """
-    # Merge constants and vars: room-scoped override global
-    merged_values = {**global_constants}
-    if room_constants:
-        merged_values.update(room_constants)
+    # Merge vars: room-scoped override global
+    merged_values = {**global_vars}
     if room_vars:
         merged_values.update(room_vars)
 

@@ -12,7 +12,7 @@ This is a Python-based floor plan drawing tool controlled via YAML configuration
 - **Reusable templates** - shared element definitions across floor plans
 
 ### Important Additions (vs original renovation)
-- Constants and arithmetic expressions in configs
+- Arithmetic expressions and variables in configs
 - Room variables with expression evaluation
 - External YAML file support for modular designs
 - Markdown reports generation
@@ -52,7 +52,7 @@ The Makefile tracks source dependencies and rebuilds automatically.
 ### Best Practices
 1. **Use rooms instead of raw elements** - easier to move and modify
 2. **Start from templates** - copy from `examples/templates/rooms/` 
-3. **Use constants and variables** - for "what if" scenarios and easier adjustments
+3. **Use variables** - for "what if" scenarios and easier adjustments
 4. **Keep rooms in separate YAML files** - better organization and reusability
 5. **Version control** - track floor plan changes with Git
 
@@ -61,14 +61,13 @@ YAML configs have these main sections:
 - `project` - output format (PDF/PNG), DPI, file location
 - `default_layout` - area dimensions (real-world meters), scale, grid settings
 - `default_options`/`options` - label colors, auto-dimensions, identifier colors
-- `constants` - global variables for calculations
+- `vars` - global variables for calculations
 - `reusable_elements` - shared wall/door/window definitions (can load from external files)
 - Floor plan definitions - rooms with nested elements
 
 ### Room Structure
 Rooms have:
-- `constants` - room-level constants
-- `variables` - computed values using arithmetic expressions
+- `vars` - room-level variables (can be simple values or arithmetic expressions referencing global vars and previously defined room vars)
 - Elements positioned relative to room's anchor point
 
 ## File Locations
@@ -94,7 +93,7 @@ Rooms have:
 - Check element types in `floor_planner/elements/` for available classes
 - Reference examples in `examples/templates/rooms/` for patterns
 - Respect the anchor point system when positioning elements
-- Use constants/variables for dimensions that might change
+- Use variables for dimensions that might change
 - Test changes by running against example configs
 - See `docs/features/README.md` for detailed feature development workflow
 

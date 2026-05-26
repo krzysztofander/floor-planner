@@ -6,7 +6,7 @@ This is a drawing tool that produces floor plans. It is controlled through YAML 
 
 This is a fork of [renovation](https://github.com/Nikolay-Lysenko/renovation)
 by Nikolay Lysenko, with additional features added by Krzysztof Bartczak:
-- Constants and arithmetic expressions
+- Arithmetic expressions and variables in configs
 - Room variables
 - External YAML file support
 - Floor plan reports
@@ -53,7 +53,7 @@ In this section it is possible to configure:
 * Adding automatic dimensions to walls.
 * Color of element's identifiers. Identifiers are not printed if their color is not specified.
 
-The section named `constants` can be used to define variables that can be later used in definitions of elements.
+The section named `vars` can be used to define variables that can be later used in definitions of elements. Variables can be simple numeric values or arithmetic expressions referencing other variables.
 
 The section named `reusable_elements` is designed to store arbitrary collections of elements that can be used by individual floor plans. Demo example uses it to define walls, windows, and doors.
 Reusable elements can be loaded from separate YAML files. Please see the `examples`.
@@ -68,8 +68,8 @@ Finally, settings of individual floor plans are listed. These settings might inc
 
 ## Rooms
 This fork adds a concept of rooms as an additional level of hierarchy.
-Rooms have own `constants` and additionally `variables` where previously defined constants and variables can be used in arithmetic expressions.
-Elements defined withing a room are anchored to the room anchor point. This give flexibility in moving or drawing a whole room as there is no longer need to pre-calculate anchor points of individual elements.
+Rooms have their own `vars` section where variables can be defined as simple values or arithmetic expressions referencing global vars or previously defined room vars.
+Elements defined within a room are anchored to the room anchor point. This gives flexibility in moving or drawing a whole room as there is no longer need to pre-calculate anchor points of individual elements.
 It is recommended to work with rooms instead of individual elements.
 *Easiest start is to copy room and main project file from `examples/templates/rooms`*
 
@@ -106,6 +106,6 @@ See `examples/landscaping/` for demonstrations of each element type, and `exampl
 
 ## Capabilities
 There are no build in limitations. With this module it is possible to draw a complex plans like below.
-Use of rooms in separate YAML files, constants and variables helps in offsetting one peace to another and lets to simulate 'what if' in case one wonder if moving or making a wall or door in given place make sense.
+Use of rooms in separate YAML files and variables helps in offsetting one piece to another and lets to simulate 'what if' in case one wonder if moving or making a wall or door in given place make sense.
 
 ![dom.png](https://github.com/krzysztofander/floor-planner/blob/master/examples/images/dom.png)

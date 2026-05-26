@@ -97,9 +97,8 @@ def main() -> None:
     # Reset ID counters for consistent IDs
     elements.reset_id_counters()
 
-    # Load and validate global constants
-    global_constants = settings.get('constants', {})
-    validate_constants(global_constants, "global")
+    # Load global vars (check both 'vars' and 'constants' for backwards compatibility)
+    global_vars = settings.get('vars', settings.get('constants', {}))
 
     # Load default options (hierarchical structure)
     default_options = settings.get('default_options', {})
@@ -159,7 +158,7 @@ def main() -> None:
                 if element_type == 'room':
                     # Create room with nested elements
                     room_params = copy.deepcopy(element_params)
-                    room = Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_constants)
+                    room = Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
                     floor_plan.add_element(room)
                     all_elements.append(room)
                     elements_by_id[room.id] = room
@@ -168,7 +167,7 @@ def main() -> None:
                     element_class = elements_registry[element_type]
                     element_params_clean = {k: v for k, v in element_params.items() if k != 'type'}
                     # Resolve constants in element parameters
-                    element_params_clean = resolve_element_params(element_params_clean, global_constants)
+                    element_params_clean = resolve_element_params(element_params_clean, global_vars)
                     element = element_class(**element_params_clean)
                     floor_plan.add_element(element)
                     all_elements.append(element)
@@ -178,7 +177,7 @@ def main() -> None:
             element_type = element_params_copy.get('type')
             if element_type == 'room':
                 # Create room with nested elements
-                room = Room.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_constants)
+                room = Room.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
                 floor_plan.add_element(room)
                 all_elements.append(room)
                 elements_by_id[room.id] = room
@@ -187,7 +186,7 @@ def main() -> None:
                 element_params_copy.pop('type')
                 element_class = elements_registry[element_type]
                 # Resolve constants in element parameters
-                element_params_copy = resolve_element_params(element_params_copy, global_constants)
+                element_params_copy = resolve_element_params(element_params_copy, global_vars)
                 element = element_class(**element_params_copy)
                 floor_plan.add_element(element)
                 all_elements.append(element)
@@ -201,7 +200,7 @@ def main() -> None:
             anchor_point = report_params.get('anchor_point', [0, 0])
             if isinstance(anchor_point, list):
                 # Resolve constants in anchor_point
-                anchor_point = resolve_constants(anchor_point, global_constants)
+                anchor_point = resolve_constants(anchor_point, global_vars)
 
             floor_plan.draw_report(
                 anchor_point=anchor_point,

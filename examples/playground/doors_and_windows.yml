@@ -15,7 +15,7 @@ default_options:
     # id_color: red
     dimensions: false
     show_invisible: false
-constants:
+vars:
   anchor_window_x: 11
   anchor_door_hinge_0_x: 4
   anchor_rdoor_hinge_0_x: 6

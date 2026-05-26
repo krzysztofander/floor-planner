@@ -1,6 +1,6 @@
   - type: room
     label: "All doors options"
-    constants:
+    vars:
       door_spacing: 0.6         # Each door and window going to be spaced out by this distance
                                 # When using in project, set the anchor point of a door
                                 # according to your need.
@@ -8,7 +8,6 @@
       door_width: 0.9
       window_width: 1.4
 
-    vars:
       anchor_x: x_placement
       anchor_y: y_placement
       room_length: room_horizontal_length
