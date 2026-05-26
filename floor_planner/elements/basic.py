@@ -68,7 +68,6 @@ class WallND(RectangularElement):
 
         # Room properties (set by Room class if this wall is part of a room)
         self.is_room_wall = False
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw straight wall."""

@@ -62,7 +62,6 @@ class Desk(RectangularElement):
             label=label
 
         )  # Standard desk width  # Standard desk depth
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw desk."""
@@ -171,7 +170,6 @@ class DiningTable(RectangularElement):
             label=label
 
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dining table."""
@@ -267,7 +265,6 @@ class Chair(RectangularElement):
             color=color,
             label=label
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw chair."""
@@ -369,7 +366,6 @@ class Sofa(RectangularElement):
             color=color,
             label=label
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw sofa."""

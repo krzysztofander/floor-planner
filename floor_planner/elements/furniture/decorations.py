@@ -66,7 +66,6 @@ class FishTank(RectangularElement):
             label=label
 
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw fish tank with a fish symbol."""

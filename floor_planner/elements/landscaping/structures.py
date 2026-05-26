@@ -53,7 +53,6 @@ class Pergola(SurfaceElement):
             label=label
         )
         self.post_size = post_size
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the pergola with posts and beams."""
@@ -233,7 +232,6 @@ class RaisedBed(SurfaceElement):
         self.border_thickness = border_thickness
         self.fill_color = fill_color
         self.border_color = border_color
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the raised bed with border and fill."""
@@ -346,7 +344,6 @@ class Gazebo(CircularElement):
             label=label
         )
         self.roof_color = roof_color
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the gazebo with octagonal shape and roof."""

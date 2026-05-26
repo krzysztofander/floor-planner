@@ -56,7 +56,6 @@ class Fence(RectangularElement):
         )
         self.style = style
         self.height = height
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fence with style-specific patterns."""
@@ -233,7 +232,6 @@ class GardenPath(SurfaceElement):
             label=label
         )
         self.material = material
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the path with material-specific pattern."""
@@ -454,7 +452,6 @@ class RetainingWall(RectangularElement):
             label=label
         )
         self.height = height
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the retaining wall with stone texture."""

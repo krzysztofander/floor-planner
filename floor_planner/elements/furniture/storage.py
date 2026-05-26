@@ -71,7 +71,6 @@ class GenericStorage(RectangularElement):
         )
 
         # Room properties (set by Room class if this storage box is part of a room)
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw storage box."""
@@ -237,7 +236,6 @@ class Tabletop(RectangularElement):
         )
 
         # Room properties (set by Room class if this storage box is part of a room)
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw storage box."""

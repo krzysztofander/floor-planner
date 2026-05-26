@@ -53,7 +53,6 @@ class Dishwasher(RectangularElement):
             color=color,
             label=label
         )  # Standard dishwasher width  # Standard dishwasher depth
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dishwasher."""
@@ -234,7 +233,6 @@ class Fridge(RectangularElement):
             label=label
 
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw fridge."""
@@ -351,7 +349,6 @@ class Freezer(RectangularElement):
             label=label
 
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw freezer."""
@@ -460,7 +457,6 @@ class WashingMachine(RectangularElement):
             color=color,
             label=label
         )  # Standard washing machine width  # Standard washing machine depth
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw washing machine."""
@@ -558,7 +554,6 @@ class Dryer(RectangularElement):
             color=color,
             label=label
         )  # Standard dryer width  # Standard dryer depth
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dryer."""
@@ -665,7 +660,6 @@ class Stovetop(RectangularElement):
             color=color,
             label=label
         )  # Standard stovetop width  # Standard stovetop depth
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw stovetop."""
@@ -763,7 +757,6 @@ class SingleSink(RectangularElement):
             color=color,
             label=label
         )  # Single sink length  # Single sink width
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw single sink."""
@@ -884,7 +877,6 @@ class DoubleSink(RectangularElement):
             color=color,
             label=label
         )  # Double sink length (wider than single)  # Double sink width
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw double sink."""

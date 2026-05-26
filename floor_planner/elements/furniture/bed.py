@@ -47,7 +47,6 @@ class MultiBed(RectangularElement):
         self.is_double = thickness > 1.2
 
         # Room properties (set by Room class if this storage box is part of a room)
-        self.room_id = None
 
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

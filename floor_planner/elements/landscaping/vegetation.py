@@ -77,7 +77,6 @@ class CircularVegetation(CircularElement):
         self.bloom_season_start = bloom_season_start
         self.bloom_season_end = bloom_season_end
         self.bloom_color = bloom_color
-        self.room_id = None
     
     def _build_label_text(self) -> str:
         """Build label text with species, height, and bloom info."""
@@ -419,7 +418,6 @@ class Hedge(VegetationElement, RectangularElement):
             bloom_season_end=bloom_season_end,
             bloom_color=bloom_color
         )
-        self.room_id = None
 
     
     def _build_label_text(self) -> str:

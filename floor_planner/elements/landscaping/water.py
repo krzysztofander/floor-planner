@@ -54,7 +54,6 @@ class Fountain(CircularElement):
         self.height = height
         self.style = style
         self.basin_color = basin_color
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fountain with style-specific water pattern."""
@@ -457,7 +456,6 @@ class RectPool(RectangularElement):
         self.border_color = border_color
         self.show_lanes = show_lanes
         self.show_steps = show_steps
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the rectangular swimming pool."""
@@ -629,7 +627,6 @@ class OvalPool(RectangularElement):
         self.pool_color = pool_color
         self.border_color = border_color
         self.show_steps = show_steps
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the oval swimming pool."""

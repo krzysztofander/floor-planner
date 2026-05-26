@@ -61,7 +61,6 @@ class Shower(RectangularElement):
             label=label
 
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw shower."""
@@ -184,7 +183,6 @@ class Bathtub(RectangularElement):
             label=label
 
         )
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw bathtub."""
@@ -275,7 +273,6 @@ class Basin(RectangularElement):
             color=color,
             label=label
         )  # Basin width  # Basin depth
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw basin."""
@@ -383,7 +380,6 @@ class Toilet(RectangularElement):
             color=color,
             label=label
         )  # Standard toilet length (front to back)  # Standard toilet width
-        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw toilet."""
