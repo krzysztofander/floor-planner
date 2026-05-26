@@ -50,6 +50,17 @@ For simple features, just add to `/memories/repo/planned-features.md`:
 Then tell the agent:
 > "Let's work on the curved wall feature from planned-features"
 
+## Active Feature Documents
+
+Current feature plans in this folder:
+
+### Completed
+- [species-rendering-feature.md](species-rendering-feature.md) - Species and bloom season display on vegetation
+- [landscaping-elements.md](landscaping-elements.md) - Comprehensive landscaping elements
+
+### In Planning
+- [common-properties-refactor.md](common-properties-refactor.md) - Refactor Element hierarchy to consolidate common properties (color, length, thickness, diameter)
+
 ## When to Use Each Approach
 
 | Approach | When to Use |
