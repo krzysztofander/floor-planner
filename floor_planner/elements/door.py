@@ -67,18 +67,18 @@ class Door(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=doorway_width,
+            thickness=thickness,
+            color=color,
             label=label
         )
         self.doorway_width = doorway_width
-        self.length = doorway_width #for get_corners function
         self.door_width = door_width
         self.frame_width = (doorway_width - door_width) / 2
-        self.thickness = thickness
         self.to_the_right = to_the_right
 		# If opening outside, take the opposite hinges point so "1.0" is always extended hinges
         self.hinges_point = 1 - hinges_point  if opening_outside else hinges_point
         self.opening_outside = opening_outside
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the door, its opening trajectory, and the door frame."""

@@ -59,11 +59,11 @@ class WallND(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=color,
             label=label
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.room_edge = room_edge
 
         # Room properties (set by Room class if this wall is part of a room)
@@ -187,13 +187,13 @@ class Window(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            thickness=overall_thickness,
+            color=color,
             label=label
         )
-        self.length = length
         self.overall_thickness = overall_thickness
-        self.thickness = overall_thickness  #for get_corners function
         self.single_line_thickness = single_line_thickness
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw window."""

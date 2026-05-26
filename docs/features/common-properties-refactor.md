@@ -248,34 +248,34 @@ class CircularElement(Element):
 
 ## Implementation Plan
 
-### Phase 1: Update Base Classes (3-4 hours)
-- [ ] Add `color` parameter to `Element.__init__()`
-- [ ] Move `get_draw_color()` from `RectangularElement` to `Element`
-- [ ] Add `length`, `thickness` parameters to `RectangularElement.__init__()` (both required)
-- [ ] Create new `SurfaceElement` class in `element.py` (extends RectangularElement, adds `width`)
-- [ ] Create new `CircularElement` class in `element.py`
-- [ ] Export `SurfaceElement` and `CircularElement` from `elements/__init__.py`
-- [ ] Update docstrings for all four classes
-- [ ] Verify `get_corners()` and `get_draw_color()` now reference declared properties
+### Phase 1: Update Base Classes (3-4 hours) ✅
+- [x] Add `color` parameter to `Element.__init__()`
+- [x] Move `get_draw_color()` from `RectangularElement` to `Element`
+- [x] Add `length`, `thickness` parameters to `RectangularElement.__init__()` (both required)
+- [x] Create new `SurfaceElement` class in `element.py` (extends RectangularElement, adds `width`)
+- [x] Create new `CircularElement` class in `element.py`
+- [x] Export `SurfaceElement` and `CircularElement` from `elements/__init__.py`
+- [x] Update docstrings for all four classes
+- [x] Verify `get_corners()` and `get_draw_color()` now reference declared properties
 
-### Phase 2: Update RectangularElement Subclasses (4-5 hours)
+### Phase 2: Update RectangularElement Subclasses (4-5 hours) ✅
 
 **Elements staying as `RectangularElement` subclasses (~26 classes using `length` + `thickness`):**
 
-- [ ] **basic.py**: WallND, Wall, Window, Door
-- [ ] **door.py**: StandardDoor, etc.
-- [ ] **multipurpose.py**: Room
-- [ ] **furniture/bed.py**: All bed classes
-- [ ] **furniture/furniture.py**: Table, Chair, Sofa, etc.
-- [ ] **furniture/storage.py**: Wardrobe, Shelf, etc.
-- [ ] **furniture/appliances.py**: All appliance classes
-- [ ] **furniture/bathroom.py**: All bathroom fixture classes
-- [ ] **furniture/decorations.py**: All decoration classes
-- [ ] **info.py**: AreaWithText
-- [ ] **lighting.py**: LightingElement, CeilingLight, WallSconce
-- [ ] **electricity.py**: Outlet, Switch
-- [ ] **landscaping/hardscape.py**: Fence, RetainingWall
-- [ ] **landscaping/structures.py**: Pergola
+- [x] **basic.py**: WallND, Wall, Window, Door
+- [x] **door.py**: StandardDoor, etc.
+- [x] **multipurpose.py**: Room
+- [x] **furniture/bed.py**: All bed classes
+- [x] **furniture/furniture.py**: Table, Chair, Sofa, etc.
+- [x] **furniture/storage.py**: Wardrobe, Shelf, etc.
+- [x] **furniture/appliances.py**: All appliance classes
+- [x] **furniture/bathroom.py**: All bathroom fixture classes
+- [x] **furniture/decorations.py**: All decoration classes
+- [x] **info.py**: AreaWithText
+- [x] **lighting.py**: LightingElement, CeilingLight, WallSconce
+- [x] **electricity.py**: Outlet, Switch
+- [x] **landscaping/hardscape.py**: Fence, RetainingWall
+- [x] **landscaping/water.py**: RectPool, OvalPool (changed from SurfaceElement) ⚠️
 
 **Change Pattern:**
 ```python
@@ -296,14 +296,14 @@ class Wall(RectangularElement):
         # No property assignments needed!
 ```
 
-### Phase 3: Update SurfaceElement Subclasses (3-4 hours)
+### Phase 3: Update SurfaceElement Subclasses (3-4 hours) ✅
 
 **Elements changing parent class from `RectangularElement` → `SurfaceElement` (~12 classes using `length` + `width`):**
 
-- [ ] **landscaping/hardscape.py**: GardenPath
-- [ ] **landscaping/structures.py**: Deck, RaisedBed
-- [ ] **landscaping/vegetation.py**: Hedge, Lawn
-- [ ] **landscaping/water.py**: RectPool (also rename `height` → `length` in Phase 5)
+- [x] **landscaping/hardscape.py**: GardenPath
+- [x] **landscaping/structures.py**: Deck, RaisedBed, Pergola
+- [x] **landscaping/vegetation.py**: Lawn
+- [x] **landscaping/vegetation.py**: Hedge (reverted to RectangularElement with thickness) ⚠️
 
 **Change Pattern:**
 ```python
@@ -382,14 +382,33 @@ class CircularVegetation(CircularElement):
 
 ## Testing Strategy
 
-### Automated Testing
-- Run `make all` after each phase to build all examples
+### Automated Testing ✅
+- Run `make all` after each phase to build all examples - **PASSED**
 - Regression tests via example floor plans:
-  - `examples/templates/rooms/` - tests Room, Wall, Door elements
-  - `examples/elements/` - tests all element types
-  - `examples/furniture/` - tests all furniture
-  - `examples/landscaping/` - tests vegetation, hardscape, water, structures
-  - `examples/simple_no_rooms/` - tests basic floor plans
+  - `examples/templates/rooms/` - tests Room, Wall, Door elements ✅
+  - `examples/elements/` - tests all element types ✅
+  - `examples/furniture/` - tests all furniture ✅
+  - `examples/landscaping/` - tests vegetation, hardscape, water, structures ✅
+  - `examples/simple_no_rooms/` - tests basic floor plans ✅
+
+### Changes from Original Plan
+
+**⚠️ IMPORTANT DEVIATIONS:**
+
+1. **Hedge Element**: Changed from `SurfaceElement` (using `width`) back to `RectangularElement` (using `thickness`)
+   - Rationale: User explicitly requested this change for consistency with other linear vegetation
+   - NO BREAKING CHANGE: YAML configs unchanged (still use `thickness` parameter)
+   
+2. **VegetationElement**: Reintroduced as mixin class (not base class)
+   - No longer inherits from `Element`
+   - Provides vegetation-specific properties (height, species, bloom info)
+   - Used with multiple inheritance: `class Hedge(VegetationElement, RectangularElement)`
+   
+3. **Pool Elements**: Changed from `SurfaceElement` to `RectangularElement`
+   - Both `RectPool` and `OvalPool` now inherit from `RectangularElement`
+   - Use `length` + `thickness` instead of original `width` + `height`
+   - BREAKING CHANGE: YAML configs must use `length`/`thickness` instead of `width`/`height`
+   - OvalPool explicitly uses RectangularElement despite oval shape (per user requirement)
 
 ### Manual Verification Checklist
 After each phase, verify:

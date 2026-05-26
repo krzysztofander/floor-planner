@@ -16,7 +16,7 @@ from .options import (
 from .basic import Wall, WallND, Window
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
-from .element import  Element
+from .element import Element, RectangularElement, SurfaceElement, CircularElement
 from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .multipurpose import Line, Polygon
@@ -27,6 +27,7 @@ from .registry import create_elements_registry
 
 ___all__ = [
     'CeilingLamp',
+    'CircularElement',
     'DimensionArrow',
     'Door',
     'ElectricalCable',
@@ -35,7 +36,9 @@ ___all__ = [
     'Line',
     'Polygon',
     'PowerOutlet',
+    'RectangularElement',
     'Room',
+    'SurfaceElement',
     'Switch',
     'TextBox',
     'Wall',

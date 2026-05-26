@@ -47,13 +47,20 @@ class Shower(RectangularElement):
             freshly created instance of `Shower` class
         """
         super().__init__(
+
             anchor_point=anchor_point,
+
             orientation_angle=orientation_angle,
+
+            length=length,
+
+            thickness=thickness,
+
+            color=color,
+
             label=label
+
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -163,13 +170,20 @@ class Bathtub(RectangularElement):
             freshly created instance of `Bathtub` class
         """
         super().__init__(
+
             anchor_point=anchor_point,
+
             orientation_angle=orientation_angle,
+
+            length=length,
+
+            thickness=thickness,
+
+            color=color,
+
             label=label
+
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -256,11 +270,11 @@ class Basin(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.6,
+            thickness=0.5,
+            color=color,
             label=label
-        )
-        self.length = 0.6  # Basin width
-        self.thickness = 0.5  # Basin depth
-        self.color = color
+        )  # Basin width  # Basin depth
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -364,11 +378,11 @@ class Toilet(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.7,
+            thickness=0.4,
+            color=color,
             label=label
-        )
-        self.length = 0.7  # Standard toilet length (front to back)
-        self.thickness = 0.4  # Standard toilet width
-        self.color = color
+        )  # Standard toilet length (front to back)  # Standard toilet width
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

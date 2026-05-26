@@ -9,7 +9,7 @@ from matplotlib.patches import Rectangle, FancyBboxPatch
 import matplotlib.patches as mpatches
 
 from ...utils import rotate_point, render_label_and_id
-from ..element import RectangularElement
+from ..element import RectangularElement, SurfaceElement
 
 
 class Fence(RectangularElement):
@@ -49,13 +49,14 @@ class Fence(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=color,
             label=label
         )
-        self.length = length
         self.style = style
         self.height = height
-        self.thickness = thickness
-        self.color = color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fence with style-specific patterns."""
@@ -192,7 +193,7 @@ class Fence(RectangularElement):
         return " ".join(parts) if parts else ""
 
 
-class GardenPath(RectangularElement):
+class GardenPath(SurfaceElement):
     """Garden path with material patterns."""
 
     def __init__(
@@ -226,12 +227,13 @@ class GardenPath(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=color,
             label=label
         )
-        self.length = length
-        self.width = width
         self.material = material
-        self.color = color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the path with material-specific pattern."""
@@ -446,12 +448,13 @@ class RetainingWall(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=color,
             label=label
         )
-        self.length = length
         self.height = height
-        self.thickness = thickness
-        self.color = color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the retaining wall with stone texture."""

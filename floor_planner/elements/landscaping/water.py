@@ -11,10 +11,10 @@ import math
 import random
 
 from ...utils import rotate_point, render_label_and_id
-from ..element import Element
+from ..element import Element, CircularElement, SurfaceElement, RectangularElement
 
 
-class Fountain(Element):
+class Fountain(CircularElement):
     """Fountain element with water spray pattern."""
 
     def __init__(
@@ -34,7 +34,7 @@ class Fountain(Element):
             coordinates of center point
         :param diameter:
             fountain basin diameter in meters
-        :param height:
+        :param length:
             fountain height in meters (for label/info)
         :param style:
             fountain style: 'tiered', 'spray', 'simple'
@@ -45,12 +45,16 @@ class Fountain(Element):
         :param label:
             optional label for the fountain
         """
-        super().__init__(anchor_point=anchor_point, label=label)
-        self.diameter = diameter
+        super().__init__(
+            anchor_point=anchor_point,
+            diameter=diameter,
+            color=color,
+            label=label
+        )
         self.height = height
         self.style = style
-        self.color = color
         self.basin_color = basin_color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the fountain with style-specific water pattern."""
@@ -404,29 +408,30 @@ class Pond(Element):
         return " ".join(parts) if parts else ""
 
 
-class RectPool(Element):
+class RectPool(RectangularElement):
     """Rectangular swimming pool element for garden/summer use."""
 
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
-            width: float | None = None,
-            height: float | None = None,
+            length: float | None = None,
+            thickness: float | None = None,
             pool_color: str = '#00BFFF',
             border_color: str = '#B0C4DE',
             show_lanes: bool = False,
             show_steps: bool = True,
+            orientation_angle: float = 0,
             label: str | None = None
     ):
         """
         Initialize a RectPool instance.
 
         :param anchor_point:
-            coordinates of center point
-        :param width:
-            pool width in meters
-        :param height:
-            pool height (length) in meters
+            coordinates of bottom-left corner
+        :param length:
+            pool length in meters
+        :param thickness:
+            pool thickness (width) in meters
         :param pool_color:
             color for pool water (default bright blue)
         :param border_color:
@@ -435,29 +440,38 @@ class RectPool(Element):
             whether to show lane lines
         :param show_steps:
             whether to show entry steps
+        :param orientation_angle:
+            rotation angle in degrees
         :param label:
             optional label for the pool
         """
-        super().__init__(anchor_point=anchor_point, label=label)
-        self.anchor_point = anchor_point
-        self.width = width
-        self.height = height
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=pool_color,
+            label=label
+        )
         self.pool_color = pool_color
         self.border_color = border_color
         self.show_lanes = show_lanes
         self.show_steps = show_steps
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the rectangular swimming pool."""
-        x = self.anchor_point[0] - self.width / 2
-        y = self.anchor_point[1] - self.height / 2
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
 
         # Draw pool border/edge
         from matplotlib.patches import Rectangle
         border = Rectangle(
-            (x - 0.15, y - 0.15),
-            self.width + 0.3,
-            self.height + 0.3,
+            (self.anchor_point[0] - 0.15, self.anchor_point[1] - 0.15),
+            self.length + 0.3,
+            self.thickness + 0.3,
+            angle=self.orientation_angle,
             facecolor=self.border_color,
             edgecolor='black',
             linewidth=2,
@@ -467,9 +481,10 @@ class RectPool(Element):
 
         # Draw water surface
         water = Rectangle(
-            (x, y),
-            self.width,
-            self.height,
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
             facecolor=self.pool_color,
             edgecolor='#4682B4',
             linewidth=1,
@@ -479,19 +494,19 @@ class RectPool(Element):
 
         # Draw lane lines if enabled
         if self.show_lanes:
-            self._draw_lane_lines(ax, x, y)
+            self._draw_lane_lines(ax)
 
         # Draw steps if enabled
         if self.show_steps:
-            self._draw_steps(ax, x, y)
+            self._draw_steps(ax)
 
         # Draw water shimmer effect
-        self._draw_water_shimmer(ax, x, y)
+        self._draw_water_shimmer(ax)
 
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor_point[0], self.anchor_point[1] + self.height / 2 + 0.4)
+        position = (self.anchor_point[0] + self.length / 2, self.anchor_point[1] + self.thickness + 0.4)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -501,26 +516,30 @@ class RectPool(Element):
             rotation=0
         )
 
-    def _draw_lane_lines(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
+    def _draw_lane_lines(self, ax: matplotlib.axes.Axes) -> None:
         """Draw lane divider lines."""
+        x = self.anchor_point[0]
+        y = self.anchor_point[1]
         # Draw 2-3 vertical lane lines
-        num_lanes = max(2, int(self.width / 2.5))
+        num_lanes = max(2, int(self.length / 2.5))
         for i in range(1, num_lanes):
-            lane_x = x + (i / num_lanes) * self.width
+            lane_x = x + (i / num_lanes) * self.length
             # Dashed line
             line_segments = 10
             for j in range(line_segments):
                 if j % 2 == 0:  # Draw every other segment
-                    seg_y_start = y + (j / line_segments) * self.height
-                    seg_y_end = y + ((j + 0.8) / line_segments) * self.height
+                    seg_y_start = y + (j / line_segments) * self.thickness
+                    seg_y_end = y + ((j + 0.8) / line_segments) * self.thickness
                     ax.plot([lane_x, lane_x], [seg_y_start, seg_y_end],
                            color='white', linewidth=1, alpha=0.6)
 
-    def _draw_steps(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
+    def _draw_steps(self, ax: matplotlib.axes.Axes) -> None:
         """Draw entry steps at one corner."""
+        x = self.anchor_point[0]
+        y = self.anchor_point[1]
         # Draw steps in bottom-left corner
-        step_width = min(0.8, self.width * 0.2)
-        step_height = min(1.0, self.height * 0.25)
+        step_width = min(0.8, self.thickness * 0.2)
+        step_height = min(1.0, self.length * 0.25)
         
         num_steps = 3
         for i in range(num_steps):
@@ -536,14 +555,16 @@ class RectPool(Element):
             )
             ax.add_patch(step_rect)
 
-    def _draw_water_shimmer(self, ax: matplotlib.axes.Axes, x: float, y: float) -> None:
+    def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
         """Draw subtle water shimmer effects."""
+        x = self.anchor_point[0]
+        y = self.anchor_point[1]
         random.seed(46)
         # Draw a few random light reflections
-        num_shimmers = int(self.width * self.height * 0.5)
+        num_shimmers = int(self.length * self.thickness * 0.5)
         for _ in range(num_shimmers):
-            shimmer_x = x + random.uniform(0, self.width)
-            shimmer_y = y + random.uniform(0, self.height)
+            shimmer_x = x + random.uniform(0, self.length)
+            shimmer_y = y + random.uniform(0, self.thickness)
             size = random.uniform(0.05, 0.15)
             shimmer = Circle(
                 (shimmer_x, shimmer_y),
@@ -559,74 +580,101 @@ class RectPool(Element):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.width}m×{self.height}m")
+        parts.append(f"{self.length}m×{self.thickness}m")
         return " ".join(parts)
 
 
-class OvalPool(Element):
+class OvalPool(RectangularElement):
     """Oval swimming pool element for garden/summer use."""
 
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
-            width: float | None = None,
-            height: float | None = None,
+            length: float | None = None,
+            thickness: float | None = None,
             pool_color: str = '#00BFFF',
             border_color: str = '#B0C4DE',
             show_steps: bool = True,
+            orientation_angle: float = 0,
             label: str | None = None
     ):
         """
         Initialize an OvalPool instance.
 
         :param anchor_point:
-            coordinates of center point
-        :param width:
-            pool width in meters
-        :param height:
-            pool height (length) in meters
+            coordinates of bottom-left corner
+        :param length:
+            pool length in meters
+        :param thickness:
+            pool thickness (width) in meters
         :param pool_color:
             color for pool water (default bright blue)
         :param border_color:
             color for pool edge/border
         :param show_steps:
             whether to show entry steps
+        :param orientation_angle:
+            rotation angle in degrees
         :param label:
             optional label for the pool
         """
-        super().__init__(anchor_point=anchor_point, label=label)
-        self.anchor_point = anchor_point
-        self.width = width
-        self.height = height
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=pool_color,
+            label=label
+        )
         self.pool_color = pool_color
         self.border_color = border_color
         self.show_steps = show_steps
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the oval swimming pool."""
         from matplotlib.patches import Ellipse
+        from matplotlib.transforms import Affine2D
+        import numpy as np
+
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        # Create transformation for rotation
+        transform = Affine2D().rotate_deg_around(
+            self.anchor_point[0] + self.length / 2,
+            self.anchor_point[1] + self.thickness / 2,
+            self.orientation_angle
+        ) + ax.transData
+
+        # Calculate center for ellipse (centered in the rectangular area)
+        center_x = self.anchor_point[0] + self.length / 2
+        center_y = self.anchor_point[1] + self.thickness / 2
 
         # Draw pool border/edge (slightly larger ellipse)
         border = Ellipse(
-            self.anchor_point,
-            self.width + 0.3,
-            self.height + 0.3,
+            (center_x, center_y),
+            self.length + 0.3,
+            self.thickness + 0.3,
             facecolor=self.border_color,
             edgecolor='black',
             linewidth=2,
-            alpha=0.9
+            alpha=0.9,
+            transform=transform
         )
         ax.add_patch(border)
 
         # Draw water surface
         water = Ellipse(
-            self.anchor_point,
-            self.width,
-            self.height,
+            (center_x, center_y),
+            self.length,
+            self.thickness,
             facecolor=self.pool_color,
             edgecolor='#4682B4',
             linewidth=1,
-            alpha=0.7
+            alpha=0.7,
+            transform=transform
         )
         ax.add_patch(water)
 
@@ -640,7 +688,9 @@ class OvalPool(Element):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor_point[0], self.anchor_point[1] + self.height / 2 + 0.4)
+        center_x = self.anchor_point[0] + self.length / 2
+        center_y = self.anchor_point[1] + self.thickness / 2
+        position = (center_x, center_y + self.thickness / 2 + 0.4)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
@@ -652,9 +702,11 @@ class OvalPool(Element):
 
     def _draw_steps(self, ax: matplotlib.axes.Axes) -> None:
         """Draw semi-circular entry steps."""
-        # Steps on one side (bottom)
-        step_center_x = self.anchor_point[0]
-        step_center_y = self.anchor_point[1] - self.height / 2 + 0.5
+        # Steps on one side (bottom of the ellipse)
+        center_x = self.anchor_point[0] + self.length / 2
+        center_y = self.anchor_point[1] + self.thickness / 2
+        step_center_x = center_x
+        step_center_y = center_y - self.thickness / 2 + 0.5
         
         # Draw 2-3 semi-circular steps
         step_radii = [0.3, 0.5, 0.7]
@@ -672,14 +724,16 @@ class OvalPool(Element):
     def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
         """Draw subtle water shimmer effects."""
         random.seed(47)
+        center_x = self.anchor_point[0] + self.length / 2
+        center_y = self.anchor_point[1] + self.thickness / 2
         # Draw random light reflections within ellipse bounds
-        num_shimmers = int(self.width * self.height * 0.5)
+        num_shimmers = int(self.length * self.thickness * 0.5)
         for _ in range(num_shimmers):
             # Generate points within ellipse
             angle = random.uniform(0, 2 * math.pi)
             r = random.uniform(0, 1) ** 0.5  # Square root for uniform distribution
-            shimmer_x = self.anchor_point[0] + r * (self.width / 2) * 0.9 * math.cos(angle)
-            shimmer_y = self.anchor_point[1] + r * (self.height / 2) * 0.9 * math.sin(angle)
+            shimmer_x = center_x + r * (self.length / 2) * 0.9 * math.cos(angle)
+            shimmer_y = center_y + r * (self.thickness / 2) * 0.9 * math.sin(angle)
             size = random.uniform(0.05, 0.15)
             shimmer = Circle(
                 (shimmer_x, shimmer_y),
@@ -695,5 +749,5 @@ class OvalPool(Element):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.width}m×{self.height}m")
+        parts.append(f"{self.length}m×{self.thickness}m")
         return " ".join(parts)

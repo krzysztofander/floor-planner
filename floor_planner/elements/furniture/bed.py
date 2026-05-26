@@ -30,13 +30,20 @@ class MultiBed(RectangularElement):
             label: str | None = None
     ):
         super().__init__(
+
             anchor_point=anchor_point,
+
             orientation_angle=orientation_angle,
+
+            length=length,
+
+            thickness=thickness,
+
+            color=color,
+
             label=label
+
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.is_double = thickness > 1.2
 
         # Room properties (set by Room class if this storage box is part of a room)

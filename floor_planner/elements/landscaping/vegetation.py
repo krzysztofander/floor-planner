@@ -10,24 +10,68 @@ import matplotlib.axes
 from matplotlib.patches import Circle, Rectangle
 
 from ...utils import rotate_point, render_label_and_id, _render_text
-from ..element import Element, RectangularElement
+from ..element import Element, RectangularElement, SurfaceElement, CircularElement
 from ..options import get_show_species, get_show_bloom
 
 
-class VegetationElement(Element):
-    """Base class for vegetation elements with common attributes."""
+class VegetationElement:
+    """Mixin class for vegetation elements with common attributes.
+    
+    This is a mixin class, not a base class - it provides vegetation-specific
+    properties and methods to be used alongside geometric base classes.
+    """
     
     def __init__(
             self,
             height: float,
-            label: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
             bloom_season_end: str | None = None,
             bloom_color: str | None = None
     ):
         """Initialize common vegetation attributes."""
-        super().__init__(label=label)
+        self.height = height
+        self.species = species
+        self.bloom_season_start = bloom_season_start
+        self.bloom_season_end = bloom_season_end
+        self.bloom_color = bloom_color
+    
+    def _build_label_text(self) -> str:
+        """Build label text with species, height, and bloom info."""
+        parts = []
+        if self.label:
+            parts.append(self.label)
+        if self.species:
+            parts.append(f"({self.species})")
+        if self.height:
+            parts.append(f"h={self.height}m")
+        if self.bloom_season_start and self.bloom_season_end:
+            parts.append(f"bloom: {self.bloom_season_start}-{self.bloom_season_end}")
+        return " ".join(parts) if parts else ""
+
+
+class CircularVegetation(CircularElement):
+    """Base class for circular vegetation elements (Tree, Shrub)."""
+    
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            diameter: float,
+            height: float,
+            color: str,
+            label: str | None = None,
+            species: str | None = None,
+            bloom_season_start: str | None = None,
+            bloom_season_end: str | None = None,
+            bloom_color: str | None = None
+    ):
+        """Initialize circular vegetation element."""
+        super().__init__(
+            anchor_point=anchor_point,
+            diameter=diameter,
+            color=color,
+            label=label
+        )
         self.height = height
         self.species = species
         self.bloom_season_start = bloom_season_start
@@ -47,35 +91,6 @@ class VegetationElement(Element):
         if self.bloom_season_start and self.bloom_season_end:
             parts.append(f"bloom: {self.bloom_season_start}-{self.bloom_season_end}")
         return " ".join(parts) if parts else ""
-
-
-class CircularVegetation(VegetationElement):
-    """Base class for circular vegetation elements (Tree, Shrub)."""
-    
-    def __init__(
-            self,
-            anchor_point: tuple[float, float],
-            diameter: float,
-            height: float,
-            color: str,
-            label: str | None = None,
-            species: str | None = None,
-            bloom_season_start: str | None = None,
-            bloom_season_end: str | None = None,
-            bloom_color: str | None = None
-    ):
-        """Initialize circular vegetation element."""
-        super().__init__(
-            height=height,
-            label=label,
-            species=species,
-            bloom_season_start=bloom_season_start,
-            bloom_season_end=bloom_season_end,
-            bloom_color=bloom_color
-        )
-        self.anchor_point = anchor_point
-        self.diameter = diameter
-        self.color = color
     
     def _draw_main_circle(self, ax: matplotlib.axes.Axes, alpha: float = 0.8) -> None:
         """Draw the main circular shape (canopy/bush)."""
@@ -369,7 +384,7 @@ class Hedge(VegetationElement, RectangularElement):
         :param length:
             hedge length in meters
         :param thickness:
-            hedge thickness in meters
+            hedge thickness (perpendicular depth) in meters
         :param height:
             hedge height in meters (for label/info)
         :param color:
@@ -387,24 +402,64 @@ class Hedge(VegetationElement, RectangularElement):
         :param bloom_color:
             optional bloom color (used during bloom season)
         """
+        RectangularElement.__init__(
+            self,
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=color,
+            label=label
+        )
         VegetationElement.__init__(
             self,
             height=height,
-            label=label,
             species=species,
             bloom_season_start=bloom_season_start,
             bloom_season_end=bloom_season_end,
             bloom_color=bloom_color
         )
-        RectangularElement.__init__(
-            self,
-            anchor_point=anchor_point,
-            orientation_angle=orientation_angle,
-            label=label
-        )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
+        self.room_id = None
+
+    
+    def _build_label_text(self) -> str:
+        """Build label text with species, height, and bloom info."""
+        parts = []
+        if self.label:
+            parts.append(self.label)
+        if self.species:
+            parts.append(f"({self.species})")
+        if self.height:
+            parts.append(f"h={self.height}m")
+        if self.bloom_season_start and self.bloom_season_end:
+            parts.append(f"bloom: {self.bloom_season_start}-{self.bloom_season_end}")
+        return " ".join(parts) if parts else ""
+    
+    def _render_species_and_bloom(self, ax: matplotlib.axes.Axes) -> None:
+        """Render species and bloom info in center of circle."""
+        if not (self.species or self.bloom_season_start):
+            return
+        
+        lines = []
+        if self.species:
+            lines.append(self.species)
+        if self.bloom_season_start and self.bloom_season_end:
+            lines.append(f"{self.bloom_season_start}-{self.bloom_season_end}")
+            if self.bloom_color:
+                lines.append(self.bloom_color)
+        
+        if lines:
+            text = "\n".join(lines)
+            ax.text(
+                self.anchor_point[0],
+                self.anchor_point[1],
+                text,
+                ha='center',
+                va='center',
+                fontsize=6,
+                color='black',
+                weight='normal'
+            )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the hedge as a thick rectangle."""
@@ -538,7 +593,7 @@ class Hedge(VegetationElement, RectangularElement):
                 )
 
 
-class Lawn(RectangularElement):
+class Lawn(SurfaceElement):
     """Lawn/grass area element."""
 
     def __init__(
@@ -569,11 +624,11 @@ class Lawn(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=color,
             label=label
         )
-        self.length = length
-        self.width = width
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the lawn as a filled rectangle with grass texture."""

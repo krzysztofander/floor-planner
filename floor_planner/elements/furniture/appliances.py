@@ -48,11 +48,11 @@ class Dishwasher(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.6,
+            thickness=0.6,
+            color=color,
             label=label
-        )
-        self.length = 0.6  # Standard dishwasher width
-        self.thickness = 0.6  # Standard dishwasher depth
-        self.color = color
+        )  # Standard dishwasher width  # Standard dishwasher depth
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -220,13 +220,20 @@ class Fridge(RectangularElement):
             freshly created instance of `Fridge` class
         """
         super().__init__(
+
             anchor_point=anchor_point,
+
             orientation_angle=orientation_angle,
+
+            length=length,
+
+            thickness=thickness,
+
+            color=color,
+
             label=label
+
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -330,13 +337,20 @@ class Freezer(RectangularElement):
             freshly created instance of `Freezer` class
         """
         super().__init__(
+
             anchor_point=anchor_point,
+
             orientation_angle=orientation_angle,
+
+            length=length,
+
+            thickness=thickness,
+
+            color=color,
+
             label=label
+
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -441,11 +455,11 @@ class WashingMachine(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.6,
+            thickness=0.6,
+            color=color,
             label=label
-        )
-        self.length = 0.6  # Standard washing machine width
-        self.thickness = 0.6  # Standard washing machine depth
-        self.color = color
+        )  # Standard washing machine width  # Standard washing machine depth
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -539,11 +553,11 @@ class Dryer(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.6,
+            thickness=0.6,
+            color=color,
             label=label
-        )
-        self.length = 0.6  # Standard dryer width
-        self.thickness = 0.6  # Standard dryer depth
-        self.color = color
+        )  # Standard dryer width  # Standard dryer depth
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -646,11 +660,11 @@ class Stovetop(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.6,
+            thickness=0.6,
+            color=color,
             label=label
-        )
-        self.length = 0.6  # Standard stovetop width
-        self.thickness = 0.6  # Standard stovetop depth
-        self.color = color
+        )  # Standard stovetop width  # Standard stovetop depth
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -744,11 +758,11 @@ class SingleSink(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=0.9,
+            thickness=0.6,
+            color=color,
             label=label
-        )
-        self.length = 0.9  # Single sink length
-        self.thickness = 0.6  # Single sink width
-        self.color = color
+        )  # Single sink length  # Single sink width
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -865,11 +879,11 @@ class DoubleSink(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=1.2,
+            thickness=0.6,
+            color=color,
             label=label
-        )
-        self.length = 1.2  # Double sink length (wider than single)
-        self.thickness = 0.6  # Double sink width
-        self.color = color
+        )  # Double sink length (wider than single)  # Double sink width
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

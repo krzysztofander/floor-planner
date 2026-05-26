@@ -10,10 +10,10 @@ import matplotlib.patches as mpatches
 import math
 
 from ...utils import rotate_point, render_label_and_id
-from ..element import RectangularElement, Element
+from ..element import RectangularElement, SurfaceElement, CircularElement, Element
 
 
-class Pergola(RectangularElement):
+class Pergola(SurfaceElement):
     """Pergola structure with posts and beams."""
 
     def __init__(
@@ -47,12 +47,13 @@ class Pergola(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=color,
             label=label
         )
-        self.length = length
-        self.width = width
         self.post_size = post_size
-        self.color = color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the pergola with posts and beams."""
@@ -183,7 +184,7 @@ class Pergola(RectangularElement):
         return " ".join(parts) if parts else ""
 
 
-class RaisedBed(RectangularElement):
+class RaisedBed(SurfaceElement):
     """Raised garden bed element."""
 
     def __init__(
@@ -223,14 +224,16 @@ class RaisedBed(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=fill_color,  # Use fill_color as the main color for SurfaceElement
             label=label
         )
-        self.length = length
-        self.width = width
         self.height = height
         self.border_thickness = border_thickness
         self.fill_color = fill_color
         self.border_color = border_color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the raised bed with border and fill."""
@@ -311,7 +314,7 @@ class RaisedBed(RectangularElement):
         return " ".join(parts) if parts else ""
 
 
-class Gazebo(Element):
+class Gazebo(CircularElement):
     """Gazebo structure with octagonal shape and roof."""
 
     def __init__(
@@ -336,10 +339,14 @@ class Gazebo(Element):
         :param label:
             optional label for the gazebo
         """
-        super().__init__(anchor_point=anchor_point, label=label)
-        self.diameter = diameter
-        self.color = color
+        super().__init__(
+            anchor_point=anchor_point,
+            diameter=diameter,
+            color=color,
+            label=label
+        )
         self.roof_color = roof_color
+        self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the gazebo with octagonal shape and roof."""
@@ -430,7 +437,7 @@ class Gazebo(Element):
         return " ".join(parts) if parts else ""
 
 
-class Deck(RectangularElement):
+class Deck(SurfaceElement):
     """Deck/patio platform element."""
 
     def __init__(
@@ -461,11 +468,11 @@ class Deck(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=color,
             label=label
         )
-        self.length = length
-        self.width = width
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the deck with wood plank pattern."""
@@ -554,7 +561,7 @@ class Deck(RectangularElement):
         return " ".join(parts) if parts else ""
 
 
-class GardenHouse(RectangularElement):
+class GardenHouse(SurfaceElement):
     """Garden house/shed for equipment storage."""
 
     def __init__(
@@ -591,10 +598,11 @@ class GardenHouse(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=color,
             label=label
         )
-        self.length = length
-        self.width = width
         self.height = height
         self.color = color
         self.roof_color = roof_color

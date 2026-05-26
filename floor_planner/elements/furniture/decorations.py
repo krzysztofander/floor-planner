@@ -52,13 +52,20 @@ class FishTank(RectangularElement):
             freshly created instance of `FishTank` class
         """
         super().__init__(
+
             anchor_point=anchor_point,
+
             orientation_angle=orientation_angle,
+
+            length=length,
+
+            thickness=thickness,
+
+            color=color,
+
             label=label
+
         )
-        self.length = length
-        self.thickness = thickness
-        self.color = color
         self.room_id = None
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
