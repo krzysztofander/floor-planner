@@ -217,6 +217,8 @@ class OBJExporter:
                 
                 # OBJ uses 1-based indexing
                 # Format: f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+                # Note: Vertex order is reversed (v1, v3, v2) to flip face winding
+                # This ensures normals point outward instead of inward
                 v1_idx = vertex_offset + v1 + 1
                 v2_idx = vertex_offset + v2 + 1
                 v3_idx = vertex_offset + v3 + 1
@@ -229,9 +231,10 @@ class OBJExporter:
                 # Use per-face normal (same for all vertices in triangle)
                 vn_idx = normal_offset + tri_idx + 1
                 
+                # Reversed winding: v1, v3, v2 instead of v1, v2, v3
                 obj_file.write(f"f {v1_idx}/{vt1_idx}/{vn_idx} "
-                             f"{v2_idx}/{vt2_idx}/{vn_idx} "
-                             f"{v3_idx}/{vt3_idx}/{vn_idx}\n")
+                             f"{v3_idx}/{vt3_idx}/{vn_idx} "
+                             f"{v2_idx}/{vt2_idx}/{vn_idx}\n")
             
             obj_file.write("\n")
     
@@ -340,9 +343,10 @@ class OBJExporter:
             edge2 = (v3[0] - v1[0], v3[1] - v1[1], v3[2] - v1[2])
             
             # Cross product for normal
-            nx = edge1[1] * edge2[2] - edge1[2] * edge2[1]
-            ny = edge1[2] * edge2[0] - edge1[0] * edge2[2]
-            nz = edge1[0] * edge2[1] - edge1[1] * edge2[0]
+            # Note: Negated to match reversed face winding (outward-facing normals)
+            nx = -(edge1[1] * edge2[2] - edge1[2] * edge2[1])
+            ny = -(edge1[2] * edge2[0] - edge1[0] * edge2[2])
+            nz = -(edge1[0] * edge2[1] - edge1[1] * edge2[0])
             
             # Normalize
             length = math.sqrt(nx*nx + ny*ny + nz*nz)
