@@ -229,6 +229,10 @@ def main() -> None:
     if png_path is not None:
         png_path = config_dir / png_path
         project.render_to_png(str(png_path))
+    
+    # Export 3D OBJ/MTL if visualisation_dir is set
+    if visualisation_dir:
+        project.export_to_obj(config_dir)
 
     # Generate elements report
     report_path = Path(config_path).with_suffix(".md")

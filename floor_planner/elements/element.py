@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 import matplotlib.axes
 
 from .options import generate_element_id, get_show_invisible
+from .geometry_3d import RectangularGeometry3D, CircularGeometry3D, SurfaceGeometry3D
 
 from ..utils import rotate_point
 import math
@@ -29,7 +30,8 @@ class Element(ABC):
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
-            height: float | None = None
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None
     ):
         """
         Initialize an instance.
@@ -52,6 +54,11 @@ class Element(ABC):
             optional physical height of element in meters;
             if None, uses element's default from _default_height();
             used for semantic meaning and future 3D rendering
+        :param textures:
+            optional texture specification for 3D model export;
+            can be: string (single texture for all faces),
+                   dict (different textures per face, e.g., {'front': 'a.jpg', 'back': 'b.jpg'}),
+                   or None (use defaults from texture manager)
         """
         self.anchor_point = anchor_point
         self.color = color
@@ -74,6 +81,9 @@ class Element(ABC):
         
         # Physical height
         self.height = height if height is not None else self._default_height()
+        
+        # 3D texture specification
+        self.textures = textures
 
     def get_draw_color(self) -> str | tuple[int, int, int] | None:
         """
@@ -131,8 +141,11 @@ class Element(ABC):
         """Draw the element."""
         pass
 
-class RectangularElement(Element):
-    """Element with rectangular shape (line-like or 3D with thickness)."""
+class RectangularElement(RectangularGeometry3D, Element):
+    """Element with rectangular shape (line-like or 3D with thickness).
+    
+    Inherits 3D geometry generation from RectangularGeometry3D mixin.
+    """
 
     def __init__(
             self,
@@ -144,7 +157,8 @@ class RectangularElement(Element):
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
-            height: float | None = None
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None
     ):
         """
         Initialize an instance.
@@ -169,6 +183,8 @@ class RectangularElement(Element):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
+        :param textures:
+            optional texture specification for 3D export; string or dict
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -176,7 +192,8 @@ class RectangularElement(Element):
             label=label,
             id=id,
             v_anchor=v_anchor,
-            height=height
+            height=height,
+            textures=textures
         )
         self.orientation_angle = orientation_angle
         self.length = length
@@ -215,7 +232,10 @@ class RectangularElement(Element):
 
 
 class SurfaceElement(RectangularElement):
-    """Element with rectangular surface area (2D plane with length × width)."""
+    """Element with rectangular surface area (2D plane with length × width).
+    
+    Inherits 3D geometry generation from RectangularElement (via RectangularGeometry3D mixin).
+    """
 
     def __init__(
             self,
@@ -227,7 +247,8 @@ class SurfaceElement(RectangularElement):
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
-            height: float | None = None
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None
     ):
         """
         Initialize an instance.
@@ -252,6 +273,8 @@ class SurfaceElement(RectangularElement):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
+        :param textures:
+            optional texture specification for 3D export; string or dict
         """
         # Pass width as thickness to parent for geometry calculations
         super().__init__(
@@ -263,7 +286,8 @@ class SurfaceElement(RectangularElement):
             label=label,
             id=id,
             v_anchor=v_anchor,
-            height=height
+            height=height,
+            textures=textures
         )
         # Expose width as semantic property for clarity
         self.width = width
@@ -274,8 +298,11 @@ class SurfaceElement(RectangularElement):
         pass
 
 
-class CircularElement(Element):
-    """Element with circular shape (anchor_point is center)."""
+class CircularElement(CircularGeometry3D, Element):
+    """Element with circular shape (anchor_point is center).
+    
+    Inherits 3D geometry generation from CircularGeometry3D mixin.
+    """
 
     def __init__(
             self,
@@ -285,7 +312,8 @@ class CircularElement(Element):
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
-            height: float | None = None
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None
     ):
         """
         Initialize an instance.
@@ -304,6 +332,8 @@ class CircularElement(Element):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
+        :param textures:
+            optional texture specification for 3D export; string or dict
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -311,7 +341,8 @@ class CircularElement(Element):
             label=label,
             id=id,
             v_anchor=v_anchor,
-            height=height
+            height=height,
+            textures=textures
         )
         self.diameter = diameter
 

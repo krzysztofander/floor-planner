@@ -19,6 +19,14 @@ class VertInfoLvl00:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for ground surface level."""
         return 0.00
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D.
+        
+        Elements with higher v_anchor get larger offsets to protrude from underlying surfaces.
+        Returns offset in meters to add to length and thickness.
+        """
+        return 0.0  # Ground level - no offset needed
 
 
 class VertInfoLvl01:
@@ -31,6 +39,10 @@ class VertInfoLvl01:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for structural level."""
         return 0.01
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return -0.00001  # Tiny offset for walls
 
 
 class VertInfoLvl02:
@@ -43,6 +55,10 @@ class VertInfoLvl02:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for landscaping/door level."""
         return 0.02
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.001  # Small offset for doors to protrude from walls
 
 
 class VertInfoLvl03:
@@ -55,6 +71,10 @@ class VertInfoLvl03:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for furniture level."""
         return 0.03
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.0  # Furniture doesn't overlap with walls, no offset needed
 
 
 class VertInfoOutlets:
@@ -67,6 +87,10 @@ class VertInfoOutlets:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for outlet level."""
         return 0.30
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.0003  # Outlets protrude slightly from walls
 
 
 class VertInfoWindows:
@@ -79,6 +103,10 @@ class VertInfoWindows:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for window level."""
         return 1.00
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.001  # Windows protrude significantly from walls to prevent z-fighting
 
 
 class VertInfoSwitches:
@@ -91,6 +119,10 @@ class VertInfoSwitches:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for switch level."""
         return 1.20
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.0012  # Switches protrude from walls
 
 
 class VertInfoWallLamps:
@@ -103,6 +135,10 @@ class VertInfoWallLamps:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for wall lamp level."""
         return 2.00
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.002  # Wall lamps protrude from walls
 
 
 class VertInfoCeiling:
@@ -115,6 +151,10 @@ class VertInfoCeiling:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for ceiling level."""
         return 2.70
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.0  # Ceiling fixtures don't overlap with walls
 
 
 class VertInfoAnnotations:
@@ -127,3 +167,7 @@ class VertInfoAnnotations:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for annotation level."""
         return 3.50
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return 0.0  # Annotations are not exported to 3D

@@ -57,9 +57,11 @@ Current feature plans in this folder:
 ### Completed
 - [species-rendering-feature.md](species-rendering-feature.md) - Species and bloom season display on vegetation
 - [landscaping-elements.md](landscaping-elements.md) - Comprehensive landscaping elements
+- [vertical-positioning-feature.md](vertical-positioning-feature.md) - Vertical positioning (v_anchor and height) for 2D rendering order and future 3D support
 
 ### In Planning
 - [common-properties-refactor.md](common-properties-refactor.md) - Refactor Element hierarchy to consolidate common properties (color, length, thickness, diameter)
+- [3d-mtl-generation.md](3d-mtl-generation.md) - 3D model generation in OBJ/MTL format with textures
 
 ## When to Use Each Approach
 

@@ -184,6 +184,13 @@ configs/
 
 # Generated images
 *.png
+*.jpg
+*.jpeg
+
+# Genrated 3d assets
+*.obj
+*.mtl
+
 
 # Generated md files
 examples/**/*.md
