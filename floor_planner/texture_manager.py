@@ -110,18 +110,21 @@ class TextureManager:
         - Normalize single/multi-texture specifications
         - Copy textures to output directory
         - Validate texture file paths
+        - Fallback to dummy textures when real textures not found
     """
     
-    def __init__(self, default_texture_dir: Path, output_texture_dir: Path):
+    def __init__(self, default_texture_dir: Path, output_texture_dir: Path, fallback_texture_dir: Path = None):
         """
         Initialize texture manager.
         
         Args:
             default_texture_dir: Path to default textures folder (e.g., textures/defaults/)
             output_texture_dir: Path to output textures folder (e.g., 3d_output/textures/)
+            fallback_texture_dir: Path to fallback textures folder (e.g., textures/fallback/)
         """
         self.default_texture_dir = Path(default_texture_dir)
         self.output_texture_dir = Path(output_texture_dir)
+        self.fallback_texture_dir = Path(fallback_texture_dir) if fallback_texture_dir else None
         self._copied_textures = set()  # Track already copied textures to avoid duplicates
     
     def get_default_textures(self, element_type: str) -> dict[str, str]:
@@ -173,13 +176,21 @@ class TextureManager:
             -> {'all': 'textures/defaults/wall.jpg'}
         """
         if texture_spec is None:
-            # Use defaults
+            # Use defaults - check both defaults and fallback
             default_textures = self.get_default_textures(element_type)
-            # Prepend default texture directory path
-            return {
-                face: str(self.default_texture_dir / filename)
-                for face, filename in default_textures.items()
-            }
+            # Return absolute paths directly
+            result = {}
+            for face, filename in default_textures.items():
+                default_path = self.default_texture_dir / filename
+                # Check if exists in defaults, otherwise use fallback
+                if default_path.exists():
+                    result[face] = str(default_path.resolve())
+                elif self.fallback_texture_dir and (self.fallback_texture_dir / filename).exists():
+                    result[face] = str((self.fallback_texture_dir / filename).resolve())
+                else:
+                    # If neither exists, use default path (will be caught later)
+                    result[face] = str(default_path.resolve())
+            return result
         
         elif isinstance(texture_spec, str):
             # Single texture for all faces
@@ -222,8 +233,8 @@ class TextureManager:
             # Check if file exists
             if not texture_path.exists():
                 print(f"Warning: Texture file not found: {texture_path}")
-                print(f"  Falling back to default for {element_type}")
-                # Fall back to default
+                print(f"  Looking for fallback texture for {element_type}")
+                # Fall back to default in defaults folder first
                 default_textures = self.get_default_textures(element_type)
                 if face in default_textures:
                     texture_path = self.default_texture_dir / default_textures[face]
@@ -231,6 +242,15 @@ class TextureManager:
                     texture_path = self.default_texture_dir / default_textures['all']
                 else:
                     texture_path = self.default_texture_dir / 'default.jpg'
+                
+                # If still not found, check fallback directory
+                if not texture_path.exists() and self.fallback_texture_dir:
+                    fallback_path = self.fallback_texture_dir / texture_path.name
+                    if fallback_path.exists():
+                        print(f"  Using fallback: {fallback_path.name}")
+                        texture_path = fallback_path
+                    else:
+                        print(f"  Fallback not found either: {fallback_path}")
             
             resolved[face] = texture_path.resolve()
         

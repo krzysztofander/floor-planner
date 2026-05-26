@@ -1,13 +1,13 @@
 # Feature: 3D Model Generation in OBJ/MTL Format
 
-**Status:** In Progress (Phases 1-5 Complete ✅)  
+**Status:** In Progress (Phases 1-6 Complete ✅, Phase 8 In Progress)  
 **Priority:** High  
-**Estimated Effort:** 3-4 Weeks (8 phases, realistic textures in final phase)
+**Estimated Effort:** 3-4 Weeks (8 phases, realistic textures in Phase 7)
 
 ## Overview
 Generate 3D models in OBJ format with MTL (material) files from 2D floor plan elements. This feature leverages the existing vertical positioning system (v_anchor, height) to extrude 2D floor plan elements into 3D objects with textures.
 
-**Current Status:** Phases 1-5 completed (May 26, 2026). Core 3D export functionality is working with dummy textures.
+**Current Status:** Phases 1-6 completed (May 26, 2026). Core 3D export functionality is working with texture validation, z-fighting prevention, and configurable circular element segments. Phase 7 (AI textures) deferred. Working on Phase 8 (documentation).
 
 ## Motivation
 - Enable 3D visualization of floor plans for better spatial understanding
@@ -585,9 +585,9 @@ organized in one place and makes them easy to modify.
 
 **Total: ~36 default textures**
 
-### Phase 6: Advanced Features (4-5 days)
+### Phase 6: Advanced Features (4-5 days) ✅ PARTIALLY COMPLETE
 
-**Custom Geometry Overrides:**
+**Custom Geometry Overrides:** (Deferred - not critical for initial release)
 - [ ] Allow elements to override `generate_vertices_and_indices()`
 - [ ] Implement complex shapes:
   - [ ] Door with frame and handle
@@ -595,43 +595,70 @@ organized in one place and makes them easy to modify.
   - [ ] Toilet with curved surfaces
   - [ ] Bathtub with curved edges
 
-**Texture Validation:**
-- [ ] Validate texture file paths exist
-- [ ] Validate texture dict keys match element's face definitions
-- [ ] Generate warnings for missing textures (fall back to defaults)
+**Texture Validation:** ✅ COMPLETE
+- [x] Validate texture file paths exist
+- [x] Validate texture dict keys match element's face definitions  
+- [x] Generate warnings for missing textures (fall back to defaults)
 
-**Optimization:**
-- [ ] Merge adjacent walls into single mesh
-- [ ] Generate LOD (Level of Detail) versions
-- [ ] Optimize vertex count for circular elements (configurable segments)
+**Optimization:** ✅ PARTIALLY COMPLETE
+- [ ] Merge adjacent walls into single mesh (deferred - complex)
+- [ ] Generate LOD (Level of Detail) versions (deferred - overkill for floor plans)
+- [x] Optimize vertex count for circular elements (configurable segments)
 
-### Phase 7: Realistic Texture Generation with AI (2-3 days)
+**Additional Improvements:**
+- [x] Elements with `color == 'invisible'` excluded from 3D generation
+- [x] Elements with zero dimensions (length/thickness/diameter) excluded
+- [x] Configurable `circle_segments` parameter for circular elements (3-64 range)
+- [x] Created example configurations in `examples/3d_visualization/`
 
-**Generate High-Quality Textures:**
-- [ ] Set up AI image generation (Stable Diffusion local or DALL-E API)
-- [ ] Create detailed prompts for each element type
-  - "Realistic brick wall texture, seamless, architectural, 4k"
-  - "Modern stainless steel refrigerator front panel, photorealistic"
-  - "Oak wood desk surface texture, top view, natural lighting"
-  - "White porcelain toilet, front view, bathroom fixture, clean"
-- [ ] Generate textures (batch process ~36 textures)
-- [ ] Review and select best versions
-- [ ] Optimize and resize to 1024x1024 (good quality, manageable size)
-- [ ] Replace dummy textures in `textures/defaults/`
-- [ ] Commit realistic textures to repo
+### Phase 7: Realistic Texture Generation with AI (2-3 days) - DEFERRED ⏸️
 
-**Texture Quality Criteria:**
+**Status:** Deferred - automated scripts provided, can be executed when needed
+
+**Multiple Automation Options Available:**
+
+See detailed guide: [docs/TEXTURE_GENERATION.md](../TEXTURE_GENERATION.md)
+
+**Recommended: DALL-E API Automation** (Easiest & Fastest)
+- [ ] Install dependencies: `pip install openai pillow`
+- [ ] Set API key: `export OPENAI_API_KEY="sk-..."`
+- [ ] Run script: `python scripts/generate_textures_dalle.py`
+- [ ] Cost: ~$1.60 for all 40 textures (1024x1024)
+- [ ] Time: ~5 minutes total
+
+**Alternative Options:**
+- **Free Manual:** Use Bing Image Creator / Google ImageFX (4-8 days, tedious)
+- **Local Stable Diffusion:** ComfyUI/Automatic1111 (free, requires GPU, complex setup)
+- **Stability AI API:** Similar to DALL-E (~$2-4)
+
+**Texture Requirements:**
 - [ ] Photorealistic appearance
-- [ ] Appropriate resolution (1024x1024)
-- [ ] Seamless/tileable where appropriate (walls, floors)
+- [ ] Resolution: 1024x1024 (good quality, manageable file size)
+- [ ] Seamless/tileable where appropriate (walls, floors, paths)
 - [ ] Correct perspective for each element type
 - [ ] Consistent lighting across all textures
+- [ ] File format: JPEG (quality 95)
+
+**Implementation Notes:**
+- ✅ Automation script ready: `scripts/generate_textures_dalle.py`
+- ✅ 40 texture prompts pre-written and optimized
+- ✅ Automatic download, resize, and organize
+- ✅ Skip already-generated textures (incremental)
+- ⚠️ Requires OpenAI API key ($1.60 one-time cost)
+
+**Why Deferred:**
+- Not blocking for core 3D functionality
+- Dummy textures sufficient for testing
+- Can be executed anytime with one command
+- Cost is minimal but requires API setup
 
 ### Phase 8: Final Documentation & Polish (2-3 days)
 
-- [ ] Create example configuration with 3D output
-  - `examples/3d_visualization/simple_room.yml`
-  - `examples/3d_visualization/full_house.yml`
+### Phase 8: Final Documentation & Polish (2-3 days) - IN PROGRESS
+
+- [x] Create example configuration with 3D output
+  - [x] `examples/3d_visualization/simple_room.yml`
+  - [ ] `examples/3d_visualization/full_house.yml` (optional - can be added later)
 - [ ] Test in 3D software:
   - [ ] Blender import and render
   - [ ] SketchUp import
@@ -641,6 +668,7 @@ organized in one place and makes them easy to modify.
   - [ ] Document texture system in docs/ (single and multi-texture support)
   - [ ] Add OBJ/MTL reference guide
 - [ ] Update element-parameters-reference.md with `textures` parameter (string or dict)
+- [x] Update element-parameters-reference.md with `circle_segments` parameter (3-64 range)
 - [ ] Add troubleshooting guide for common issues
 
 ## Testing Strategy

@@ -18,9 +18,11 @@ TEXTURES = {
     # Structural elements
     'wall.jpg': ((221, 221, 221), 'Light gray wall'),
     'door.jpg': ((139, 111, 71), 'Wood brown door'),
+    'door_frame.jpg': ((240, 240, 240), 'White painted door frame'),
     'sliding_door.jpg': ((160, 130, 90), 'Lighter wood sliding door'),
     'window.jpg': ((176, 224, 230), 'Light blue window glass'),
     'stairs.jpg': ((180, 180, 180), 'Gray concrete stairs'),
+    'floor.jpg': ((200, 170, 130), 'Light wood floor'),
     
     # Furniture - General
     'table.jpg': ((160, 130, 90), 'Wood table'),
@@ -34,29 +36,39 @@ TEXTURES = {
     'desk.jpg': ((150, 120, 80), 'Dark wood desk'),
     'nightstand.jpg': ((165, 135, 95), 'Wood nightstand'),
     'bookcase.jpg': ((175, 145, 105), 'Wood bookcase'),
+    'bookshelf.jpg': ((175, 145, 105), 'Wood bookshelf'),
+    'dresser.jpg': ((160, 130, 90), 'Wood dresser'),
     'drawer.jpg': ((155, 125, 85), 'Wood drawer'),
     'bench.jpg': ((145, 115, 75), 'Wood bench'),
+    'tvstand.jpg': ((150, 120, 80), 'Dark wood TV stand'),
     
     # Kitchen & Bathroom
     'countertop.jpg': ((200, 200, 205), 'Light gray countertop'),
     'sink.jpg': ((220, 220, 225), 'White ceramic sink'),
     'stove.jpg': ((50, 50, 60), 'Dark gray/black stove'),
+    'oven.jpg': ((55, 55, 65), 'Dark gray oven'),
     'refrigerator.jpg': ((240, 240, 245), 'White refrigerator'),
+    'microwave.jpg': ((210, 210, 215), 'Light gray microwave'),
+    'rangehood.jpg': ((200, 200, 205), 'Stainless steel range hood'),
     'bathtub.jpg': ((230, 230, 235), 'White bathtub'),
     'shower.jpg': ((225, 225, 230), 'White shower'),
     'toilet.jpg': ((235, 235, 240), 'White toilet'),
+    'bidet.jpg': ((230, 230, 235), 'White bidet'),
     'washer.jpg': ((215, 215, 220), 'Light gray washer'),
+    'dryer.jpg': ((215, 215, 220), 'Light gray dryer'),
     'dishwasher.jpg': ((210, 210, 215), 'Light gray dishwasher'),
     
     # Landscaping - Vegetation
     'tree.jpg': ((34, 139, 34), 'Forest green tree'),
     'bush.jpg': ((50, 155, 50), 'Medium green bush'),
+    'shrub.jpg': ((50, 155, 50), 'Medium green shrub'),
     'hedge.jpg': ((60, 170, 60), 'Bright green hedge'),
     'lawn.jpg': ((85, 180, 85), 'Grass green lawn'),
     'flower_bed.jpg': ((255, 192, 203), 'Pink flower bed'),
     
     # Landscaping - Hardscape
     'deck.jpg': ((150, 120, 80), 'Wood deck'),
+    'fence.jpg': ((160, 130, 90), 'Wood fence'),
     'path.jpg': ((180, 170, 150), 'Beige stone path'),
     'patio.jpg': ((170, 160, 140), 'Gray patio'),
     'driveway.jpg': ((130, 130, 130), 'Dark gray driveway'),
@@ -68,6 +80,7 @@ TEXTURES = {
     
     # Electrical & Lighting
     'outlet.jpg': ((240, 240, 240), 'White outlet plate'),
+    'power_outlet.jpg': ((240, 240, 240), 'White power outlet plate'),
     'switch.jpg': ((245, 245, 245), 'White switch plate'),
     'ceiling_lamp.jpg': ((255, 250, 200), 'Warm white ceiling lamp'),
     'wall_lamp.jpg': ((255, 245, 190), 'Warm white wall lamp'),

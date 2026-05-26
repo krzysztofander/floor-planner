@@ -251,9 +251,10 @@ class CircularGeometry3D(Generate3DMixin):
         - diameter - circle diameter
         - v_anchor - Y coordinate of bottom
         - height - Y extent
+        - circle_segments (optional) - number of segments for smoother/coarser circles
     """
     
-    CIRCLE_SEGMENTS = 16  # Number of vertices around circle
+    CIRCLE_SEGMENTS = 16  # Default number of vertices around circle
     
     def generate_vertices_and_indices(self) -> tuple[list[tuple[float, float, float]], 
                                                       list[tuple[int, int, int]], 
@@ -268,7 +269,12 @@ class CircularGeometry3D(Generate3DMixin):
         center_x, center_z = self.anchor_point
         # Apply offset to radius (makes cylinder slightly larger)
         radius = (self.diameter + offset) / 2
-        segments = self.CIRCLE_SEGMENTS
+        
+        # Use element-specific segments if provided, otherwise use class default
+        segments = getattr(self, 'circle_segments', self.CIRCLE_SEGMENTS)
+        
+        # Clamp segments to reasonable range (3 minimum for a shape, 64 maximum for performance)
+        segments = max(3, min(64, segments))
         
         vertices = []
         

@@ -38,7 +38,7 @@ MATERIAL_PROPERTIES = {
         'Ka': (0.7, 0.8, 0.9),      # Light blue ambient
         'Kd': (0.8, 0.9, 1.0),      # Glass blue-tint diffuse
         'Ks': (0.9, 0.9, 0.9),      # High specular (glass reflective)
-        'Ns': 200.0,                 # High shininess (glass)
+        'Ns': 2000.0,                 # High shininess (glass)
     },
     
     'floor': {

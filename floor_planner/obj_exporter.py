@@ -45,9 +45,12 @@ class OBJExporter:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize texture manager
-        default_texture_dir = self.output_dir.parent.parent / 'textures' / 'defaults'
+        # Use absolute paths based on floor_planner package location
+        floor_planner_dir = Path(__file__).parent.parent  # Go up from floor_planner/obj_exporter.py to floor_planner/
+        default_texture_dir = floor_planner_dir / 'textures' / 'defaults'
+        fallback_texture_dir = floor_planner_dir / 'textures' / 'fallback'
         output_texture_dir = self.output_dir / 'textures'
-        self.texture_manager = TextureManager(default_texture_dir, output_texture_dir)
+        self.texture_manager = TextureManager(default_texture_dir, output_texture_dir, fallback_texture_dir)
         
         # Track vertices and materials globally across all elements
         self.global_vertices = []

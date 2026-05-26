@@ -1,0 +1,176 @@
+# Furnished Room - Comprehensive 3D Visualization Example
+# Demonstrates various element types and custom segment settings for circular elements
+
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "visualisation_3d"  # Enable 3D OBJ/MTL export
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [10, 8]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+floor_plans:
+  - title:
+      text: "Furnished Living Room - 3D Export"
+      font_size: 18
+    
+    elements:
+      # Room walls (5m x 4m)
+      - type: wall
+        anchor_point: [0, 0]
+        orientation_angle: 0
+        length: 5
+        thickness: 0.2
+        color: gray
+      
+      - type: wall
+        anchor_point: [5, 0]
+        orientation_angle: 90
+        length: 4
+        thickness: 0.2
+        color: gray
+      
+      - type: wall
+        anchor_point: [5, 4]
+        orientation_angle: 180
+        length: 5
+        thickness: 0.2
+        color: gray
+      
+      - type: wall
+        anchor_point: [0, 4]
+        orientation_angle: 270
+        length: 4
+        thickness: 0.2
+        color: gray
+      
+      # Doors and windows
+      - type: door
+        anchor_point: [0.3, 0]
+        orientation_angle: 0
+        doorway_width: 1.0
+        door_width: 0.9
+        thickness: 0.2
+        to_the_right: false
+        color: brown
+      
+      - type: window
+        anchor_point: [1.5, 4]
+        orientation_angle: 180
+        length: 1.8
+        overall_thickness: 0.2
+        color: lightblue
+      
+      - type: window
+        anchor_point: [5, 1.0]
+        orientation_angle: 90
+        length: 1.5
+        overall_thickness: 0.2
+        color: lightblue
+      
+      # Seating area
+      - type: sofa
+        anchor_point: [0.4, 1.2]
+        orientation_angle: 0
+        color: darkblue
+        label: "Sofa"
+      
+      - type: chair
+        anchor_point: [3.5, 0.5]
+        orientation_angle: 270
+        color: navy
+        label: "Armchair"
+      
+      # Coffee table
+      - type: dining_table
+        anchor_point: [1.5, 2.0]
+        orientation_angle: 0
+        length: 0.8
+        width: 0.8
+        color: brown
+        label: "Coffee Table"
+      
+      # TV and entertainment
+      - type: generic_storage
+        anchor_point: [3.3, 3.6]
+        orientation_angle: 180
+        length: 1.5
+        width: 0.4
+        height: 0.5
+        color: black
+        label: "TV Stand"
+      
+      # Bookshelf
+      - type: generic_storage
+        anchor_point: [0.2, 3.3]
+        orientation_angle: 180
+        length: 1.2
+        width: 0.3
+        height: 1.8
+        color: brown
+        label: "Bookshelf"
+      
+      # Lighting fixtures
+      - type: ceiling_lamp
+        anchor_point: [2.5, 2.0]
+        diameter: 0.4
+        color: yellow
+        label: "Main Light"
+        circle_segments: 32  # Very smooth for ceiling fixture
+      
+      - type: ceiling_lamp
+        anchor_point: [1.0, 1.5]
+        diameter: 0.25
+        color: yellow
+        label: "Accent Light 1"
+        circle_segments: 12  # Coarser for small fixture
+      
+      - type: ceiling_lamp
+        anchor_point: [4.0, 2.5]
+        diameter: 0.25
+        color: yellow
+        label: "Accent Light 2"
+        circle_segments: 12
+      
+      - type: wall_lamp
+        anchor_point: [0, 2.5]
+        orientation_angle: 270
+        length: 0.15
+        width: 0.15
+        color: white
+        label: "Wall Sconce"
+      
+      # Electrical outlets and switches
+      - type: power_outlet
+        anchor_point: [1.0, 0]
+        orientation_angle: 0
+        length: 0.1
+        width: 0.05
+        color: white
+      
+      - type: power_outlet
+        anchor_point: [3.5, 0]
+        orientation_angle: 0
+        length: 0.1
+        width: 0.05
+        color: white
+      
+      - type: switch
+        anchor_point: [0.8, 0]
+        orientation_angle: 0
+        length: 0.08
+        width: 0.08
+        color: white
+      
+      # Decorative plant
+      - type: shrub
+        anchor_point: [4.5, 3.5]
+        diameter: 0.3
+        color: green
+        label: "Plant"
