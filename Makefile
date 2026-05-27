@@ -3,9 +3,9 @@ PYSRC = $(wildcard floor_planner/*.py)
 PYSRC += $(wildcard floor_planner/elements/*.py)
 PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
 
-.PHONY: all clean room_templates playground elements furniture simple landscaping extras
+.PHONY: all clean room_templates elements furniture simple landscaping extras tests
 
-all: room_templates elements furniture playground simple landscaping
+all: room_templates elements furniture simple landscaping
 
 # ==========================================
 
@@ -42,15 +42,6 @@ FURNITURE_PNG = examples/elements/Beds_Rotation_Test.png
 furniture: $(FURNITURE_PNG)
 
 $(FURNITURE_PNG): examples/elements/furniture_demo.yml $(PYSRC)
-	@echo "Processing $<"
-	$(PYTHON) -m floor_planner -c $<
-
-# PLAYGROUND
-# ----------
-DOORS_AND_WINDOWS_PNG = examples/playground/Doors_and_windows.png
-playground: $(DOORS_AND_WINDOWS_PNG)
-
-$(DOORS_AND_WINDOWS_PNG): examples/playground/doors_and_windows.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
@@ -108,12 +99,27 @@ $(word 3,$(EXTRAS_PNG)): examples/3d_visualization/furnished_room.yml $(PYSRC)
 	$(PYTHON) -m floor_planner -c $<
 
 
+# TESTS
+# -----
+TESTS_PNG = tests/test_invisible_openings/output/Invisible_Openings_Test.png
+TESTS_PNG += tests/doors_and_windows/Doors_and_windows.png
+tests: $(TESTS_PNG)
+
+$(word 1,$(TESTS_PNG)): tests/test_invisible_openings/project_main.yml tests/test_invisible_openings/*.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 2,$(TESTS_PNG)): tests/doors_and_windows/doors_and_windows.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+
 # Clean generated outputs
 clean:
 	rm -f $(ROOM_TEMPLATE_OUTPUTS)
 	rm -f $(ELEMENTS_PNG)
-	rm -f $(DOORS_AND_WINDOWS_PNG)
 	rm -f $(SIMPLE_PNG)
 	rm -f $(LANDSCAPING_PNG)
 	rm -f $(EXTRAS_PNG)
+	rm -f $(TESTS_PNG)
 
