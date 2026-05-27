@@ -1,0 +1,1 @@
+../../../scripts/run_3d_walker.sh
