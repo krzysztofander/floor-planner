@@ -218,12 +218,17 @@ class Window(VertInfoWindows, RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw window."""
+        # Check if element should be drawn (handles invisible color)
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+        
         first_line = Rectangle(
             self.anchor_point,
             self.length,
             self.single_line_thickness,
             angle=self.orientation_angle,
-            facecolor=self.color
+            facecolor=draw_color
         )
         first_line.set_zorder(self.get_zorder())
         ax.add_patch(first_line)
@@ -251,7 +256,7 @@ class Window(VertInfoWindows, RectangularElement):
             self.length,
             self.single_line_thickness,
             angle=self.orientation_angle,
-            facecolor=self.color
+            facecolor=draw_color
         )
         second_line.set_zorder(self.get_zorder())
         ax.add_patch(second_line)

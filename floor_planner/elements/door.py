@@ -91,6 +91,11 @@ class Door(VertInfoLvl02, RectangularElement):
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the door, its opening trajectory, and the door frame."""
+        # Check if element should be drawn (handles invisible color)
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+        
         orientation_angle_in_rad = math.radians(self.orientation_angle)
 
         frame_orientation_angle = self.orientation_angle
@@ -101,7 +106,7 @@ class Door(VertInfoLvl02, RectangularElement):
             self.frame_width,
             self.thickness,
             angle=frame_orientation_angle,
-            facecolor=self.color
+            facecolor=draw_color
         )
         frame_with_hinges.set_zorder(self.get_zorder())
         ax.add_patch(frame_with_hinges)
@@ -131,7 +136,7 @@ class Door(VertInfoLvl02, RectangularElement):
             self.frame_width,
             self.thickness,
             angle=frame_orientation_angle,
-            facecolor=self.color
+            facecolor=draw_color
         )
         frame_without_hinges.set_zorder(self.get_zorder())
         ax.add_patch(frame_without_hinges)
@@ -179,7 +184,7 @@ class Door(VertInfoLvl02, RectangularElement):
                         hinges_point,
                         self.door_schematic_line_thickness, self.door_width,
                         angle=self.orientation_angle + (180 if self.opening_outside else 0), # Additional rot if opening outside
-                        facecolor=self.color
+                        facecolor=draw_color
                         #facecolor='orange'
             )
         door.set_zorder(self.get_zorder())
@@ -207,7 +212,7 @@ class Door(VertInfoLvl02, RectangularElement):
             angle=self.orientation_angle,
             theta1=start_angle,
             theta2=end_angle,
-            color=self.color,
+            color=draw_color,
             linewidth=1
         )
         arc.set_zorder(self.get_zorder())
