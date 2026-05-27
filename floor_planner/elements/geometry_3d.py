@@ -13,6 +13,8 @@ from abc import ABC, abstractmethod
 import math
 from typing import TYPE_CHECKING
 
+from ..utils import rotate_point
+
 if TYPE_CHECKING:
     from .element import Element
 
@@ -219,22 +221,11 @@ class RectangularGeometry3D(Generate3DMixin):
             # No rotation, just translate to anchor
             return [(anchor[0] + x, anchor[1] + z) for x, z in corners]
         
-        # Convert to radians
+        # Convert to radians once for all corners
         angle_rad = math.radians(angle_degrees)
-        cos_a = math.cos(angle_rad)
-        sin_a = math.sin(angle_rad)
         
-        rotated = []
-        for x, z in corners:
-            # Rotate around origin
-            x_rot = x * cos_a - z * sin_a
-            z_rot = x * sin_a + z * cos_a
-            
-            # Translate to anchor position
-            x_world = anchor[0] + x_rot
-            z_world = anchor[1] + z_rot
-            
-            rotated.append((x_world, z_world))
+        # Use rotate_point utility for each corner (benefits from caching)
+        rotated = [rotate_point(anchor, x, z, angle_rad) for x, z in corners]
         
         return rotated
 
