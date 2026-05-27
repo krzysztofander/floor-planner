@@ -61,8 +61,12 @@ Current feature plans in this folder:
 - [wall-opening-detection.md](wall-opening-detection.md) - Automatic detection of doors/windows in walls and generation of wall geometry with cutouts for 3D visualization
 
 ### In Planning
+- [external-model-integration.md](external-model-integration.md) - **PRIORITY** Hybrid system supporting external 3D models (chairs, appliances) alongside procedural generation, with glTF export and animation support
 - [common-properties-refactor.md](common-properties-refactor.md) - Refactor Element hierarchy to consolidate common properties (color, length, thickness, diameter)
 - [3d-mtl-generation.md](3d-mtl-generation.md) - 3D model generation in OBJ/MTL format with textures
+
+### On Hold
+- [multi-shape-elements.md](multi-shape-elements.md) - Compositional architecture for elements built from multiple shapes (superseded by external-model-integration for Phase 1)
 
 ## When to Use Each Approach
 

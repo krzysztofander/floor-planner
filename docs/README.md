@@ -15,8 +15,9 @@ This directory contains documentation for developers and users of the Floor Plan
 - **[Element Parameters Reference](element-parameters-reference.md)** - All element parameters
 
 ### Feature Documentation
-- [Landscaping Elements](features/landscaping-elements.md) - Trees, shrubs, fences, ponds (Planned)
+- [Landscaping Elements](features/landscaping-elements.md) - Trees, shrubs, fences, ponds (Completed)
 - [Landscaping Guide](landscaping-guide.md) - User guide for landscaping elements
+- [External Model Integration](features/external-model-integration.md) - Hybrid procedural + external 3D models (Planning)
 
 
 ## Quick Start for AI Agents
