@@ -1,8 +1,10 @@
-# Texture Generation Scripts
+# Floor Planner Utility Scripts
 
-Automated scripts for generating realistic textures for 3D models.
+Automated scripts for texture generation and 3D visualization.
 
-## Quick Start (Recommended)
+## Quick Start
+
+### Texture Generation (Recommended)
 
 ```bash
 # Install dependencies
@@ -15,7 +17,55 @@ export OPENAI_API_KEY="sk-your-key-here"
 python scripts/generate_textures_dalle.py
 ```
 
+### 3D Visualization
+
+```bash
+# Set your 3D viewer executable
+export WALKER_3D="/path/to/your/3d/viewer"
+
+# Copy script to your 3D export directory
+cp scripts/run_3d_walker.sh examples/3d_visualization/visualisation_3d/
+
+# Run the viewer
+cd examples/3d_visualization/visualisation_3d/
+./run_3d_walker.sh
+```
+
 ## Available Scripts
+
+### `run_3d_walker.sh` 🎨 3D VIEWER
+**Purpose:** Launch 3D visualization tools on exported OBJ files  
+**Requirements:** 3D viewer executable (e.g., MeshLab, Blender)
+
+Automated launcher for 3D visualization:
+- Validates WALKER_3D environment variable
+- Finds .obj files and textures automatically
+- Passes full paths to your 3D viewer
+- Comprehensive error messages and help
+
+**Usage:**
+```bash
+# 1. Set your 3D viewer path
+export WALKER_3D="/usr/local/bin/meshlab"
+
+# 2. Copy script to visualisation_3d folder
+cp scripts/run_3d_walker.sh path/to/visualisation_3d/
+
+# 3. Run from that directory
+cd path/to/visualisation_3d/
+./run_3d_walker.sh
+```
+
+The script expects this directory structure:
+```
+visualisation_3d/
+├── run_3d_walker.sh      # This script
+├── your_floor_plan.obj   # OBJ file
+├── your_floor_plan.mtl   # Material file
+└── textures/             # Texture folder
+    ├── texture1.png
+    └── texture2.jpg
+```
 
 ### `generate_textures_dalle.py` ✅ READY
 **Status:** Production-ready  

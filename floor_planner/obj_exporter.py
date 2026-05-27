@@ -12,6 +12,8 @@ import math
 from .material_properties import get_material_properties, format_mtl_color
 from .texture_manager import TextureManager
 from .elements.geometry_3d import is_3d_eligible
+from .wall_openings import find_embedded_openings, generate_wall_with_openings
+from .elements.basic import WallND
 
 if TYPE_CHECKING:
     from .floor_plan import FloorPlan
@@ -119,7 +121,21 @@ class OBJExporter:
             
             # Generate geometry
             try:
-                vertices, indices, face_groups = element.generate_vertices_and_indices()
+                # Check if this is a wall that might have embedded doors/windows
+                if isinstance(element, WallND):
+                    # Find any doors/windows embedded in this wall
+                    embedded_openings = find_embedded_openings(element, self.floor_plan.elements)
+                    
+                    if embedded_openings:
+                        print(f"  Wall {element.id} has {len(embedded_openings)} embedded opening(s)")
+                        # Generate wall geometry with holes
+                        vertices, indices, face_groups = generate_wall_with_openings(element, embedded_openings)
+                    else:
+                        # Standard wall geometry (no openings)
+                        vertices, indices, face_groups = element.generate_vertices_and_indices()
+                else:
+                    # Standard geometry for non-wall elements
+                    vertices, indices, face_groups = element.generate_vertices_and_indices()
             except Exception as e:
                 print(f"Error generating geometry for {element.id}: {e}")
                 continue
@@ -183,10 +199,15 @@ class OBJExporter:
         element_type = type(element).__name__.lower()
         
         # Group triangles by texture
-        # texture_to_triangles: {texture_path: [triangle_indices]}
+        # texture_to_triangles: {texture_path: set of triangle_indices}
         texture_to_triangles = {}
         
         for face_name, triangle_indices in face_groups.items():
+            # Skip aggregate groups to avoid duplicates
+            # 'all' and 'sides' are convenience groups that contain triangles already in other groups
+            if face_name in ('all', 'sides'):
+                continue
+            
             # Get texture for this face
             if face_name in texture_paths:
                 texture_path = texture_paths[face_name]
@@ -196,13 +217,13 @@ class OBJExporter:
                 # Use first available texture
                 texture_path = next(iter(texture_paths.values()))
             
-            # Group triangles by texture
+            # Group triangles by texture (use set to avoid duplicates)
             if texture_path not in texture_to_triangles:
-                texture_to_triangles[texture_path] = []
-            texture_to_triangles[texture_path].extend(triangle_indices)
+                texture_to_triangles[texture_path] = set()
+            texture_to_triangles[texture_path].update(triangle_indices)
         
         # Write faces grouped by material
-        for texture_path, triangle_indices in texture_to_triangles.items():
+        for texture_path, triangle_indices_set in texture_to_triangles.items():
             # Generate unique material name
             material_name = self._get_or_create_material(
                 element_type, texture_path
@@ -211,8 +232,8 @@ class OBJExporter:
             # Write material directive
             obj_file.write(f"usemtl {material_name}\n")
             
-            # Write triangles
-            for tri_idx in triangle_indices:
+            # Write triangles (sort for deterministic output)
+            for tri_idx in sorted(triangle_indices_set):
                 v1, v2, v3 = indices[tri_idx]
                 
                 # OBJ uses 1-based indexing

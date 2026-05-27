@@ -104,6 +104,39 @@ All landscaping elements support:
 
 See `examples/landscaping/` for demonstrations of each element type, and `examples/templates/rooms/backyard_garden/` for a reusable outdoor space template.
 
+## 3D Visualization
+
+This fork includes 3D export capabilities to generate Wavefront OBJ/MTL models with textures:
+
+### Features
+- **Automatic 3D geometry generation** - 2D floor plan elements are automatically extruded to 3D
+- **Phong material properties** - Ka (ambient), Kd (diffuse), Ks (specular), Ns (shininess) for realistic materials
+- **Texture support** - PNG (with alpha channel) and JPG textures with automatic fallback
+- **Texture tiling** - Control texture repeat with `texture_scale` parameter
+- **Wall opening detection** - Doors and windows automatically create cutouts in walls for realistic visualization
+- **Multi-texture elements** - Different textures for different faces (e.g., door vs door frame)
+
+### Wall Opening Detection
+When doors or windows are positioned in walls, the system automatically:
+1. Detects spatial overlap using orientation and position checks
+2. Generates subdivided wall geometry with rectangular cutouts
+3. Preserves proper face normals and winding order
+4. Creates realistic openings without manual mesh editing
+
+### Usage
+Enable 3D export in your YAML config:
+```yaml
+project:
+  visualisation_dir: "visualisation_3d"  # Output directory for OBJ/MTL files
+```
+
+Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` to control vertical positioning.
+
+See:
+- `examples/3d_visualization/` - Demos of 3D export with textures and wall openings
+- `docs/features/wall-opening-detection.md` - Detailed documentation of wall opening feature
+- `docs/texture-tiling-guide.md` - Guide to texture tiling and `texture_scale` parameter
+
 ## Capabilities
 There are no build in limitations. With this module it is possible to draw a complex plans like below.
 Use of rooms in separate YAML files and variables helps in offsetting one piece to another and lets to simulate 'what if' in case one wonder if moving or making a wall or door in given place make sense.

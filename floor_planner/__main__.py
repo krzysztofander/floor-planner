@@ -214,13 +214,15 @@ def main() -> None:
 
     # Handle visualisation_dir option
     visualisation_dir = settings['project'].get('visualisation_dir')
+    vis_dir_resolved = None
     if visualisation_dir is not None:
         vis_dir_path = config_dir / visualisation_dir
         if not vis_dir_path.exists():
             vis_dir_path.mkdir(parents=True, exist_ok=True)
             print(f"Created visualisation directory: {vis_dir_path}")
+        vis_dir_resolved = str(vis_dir_path)
 
-    project = Project(floor_plans, settings['project']['dpi'], visualisation_dir)
+    project = Project(floor_plans, settings['project']['dpi'], vis_dir_resolved)
     pdf_path = settings['project'].get('pdf_file')
     if pdf_path is not None:
         pdf_path = config_dir / pdf_path
@@ -231,7 +233,7 @@ def main() -> None:
         project.render_to_png(str(png_path))
     
     # Export 3D OBJ/MTL if visualisation_dir is set
-    if visualisation_dir:
+    if vis_dir_resolved:
         project.export_to_obj(config_dir)
 
     # Generate elements report

@@ -58,6 +58,7 @@ Current feature plans in this folder:
 - [species-rendering-feature.md](species-rendering-feature.md) - Species and bloom season display on vegetation
 - [landscaping-elements.md](landscaping-elements.md) - Comprehensive landscaping elements
 - [vertical-positioning-feature.md](vertical-positioning-feature.md) - Vertical positioning (v_anchor and height) for 2D rendering order and future 3D support
+- [wall-opening-detection.md](wall-opening-detection.md) - Automatic detection of doors/windows in walls and generation of wall geometry with cutouts for 3D visualization
 
 ### In Planning
 - [common-properties-refactor.md](common-properties-refactor.md) - Refactor Element hierarchy to consolidate common properties (color, length, thickness, diameter)
