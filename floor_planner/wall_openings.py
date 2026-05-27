@@ -32,7 +32,7 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
     from .elements.basic import Window, WallND
     from .elements.door import Door
     
-    # Only check doors and windows
+    # Only check doors and windows (skip sub-elements or other types)
     if not isinstance(opening, (Door, Window)):
         return False
     
@@ -80,15 +80,36 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
     if local_x < -tolerance or local_x > wall.length + tolerance:
         return False
     
-    # Step 4: Check if opening is at the wall's face (local_y should be close to 0 or wall.thickness)
-    # Opening is embedded if its center is roughly at y=0 (front face) or y=wall.thickness (back face)
-    opening_center_y = local_y + opening.thickness / 2
+    # Step 4: Check if opening is embedded in the wall
+    # Opening must be positioned to cut through the wall thickness
+    # Opening spans from local_y to (local_y + opening.thickness)
+    opening_start_y = local_y
+    opening_end_y = local_y + opening.thickness
+    wall_start_y = 0
+    wall_end_y = wall.thickness
     
-    is_at_front_face = abs(opening_center_y) <= tolerance
-    is_at_back_face = abs(opening_center_y - wall.thickness) <= tolerance
+    # Check if opening is properly positioned relative to the wall:
+    # 1. Opening should start at or very close to the front face (y ≈ 0), OR
+    # 2. Opening should end at or very close to the back face (y ≈ wall.thickness), OR
+    # 3. Opening should span the entire wall (start ≈ 0 AND end ≈ wall.thickness)
     
-    if not (is_at_front_face or is_at_back_face):
+    # For an opening to be embedded, it should overlap significantly with the wall
+    # and be aligned to at least one face
+    starts_at_front = abs(opening_start_y - wall_start_y) <= tolerance
+    ends_at_back = abs(opening_end_y - wall_end_y) <= tolerance
+    spans_wall = starts_at_front and ends_at_back
+    
+    # Opening must either span the wall or be aligned to one of the faces
+    # AND have significant overlap (at least partially inside [0, wall.thickness])
+    overlaps_wall = (opening_start_y < wall_end_y + tolerance and 
+                    opening_end_y > wall_start_y - tolerance)
+    
+    is_embedded = overlaps_wall and (starts_at_front or ends_at_back or spans_wall)
+    
+    if not is_embedded:
         return False
+    
+    return True
     
     # Additional check: opening should not extend beyond wall boundaries significantly
     opening_end_x = local_x + opening.length

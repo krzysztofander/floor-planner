@@ -31,7 +31,7 @@ vars:
   y_placement: 0.5
   room_horizontal_length: 3
   room_vertical_width: 4
-  wall_thickness: 0.2
+  wall_thickness: 0.5  # Test with thicker walls
 
 reusable_elements:
   test_room: "room.yml"

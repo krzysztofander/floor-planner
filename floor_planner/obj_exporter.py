@@ -127,7 +127,6 @@ class OBJExporter:
                     embedded_openings = find_embedded_openings(element, self.floor_plan.elements)
                     
                     if embedded_openings:
-                        print(f"  Wall {element.id} has {len(embedded_openings)} embedded opening(s)")
                         # Generate wall geometry with holes
                         vertices, indices, face_groups = generate_wall_with_openings(element, embedded_openings)
                     else:

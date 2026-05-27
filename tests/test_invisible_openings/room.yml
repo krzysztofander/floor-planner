@@ -25,6 +25,15 @@
         color: gray
         orientation_angle: 0
         room_edge: true
+
+      - type: window
+        anchor_point: [0.50, 0]
+        length: window_width
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        color: invisible
+        label: "Invisible Window 2"
+
       
       - type: wall
         id: wall_east
@@ -62,6 +71,8 @@
         orientation_angle: 90
         color: invisible
         label: "Invisible Window"
+
+    
 
     # Door (INVISIBLE but should still create hole in wall)
       - type: door

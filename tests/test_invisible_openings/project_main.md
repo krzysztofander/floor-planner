@@ -4,22 +4,23 @@
 
 | ID | Length (m) | Thickness (m) | Corner 1 (x,y) | Corner 2 (x,y) | Corner 3 (x,y) | Corner 4 (x,y) |
 |---|---|---|---|---|---|---|
-| wall_south | 4.0 | 0.2 | (0.500, 0.500) | (4.500, 0.500) | (4.500, 0.700) | (0.500, 0.700) |
-| wall_east | 3.0 | 0.2 | (4.500, 0.500) | (4.500, 3.500) | (4.300, 3.500) | (4.300, 0.500) |
-| wall_north | 4.0 | 0.2 | (4.500, 3.500) | (0.500, 3.500) | (0.500, 3.300) | (4.500, 3.300) |
-| wall_west | 3.0 | 0.2 | (0.500, 3.500) | (0.500, 0.500) | (0.700, 0.500) | (0.700, 3.500) |
+| wall_south | 4.0 | 0.5 | (0.500, 0.500) | (4.500, 0.500) | (4.500, 1.000) | (0.500, 1.000) |
+| wall_east | 3.0 | 0.5 | (4.500, 0.500) | (4.500, 3.500) | (4.000, 3.500) | (4.000, 0.500) |
+| wall_north | 4.0 | 0.5 | (4.500, 3.500) | (0.500, 3.500) | (0.500, 3.000) | (4.500, 3.000) |
+| wall_west | 3.0 | 0.5 | (0.500, 3.500) | (0.500, 0.500) | (1.000, 0.500) | (1.000, 3.500) |
 
 ## Windows
 
 | ID | Length (m) | Overall Thickness (m) | Corner 1 (x,y) | Corner 2 (x,y) | Corner 3 (x,y) | Corner 4 (x,y) |
 |---|---|---|---|---|---|---|
-| window_invisible | 1.5 | 0.2 | (4.500, 1.200) | (4.500, 2.700) | (4.300, 2.700) | (4.300, 1.200) |
+| Invisible Window 2_1 | 1.5 | 0.5 | (1.000, 0.500) | (2.500, 0.500) | (2.500, 1.000) | (1.000, 1.000) |
+| window_invisible | 1.5 | 0.5 | (4.500, 1.200) | (4.500, 2.700) | (4.000, 2.700) | (4.000, 1.200) |
 
 ## Doors
 
 | ID | Doorway Width (m) | Door Width (m) | Opens to Right | Corner 1 (x,y) | Corner 2 (x,y) | Corner 3 (x,y) | Corner 4 (x,y) |
 |---|---|---|---|---|---|---|---|
-| door_invisible | 1.0 | 0.9 | Yes | (0.500, 2.000) | (0.500, 1.000) | (0.700, 1.000) | (0.700, 2.000) |
+| door_invisible | 1.0 | 0.9 | Yes | (0.500, 2.000) | (0.500, 1.000) | (1.000, 1.000) | (1.000, 2.000) |
 
 ## Rooms
 
@@ -33,11 +34,11 @@
 
 **Dimensions:**
 
-- Inner horizontal length: 3.600 m
-- Inner vertical length: 2.600 m
+- Inner horizontal length: 3.000 m
+- Inner vertical length: 2.000 m
 - Outer horizontal length: 4.000 m
 - Outer vertical length: 3.000 m
-- Inner area: 9.360 m²
+- Inner area: 6.000 m²
 - Outer area: 12.000 m²
 
 **External Corners:**
@@ -49,24 +50,25 @@
 
 **Internal Corners:**
 
-- Corner 1: (0.700, 0.700)
-- Corner 2: (4.300, 0.700)
-- Corner 3: (4.300, 3.300)
-- Corner 4: (0.700, 3.300)
+- Corner 1: (1.000, 1.000)
+- Corner 2: (4.000, 1.000)
+- Corner 3: (4.000, 3.000)
+- Corner 4: (1.000, 3.000)
 
 **Room Edge Walls:**
 
 | Wall ID | Orientation | Length (m) | Thickness (m) |
 |---|---|---|---|
-| wall_south | Horizontal | 4.000 | 0.200 |
-| wall_east | Vertical | 3.000 | 0.200 |
-| wall_north | Horizontal | 4.000 | 0.200 |
-| wall_west | Vertical | 3.000 | 0.200 |
+| wall_south | Horizontal | 4.000 | 0.500 |
+| wall_east | Vertical | 3.000 | 0.500 |
+| wall_north | Horizontal | 4.000 | 0.500 |
+| wall_west | Vertical | 3.000 | 0.500 |
 
 **Other Elements in Room:**
 
 | Element ID | Type |
 |---|---|
+| Invisible Window 2_1 | Window |
 | window_invisible | Window |
 | door_invisible | Door |
 
@@ -77,4 +79,4 @@
 | Wall | 4 |
 | Room | 1 |
 | Door | 1 |
-| Window | 1 |
+| Window | 2 |
