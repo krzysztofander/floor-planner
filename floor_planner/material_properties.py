@@ -100,6 +100,34 @@ MATERIAL_PROPERTIES = {
         'Ns': 20.0,                  # Low shininess
     },
     
+    'storage': {
+        'Ka': (0.5, 0.3, 0.2),      # Wood ambient
+        'Kd': (0.58, 0.38, 0.23),   # Wood diffuse
+        'Ks': (1.2, 1.2, 1.2),
+        'Ns': 250.0,                  # Low-medium shininess
+    },
+    
+    'genericstorage': {
+        'Ka': (0.5, 0.3, 0.2),      # Wood ambient
+        'Kd': (0.58, 0.38, 0.23),   # Wood diffuse
+        'Ks': (1.2, 1.2, 1.2),
+        'Ns': 250.0,                  # Low-medium shininess
+    },
+    
+    'storage40': {
+        'Ka': (0.5, 0.3, 0.2),      # Wood ambient
+        'Kd': (0.58, 0.38, 0.23),   # Wood diffuse
+        'Ks': (1.2, 1.2, 1.2),      
+        'Ns': 250.0,                  # Low-medium shininess
+    },
+    
+    'storage60': {
+        'Ka': (0.5, 0.3, 0.2),      # Wood ambient
+        'Kd': (0.58, 0.38, 0.23),   # Wood diffuse
+        'Ks': (0.2, 0.2, 0.2),      # Low specular
+        'Ns': 250.0,                  # Low-medium shininess
+    },
+    
     # ==========================================================================
     # APPLIANCES
     # ==========================================================================

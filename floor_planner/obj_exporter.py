@@ -155,7 +155,9 @@ class OBJExporter:
             obj_file.write("\n")
             
             # Write texture coordinates (box mapping with optional tiling)
-            texcoords, vertex_to_uv_map = self._generate_box_texcoords(element, vertices)
+            texcoords, vertex_to_uv_map = self._generate_element_texcoords(
+                element, vertices, indices, face_groups
+            )
             
             for u, v in texcoords:
                 obj_file.write(f"vt {u:.6f} {v:.6f}\n")
@@ -470,6 +472,169 @@ class OBJExporter:
         }
         
         return coords, vertex_to_uv_map
+    
+    def _generate_element_texcoords(self, element, vertices: list[tuple[float, float, float]], 
+                                    indices: list[tuple[int, int, int]],
+                                    face_groups: dict[str, list[int]]) -> tuple[list[tuple[float, float]], dict]:
+        """
+        Generate texture coordinates for element based on its geometry type.
+        
+        Routes to appropriate UV generation:
+        - 8-vertex box: Use standard box mapping
+        - Complex geometry (walls with openings): Use per-face planar mapping
+        
+        Args:
+            element: The floor plan element
+            vertices: List of vertex coordinates
+            indices: List of triangle indices
+            face_groups: Dict mapping face names to triangle indices
+            
+        Returns:
+            Tuple of (texcoords, vertex_to_uv_map)
+        """
+        vertex_count = len(vertices)
+        
+        # For simple 8-vertex boxes (furniture, doors, windows, simple walls)
+        if vertex_count == 8:
+            return self._generate_box_texcoords(element, vertices)
+        
+        # For complex geometry (walls with openings), use per-face planar mapping
+        return self._generate_planar_texcoords(element, vertices, indices, face_groups)
+    
+    def _generate_planar_texcoords(self, element, vertices: list[tuple[float, float, float]],
+                                   indices: list[tuple[int, int, int]],
+                                   face_groups: dict[str, list[int]]) -> tuple[list[tuple[float, float]], dict]:
+        """
+        Generate planar UV mapping for complex geometry (walls with openings).
+        
+        Each face gets UVs projected onto its plane based on the face's world-space
+        position and dimensions. Supports texture tiling via texture_scale parameter.
+        
+        Args:
+            element: The floor plan element (for texture_scale)
+            vertices: List of vertex coordinates
+            indices: List of triangle indices
+            face_groups: Dict mapping face names to triangle indices
+            
+        Returns:
+            Tuple of (texcoords, vertex_to_uv_map)
+        """
+        # Get texture scale for tiling
+        texture_scale = getattr(element, 'texture_scale', None)
+        if not texture_scale or texture_scale <= 0:
+            texture_scale = 1.0
+        
+        # Create UV coordinate for each vertex (one UV per vertex)
+        # We'll generate UVs by projecting each face onto its plane
+        texcoords = []
+        vertex_to_uv_map = {}
+        
+        # Track which vertices have been assigned UVs
+        vertex_to_uv_idx = {}
+        
+        # Process each face group
+        for face_name, triangle_indices in face_groups.items():
+            # Skip aggregate groups
+            if face_name in ('all', 'sides'):
+                continue
+            
+            if not triangle_indices:
+                continue
+            
+            # Determine projection plane for this face
+            # Get first triangle to determine face orientation
+            tri_idx = triangle_indices[0]
+            v1_idx, v2_idx, v3_idx = indices[tri_idx]
+            v1, v2, v3 = vertices[v1_idx], vertices[v2_idx], vertices[v3_idx]
+            
+            # Calculate face normal
+            edge1 = (v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2])
+            edge2 = (v3[0] - v1[0], v3[1] - v1[1], v3[2] - v1[2])
+            nx = edge1[1] * edge2[2] - edge1[2] * edge2[1]
+            ny = edge1[2] * edge2[0] - edge1[0] * edge2[2]
+            nz = edge1[0] * edge2[1] - edge1[1] * edge2[0]
+            
+            # Normalize
+            length = math.sqrt(nx*nx + ny*ny + nz*nz)
+            if length > 0.0001:
+                nx /= length
+                ny /= length
+                nz /= length
+            
+            # Determine which plane to project onto based on dominant normal direction
+            # Choose the two axes perpendicular to the normal
+            abs_nx, abs_ny, abs_nz = abs(nx), abs(ny), abs(nz)
+            
+            if abs_ny > abs_nx and abs_ny > abs_nz:
+                # Horizontal face (floor/ceiling) - use XZ plane
+                u_axis, v_axis = 0, 2  # X and Z
+            elif abs_nx > abs_nz:
+                # Face parallel to YZ plane - use ZY plane
+                u_axis, v_axis = 2, 1  # Z and Y
+            else:
+                # Face parallel to XY plane - use XY plane
+                u_axis, v_axis = 0, 1  # X and Y
+            
+            # Collect all vertices used in this face
+            face_vertices_indices = set()
+            for tri_idx in triangle_indices:
+                v1, v2, v3 = indices[tri_idx]
+                face_vertices_indices.update([v1, v2, v3])
+            
+            # Find bounding box of face in projection plane
+            min_u = min_v = float('inf')
+            max_u = max_v = float('-inf')
+            for v_idx in face_vertices_indices:
+                u_coord = vertices[v_idx][u_axis]
+                v_coord = vertices[v_idx][v_axis]
+                min_u = min(min_u, u_coord)
+                max_u = max(max_u, u_coord)
+                min_v = min(min_v, v_coord)
+                max_v = max(max_v, v_coord)
+            
+            face_width = max_u - min_u
+            face_height = max_v - min_v
+            
+            # Generate UV for each vertex in this face
+            for v_idx in face_vertices_indices:
+                # Skip if already assigned
+                if v_idx in vertex_to_uv_idx:
+                    continue
+                
+                # Project vertex onto face plane
+                u_coord = vertices[v_idx][u_axis]
+                v_coord = vertices[v_idx][v_axis]
+                
+                # Normalize to [0, 1] range and apply texture scale
+                if face_width > 0.0001:
+                    u = (u_coord - min_u) / texture_scale
+                else:
+                    u = 0.0
+                
+                if face_height > 0.0001:
+                    v = (v_coord - min_v) / texture_scale
+                else:
+                    v = 0.0
+                
+                # Add UV coordinate
+                uv_idx = len(texcoords)
+                texcoords.append((u, v))
+                vertex_to_uv_idx[v_idx] = uv_idx
+            
+            # Map triangles to UV indices
+            for tri_idx in triangle_indices:
+                v1, v2, v3 = indices[tri_idx]
+                vertex_to_uv_map[(tri_idx, 0)] = vertex_to_uv_idx[v1]
+                vertex_to_uv_map[(tri_idx, 1)] = vertex_to_uv_idx[v2]
+                vertex_to_uv_map[(tri_idx, 2)] = vertex_to_uv_idx[v3]
+        
+        # Handle any vertices not in face groups (shouldn't happen but be safe)
+        for v_idx in range(len(vertices)):
+            if v_idx not in vertex_to_uv_idx:
+                texcoords.append((0.0, 0.0))
+                vertex_to_uv_idx[v_idx] = len(texcoords) - 1
+        
+        return texcoords, vertex_to_uv_map
     
     def _calculate_normals(self, vertices: list[tuple[float, float, float]], 
                           indices: list[tuple[int, int, int]]) -> list[tuple[float, float, float]]:
