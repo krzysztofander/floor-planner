@@ -97,6 +97,44 @@ def create_elements_registry() -> dict[str, type(Element)]:
     }
     return registry
 
+def get_element_type_from_instance(element: Element) -> str:
+    """
+    Get registry key (element type) from an element instance.
+    
+    This provides the reverse mapping: Class → registry key.
+    Essential for texture/material resolution where registry keys
+    define folder and file names.
+    
+    Args:
+        element: Element instance
+        
+    Returns:
+        Registry key (e.g., 'double_bed', 'generic_storage')
+        
+    Raises:
+        ValueError: If element class not found in registry
+        
+    Example:
+        bed = DoubleBed(...)
+        get_element_type_from_instance(bed)  # Returns: 'double_bed'
+    """
+    registry = create_elements_registry()
+    element_class = type(element)
+    
+    # Search registry for matching class
+    for key, cls in registry.items():
+        if cls is element_class:
+            return key
+    
+    # Fallback: convert class name to lowercase with underscores
+    # This handles cases where class might not be in registry
+    class_name = element_class.__name__
+    # Convert CamelCase to snake_case
+    import re
+    snake_case = re.sub(r'(?<!^)(?=[A-Z])', '_', class_name).lower()
+    return snake_case
+
+
 def element_sorter_by_type(element: Element) -> int:
     """
     Provide a sorting key for elements based on their type.

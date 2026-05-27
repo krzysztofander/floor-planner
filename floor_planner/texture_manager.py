@@ -2,16 +2,23 @@
 Texture management for 3D model generation.
 
 This module handles texture file resolution, path management, and multi-texture
-support for floor plan elements. Elements can specify textures as:
-- Single string: applies to all faces
-- Dict: different textures for different faces
+support for floor plan elements. Element types from registry determine folder
+and texture names directly.
 
-All texture specifications are normalized to dict format internally for consistent processing.
+Naming convention:
+- Element type from registry → folder name and base texture name
+- Example: 'generic_storage' → folder 'generic_storage/', file 'generic_storage.jpg'
+- Supplemental textures use: '<element_type>_<suffix>.jpg' (e.g., 'door_frame.jpg')
 """
 
 from pathlib import Path
 from typing import Union
 import shutil
+
+from .supplemental_textures import SUPPLEMENTAL_TEXTURES, get_all_texture_names
+
+
+from .supplemental_textures import SUPPLEMENTAL_TEXTURES, get_all_texture_names
 
 
 # Standard face names for multi-texture support
@@ -26,83 +33,6 @@ STANDARD_FACE_NAMES = [
     'right',    # Right side
     'frame',    # Frame/edge (e.g., door frame)
 ]
-
-
-# Default texture mappings per element type
-# Maps element type to dict of face names → texture filenames
-DEFAULT_TEXTURES = {
-    # Structural elements
-    'wall': {'all': 'wall.jpg'},
-    'window': {'all': 'window.jpg'},
-    'door': {
-        'front': 'door.jpg',
-        'back': 'door.jpg',
-        'frame': 'door_frame.jpg',
-    },
-    'floor': {'all': 'floor.jpg'},
-    
-    # Furniture
-    'desk': {
-        'top': 'desk.jpg',
-        'sides': 'desk.jpg',
-    },
-    'table': {
-        'top': 'table.jpg',
-        'sides': 'table.jpg',
-    },
-    'chair': {'all': 'chair.jpg'},
-    'sofa': {'all': 'sofa.jpg'},
-    'bed': {'all': 'bed.jpg'},
-    'wardrobe': {'all': 'wardrobe.jpg'},
-    'bookshelf': {'all': 'bookshelf.jpg'},
-    'dresser': {'all': 'dresser.jpg'},
-    'nightstand': {'all': 'nightstand.jpg'},
-    'tvstand': {'all': 'tvstand.jpg'},
-    'storage': {'all': 'storage.jpg'},
-    'generic_storage': {'all': 'storage.jpg'},
-    'storage40': {'all': 'storage.jpg'},
-    'storage60': {'all': 'storage.jpg'},
-    
-    # Appliances
-    'refrigerator': {'all': 'refrigerator.jpg'},
-    'stove': {'all': 'stove.jpg'},
-    'oven': {'all': 'oven.jpg'},
-    'dishwasher': {'all': 'dishwasher.jpg'},
-    'washer': {'all': 'washer.jpg'},
-    'dryer': {'all': 'dryer.jpg'},
-    'microwave': {'all': 'microwave.jpg'},
-    'rangehood': {'all': 'rangehood.jpg'},
-    
-    # Bathroom
-    'toilet': {'all': 'toilet.jpg'},
-    'sink': {'all': 'sink.jpg'},
-    'bathtub': {'all': 'bathtub.jpg'},
-    'shower': {'all': 'shower.jpg'},
-    'bidet': {'all': 'bidet.jpg'},
-    
-    # Lighting
-    'ceiling_lamp': {'all': 'ceiling_lamp.jpg'},
-    'wall_lamp': {'all': 'wall_lamp.jpg'},
-    
-    # Electrical
-    'power_outlet': {'all': 'power_outlet.jpg'},
-    'switch': {'all': 'switch.jpg'},
-    
-    # Landscaping
-    'tree': {'all': 'tree.jpg'},
-    'shrub': {'all': 'shrub.jpg'},
-    'hedge': {'all': 'hedge.jpg'},
-    'lawn': {'all': 'lawn.jpg'},
-    'path': {'all': 'path.jpg'},
-    'deck': {'all': 'deck.jpg'},
-    'fence': {'all': 'fence.jpg'},
-    'pool': {'all': 'pool.jpg'},
-    'fountain': {'all': 'fountain.jpg'},
-    'pond': {'all': 'pond.jpg'},
-    
-    # Default fallback
-    'default': {'all': 'default.jpg'},
-}
 
 
 class TextureManager:
@@ -135,27 +65,52 @@ class TextureManager:
         """
         Get default texture filenames for an element type.
         
+        Uses registry key as base texture name. Supplemental textures from
+        SUPPLEMENTAL_TEXTURES registry.
+        
         Args:
-            element_type: Type of element (e.g., 'wall', 'desk', 'door')
+            element_type: Type of element from registry (e.g., 'wall', 'generic_storage', 'door')
             
         Returns:
             Dict mapping face names to texture filenames
-            e.g., {'all': 'wall.jpg'} or {'top': 'desk.jpg', 'sides': 'desk.jpg'}
+            e.g., {'all': 'wall.jpg'} or {'front': 'door.jpg', 'frame': 'door_frame.jpg'}
+            
+        Examples:
+            get_default_textures('wall') → {'all': 'wall.jpg'}
+            get_default_textures('generic_storage') → {'all': 'generic_storage.jpg'}
+            get_default_textures('door') → {'front': 'door.jpg', 'back': 'door.jpg', 'frame': 'door_frame.jpg'}
         """
-        # Normalize element type (lowercase, no underscores)
-        normalized_type = element_type.lower().replace('_', '')
+        # Base texture always uses element_type as filename
+        base_texture = f"{element_type}.jpg"
         
-        # Try exact match first
-        if element_type in DEFAULT_TEXTURES:
-            return DEFAULT_TEXTURES[element_type].copy()
-        
-        # Try normalized match
-        for key in DEFAULT_TEXTURES:
-            if key.replace('_', '') == normalized_type:
-                return DEFAULT_TEXTURES[key].copy()
-        
-        # Return default fallback
-        return DEFAULT_TEXTURES['default'].copy()
+        # Check if element has supplemental textures
+        if element_type in SUPPLEMENTAL_TEXTURES:
+            # Multi-texture element
+            result = {}
+            suffixes = SUPPLEMENTAL_TEXTURES[element_type]
+            
+            # Map common texture patterns
+            if element_type == 'door':
+                result = {
+                    'front': base_texture,
+                    'back': base_texture,
+                    'frame': f"{element_type}_frame.jpg",
+                }
+            elif element_type in ['desk', 'table']:
+                result = {
+                    'top': base_texture,
+                    'sides': f"{element_type}_sides.jpg",
+                }
+            else:
+                # Generic handling - base texture for 'all', supplemental for named faces
+                result = {'all': base_texture}
+                for suffix in suffixes:
+                    result[suffix] = f"{element_type}_{suffix}.jpg"
+            
+            return result
+        else:
+            # Single texture for all faces
+            return {'all': base_texture}
     
     def normalize_texture_spec(self, texture_spec: Union[str, dict[str, str], None], 
                                element_type: str) -> dict[str, str]:
@@ -164,7 +119,7 @@ class TextureManager:
         
         Args:
             texture_spec: User-provided texture spec (string, dict, or None)
-            element_type: Type of element (for default lookup)
+            element_type: Type of element from registry (for default lookup)
             
         Returns:
             Dict mapping face names to texture paths
@@ -173,42 +128,62 @@ class TextureManager:
             normalize_texture_spec("wood.jpg", "desk")
             -> {'all': 'wood.jpg'}
             
-            normalize_texture_spec({'front': 'a.jpg', 'back': 'b.jpg'}, "door")
-            -> {'front': 'a.jpg', 'back': 'b.jpg'}
+            normalize_texture_spec({'front': 'a.jpg', 'frame': 'b.jpg'}, "door")
+            -> {'front': 'a.jpg', 'frame': 'b.jpg'}
             
-            normalize_texture_spec(None, "wall")
-            -> {'all': 'textures/defaults/wall.jpg'}
+            normalize_texture_spec(None, "generic_storage")
+            -> {'all': '/path/to/textures/defaults/generic_storage/generic_storage.jpg'}
         """
         if texture_spec is None:
-            # Use defaults - check both defaults and fallback
+            # Use defaults - check both defaults and fallback in per-element subdirectories
             default_textures = self.get_default_textures(element_type)
-            # Return absolute paths directly
             result = {}
+            
+            # Element subdirectory matches element_type exactly
+            element_subdir = element_type
+            
             for face, filename in default_textures.items():
                 # Try .png first (for alpha channel support), then .jpg
                 png_filename = filename.replace('.jpg', '.png')
-                default_png_path = self.default_texture_dir / png_filename
-                default_jpg_path = self.default_texture_dir / filename
                 
-                # Check PNG first, then JPG in defaults
-                if default_png_path.exists():
-                    result[face] = str(default_png_path.resolve())
-                elif default_jpg_path.exists():
-                    result[face] = str(default_jpg_path.resolve())
-                # Then check fallback directory
-                elif self.fallback_texture_dir:
-                    fallback_png = self.fallback_texture_dir / png_filename
-                    fallback_jpg = self.fallback_texture_dir / filename
-                    if fallback_png.exists():
-                        result[face] = str(fallback_png.resolve())
-                    elif fallback_jpg.exists():
-                        result[face] = str(fallback_jpg.resolve())
-                    else:
-                        # Use default path (will be caught later)
+                found = False
+                
+                # Check defaults directory first
+                default_dir = self.default_texture_dir / element_subdir
+                if default_dir.exists():
+                    default_png_path = default_dir / png_filename
+                    default_jpg_path = default_dir / filename
+                    
+                    if default_png_path.exists():
+                        result[face] = str(default_png_path.resolve())
+                        found = True
+                    elif default_jpg_path.exists():
                         result[face] = str(default_jpg_path.resolve())
-                else:
-                    # If neither exists, use default path (will be caught later)
-                    result[face] = str(default_jpg_path.resolve())
+                        found = True
+                
+                # Then check fallback directory
+                if not found and self.fallback_texture_dir:
+                    fallback_dir = self.fallback_texture_dir / element_subdir
+                    if fallback_dir.exists():
+                        fallback_png = fallback_dir / png_filename
+                        fallback_jpg = fallback_dir / filename
+                        
+                        if fallback_png.exists():
+                            result[face] = str(fallback_png.resolve())
+                            found = True
+                        elif fallback_jpg.exists():
+                            result[face] = str(fallback_jpg.resolve())
+                            found = True
+                
+                # If still not found, use default.jpg from default subdirectory
+                if not found:
+                    default_default = self.fallback_texture_dir / 'default' / 'default.jpg' if self.fallback_texture_dir else None
+                    if default_default and default_default.exists():
+                        result[face] = str(default_default.resolve())
+                    else:
+                        # Last resort: use the expected path (will fail later with clear error)
+                        result[face] = str((self.default_texture_dir / element_subdir / filename).resolve())
+            
             return result
         
         elif isinstance(texture_spec, str):
@@ -230,7 +205,7 @@ class TextureManager:
         Resolve element textures to absolute paths.
         
         Args:
-            element_type: Type of element
+            element_type: Type of element from registry
             texture_spec: User-provided texture specification
             config_dir: Directory containing the YAML config file (for relative path resolution)
             
@@ -253,33 +228,57 @@ class TextureManager:
             if not texture_path.exists():
                 print(f"Warning: Texture file not found: {texture_path}")
                 print(f"  Looking for fallback texture for {element_type}")
-                # Fall back to default in defaults folder first
+                
+                # Fall back to default texture
                 default_textures = self.get_default_textures(element_type)
                 if face in default_textures:
                     filename = default_textures[face]
                 elif 'all' in default_textures:
                     filename = default_textures['all']
                 else:
-                    filename = 'default.jpg'
+                    filename = f'{element_type}.jpg'
                 
                 # Try .png first, then .jpg
                 png_filename = filename.replace('.jpg', '.png')
-                texture_path = self.default_texture_dir / png_filename
-                if not texture_path.exists():
-                    texture_path = self.default_texture_dir / filename
+                
+                # Element subdirectory matches element_type exactly
+                element_subdir = element_type
+                
+                found = False
+                
+                # Try defaults directory first
+                default_dir = self.default_texture_dir / element_subdir
+                if default_dir.exists():
+                    texture_path = default_dir / png_filename
+                    if texture_path.exists():
+                        found = True
+                    else:
+                        texture_path = default_dir / filename
+                        if texture_path.exists():
+                            found = True
                 
                 # If still not found, check fallback directory
-                if not texture_path.exists() and self.fallback_texture_dir:
-                    fallback_png = self.fallback_texture_dir / png_filename
-                    fallback_jpg = self.fallback_texture_dir / filename
-                    if fallback_png.exists():
-                        print(f"  Using fallback: {fallback_png.name}")
-                        texture_path = fallback_png
-                    elif fallback_jpg.exists():
-                        print(f"  Using fallback: {fallback_jpg.name}")
-                        texture_path = fallback_jpg
+                if not found and self.fallback_texture_dir:
+                    fallback_dir = self.fallback_texture_dir / element_subdir
+                    if fallback_dir.exists():
+                        fallback_png = fallback_dir / png_filename
+                        fallback_jpg = fallback_dir / filename
+                        if fallback_png.exists():
+                            print(f"  Using fallback: {fallback_png.name}")
+                            texture_path = fallback_png
+                            found = True
+                        elif fallback_jpg.exists():
+                            print(f"  Using fallback: {fallback_jpg.name}")
+                            texture_path = fallback_jpg
+                            found = True
+                
+                # Last resort: default.jpg in default subdirectory
+                if not found:
+                    default_default = self.fallback_texture_dir / 'default' / 'default.jpg' if self.fallback_texture_dir else None
+                    if default_default and default_default.exists():
+                        texture_path = default_default
                     else:
-                        print(f"  Fallback not found either: {fallback_jpg}")
+                        print(f"  Fallback not found either: {filename}")
             
             resolved[face] = texture_path.resolve()
         
@@ -340,13 +339,13 @@ def get_default_texture(element_type: str) -> str:
     Get default texture filename for an element type (single texture).
     
     Args:
-        element_type: Type of element
+        element_type: Type of element from registry
         
     Returns:
-        Default texture filename
+        Default texture filename (e.g., 'generic_storage.jpg')
     """
-    textures = DEFAULT_TEXTURES.get(element_type, DEFAULT_TEXTURES['default'])
-    return textures.get('all', list(textures.values())[0])
+    # Base texture always uses element_type as filename
+    return f"{element_type}.jpg"
 
 
 def validate_texture_faces(texture_dict: dict[str, str], valid_faces: list[str]) -> bool:
@@ -372,8 +371,6 @@ def validate_texture_faces(texture_dict: dict[str, str], valid_faces: list[str])
 __all__ = [
     'TextureManager',
     'get_default_texture',
-    'normalize_texture_spec',
     'validate_texture_faces',
     'STANDARD_FACE_NAMES',
-    'DEFAULT_TEXTURES',
 ]

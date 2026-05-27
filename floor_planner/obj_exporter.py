@@ -9,9 +9,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 import math
 
-from .material_properties import get_material_properties, format_mtl_color
+from .material_manager import MaterialManager
 from .texture_manager import TextureManager
 from .elements.geometry_3d import is_3d_eligible
+from .elements.registry import get_element_type_from_instance
 from .wall_openings import find_embedded_openings, generate_wall_with_openings
 from .elements.basic import WallND
 
@@ -53,6 +54,9 @@ class OBJExporter:
         fallback_texture_dir = floor_planner_dir / 'textures' / 'fallback'
         output_texture_dir = self.output_dir / 'textures'
         self.texture_manager = TextureManager(default_texture_dir, output_texture_dir, fallback_texture_dir)
+        
+        # Initialize material manager
+        self.material_manager = MaterialManager(default_texture_dir, fallback_texture_dir)
         
         # Track vertices and materials globally across all elements
         self.global_vertices = []
@@ -172,7 +176,7 @@ class OBJExporter:
             obj_file.write("\n")
             
             # Resolve element textures
-            element_type = type(element).__name__.lower()
+            element_type = get_element_type_from_instance(element)
             texture_spec = getattr(element, 'textures', None)
             texture_paths = self.texture_manager.resolve_element_textures(
                 element_type, texture_spec, self.config_dir
@@ -201,7 +205,7 @@ class OBJExporter:
         Args:
             vertex_to_uv_map: Optional dict mapping (triangle_idx, vertex_pos) to UV index
         """
-        element_type = type(element).__name__.lower()
+        element_type = get_element_type_from_instance(element)
         
         # Group triangles by texture
         # texture_to_triangles: {texture_path: set of triangle_indices}
@@ -287,11 +291,14 @@ class OBJExporter:
         if material_name in self.materials:
             return material_name
         
+        # Get material properties from MaterialManager
+        properties = self.material_manager.get_material_for_texture(texture_path, element_type)
+        
         # Create new material entry
         self.materials[material_name] = {
             'element_type': element_type,
             'texture_path': texture_path,
-            'properties': get_material_properties(element_type),
+            'properties': properties,
         }
         
         # Copy texture to output directory
@@ -314,9 +321,9 @@ class OBJExporter:
             texture_path = material_data['texture_path']
             
             mtl_file.write(f"newmtl {material_name}\n")
-            mtl_file.write(f"Ka {format_mtl_color(props['Ka'])}\n")
-            mtl_file.write(f"Kd {format_mtl_color(props['Kd'])}\n")
-            mtl_file.write(f"Ks {format_mtl_color(props['Ks'])}\n")
+            mtl_file.write(f"Ka {self.material_manager.format_mtl_color(props['Ka'])}\n")
+            mtl_file.write(f"Kd {self.material_manager.format_mtl_color(props['Kd'])}\n")
+            mtl_file.write(f"Ks {self.material_manager.format_mtl_color(props['Ks'])}\n")
             mtl_file.write(f"Ns {props['Ns']:.1f}\n")
             
             # Check if texture is PNG (supports alpha channel)

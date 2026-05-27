@@ -9,8 +9,14 @@ This directory contains documentation for developers and users of the Floor Plan
 - **[Feature Template](features/TEMPLATE.md)** - Copy this to plan complex features
 - **[Planned Features](/memories/repo/planned-features.md)** - Backlog and active features
 
+### 3D Export System
+- **[Texture and Material System](texture-material-system.md)** - Complete architecture documentation
+- **[Naming Convention](NAMING_CONVENTION.md)** - Registry-based naming rules
+- **[Element Parameters Reference](element-parameters-reference.md)** - All element parameters
+
 ### Feature Documentation
 - [Landscaping Elements](features/landscaping-elements.md) - Trees, shrubs, fences, ponds (Planned)
+- [Landscaping Guide](landscaping-guide.md) - User guide for landscaping elements
 
 
 ## Quick Start for AI Agents
@@ -25,11 +31,16 @@ When working on this project:
 
 ```
 docs/
-├── README.md              ← You are here (documentation index)
-└── features/              ← Feature planning and design documents
-    ├── README.md          ← Feature development workflow
-    ├── TEMPLATE.md        ← Template for new features
+├── README.md                       ← You are here (documentation index)
+├── texture-material-system.md     ← 3D export texture/material architecture
+├── NAMING_CONVENTION.md            ← Registry-based naming rules
+├── element-parameters-reference.md ← Element parameters
+├── landscaping-guide.md            ← Landscaping elements user guide
+└── features/                       ← Feature planning and design documents
+    ├── README.md                   ← Feature development workflow
+    ├── TEMPLATE.md                 ← Template for new features
     ├── landscaping-elements.md
+    └── texture-material-cleanup-analysis.md  ← Completed cleanup project
 ```
 
 ## Contributing

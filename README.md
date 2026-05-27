@@ -132,6 +132,53 @@ project:
 
 Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` to control vertical positioning.
 
+### Texture and Material System
+The 3D export uses a registry-based texture/material system:
+
+**Key Principle:** Element types from the registry determine folder and file names exactly.
+
+**Directory Structure:**
+```
+textures/
+├── fallback/          # System default textures
+│   ├── double_bed/
+│   │   ├── double_bed.jpg
+│   │   └── double_bed.mtl
+│   ├── generic_storage/
+│   │   ├── generic_storage.jpg
+│   │   └── generic_storage.mtl
+│   └── door/
+│       ├── door.jpg
+│       ├── door_frame.jpg      # Supplemental texture
+│       └── door.mtl
+└── defaults/          # User custom textures (optional overrides)
+    └── ...
+```
+
+**Naming Convention:**
+- Registry key (WITH underscores) = folder name = base texture name
+- Example: `'generic_storage'` → `generic_storage/` → `generic_storage.jpg`
+- Multi-texture elements use: `<element_type>_<descriptor>.jpg` (e.g., `door_frame.jpg`)
+
+**Material Files (.mtl):**
+Each texture has a corresponding `.mtl` file defining material properties:
+```mtl
+newmtl generic_storage
+Ka 0.500000 0.300000 0.200000    # Ambient color
+Kd 0.580000 0.380000 0.230000    # Diffuse color
+Ks 1.200000 1.200000 1.200000    # Specular color
+Ns 250.0                         # Shininess
+map_Kd generic_storage.jpg       # Texture reference
+```
+
+**Custom Textures:**
+Place custom textures in `textures/defaults/<element_type>/` to override system defaults.
+
+See:
+- `docs/NAMING_CONVENTION.md` - Complete naming convention specification
+- `floor_planner/supplemental_textures.py` - Multi-texture element definitions
+- `scripts/validate_texture_material_structure.py` - Validation tool
+
 See:
 - `examples/3d_visualization/` - Demos of 3D export with textures and wall openings
 - `docs/features/wall-opening-detection.md` - Detailed documentation of wall opening feature
