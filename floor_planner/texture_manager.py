@@ -58,6 +58,10 @@ DEFAULT_TEXTURES = {
     'dresser': {'all': 'dresser.jpg'},
     'nightstand': {'all': 'nightstand.jpg'},
     'tvstand': {'all': 'tvstand.jpg'},
+    'storage': {'all': 'storage.jpg'},
+    'generic_storage': {'all': 'storage.jpg'},
+    'storage40': {'all': 'storage.jpg'},
+    'storage60': {'all': 'storage.jpg'},
     
     # Appliances
     'refrigerator': {'all': 'refrigerator.jpg'},

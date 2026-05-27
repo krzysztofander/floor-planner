@@ -30,7 +30,10 @@ class GenericStorage(VertInfoLvl03, RectangularElement):
             thickness: float,
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -50,8 +53,12 @@ class GenericStorage(VertInfoLvl03, RectangularElement):
             color to use for drawing the storage box
         :param label:
             optional label for the element
-        :param room_edge:
-            if True, this storage box forms the boundary of a room (used for room validation and calculations)
+        :param height:
+            height of the storage box in meters; if None, uses default (2.0m)
+        :param textures:
+            texture specification for 3D export; string or dict; if None, uses element type default
+        :param texture_scale:
+            texture tiling scale in meters; if set, texture repeats every N meters
         :return:
             freshly created instance of `GenericStorage` class
         """
@@ -67,7 +74,13 @@ class GenericStorage(VertInfoLvl03, RectangularElement):
 
             color=color,
 
-            label=label
+            label=label,
+
+            height=height,
+
+            textures=textures,
+
+            texture_scale=texture_scale
 
         )
 
@@ -168,7 +181,10 @@ class Storage60(GenericStorage):
             length: float,
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -176,7 +192,10 @@ class Storage60(GenericStorage):
             thickness=0.6,
             orientation_angle=orientation_angle,
             color=color,
-            label=label
+            label=label,
+            height=height,
+            textures=textures,
+            texture_scale=texture_scale
         )
 
 class Storage40(GenericStorage):
@@ -190,7 +209,10 @@ class Storage40(GenericStorage):
             length: float,
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            height: float | None = None,
+            textures: str | dict[str, str] | None = None,
+            texture_scale: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -198,7 +220,10 @@ class Storage40(GenericStorage):
             thickness=0.4,
             orientation_angle=orientation_angle,
             color=color,
-            label=label
+            label=label,
+            height=height,
+            textures=textures,
+            texture_scale=texture_scale
         )
 
 
