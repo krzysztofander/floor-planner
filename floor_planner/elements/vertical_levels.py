@@ -74,8 +74,22 @@ class VertInfoLvl03:
     
     def _get_geometric_offset(self) -> float:
         """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.0  # Furniture doesn't overlap with walls, no offset needed
+        return -0.012 
 
+class VertInfoLvl04:
+    """Furniture level (0.04m): Storage boxes, cabinets.
+    
+    Object layer - items placed on floors, drawn over walls/doors.
+    Used for: Desk, Table, Chair, Sofa, Bed, all appliances, bathroom fixtures.
+    """
+    
+    def _default_v_anchor(self) -> float:
+        """Return v_anchor for furniture level."""
+        return 0.04
+    
+    def _get_geometric_offset(self) -> float:
+        """Return geometric offset for z-fighting prevention in 3D."""
+        return -0.011  # Storage boxes are often placed against walls and against applicances
 
 class VertInfoOutlets:
     """Wall outlet level (0.30m): power outlets.

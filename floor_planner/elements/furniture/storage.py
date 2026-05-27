@@ -14,10 +14,10 @@ from ...utils import rotate_point, render_label_and_id, text_readability_rotatio
 from ..element import Element, RectangularElement
 from ..info import DimensionArrow
 from ..options import get_dimensions, get_element_option
-from ..vertical_levels import VertInfoLvl03
+from ..vertical_levels import VertInfoLvl03, VertInfoLvl04
 
 
-class GenericStorage(VertInfoLvl03, RectangularElement):
+class GenericStorage(VertInfoLvl04, RectangularElement):
     """
     Storage box
 
@@ -63,25 +63,15 @@ class GenericStorage(VertInfoLvl03, RectangularElement):
             freshly created instance of `GenericStorage` class
         """
         super().__init__(
-
             anchor_point=anchor_point,
-
             orientation_angle=orientation_angle,
-
             length=length,
-
             thickness=thickness,
-
             color=color,
-
             label=label,
-
             height=height,
-
             textures=textures,
-
             texture_scale=texture_scale
-
         )
 
         # Room properties (set by Room class if this storage box is part of a room)
@@ -244,26 +234,12 @@ class Tabletop(VertInfoLvl03, RectangularElement):
     ):
      
         super().__init__(
-
-     
             anchor_point=anchor_point,
-
-     
             orientation_angle=orientation_angle,
-
-     
             length=length,
-
-     
             thickness=thickness,
-
-     
             color=color,
-
-     
             label=label
-
-     
         )
 
         # Room properties (set by Room class if this storage box is part of a room)
