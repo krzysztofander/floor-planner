@@ -155,7 +155,8 @@ class OBJExporter:
             obj_file.write("\n")
             
             # Write texture coordinates (box mapping with optional tiling)
-            texcoords = self._generate_box_texcoords(element, vertices)
+            texcoords, vertex_to_uv_map = self._generate_box_texcoords(element, vertices)
+            
             for u, v in texcoords:
                 obj_file.write(f"vt {u:.6f} {v:.6f}\n")
                 self.global_texcoords.append((u, v))
@@ -178,7 +179,7 @@ class OBJExporter:
             # Write faces grouped by material
             self._write_element_faces(
                 obj_file, element, indices, face_groups, texture_paths,
-                vertex_offset, texcoord_offset, normal_offset
+                vertex_offset, texcoord_offset, normal_offset, vertex_to_uv_map
             )
             
             obj_file.write("\n")
@@ -189,11 +190,14 @@ class OBJExporter:
             normal_offset += len(normals)
     
     def _write_element_faces(self, obj_file, element, indices, face_groups, 
-                            texture_paths, vertex_offset, texcoord_offset, normal_offset):
+                            texture_paths, vertex_offset, texcoord_offset, normal_offset, vertex_to_uv_map=None):
         """
         Write faces for an element, grouped by material.
         
         Handles multi-texture elements by switching materials (usemtl) for different face groups.
+        
+        Args:
+            vertex_to_uv_map: Optional dict mapping (triangle_idx, vertex_pos) to UV index
         """
         element_type = type(element).__name__.lower()
         
@@ -243,10 +247,14 @@ class OBJExporter:
                 v2_idx = vertex_offset + v2 + 1
                 v3_idx = vertex_offset + v3 + 1
                 
-                # Use same indices for texcoords and normals (simple mapping)
-                vt1_idx = texcoord_offset + v1 + 1
-                vt2_idx = texcoord_offset + v2 + 1
-                vt3_idx = texcoord_offset + v3 + 1
+                # Map vertices to texture coordinates using per-face UV mapping
+                # Get UV indices from the mapping (triangle_idx, position_in_triangle)
+                uv1 = vertex_to_uv_map.get((tri_idx, 0), v1)
+                uv2 = vertex_to_uv_map.get((tri_idx, 1), v2)
+                uv3 = vertex_to_uv_map.get((tri_idx, 2), v3)
+                vt1_idx = texcoord_offset + uv1 + 1
+                vt2_idx = texcoord_offset + uv2 + 1
+                vt3_idx = texcoord_offset + uv3 + 1
                 
                 # Use per-face normal (same for all vertices in triangle)
                 vn_idx = normal_offset + tri_idx + 1
@@ -327,94 +335,141 @@ class OBJExporter:
             
             mtl_file.write("\n")
     
-    def _generate_box_texcoords(self, element, vertices: list[tuple[float, float, float]]) -> list[tuple[float, float]]:
+    def _generate_box_texcoords(self, element, vertices: list[tuple[float, float, float]]) -> tuple[list[tuple[float, float]], dict]:
         """
-        Generate proper box-mapped texture coordinates with optional tiling.
+        Generate proper box-mapped texture coordinates with per-face UV mapping.
         
-        Supports texture tiling/repeating by checking element's `texture_scale` parameter.
-        If texture_scale is set (e.g., 0.2 meters), texture will repeat every 0.2 meters.
-        
-        For standard 8-vertex box (4 bottom + 4 top):
-        - Bottom vertices get v=0 (bottom of texture)
-        - Top vertices get v=1 (top of texture) * vertical_repeat
-        - u varies 0→1*horizontal_repeat around the perimeter
+        Generates 24 texture coordinates (4 per face × 6 faces) so each face can have
+        proper UV mapping based on its dimensions. Also returns a mapping from vertex
+        indices to texture coordinate indices for each face.
         
         Args:
             element: The floor plan element (to access dimensions and texture_scale)
             vertices: List of vertex coordinates (to calculate actual dimensions)
             
         Returns:
-            List of (u, v) texture coordinates
+            Tuple of:
+            - List of (u, v) texture coordinates (24 coords for box)
+            - Dict mapping face triangle indices to texcoord indices
         """
         vertex_count = len(vertices)
         
-        # Get texture scale parameter (size of one tile in meters)
-        # If not set or 0, stretch texture to fit (no tiling)
+        if vertex_count != 8:
+            # Fallback for non-box geometries
+            base_coords = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
+            coords = [base_coords[i % 4] for i in range(vertex_count)]
+            return coords, {}
+        
+        # Calculate physical dimensions from vertices
+        # Box layout: vertices 0-3 are bottom corners, 4-7 are top corners
+        # 0: front-left-bottom, 1: front-right-bottom, 2: back-right-bottom, 3: back-left-bottom
+        # 4: front-left-top, 5: front-right-top, 6: back-right-top, 7: back-left-top
+        length = ((vertices[1][0] - vertices[0][0])**2 + 
+                 (vertices[1][2] - vertices[0][2])**2)**0.5
+        thickness = ((vertices[3][0] - vertices[0][0])**2 + 
+                    (vertices[3][2] - vertices[0][2])**2)**0.5
+        height = abs(vertices[4][1] - vertices[0][1])
+        
+        # Get texture scale parameter for tiling
         texture_scale = getattr(element, 'texture_scale', None)
         
-        if vertex_count == 8 and texture_scale and texture_scale > 0:
-            # Calculate physical dimensions from vertices
-            # For a box: vertices 0-3 are bottom face, 4-7 are top face
-            # Horizontal dimensions (length and thickness)
-            length = ((vertices[1][0] - vertices[0][0])**2 + 
-                     (vertices[1][2] - vertices[0][2])**2)**0.5
-            thickness = ((vertices[3][0] - vertices[0][0])**2 + 
-                        (vertices[3][2] - vertices[0][2])**2)**0.5
-            # Vertical dimension (height)
-            height = abs(vertices[4][1] - vertices[0][1])
-            
-            # Calculate UV repeats based on physical size
-            u_repeat_length = length / texture_scale
-            u_repeat_thickness = thickness / texture_scale
-            v_repeat = height / texture_scale
-            
-            # Generate UVs with tiling
-            # For simplicity, use length for front/back faces, thickness for left/right
-            coords = [
-                # Bottom vertices (v=0) - use horizontal tiling
-                (0.0, 0.0),                      # 0: bottom-left
-                (u_repeat_length, 0.0),         # 1: bottom-right (front edge)
-                (u_repeat_thickness, 0.0),      # 2: bottom-right (back edge)
-                (0.0, 0.0),                      # 3: bottom-left (back)
-                # Top vertices (v=v_repeat) - use vertical tiling
-                (0.0, v_repeat),                 # 4: top-left
-                (u_repeat_length, v_repeat),    # 5: top-right (front edge)
-                (u_repeat_thickness, v_repeat), # 6: top-right (back edge)
-                (0.0, v_repeat),                 # 7: top-left (back)
-            ]
-            return coords
-            
-        elif vertex_count == 8:
-            # Standard box without tiling: 8 vertices (4 bottom + 4 top)
-            # Stretch texture to fit (0-1 UVs)
-            coords = [
-                # Bottom vertices (v=0)
-                (0.0, 0.0),  # 0: bottom-left
-                (1.0, 0.0),  # 1: bottom-right
-                (1.0, 0.0),  # 2: bottom-right (back)
-                (0.0, 0.0),  # 3: bottom-left (back)
-                # Top vertices (v=1)
-                (0.0, 1.0),  # 4: top-left
-                (1.0, 1.0),  # 5: top-right
-                (1.0, 1.0),  # 6: top-right (back)
-                (0.0, 1.0),  # 7: top-left (back)
-            ]
-            return coords
+        # Calculate UV repeats based on physical size (or default to 1.0 for stretch-to-fit)
+        if texture_scale and texture_scale > 0:
+            u_length = length / texture_scale
+            u_thickness = thickness / texture_scale
+            v_height = height / texture_scale
         else:
-            # Fallback for non-standard vertex counts
-            # Simple box mapping: 4 corners repeated
-            base_coords = [
-                (0.0, 0.0),  # bottom-left
-                (1.0, 0.0),  # bottom-right
-                (1.0, 1.0),  # top-right
-                (0.0, 1.0),  # top-left
-            ]
+            u_length = 1.0
+            u_thickness = 1.0
+            v_height = 1.0
+        
+        # Generate 24 UVs: 4 corners per face × 6 faces
+        # Each face gets its own set of 4 UVs based on its dimensions
+        coords = []
+        
+        # Bottom face (indices 0-3 in geometry): length × thickness
+        # Triangles: (0,2,1) and (0,3,2)
+        coords.extend([
+            (0.0, 0.0),           # UV 0: for vertex 0
+            (u_length, 0.0),      # UV 1: for vertex 1
+            (u_length, u_thickness),  # UV 2: for vertex 2
+            (0.0, u_thickness),   # UV 3: for vertex 3
+        ])
+        
+        # Top face (indices 4-7): length × thickness
+        # Triangles: (4,5,6) and (4,6,7)
+        coords.extend([
+            (0.0, 0.0),           # UV 4: for vertex 4
+            (u_length, 0.0),      # UV 5: for vertex 5
+            (u_length, u_thickness),  # UV 6: for vertex 6
+            (0.0, u_thickness),   # UV 7: for vertex 7
+        ])
+        
+        # Front face (vertices 0,1,5,4): length × height
+        # Triangles: (0,1,5) and (0,5,4)
+        coords.extend([
+            (0.0, 0.0),           # UV 8: for vertex 0
+            (u_length, 0.0),      # UV 9: for vertex 1
+            (u_length, v_height), # UV 10: for vertex 5
+            (0.0, v_height),      # UV 11: for vertex 4
+        ])
+        
+        # Back face (vertices 2,3,7,6): length × height
+        # Triangles: (2,3,7) and (2,7,6)
+        coords.extend([
+            (u_length, 0.0),      # UV 12: for vertex 2
+            (0.0, 0.0),           # UV 13: for vertex 3
+            (0.0, v_height),      # UV 14: for vertex 7
+            (u_length, v_height), # UV 15: for vertex 6
+        ])
+        
+        # Right face (vertices 1,2,6,5): thickness × height
+        # Triangles: (1,2,6) and (1,6,5)
+        coords.extend([
+            (0.0, 0.0),           # UV 16: for vertex 1
+            (u_thickness, 0.0),   # UV 17: for vertex 2
+            (u_thickness, v_height), # UV 18: for vertex 6
+            (0.0, v_height),      # UV 19: for vertex 5
+        ])
+        
+        # Left face (vertices 3,0,4,7): thickness × height
+        # Triangles: (3,0,4) and (3,4,7)
+        coords.extend([
+            (u_thickness, 0.0),   # UV 20: for vertex 3
+            (0.0, 0.0),           # UV 21: for vertex 0
+            (0.0, v_height),      # UV 22: for vertex 4
+            (u_thickness, v_height), # UV 23: for vertex 7
+        ])
+        
+        # Create mapping from (triangle_index, vertex_in_triangle) to UV index
+        # This maps which UV to use for each vertex in each triangle
+        vertex_to_uv_map = {
+            # Bottom face triangles (0-1): triangle indices [0, 1]
+            (0, 0): 0, (0, 1): 2, (0, 2): 1,  # Triangle (0,2,1)
+            (1, 0): 0, (1, 1): 3, (1, 2): 2,  # Triangle (0,3,2)
             
-            coords = []
-            for i in range(vertex_count):
-                coords.append(base_coords[i % 4])
+            # Top face triangles (2-3): triangle indices [2, 3]
+            (2, 0): 4, (2, 1): 5, (2, 2): 6,  # Triangle (4,5,6)
+            (3, 0): 4, (3, 1): 6, (3, 2): 7,  # Triangle (4,6,7)
             
-            return coords
+            # Front face triangles (4-5): triangle indices [4, 5]
+            (4, 0): 8, (4, 1): 9, (4, 2): 10,  # Triangle (0,1,5)
+            (5, 0): 8, (5, 1): 10, (5, 2): 11, # Triangle (0,5,4)
+            
+            # Back face triangles (6-7): triangle indices [6, 7]
+            (6, 0): 12, (6, 1): 13, (6, 2): 14, # Triangle (2,3,7)
+            (7, 0): 12, (7, 1): 14, (7, 2): 15, # Triangle (2,7,6)
+            
+            # Right face triangles (8-9): triangle indices [8, 9]
+            (8, 0): 16, (8, 1): 17, (8, 2): 18, # Triangle (1,2,6)
+            (9, 0): 16, (9, 1): 18, (9, 2): 19, # Triangle (1,6,5)
+            
+            # Left face triangles (10-11): triangle indices [10, 11]
+            (10, 0): 20, (10, 1): 21, (10, 2): 22, # Triangle (3,0,4)
+            (11, 0): 20, (11, 1): 22, (11, 2): 23, # Triangle (3,4,7)
+        }
+        
+        return coords, vertex_to_uv_map
     
     def _calculate_normals(self, vertices: list[tuple[float, float, float]], 
                           indices: list[tuple[int, int, int]]) -> list[tuple[float, float, float]]:
