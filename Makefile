@@ -103,6 +103,7 @@ $(word 3,$(EXTRAS_PNG)): examples/3d_visualization/furnished_room.yml $(PYSRC)
 # -----
 TESTS_PNG = tests/test_invisible_openings/output/Invisible_Openings_Test.png
 TESTS_PNG += tests/doors_and_windows/Doors_and_windows.png
+TESTS_PNG += tests/test_shadows_with_opened_walls/output/Invisible_Openings_Test.png
 tests: $(TESTS_PNG)
 
 $(word 1,$(TESTS_PNG)): tests/test_invisible_openings/project_main.yml tests/test_invisible_openings/*.yml $(PYSRC)
@@ -113,6 +114,9 @@ $(word 2,$(TESTS_PNG)): tests/doors_and_windows/doors_and_windows.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
+$(word 2,$(TESTS_PNG)): tests/test_shadows_with_opened_walls/project_main.yml tests/test_shadows_with_opened_walls/*.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
 
 # Clean generated outputs
 clean:

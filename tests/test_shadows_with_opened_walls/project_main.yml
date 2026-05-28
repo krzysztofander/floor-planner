@@ -1,0 +1,52 @@
+# Test: Invisible Doors and Windows Should Still Create Holes in Walls
+
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "output"
+  visualisation_dir: "visualisation_3d"  # Enable 3D OBJ/MTL export
+
+default_options:
+  Door:
+    label_color: green
+  Wall:
+    show_invisible: false
+  Window: 
+    label_color: blue
+  Room:
+    label_color: orange
+    dimensions: true
+    inner_area: true
+
+default_layout:
+  bottom_left_corner: [-1, -1]
+  top_right_corner: [6, 5]
+  scale_numerator: 1
+  scale_denominator: 40
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+vars:
+  x_placement: 0.5
+  y_placement: 0.5
+  room_horizontal_length: 3
+  room_vertical_width: 4
+  wall_thickness: 0.45  # Test with thicker walls
+
+reusable_elements:
+  test_room: "room.yml"
+
+floor_plans:
+  - title:
+      text: "Invisible_Openings_Test"
+      font_size: 18
+    
+    inherited_elements:
+      - test_room
+
+    report:
+      anchor_point: [5, 3.5]
+      notes:
+        - "Test: Window and door are INVISIBLE"
+        - "But they should still create holes in walls"
+        - "Wall geometry should have cutouts in 3D"
