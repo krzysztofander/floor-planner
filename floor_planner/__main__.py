@@ -232,9 +232,10 @@ def main() -> None:
         png_path = config_dir / png_path
         project.render_to_png(str(png_path))
     
-    # Export 3D OBJ/MTL if visualisation_dir is set
+    # Export 3D formats if visualisation_dir is set
     if vis_dir_resolved:
-        project.export_to_obj(config_dir)
+        project.export_to_gltf()  # glTF 2.0 (modern, feature-rich)
+        # project.export_to_obj(config_dir)  # OBJ/MTL (legacy, commented out)
 
     # Generate elements report
     report_path = Path(config_path).with_suffix(".md")

@@ -17,6 +17,9 @@ from .basic import Wall, WallND, Window
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
 from .element import Element, RectangularElement, SurfaceElement, CircularElement
+from .external_models import ExternalModelElement
+from .external_model_test import ExternalModelTest
+from .wooden_chair import WoodenChair
 from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .multipurpose import Line, Polygon
@@ -32,6 +35,9 @@ ___all__ = [
     'Door',
     'ElectricalCable',
     'Element',
+    'ExternalModelElement',
+    'ExternalModelTest',
+    'WoodenChair',
     'LEDStrip',
     'Line',
     'Polygon',

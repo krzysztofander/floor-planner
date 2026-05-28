@@ -108,3 +108,54 @@ class Project:
         print(f"{'=' * 80}")
         print("3D export complete")
         print(f"{'=' * 80}\n")
+    
+    def export_to_gltf(self) -> None:
+        """
+        Export floor plans to glTF 2.0 format for 3D visualization.
+        
+        Only exports if visualisation_dir is set. Each floor plan is exported to a separate
+        glTF file in the visualisation_dir directory.
+        
+        Creates glTF files with:
+        - External model references (from models/ directory)
+        - Procedural geometry (walls, doors, windows)
+        - Transform hierarchy (placement × normalization)
+        - Materials and textures
+        
+        :return:
+            None
+        """
+        if self.visualisation_dir is None:
+            # No visualisation directory specified, skip 3D export
+            return
+        
+        output_dir = Path(self.visualisation_dir)
+        
+        print(f"\n{'=' * 80}")
+        print("3D glTF 2.0 Export")
+        print(f"{'=' * 80}")
+        print(f"Output directory: {output_dir}")
+        print(f"Floor plans: {len(self.floor_plans)}")
+        print()
+        
+        for i, floor_plan in enumerate(self.floor_plans):
+            try:
+                # Generate filename from floor plan title
+                if floor_plan.title:
+                    # Sanitize title for filename
+                    filename = floor_plan.title.replace(' ', '_').replace('/', '_')
+                    if not filename.endswith('.gltf'):
+                        filename += '.gltf'
+                else:
+                    filename = f"floor_plan_{i}.gltf"
+                
+                output_path = floor_plan.export_to_gltf(output_dir, filename)
+                print(f"  ✓ Exported: {output_path.name}")
+            except Exception as e:
+                print(f"  ✗ Error exporting floor plan '{floor_plan.title}': {e}")
+                import traceback
+                traceback.print_exc()
+        
+        print(f"{'=' * 80}")
+        print("glTF export complete")
+        print(f"{'=' * 80}\n")

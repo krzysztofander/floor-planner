@@ -211,6 +211,7 @@ class Window(VertInfoWindows, RectangularElement):
         )
         self.overall_thickness = overall_thickness
         self.single_line_thickness = single_line_thickness
+        self.alpha_mode = "BLEND"  # Windows use alpha blending for transparency
 
     def _default_height(self) -> float:
         """Return default height for windows."""

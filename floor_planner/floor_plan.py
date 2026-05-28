@@ -5,6 +5,7 @@ Author: Nikolay Lysenko
 """
 
 
+from pathlib import Path
 from typing import Optional
 
 import matplotlib.pyplot as plt
@@ -244,4 +245,37 @@ class FloorPlan:
                 horizontalalignment='left',
                 weight='bold'
             )
-   
+    
+    def export_to_gltf(
+            self,
+            output_dir: str | Path,
+            filename: str = "floor_plan_3d.gltf"
+    ) -> Path:
+        """
+        Export floor plan to glTF 2.0 format for 3D visualization.
+        
+        Creates a glTF file with:
+        - External model references (from models/ directory)
+        - Transform hierarchy (placement × normalization)
+        - Materials and textures
+        
+        Args:
+            output_dir: Directory to write glTF files and textures
+            filename: Output filename (default: floor_plan_3d.gltf)
+        
+        Returns:
+            Path to exported glTF file
+        
+        Example:
+            >>> floor_plan.export_to_gltf("output/3d", "my_floor_plan.gltf")
+        """
+        from floor_planner.gltf_exporter import export_floor_plan_to_gltf
+        
+        output_path = export_floor_plan_to_gltf(
+            elements=self.elements,
+            output_dir=Path(output_dir),
+            filename=filename
+        )
+        
+        print(f"Exported glTF file: {output_path}")
+        return output_path

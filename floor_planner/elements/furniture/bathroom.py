@@ -62,6 +62,7 @@ class Shower(VertInfoLvl03, RectangularElement):
             label=label
 
         )
+        self.alpha_mode = "BLEND"  # Shower glass uses alpha blending
 
     def _default_height(self) -> float:
         """Return default height for shower."""

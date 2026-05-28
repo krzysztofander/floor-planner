@@ -16,6 +16,8 @@ from .basic import Wall, WallND, Window
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
 from .element import Element
+from .external_model_test import ExternalModelTest
+from .wooden_chair import WoodenChair
 from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, Switch, WallLamp
 from .multipurpose import Line, Polygon, Circle
@@ -31,7 +33,7 @@ from .furniture.decorations import FishTank
 from .landscaping import Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool
 
 
-def create_elements_registry() -> dict[str, type(Element)]:
+def create_elements_registry() -> dict[str, type[Element]]:
     """
     Create registry of implemented elements.
 
@@ -43,6 +45,8 @@ def create_elements_registry() -> dict[str, type(Element)]:
         'dimension_arrow': DimensionArrow,
         'door': Door,
         'electrical_cable': ElectricalCable,
+        'external_model_test': ExternalModelTest,
+        'wooden_chair': WoodenChair,
         'led_strip': LEDStrip,
         'line': Line,
         'polygon': Polygon,

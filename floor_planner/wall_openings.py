@@ -232,10 +232,10 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
         world_pos = _local_to_world(x, 0, y, wall_anchor, wall_angle)
         vertices.append(world_pos)
     
-    # Add front face indices
+    # Add front face indices (reverse winding for outward normal pointing -Z)
     front_tri_start_idx = len(indices)
     for i1, i2, i3 in front_indices_local:
-        indices.append((front_verts_start_idx + i1, front_verts_start_idx + i2, front_verts_start_idx + i3))
+        indices.append((front_verts_start_idx + i1, front_verts_start_idx + i3, front_verts_start_idx + i2))
     
     face_groups['front'] = list(range(front_tri_start_idx, len(indices)))
     
@@ -250,11 +250,10 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
         world_pos = _local_to_world(x, wall_thickness, y, wall_anchor, wall_angle)
         vertices.append(world_pos)
     
-    # Add back face indices (reverse winding for outward normal)
+    # Add back face indices (use as-is for outward normal pointing +Z)
     back_tri_start_idx = len(indices)
     for i1, i2, i3 in back_indices_local:
-        # Reverse winding: (i1, i2, i3) -> (i1, i3, i2)
-        indices.append((back_verts_start_idx + i1, back_verts_start_idx + i3, back_verts_start_idx + i2))
+        indices.append((back_verts_start_idx + i1, back_verts_start_idx + i2, back_verts_start_idx + i3))
     
     face_groups['back'] = list(range(back_tri_start_idx, len(indices)))
     
@@ -275,9 +274,9 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
         vertices.append(world_pos)
         bottom_vert_indices.append(len(vertices) - 1)
     
-    # Bottom triangles
-    indices.append((bottom_vert_indices[0], bottom_vert_indices[2], bottom_vert_indices[1]))
-    indices.append((bottom_vert_indices[0], bottom_vert_indices[3], bottom_vert_indices[2]))
+    # Bottom triangles - winding for downward normal (0, -1, 0)
+    indices.append((bottom_vert_indices[0], bottom_vert_indices[1], bottom_vert_indices[2]))
+    indices.append((bottom_vert_indices[0], bottom_vert_indices[2], bottom_vert_indices[3]))
     
     # Top face (entire top edge)
     top_verts = [
@@ -292,9 +291,9 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
         vertices.append(world_pos)
         top_vert_indices.append(len(vertices) - 1)
     
-    # Top triangles (reverse winding)
-    indices.append((top_vert_indices[0], top_vert_indices[1], top_vert_indices[2]))
-    indices.append((top_vert_indices[0], top_vert_indices[2], top_vert_indices[3]))
+    # Top triangles - winding for upward normal (0, 1, 0)
+    indices.append((top_vert_indices[0], top_vert_indices[2], top_vert_indices[1]))
+    indices.append((top_vert_indices[0], top_vert_indices[3], top_vert_indices[2]))
     
     # Left face (x=0 edge)
     left_verts = [
@@ -309,8 +308,9 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
         vertices.append(world_pos)
         left_vert_indices.append(len(vertices) - 1)
     
-    indices.append((left_vert_indices[0], left_vert_indices[2], left_vert_indices[1]))
-    indices.append((left_vert_indices[0], left_vert_indices[3], left_vert_indices[2]))
+    # Left face triangles - winding for -X normal (outward)
+    indices.append((left_vert_indices[0], left_vert_indices[1], left_vert_indices[2]))
+    indices.append((left_vert_indices[0], left_vert_indices[2], left_vert_indices[3]))
     
     # Right face (x=wall_length edge)
     right_verts = [
@@ -325,14 +325,92 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
         vertices.append(world_pos)
         right_vert_indices.append(len(vertices) - 1)
     
-    indices.append((right_vert_indices[0], right_vert_indices[1], right_vert_indices[2]))
-    indices.append((right_vert_indices[0], right_vert_indices[2], right_vert_indices[3]))
+    # Right face triangles - winding for +X normal (outward)
+    indices.append((right_vert_indices[0], right_vert_indices[2], right_vert_indices[1]))
+    indices.append((right_vert_indices[0], right_vert_indices[3], right_vert_indices[2]))
+    
+    # Generate faces around each opening's perimeter (thickness sides of holes)
+    opening_edges_start_idx = len(indices)
+    for opening_info in front_openings:  # Process each unique opening once
+        start_x = opening_info['start_x']
+        end_x = opening_info['end_x']
+        bottom_z = opening_info['bottom_y']
+        top_z = bottom_z + opening_info['height']
+        
+        # Bottom edge of opening (horizontal strip below the hole)
+        bottom_edge_verts = [
+            (start_x, 0, bottom_z),
+            (end_x, 0, bottom_z),
+            (end_x, wall_thickness, bottom_z),
+            (start_x, wall_thickness, bottom_z)
+        ]
+        bottom_edge_indices = []
+        for x, y, z in bottom_edge_verts:
+            world_pos = _local_to_world(x, y, z, wall_anchor, wall_angle)
+            vertices.append(world_pos)
+            bottom_edge_indices.append(len(vertices) - 1)
+        
+        # Bottom edge triangles (upward facing into the opening)
+        indices.append((bottom_edge_indices[0], bottom_edge_indices[2], bottom_edge_indices[1]))
+        indices.append((bottom_edge_indices[0], bottom_edge_indices[3], bottom_edge_indices[2]))
+        
+        # Top edge of opening (horizontal strip above the hole)
+        top_edge_verts = [
+            (start_x, 0, top_z),
+            (end_x, 0, top_z),
+            (end_x, wall_thickness, top_z),
+            (start_x, wall_thickness, top_z)
+        ]
+        top_edge_indices = []
+        for x, y, z in top_edge_verts:
+            world_pos = _local_to_world(x, y, z, wall_anchor, wall_angle)
+            vertices.append(world_pos)
+            top_edge_indices.append(len(vertices) - 1)
+        
+        # Top edge triangles (downward facing into the opening)
+        indices.append((top_edge_indices[0], top_edge_indices[1], top_edge_indices[2]))
+        indices.append((top_edge_indices[0], top_edge_indices[2], top_edge_indices[3]))
+        
+        # Left edge of opening (vertical strip on left side of hole)
+        left_edge_verts = [
+            (start_x, 0, bottom_z),
+            (start_x, wall_thickness, bottom_z),
+            (start_x, wall_thickness, top_z),
+            (start_x, 0, top_z)
+        ]
+        left_edge_indices = []
+        for x, y, z in left_edge_verts:
+            world_pos = _local_to_world(x, y, z, wall_anchor, wall_angle)
+            vertices.append(world_pos)
+            left_edge_indices.append(len(vertices) - 1)
+        
+        # Left edge triangles (facing left/outward from opening)
+        indices.append((left_edge_indices[0], left_edge_indices[2], left_edge_indices[1]))
+        indices.append((left_edge_indices[0], left_edge_indices[3], left_edge_indices[2]))
+        
+        # Right edge of opening (vertical strip on right side of hole)
+        right_edge_verts = [
+            (end_x, 0, bottom_z),
+            (end_x, wall_thickness, bottom_z),
+            (end_x, wall_thickness, top_z),
+            (end_x, 0, top_z)
+        ]
+        right_edge_indices = []
+        for x, y, z in right_edge_verts:
+            world_pos = _local_to_world(x, y, z, wall_anchor, wall_angle)
+            vertices.append(world_pos)
+            right_edge_indices.append(len(vertices) - 1)
+        
+        # Right edge triangles (facing right/outward from opening)
+        indices.append((right_edge_indices[0], right_edge_indices[1], right_edge_indices[2]))
+        indices.append((right_edge_indices[0], right_edge_indices[2], right_edge_indices[3]))
     
     face_groups['sides'] = list(range(side_tri_start_idx, len(indices)))
     face_groups['top'] = [side_tri_start_idx + 2, side_tri_start_idx + 3]
     face_groups['bottom'] = [side_tri_start_idx, side_tri_start_idx + 1]
     face_groups['left'] = [side_tri_start_idx + 4, side_tri_start_idx + 5]
     face_groups['right'] = [side_tri_start_idx + 6, side_tri_start_idx + 7]
+    face_groups['opening_edges'] = list(range(opening_edges_start_idx, len(indices)))
     face_groups['all'] = list(range(len(indices)))
     
     return vertices, indices, face_groups

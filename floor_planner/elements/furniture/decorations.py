@@ -67,6 +67,7 @@ class FishTank(VertInfoLvl03, RectangularElement):
             label=label
 
         )
+        self.alpha_mode = "BLEND"  # Fish tank glass uses alpha blending
 
     def _default_height(self) -> float:
         """Return default height for fish tank."""

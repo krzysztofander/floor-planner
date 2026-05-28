@@ -39,7 +39,8 @@ Implement a hybrid rendering system where floor plan elements can reference pre-
 Each external model has companion `.transform.json` file:
 ```json
 {
-  "model_file": "office_chair.obj",
+  "model_file": "model.obj",
+  "model_format": "obj",
   "units": "meters",
   "normalization": {
     "matrix": [
@@ -206,13 +207,43 @@ def create_placement_matrix(anchor_point: tuple[float, float],
 - **Normalization matrix**: Provided externally by model creator in `.transform.json`. Fixed for each model. Converts from model's native coordinate system to standard space (Y-up, 1m units, floor-centered origin).
 - **Placement matrix**: Generated at export time from YAML configuration. User specifies `anchor_point`, `orientation_angle`, `v_anchor` in floor plan YAML. Converted to 4x4 matrix using the function above.
 
-### Problem 4: Multi-Model Scene Description Format
+### Problem 4: Model Format Support
+
+**Issue**: Need to support multiple 3D model formats for flexibility.
+
+**Solution**: Multi-Format Support (OBJ + glTF)
+
+**Supported Formats:**
+
+1. **OBJ Format** (Wavefront .obj + .mtl)
+   - **Pros**: Simple, universal, text-based, easy to create/edit
+   - **Cons**: No animations, separate material files
+   - **Use case**: Static furniture, simple objects
+   - **Files**: `model.obj` + `model.mtl` + `model.transform.json`
+
+2. **glTF 2.0 Format** (.glb binary)
+   - **Pros**: Industry standard, animations, PBR materials, single file
+   - **Cons**: More complex, binary format
+   - **Use case**: Animated elements (doors, drawers), complex models
+   - **Files**: `model.glb` + `model.transform.json`
+
+**Model Detection Priority:**
+```python
+# Check in this order:
+1. model.glb (preferred for animations)
+2. model.obj + model.mtl (fallback for static)
+3. If neither exists, use procedural generation
+```
+
+**Decision**: Support both formats. Users choose based on needs (OBJ for simplicity, glTF for animations).
+
+### Problem 5: Multi-Model Scene Export Format
 
 **Issue**: Need unified format that 3D viewers can parse to reconstruct the scene.
 
 **Solution**: glTF 2.0 Scene Graph
 
-**Why glTF 2.0?**
+**Why glTF 2.0 for Scene Export?**
 - Industry standard (Khronos Group)
 - Supports multi-model scenes natively
 - Rich transformation system (TRS: Translation, Rotation, Scale)
@@ -222,7 +253,7 @@ def create_placement_matrix(anchor_point: tuple[float, float],
 - JSON format (human-readable, easy to parse)
 - Excellent C++ parsing support (see C++ Libraries section below)
 
-**Decision**: Use glTF 2.0 JSON format for all multi-model scene exports.
+**Decision**: Use glTF 2.0 JSON format for all multi-model scene exports (regardless of source model format).
 
 ### C++ glTF Libraries
 
@@ -255,7 +286,7 @@ def create_placement_matrix(anchor_point: tuple[float, float],
    - Supports 40+ formats including glTF
    - Large dependency, unified API
 
-### Problem 5: Future Animation Support
+### Problem 6: Future Animation Support
 
 **Issue**: Need to prepare for interactive elements (doors opening, drawers sliding).
 
@@ -332,18 +363,22 @@ Floor Planner
 ├── Model Library
 │   ├── models/
 │   │   ├── chair/                    # Registry key from create_elements_registry()
-│   │   │   ├── model.glb             # External 3D model
+│   │   │   ├── model.obj             # External 3D model (OBJ format)
+│   │   │   ├── model.mtl             # OBJ materials
 │   │   │   └── model.transform.json  # Normalization metadata
 │   │   ├── desk/
-│   │   │   ├── model.glb
-│   │   │   └── model.transform.json
+│   │   │   ├── model.glb             # External 3D model (glTF format)
+│   │   │   └── model.transform.json  # Normalization metadata
 │   │   ├── external_model_test/      # Test element
-│   │   │   ├── model.glb             # Simple test cube
+│   │   │   ├── model.obj             # Simple test cube (OBJ)
+│   │   │   ├── model.mtl             # Test materials
 │   │   │   └── model.transform.json  # Test metadata
 │   │   ├── fridge/
-│   │   │   ├── model.glb
+│   │   │   ├── model.obj
+│   │   │   ├── model.mtl
 │   │   │   └── model.transform.json
 │   │   └── [element_type]/           # One folder per registry key
+│   │                                 # Can use either .obj+.mtl OR .glb
 │   └── textures/
 │
 ├── Export System
@@ -407,13 +442,14 @@ class ExternalModelElement(Element):
 # Specific element types
 # No separate classes needed - existing classes (Chair, Desk, etc.) can use external models
 # Element type from YAML 'type' field maps to registry key, which determines model folder
-# Example: type='chair' → models/chair/model.glb
-#          type='desk' → models/desk/model.glb
-#          type='fridge' → models/fridge/model.glb
-#          type='external_model_test' → models/external_model_test/model.glb
+# Example: type='chair' → models/chair/model.obj (or model.glb)
+#          type='desk' → models/desk/model.glb (or model.obj)
+#          type='fridge' → models/fridge/model.obj (or model.glb)
+#          type='external_model_test' → models/external_model_test/model.obj (or model.glb)
 #
 # For test element: ExternalModelTest class implements simple 2D rect drawing
-# When model.glb exists, also exports to 3D; otherwise uses procedural 2D rect only
+# When model exists (model.glb or model.obj), also exports to 3D; otherwise uses procedural 2D rect only
+# Prefers glTF if both exist (for future animation support)
 ```
 
 ### Model Metadata Format
@@ -421,7 +457,8 @@ class ExternalModelElement(Element):
 **File: `models/furniture/office_chair.transform.json`**
 ```json
 {
-  "model_file": "office_chair.glb",
+  "model_file": "model.obj",
+  "model_format": "obj",
   "format_version": "1.0",
   "element_type": "chair",
   
@@ -597,22 +634,26 @@ class ExternalModelElement(Element):
 #### 2.1 Directory Structure
 ```
 models/
-├── chair/                      # Registry key: 'chair'
-│   ├── model.glb               # External 3D model file
+├── chair/                      # Registry key: 'chair' (OBJ format)
+│   ├── model.obj               # External 3D model file
+│   ├── model.mtl               # OBJ material file
 │   └── model.transform.json    # Normalization metadata
-├── desk/                       # Registry key: 'desk'
-│   ├── model.glb
+├── desk/                       # Registry key: 'desk' (glTF format)
+│   ├── model.glb               # External 3D model file (binary glTF)
+│   └── model.transform.json    # Normalization metadata
+├── dining_table/               # Registry key: 'dining_table' (OBJ format)
+│   ├── model.obj
+│   ├── model.mtl
 │   └── model.transform.json
-├── dining_table/               # Registry key: 'dining_table'
-│   ├── model.glb
-│   └── model.transform.json
-├── external_model_test/        # Registry key: 'external_model_test' (TEST ELEMENT)
-│   ├── model.glb               # Simple test cube
+├── external_model_test/        # Registry key: 'external_model_test' (TEST ELEMENT, OBJ)
+│   ├── model.obj               # Simple test cube
+│   ├── model.mtl               # Test materials
 │   └── model.transform.json    # Test metadata
-├── fridge/                     # Registry key: 'fridge'
-│   ├── model.glb
+├── fridge/                     # Registry key: 'fridge' (OBJ format)
+│   ├── model.obj
+│   ├── model.mtl
 │   └── model.transform.json
-├── sofa/                       # Registry key: 'sofa'
+├── sofa/                       # Registry key: 'sofa' (glTF format - future animations)
 │   ├── model.glb
 │   └── model.transform.json
 └── README.md
@@ -621,91 +662,172 @@ models/
 **Naming Convention:**
 - Each element type from `create_elements_registry()` gets its own folder
 - Folder name = registry key (e.g., 'chair', 'desk', 'dining_table')
-- Fixed filenames: `model.glb` and `model.transform.json` (no per-model naming)
+- **Model formats** (choose one per element):
+  - **OBJ**: `model.obj` + `model.mtl` + `model.transform.json` (static furniture)
+  - **glTF**: `model.glb` + `model.transform.json` (animated elements)
+- **Detection priority**: Checks `model.glb` first, then `model.obj`, then procedural fallback
 - No model overwriting: Each element type has exactly one external model
 - If element type has no external model, use procedural generation (current behavior)
 
 #### 2.2 Test Element Type Creation
-- [ ] Create `ExternalModelTest` class in `floor_planner/elements/basic.py` or new file
-- [ ] Implement simple 2D drawing (rectangular shape, e.g., 1m × 0.5m × 0.3m)
-- [ ] Register in `create_elements_registry()` as `'external_model_test': ExternalModelTest`
-- [ ] Create directory: `models/external_model_test/`
-- [ ] Generate `models/external_model_test/model.transform.json`:
-  ```json
-  {
-    "model_file": "model.glb",
-    "format_version": "1.0",
-    "element_type": "external_model_test",
-    "registry_key": "external_model_test",
-    "units": "meters",
-    "up_axis": "Y",
-    "normalization": {
-      "description": "Identity matrix - model already in standard space",
-      "matrix": [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0]
-      ]
-    },
-    "anchor_point": "bottom_center",
-    "bounding_box": {
-      "min": [-0.5, 0.0, -0.25],
-      "max": [0.5, 0.3, 0.25]
-    },
-    "dimensions": {
-      "width": 1.0,
-      "length": 0.5,
-      "height": 0.3
-    },
-    "visual_properties": {
-      "color": [0.8, 0.6, 0.4],
-      "material_type": "wood"
-    },
-    "metadata": {
-      "author": "Floor Planner Test",
-      "license": "MIT",
-      "created": "2026-05-27",
-      "tags": ["test", "external", "model"]
-    }
-  }
-  ```
-- [ ] Create simple `model.glb` placeholder (cube or box, 1m × 0.5m × 0.3m)
-- [ ] Test 2D rendering: element draws as rectangle in floor plan
-- [ ] Test external model detection: `has_external_model()` returns True
-- [ ] Validate fallback: Delete model.glb temporarily, verify procedural generation works
+- [x] Create `ExternalModelTest` class in `floor_planner/elements/external_model_test.py`
+- [x] Implement simple 2D drawing (rectangular shape, 1m × 0.5m × 0.3m)
+- [x] Register in `create_elements_registry()` as `'external_model_test': ExternalModelTest`
+- [x] Create directory: `models/external_model_test/`
+- [x] Generate `models/external_model_test/model.transform.json`
+- [x] Create simple `model.obj` + `model.mtl` (cube, 1m × 0.5m × 0.3m)
+- [x] Implement OBJ format detection in `ExternalModelElement` class
+- [x] Test 2D rendering: element draws as rectangle in floor plan
+- [x] Test external model detection: `has_external_model()` returns True
+- [x] Test model format detection: Verify OBJ format detected correctly
+- [x] Test metadata loading: Verify `model_format` field loads correctly
+- [x] Test metadata validation: Verify no errors/warnings for OBJ format
+- [x] Validate fallback: Delete model.obj temporarily, verify procedural generation works
+
+**Status:** ✅ Complete - OBJ support implemented and tested
+
+**Implementation Notes:**
+- Created test element: 1m × 0.5m × 0.3m cube with wood material
+- Added `model_format` field to ModelMetadata dataclass (default: "gltf")
+- Added format validation in `validate_model_metadata()` (checks "gltf" or "obj")
+- Updated `ExternalModelElement.has_external_model()` to check both .glb and .obj files
+- Added `get_model_format()` method to detect format from file extension
+- Updated `model_path` property to return glTF first, then OBJ, then None
+- Format detection priority: model.glb → model.obj → procedural fallback
+
+**Testing Results:**
+```
+Model format: obj
+Model path: models/external_model_test/model.obj
+Has model: True
+Dimensions: 1.0m x 0.5m x 0.3m
+Validation result: PASS
+```
 
 #### 2.3 Sample Models
-- [ ] Create/acquire 3-5 test models (chair, desk, fridge)
-- [ ] Normalize models to standard coordinate system
-- [ ] Create `model.transform.json` for each element type
-- [ ] Place in `models/{registry_key}/` folders
-- [ ] Validate folder names match registry keys exactly
+- [x] Create wooden_chair element (real 3D model with texture)
+- [x] Normalize model to standard coordinate system (100x scale reduction)
+- [x] Create model.transform.json metadata
+- [x] Place in models/wooden_chair/ folder
+- [x] Validate folder name matches registry key exactly
+- [x] Test 2D rendering with rotations
+- [x] Test external model detection
+
+**Status:** ✅ Complete - Real wooden chair model integrated
 
 #### 2.4 Model Validator Tool
-- [ ] Script to validate model + metadata
-- [ ] Check bounding box correctness
-- [ ] Verify transform normalization
-- [ ] Generate validation report
+- [x] Create scripts/validate_models.py
+- [x] Implement directory structure validation
+- [x] Check model file existence (model.obj/model.glb)
+- [x] Check metadata file existence and validity
+- [x] Verify bounding box correctness
+- [x] Verify transform normalization
+- [x] Verify registry key matches directory name
+- [x] Generate validation report
+- [x] Test with external_model_test and wooden_chair
+
+**Status:** ✅ Complete - Validator tool working
+
+**Validation Results:**
+```
+Total models: 2
+✓ Passed: 2 (external_model_test, wooden_chair)
+⚠ Total warnings: 0
+✗ Total errors: 0
+```
 
 ### Phase 3: glTF Export System (Week 3-5)
 
 #### 3.1 glTF Writer
-- [ ] Implement `GLTFExporter` class
-- [ ] Scene graph builder
-- [ ] Node hierarchy management
-- [ ] Buffer/accessor creation
+- [x] Implement `GLTFExporter` class
+- [x] Scene graph builder
+- [x] Node hierarchy management
+- [x] Buffer/accessor creation
+
+**Status:** ✅ Complete
 
 #### 3.2 Model Integration
-- [ ] External model reference system
-- [ ] Transform hierarchy (normalization + placement)
-- [ ] Material preservation/override
-- [ ] Texture path resolution
+- [x] External model reference system
+- [x] OBJ file loading with trimesh
+- [x] Transform hierarchy (normalization + placement)
+- [x] Mesh caching (reuse same mesh for multiple instances)
+- [x] Vertex and normal data export
+- [x] Material preservation/override
+- [x] Texture path resolution and copying
 
-#### 3.3 Procedural Geometry Export
-- [ ] Convert existing OBJ export to glTF buffers
-- [ ] Maintain backward compatibility with OBJ export
-- [ ] Unified material system (procedural + external)
+**Status:** ✅ Complete
+
+**Implementation Notes:**
+- Created `gltf_exporter.py` with full glTF 2.0 structure
+- BufferBuilder handles binary data with proper alignment
+- OBJ files loaded via trimesh and converted to glTF meshes
+- Mesh caching prevents duplicate geometry (3 chairs → 1 mesh, 3 nodes)
+- Final transforms = placement × normalization (correctly applied)
+- Binary .bin file generated for geometry data
+- MTL file parsing: reads Ka, Kd, Ks, Ns, map_Kd, d/Tr properties
+- Material selection: prefers materials with textures, avoids black diffuse
+- Texture copying: resolves paths, copies to export directory with caching
+- glTF PBR conversion: MTL → baseColorFactor/baseColorTexture/roughnessFactor
+
+**Test Results:**
+```
+Meshes: 1 (26,300 vertices)
+Nodes: 3 (wooden_chair instances)
+Materials: 1 (phongE1SG with wood texture)
+Textures: 1 (wood_texture.jpg, 50.7 KB)
+Images: 1
+Binary buffer: 1463.60 KB
+Output: examples/gltf_output/wooden_chair_test.gltf
+```
+
+**Verification:**
+- ✓ Loads successfully in Blender (File > Import > glTF 2.0)
+- ✓ Valid glTF 2.0 structure
+- ✓ Transforms correctly applied
+- ✓ Mesh data exports properly
+
+#### 3.3 Procedural Geometry
+- [x] Convert existing 2D elements to 3D meshes Export
+- [x] Integrate with existing generate_vertices_and_indices() system
+- [x] Add to glTF exporter alongside external models
+- [x] Unified material system (procedural + external)
+
+**Status:** ✅ Complete
+
+**Implementation Notes:**
+- Integrated with existing RectangularGeometry3D and CircularGeometry3D mixins
+- GLTFExporter checks hasattr(element, 'generate_vertices_and_indices')
+- _add_procedural_element() converts vertices/indices to glTF accessors
+- Default materials created per element type (wall_material, door_material, window_material)
+- Works alongside external models in same export
+
+**Test Results - Procedural Only:**
+```
+Elements: 4 walls + 1 door + 1 window (all procedural)
+Nodes: 6
+Meshes: 6 (unique per element)
+Materials: 3 (wall, door, window)
+Binary buffer: 1.41 KB
+Output: examples/gltf_output/procedural_test.gltf
+```
+
+**Test Results - Combined:**
+```
+Elements: 4 walls + 1 door + 1 window + 3 chairs (mixed)
+Nodes: 9 (6 procedural + 3 external)
+Meshes: 7 (6 procedural + 1 shared external)
+Materials: 4 (wall, door, window + wood with texture)
+Textures: 1 (wood_texture.jpg)
+Binary buffer: 1465.01 KB
+Output: examples/gltf_output/combined_test.gltf
+```
+
+**Verification:**
+- ✓ Loads successfully in Blender
+- ✓ Procedural elements render as 3D boxes
+- ✓ External models render with textures
+- ✓ Materials apply correctly
+- ✓ Mesh instancing works (3 chairs → 1 mesh)
 
 #### 3.4 Animation Embedding
 - [ ] Read animations from external glTF models
@@ -717,13 +839,16 @@ models/
 
 #### 4.1 Element Detection Logic
 - [ ] Add `has_external_model()` method to Element base class
-- [ ] Check for `models/{registry_key}/model.glb` existence
+- [ ] Check for external models in priority order:
+  1. `models/{registry_key}/model.glb` (preferred for animations)
+  2. `models/{registry_key}/model.obj` (fallback for static)
 - [ ] If exists, load external model; otherwise use procedural generation
 - [ ] Maintain backward compatibility with all existing elements
 
 #### 4.2 Model Path Resolution
 - [ ] Use registry key to determine model folder path
-- [ ] Path formula: `models/{registry_key}/model.glb`
+- [ ] Path formula: `models/{registry_key}/model.glb` OR `models/{registry_key}/model.obj`
+- [ ] Format detection: Check metadata `model_format` field or file extension
 - [ ] Automatic fallback to procedural if model missing
 - [ ] Warning system: "External model not found for '{registry_key}', using procedural generation"
 
@@ -856,7 +981,8 @@ floor_plans:
 **File: `models/chair/model.transform.json`**
 ```json
 {
-  "model_file": "model.glb",
+  "model_file": "model.obj",
+  "model_format": "obj",
   "format_version": "1.0",
   "element_type": "chair",
   "registry_key": "chair",
@@ -1140,13 +1266,13 @@ def test_large_scene_performance():
 ## Dependencies
 
 ### New Dependencies
-- **pygltflib**: Python glTF 2.0 library for reading/writing
-- **numpy**: Matrix math (if not already included)
-- **Pillow**: Texture processing
-- **validators**: URL/path validation
+- **pygltflib**: Python glTF 2.0 library for reading/writing glTF files
+- **numpy**: Matrix math (already included)
+- **Pillow**: Texture processing (already included)
+- **trimesh**: Mesh processing (OBJ loading, analysis)
 
 ### Optional Dependencies
-- **trimesh**: Mesh processing and analysis
+- **validators**: URL/path validation
 
 ### Modified Files
 - `floor_planner/elements/element.py` - Add ExternalModelElement base
@@ -1160,7 +1286,8 @@ def test_large_scene_performance():
 - `floor_planner/transform.py` - Transform matrix math
 - `floor_planner/elements/external_models.py` - ExternalModelElement base class
 - `floor_planner/elements/external_model_test.py` - Test element for external model integration
-- `models/external_model_test/model.glb` - Test cube model
+- `models/external_model_test/model.obj` - Test cube model (OBJ format)
+- `models/external_model_test/model.mtl` - Test materials
 - `models/external_model_test/model.transform.json` - Test metadata
 - `models/README.md` - Model library documentation
 - `tools/validate_model.py` - Model validation script

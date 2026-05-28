@@ -144,53 +144,60 @@ class RectangularGeometry3D(Generate3DMixin):
         
         # Generate triangle indices for 6 faces (12 triangles total)
         # Indices are 0-based relative to this element's vertices
+        # Winding order: counter-clockwise when viewed from OUTSIDE produces outward normals
         indices = []
         face_groups = {}
         
-        # Bottom face (indices 0-3) - looking down, counterclockwise
+        # Bottom face (indices 0-3) - normal should point down (0, -1, 0)
+        # When looking from below (outside), vertices should be counter-clockwise
         bottom_tris = [
-            (0, 2, 1),  # triangle 1
-            (0, 3, 2)   # triangle 2
+            (0, 1, 2),  # triangle 1: left → right → top-right (CCW from below)
+            (0, 2, 3)   # triangle 2: left → top-right → top-left (CCW from below)
         ]
         indices.extend(bottom_tris)
         face_groups['bottom'] = [0, 1]
         
-        # Top face (indices 4-7) - looking up, clockwise
+        # Top face (indices 4-7) - normal should point up (0, 1, 0)
+        # When looking from above (outside), vertices should be counter-clockwise
         top_tris = [
-            (4, 5, 6),  # triangle 1
-            (4, 6, 7)   # triangle 2
+            (4, 6, 5),  # triangle 1: left → top-right → right (CCW from above)
+            (4, 7, 6)   # triangle 2: left → top-left → top-right (CCW from above)
         ]
         indices.extend(top_tris)
         face_groups['top'] = [2, 3]
         
-        # Front face (bottom edge closest to origin)
+        # Front face (bottom edge closest to origin) - normal should point out in -Z
+        # Reverse winding to point outward: was (0,1,5), (0,5,4), now (0,5,1), (0,4,5)
         front_tris = [
-            (0, 1, 5),  # triangle 1
-            (0, 5, 4)   # triangle 2
+            (0, 5, 1),  # triangle 1
+            (0, 4, 5)   # triangle 2
         ]
         indices.extend(front_tris)
         face_groups['front'] = [4, 5]
         
-        # Back face
+        # Back face - normal should point out in +Z
+        # Reverse winding to point outward: was (2,3,7), (2,7,6), now (2,7,3), (2,6,7)
         back_tris = [
-            (2, 3, 7),  # triangle 1
-            (2, 7, 6)   # triangle 2
+            (2, 7, 3),  # triangle 1
+            (2, 6, 7)   # triangle 2
         ]
         indices.extend(back_tris)
         face_groups['back'] = [6, 7]
         
-        # Right face
+        # Right face - normal should point out in +X
+        # Reverse winding to point outward: was (1,2,6), (1,6,5), now (1,6,2), (1,5,6)
         right_tris = [
-            (1, 2, 6),  # triangle 1
-            (1, 6, 5)   # triangle 2
+            (1, 6, 2),  # triangle 1
+            (1, 5, 6)   # triangle 2
         ]
         indices.extend(right_tris)
         face_groups['right'] = [8, 9]
         
-        # Left face
+        # Left face - normal should point out in -X
+        # Reverse winding to point outward: was (3,0,4), (3,4,7), now (3,4,0), (3,7,4)
         left_tris = [
-            (3, 0, 4),  # triangle 1
-            (3, 4, 7)   # triangle 2
+            (3, 4, 0),  # triangle 1
+            (3, 7, 4)   # triangle 2
         ]
         indices.extend(left_tris)
         face_groups['left'] = [10, 11]
