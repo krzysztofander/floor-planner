@@ -198,3 +198,10 @@ examples/**/*.md
 # VS code files
 .vscode/
 *.code-workspace
+
+temp/*
+*.bin
+*.gltf
+models/models_3rd_party/
+models/local/
+
