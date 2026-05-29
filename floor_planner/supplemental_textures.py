@@ -19,7 +19,6 @@ SUPPLEMENTAL_TEXTURES = {
     
     # Furniture with distinct face textures
     'desk': ['sides'],  # desk.jpg (top) + desk_sides.jpg
-    'table': ['sides'],  # table.jpg (top) + table_sides.jpg
 }
 
 

@@ -1,0 +1,7 @@
+# Auto-generated material for dryer
+newmtl dryer
+Ka 0.850000 0.850000 0.850000
+Kd 0.900000 0.900000 0.900000
+Ks 0.400000 0.400000 0.400000
+Ns 80.0
+map_Kd dryer.jpg

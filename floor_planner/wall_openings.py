@@ -12,101 +12,88 @@ if TYPE_CHECKING:
     from .elements.element import Element
 
 
+def _opening_corners_world(opening: 'Element') -> list[tuple[float, float]]:
+    """
+    Return the four world-space (x, y) corners of a rectangular opening element.
+
+    Corners are computed by rotating the element's local bounding rectangle
+    (width=length, height=thickness) by orientation_angle around anchor_point.
+    """
+    ax_, ay = opening.anchor_point
+    L = opening.length
+    T = opening.thickness
+    angle_rad = math.radians(opening.orientation_angle)
+    cos_a = math.cos(angle_rad)
+    sin_a = math.sin(angle_rad)
+
+    # Local offsets of the 4 corners: (0,0), (L,0), (L,T), (0,T)
+    offsets = [(0.0, 0.0), (L, 0.0), (L, T), (0.0, T)]
+    return [
+        (ax_ + dx * cos_a - dy * sin_a,
+         ay + dx * sin_a + dy * cos_a)
+        for dx, dy in offsets
+    ]
+
+
 def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: float = 0.1) -> bool:
     """
     Check if a door or window is embedded in a wall.
-    
-    Checks if:
-    1. Opening is parallel to wall (same orientation within tolerance)
-    2. Opening overlaps with wall's length span
-    3. Opening is positioned at/near one of wall's faces
-    
+
+    An opening is considered embedded when **at least one of its four corners**
+    falls inside the wall's bounding rectangle (length × thickness) in the wall's
+    local coordinate system, within *tolerance* metres.
+
+    The opening must also be roughly parallel to the wall (within 5°) so that
+    perpendicular walls next to each other are not incorrectly matched.
+
     Args:
-        wall: Wall element to check
-        opening: Door or window element
-        tolerance: Position tolerance in meters (default 0.1m = 10cm)
-        
+        wall: Wall element to check.
+        opening: Any element that may cut an opening (door, window, etc.).
+        tolerance: Positional tolerance in metres (default 0.1 m = 10 cm).
+
     Returns:
-        True if opening is embedded in wall, False otherwise
+        True if opening is embedded in wall, False otherwise.
     """
-    from .elements.basic import Window, WallND
-    from .elements.door import Door
-    
-    # Only check doors and windows (skip sub-elements or other types)
-    if not isinstance(opening, (Door, Window)):
-        return False
-    
-    # Wall must be a wall
+    from .elements.basic import WallND
+
+    # Wall must be a WallND subclass
     if not isinstance(wall, WallND):
         return False
-    
-    # Both must have rectangular geometry
-    if not (hasattr(wall, 'anchor_point') and hasattr(wall, 'length') and 
-            hasattr(wall, 'thickness') and hasattr(wall, 'orientation_angle')):
+
+    # Both elements must have the required geometric attributes
+    required = ('anchor_point', 'length', 'thickness', 'orientation_angle')
+    if not all(hasattr(wall, a) for a in required):
         return False
-    
-    if not (hasattr(opening, 'anchor_point') and hasattr(opening, 'length') and 
-            hasattr(opening, 'thickness') and hasattr(opening, 'orientation_angle')):
+    if not all(hasattr(opening, a) for a in required):
         return False
-    
-    # Step 1: Check orientation alignment (must be parallel or 180° opposite)
+
+    # Opening must be parallel (or anti-parallel) to the wall, within 5°
     angle_diff = abs(wall.orientation_angle - opening.orientation_angle) % 360
     if angle_diff > 180:
         angle_diff = 360 - angle_diff
-    
-    # Allow some tolerance for orientation (5 degrees)
     if angle_diff > 5.0 and abs(angle_diff - 180) > 5.0:
-        return False  # Not parallel
-    
-    # Step 2: Check if opening is positioned along the wall
-    # Transform opening position to wall's local coordinate system
-    wall_anchor = wall.anchor_point
-    opening_anchor = opening.anchor_point
-    
-    # Calculate vector from wall anchor to opening anchor
-    dx = opening_anchor[0] - wall_anchor[0]
-    dy = opening_anchor[1] - wall_anchor[1]
-    
-    # Rotate by -wall.orientation_angle to get local coordinates
-    angle_rad = math.radians(-wall.orientation_angle)
-    cos_a = math.cos(angle_rad)
-    sin_a = math.sin(angle_rad)
-    
-    local_x = dx * cos_a - dy * sin_a
-    local_y = dx * sin_a + dy * cos_a
-    
-    # Step 3: Check if opening is within wall's length span
-    # Opening should start within [0, wall.length]
-    if local_x < -tolerance or local_x > wall.length + tolerance:
         return False
-    
-    # Step 4: Check if opening is embedded in the wall
-    # Opening must be positioned to cut through the wall thickness
-    # Opening spans from local_y to (local_y + opening.thickness)
-    opening_start_y = local_y
-    opening_end_y = local_y + opening.thickness
-    wall_start_y = 0
-    wall_end_y = wall.thickness
-    
-    # Check if opening is properly positioned relative to the wall:
-    # 1. Opening should start at or very close to the front face (y ≈ 0), OR
-    # 2. Opening should end at or very close to the back face (y ≈ wall.thickness), OR
-    # 3. Opening should span the entire wall (start ≈ 0 AND end ≈ wall.thickness)
-    
-    # For an opening to be embedded, it should overlap significantly with the wall
-    # and be aligned to at least one face
-    starts_at_front = abs(opening_start_y - wall_start_y) <= tolerance
-    ends_at_back = abs(opening_end_y - wall_end_y) <= tolerance
-    spans_wall = starts_at_front and ends_at_back
-    
-    # Opening must either span the wall or be aligned to one of the faces
-    # AND have significant overlap (at least partially inside [0, wall.thickness])
-    overlaps_wall = (opening_start_y < wall_end_y + tolerance and 
-                    opening_end_y > wall_start_y - tolerance)
-    
-    is_embedded = overlaps_wall and (starts_at_front or ends_at_back or spans_wall)
-    
-    return is_embedded
+
+    # Transform each of the opening's 4 corners into wall-local coordinates
+    # and check whether at least one falls inside the wall rectangle + tolerance.
+    wall_ax, wall_ay = wall.anchor_point
+    inv_rad = math.radians(-wall.orientation_angle)
+    cos_inv = math.cos(inv_rad)
+    sin_inv = math.sin(inv_rad)
+
+    for wx, wy in _opening_corners_world(opening):
+        dx = wx - wall_ax
+        dy = wy - wall_ay
+        local_x = dx * cos_inv - dy * sin_inv
+        local_y = dx * sin_inv + dy * cos_inv
+
+        in_length_span = -tolerance <= local_x <= wall.length + tolerance
+        in_thickness_band = -tolerance <= local_y <= wall.thickness + tolerance
+
+        if in_length_span and in_thickness_band:
+            return True
+
+    return False
 
 
 def find_embedded_openings(wall: 'Element', all_elements: list['Element'], tolerance: float = 0.1) -> list['Element']:

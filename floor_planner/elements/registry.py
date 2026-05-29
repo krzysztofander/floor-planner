@@ -5,6 +5,9 @@ Author: Nikolay Lysenko
 """
 
 from .basic import Wall, WallND, Window
+from .balcony_door import BalconyDoor
+from .window_door import WindowDoor, WindowDoorDouble
+from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
 from .element import Element
@@ -36,6 +39,13 @@ def create_elements_registry() -> dict[str, type[Element]]:
         'ceiling_lamp': CeilingLamp,
         'dimension_arrow': DimensionArrow,
         'door': Door,
+        'balcony_door': BalconyDoor,
+        'window_door': WindowDoor,
+        'window_door_double': WindowDoorDouble,
+        'window_140x120': Window140x120,
+        'window_90x120': Window90x120,
+        'window_double_160x120': WindowDouble160x120,
+        'window_double_160x140': WindowDouble160x140,
         'electrical_cable': ElectricalCable,
         'external_model_test': ExternalModelTest,
         'wooden_chair': WoodenChair,

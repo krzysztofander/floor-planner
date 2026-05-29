@@ -14,6 +14,9 @@ from .options import (
     set_element_options, get_element_option
 )
 from .basic import Wall, WallND, Window
+from .balcony_door import BalconyDoor
+from .window_door import WindowDoor, WindowDoorDouble
+from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
 from .element import Element, RectangularElement, SurfaceElement, CircularElement
@@ -29,6 +32,13 @@ from .registry import create_elements_registry
 
 
 ___all__ = [
+    'BalconyDoor',
+    'WindowDoor',
+    'WindowDoorDouble',
+    'Window140x120',
+    'Window90x120',
+    'WindowDouble160x120',
+    'WindowDouble160x140',
     'CeilingLamp',
     'CircularElement',
     'DimensionArrow',

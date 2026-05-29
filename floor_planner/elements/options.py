@@ -12,6 +12,20 @@ _element_options = {}
 # Global counter for element IDs
 _id_counters = {}
 
+# Canonical fallback families: any element type in a set falls back to the
+# canonical key if no exact match is found in _element_options.
+_DOOR_TYPES: frozenset[str] = frozenset({
+    'Door', 'BalconyDoor', 'WindowDoor', 'WindowDoorDouble',
+})
+_WINDOW_TYPES: frozenset[str] = frozenset({
+    'Window', 'Window140x120', 'Window90x120',
+    'WindowDouble160x120', 'WindowDouble160x140',
+})
+_CANONICAL_FALLBACK: dict[frozenset[str], str] = {
+    _DOOR_TYPES: 'Door',
+    _WINDOW_TYPES: 'Window',
+}
+
 
 def set_element_options(options: dict) -> None:
     """
@@ -28,9 +42,16 @@ def set_element_options(options: dict) -> None:
 def get_element_option(element_type: str, option_name: str, default=None):
     """
     Get specific option value for an element type.
-    
+
+    Lookup order:
+      1. Exact ``element_type`` key in the options dict.
+      2. The canonical family key (``'Door'`` for all door variants,
+         ``'Window'`` for all window variants) if the exact key is absent
+         or has no entry for ``option_name``.
+      3. ``default``.
+
     :param element_type:
-        type of the element (e.g., 'Wall', 'Door')
+        type of the element (e.g., 'Wall', 'Door', 'BalconyDoor')
     :param option_name:
         name of the option (e.g., 'label_color', 'dimensions')
     :param default:
@@ -38,10 +59,20 @@ def get_element_option(element_type: str, option_name: str, default=None):
     :return:
         option value or default
     """
+    # 1. Exact match
     type_options = _element_options.get(element_type)
-    if type_options is None or not isinstance(type_options, dict):
-        return default
-    return type_options.get(option_name, default)
+    if isinstance(type_options, dict) and option_name in type_options:
+        return type_options[option_name]
+
+    # 2. Canonical family fallback
+    for family, canonical in _CANONICAL_FALLBACK.items():
+        if element_type in family and element_type != canonical:
+            canonical_options = _element_options.get(canonical)
+            if isinstance(canonical_options, dict) and option_name in canonical_options:
+                return canonical_options[option_name]
+            break  # element is in this family; no need to check others
+
+    return default
 
 
 def get_label_color(element_type: str) -> str | None:

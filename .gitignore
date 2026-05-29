@@ -183,14 +183,24 @@ nohup.out
 configs/
 
 # Generated images
-*.png
-*.jpg
-*.jpeg
 
 # Genrated 3d assets
-*.obj
-*.mtl
 
+examples/**/*.png
+examples/**/*.jpg
+examples/**/*.jpeg
+examples/**/*.obj
+examples/**/*.mtl
+examples/**/*.bin
+
+tests/**/*.png
+tests/**/*.jpg
+tests/**/*.jpeg
+tests/**/*.obj
+tests/**/*.mtl
+tests/**/*.bin
+tests/**/*.sh
+tests/**/*.md
 
 # Generated md files
 examples/**/*.md
