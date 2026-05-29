@@ -83,6 +83,7 @@
 | window_invisible | Window |
 | door_invisible | Door |
 | storage_1 | GenericStorage |
+| Wooden Chair_1 | WoodenChair |
 
 ## Other Elements
 
@@ -94,6 +95,14 @@ Total count: 1
 |---|
 | storage_1 |
 
+### WoodenChair
+
+Total count: 1
+
+| ID |
+|---|
+| Wooden Chair_1 |
+
 ## Summary
 
 | Element Type | Count |
@@ -103,3 +112,4 @@ Total count: 1
 | Door | 1 |
 | GenericStorage | 1 |
 | Window | 3 |
+| WoodenChair | 1 |
