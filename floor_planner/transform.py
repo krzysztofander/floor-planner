@@ -254,3 +254,79 @@ def matrix_to_json(matrix: np.ndarray) -> list:
     # Flatten in column-major order (Fortran order)
     # This transposes and flattens: [col0, col1, col2, col3]
     return matrix.T.flatten().tolist()
+
+
+def build_normalization_matrix(data: dict) -> np.ndarray:
+    """
+    Build a 4x4 transform matrix from a normalization dict.
+
+    Accepts the same format used in ``.transform.json`` normalization sections::
+
+        {'scale': [sx,sy,sz], 'rotation': [rx,ry,rz], 'translation': [tx,ty,tz]}
+
+    All keys are optional; missing keys default to identity values
+    (``scale=[1,1,1]``, ``rotation=[0,0,0]``, ``translation=[0,0,0]``).
+
+    Transformation order: **Scale → Rotate → Translate**  (identical to the
+    ``normalization`` section parser in ``model_metadata.py``).
+
+    Args:
+        data: Dict with optional ``'scale'``, ``'rotation'``, ``'translation'`` lists.
+
+    Returns:
+        4x4 transformation matrix (numpy array, dtype float64).
+    """
+    scale = data.get('scale', [1.0, 1.0, 1.0])
+    rotation = data.get('rotation', [0.0, 0.0, 0.0])
+    translation = data.get('translation', [0.0, 0.0, 0.0])
+
+    # --- Scale ---
+    sx, sy, sz = scale
+    scale_matrix = np.array([
+        [sx, 0, 0, 0],
+        [0, sy, 0, 0],
+        [0, 0, sz, 0],
+        [0, 0, 0,  1],
+    ], dtype=np.float64)
+
+    # --- Rotation (Euler angles in degrees, applied X → Y → Z) ---
+    rx, ry, rz = [math.radians(a) for a in rotation]
+
+    cos_x, sin_x = math.cos(rx), math.sin(rx)
+    rot_x = np.array([
+        [1,     0,      0, 0],
+        [0, cos_x, -sin_x, 0],
+        [0, sin_x,  cos_x, 0],
+        [0,     0,      0, 1],
+    ], dtype=np.float64)
+
+    cos_y, sin_y = math.cos(ry), math.sin(ry)
+    rot_y = np.array([
+        [ cos_y, 0, sin_y, 0],
+        [     0, 1,     0, 0],
+        [-sin_y, 0, cos_y, 0],
+        [     0, 0,     0, 1],
+    ], dtype=np.float64)
+
+    cos_z, sin_z = math.cos(rz), math.sin(rz)
+    rot_z = np.array([
+        [cos_z, -sin_z, 0, 0],
+        [sin_z,  cos_z, 0, 0],
+        [    0,      0, 1, 0],
+        [    0,      0, 0, 1],
+    ], dtype=np.float64)
+
+    rotation_matrix = rot_z @ rot_y @ rot_x
+
+    # --- Translation ---
+    tx, ty, tz = translation
+    translation_matrix = np.array([
+        [1, 0, 0, tx],
+        [0, 1, 0, ty],
+        [0, 0, 1, tz],
+        [0, 0, 0,  1],
+    ], dtype=np.float64)
+
+    # Translation @ Rotation @ Scale
+    return translation_matrix @ rotation_matrix @ scale_matrix
+

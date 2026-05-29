@@ -140,6 +140,8 @@
         door_width: balcony_door_door_width
         thickness: wall_thickness
         orientation_angle: 0
+        opening_outside: true
+        label: "balcony_door_outside"
 #window door test
       - type: wall
         anchor_point: [x_col3, y_2]
@@ -220,7 +222,7 @@
         orientation_angle: 0
         label: "window_double_160x140"
 
-#balcony door opening outside
+#balcony door opening inside
       - type: wall
         anchor_point: [x_col3, y_4]
         length: room_width
@@ -233,7 +235,8 @@
         door_width: balcony_door_door_width
         thickness: wall_thickness
         orientation_angle: 0
-        opening_outside: true
+        opening_outside: false
+        label: "balcony_door_inside"
 
       - type: wall
         anchor_point: [x_col1, y_5]

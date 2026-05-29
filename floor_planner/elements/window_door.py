@@ -62,6 +62,49 @@ class WindowDoorDouble(BalconyDoor):
         color            – 2-D drawing colour (default 'black')
         label            – optional text label
     """
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            doorway_width: float,
+            door_width: float,
+            thickness: float,
+            orientation_angle: float = 0,
+            to_the_right: bool = False,
+            color: str = 'black',
+            hinges_point: float = 0.95,
+            opening_outside: bool = False,
+            label: str | None = None,
+            **kwargs
+    ):
+        # ExternalModelElement.__init__ rejects 'width', 'length', 'height' in kwargs
+        # but accepts all other keyword args (v_anchor, id, textures, etc.)
+        super().__init__(
+            anchor_point=anchor_point,
+            doorway_width=doorway_width,
+            door_width=door_width,
+            thickness=thickness,
+            orientation_angle=orientation_angle,
+            to_the_right=to_the_right,
+            color=color,
+            hinges_point=hinges_point,
+            opening_outside=opening_outside,
+            label=label,
+            **kwargs
+        )
+        _MODEL_DEPTH = 0.12
+        if not opening_outside:
+            self.secondary_normalization = {
+                'rotation':    [0, 180, 0],
+                #'translation': [self._default_width(), 0, _MODEL_DEPTH],
+                'translation': [self._default_width(), 0, thickness],
+            }
+        else:
+            self.secondary_normalization = {
+                'rotation':    [0, 0, 0],
+                #'translation': [self._default_width(), 0, _MODEL_DEPTH],
+                'translation': [0, 0, 0],
+            }
+        self.secondary_anchor_offset = None
 
     _registry_key = 'window_door_double'
     _requires_external_model = True

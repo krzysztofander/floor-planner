@@ -87,6 +87,26 @@ class BalconyDoor(VertInfoLvl02, ExternalModelElement):
         # length is used by the parent Element / anchor helpers
         self.length = doorway_width
 
+        # Secondary normalization: rotate the 3D model 180° around Y when the
+        # door opens outward so it visually matches the 2D floor plan.
+        # translation [width, 0, depth] corrects the negative-coordinate shift
+        # caused by the 180° Y rotation (T@R keeps the model in positive space).
+        # _MODEL_DEPTH is the Z extent of the external model (balcony_door.obj).
+        _MODEL_DEPTH = 0.12
+        if not opening_outside:
+            self.secondary_normalization = {
+                'rotation':    [0, 140, 0],
+                #'translation': [self._default_width(), 0, _MODEL_DEPTH],
+                'translation': [self._default_width(), 0, thickness],
+            }
+        else:
+            self.secondary_normalization = {
+                'rotation':    [0, 20, 0],
+                #'translation': [self._default_width(), 0, _MODEL_DEPTH],
+                'translation': [0, 0, 0],
+            }
+        self.secondary_anchor_offset = None
+
     # ------------------------------------------------------------------
     # ExternalModelElement hooks
     # ------------------------------------------------------------------
