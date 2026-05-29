@@ -219,13 +219,22 @@
         overall_thickness: wall_thickness
         orientation_angle: 0
         label: "window_double_160x140"
-        
+
+#balcony door opening outside
       - type: wall
         anchor_point: [x_col3, y_4]
         length: room_width
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col3_y_4"
+      - type: balcony_door
+        anchor_point: [x_col3 + 0.5, y_4]
+        doorway_width: balcony_door_doorway_width
+        door_width: balcony_door_door_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        opening_outside: true
+
       - type: wall
         anchor_point: [x_col1, y_5]
         length: room_width
