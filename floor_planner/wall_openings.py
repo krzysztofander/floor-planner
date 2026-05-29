@@ -55,9 +55,16 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
         True if opening is embedded in wall, False otherwise.
     """
     from .elements.basic import WallND
+    from .elements.vertical_levels import VertInfoDoor, VertInfoWindows
 
     # Wall must be a WallND subclass
     if not isinstance(wall, WallND):
+        return False
+
+    # Opening must be a door or window type (VertInfoLvl02 covers Door/BalconyDoor
+    # and its subclasses; VertInfoWindows covers Window and _FixedWindow variants).
+    # This prevents other walls, furniture, etc. from being falsely detected.
+    if not isinstance(opening, (VertInfoDoor, VertInfoWindows)):
         return False
 
     # Both elements must have the required geometric attributes

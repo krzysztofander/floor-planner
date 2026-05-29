@@ -15,10 +15,10 @@ from ..utils import rotate_point, render_label_and_id
 from .element import RectangularElement
 from .info import DimensionArrow
 from .options import get_element_option
-from .vertical_levels import VertInfoLvl02
+from .vertical_levels import VertInfoDoor
 
 
-class Door(VertInfoLvl02, RectangularElement):
+class Door(VertInfoDoor, RectangularElement):
     door_schematic_line_thickness = 0.04
     """Single door."""
 

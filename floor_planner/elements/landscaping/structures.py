@@ -11,7 +11,7 @@ import math
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement, CircularElement, Element
-from ..vertical_levels import VertInfoLvl01, VertInfoLvl02
+from ..vertical_levels import VertInfoLvl01, VertInfoLvl01
 
 
 class Pergola(SurfaceElement):
@@ -317,7 +317,7 @@ class RaisedBed(SurfaceElement):
         return " ".join(parts) if parts else ""
 
 
-class Gazebo(VertInfoLvl02, CircularElement):
+class Gazebo(VertInfoLvl01, CircularElement):
     """Gazebo structure with octagonal shape and roof."""
 
     def __init__(

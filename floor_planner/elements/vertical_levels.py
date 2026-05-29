@@ -41,11 +41,11 @@ class VertInfoLvl01:
         return (-0.00001, -0.00001, 0.0)  # Tiny shrink for walls
 
 
-class VertInfoLvl02:
-    """Landscaping/Door level (0.02m): trees, shrubs, doors.
+class VertInfoDoor:
+    """Door level (0.02m): doors and balcony doors.
     
     Secondary structures - drawn over walls but under furniture.
-    Used for: Door, Tree, Shrub, Hedge, Fountain, Gazebo.
+    Used for: Door, BalconyDoor, WindowDoor, WindowDoorDouble.
     """
     
     def _default_v_anchor(self) -> float:

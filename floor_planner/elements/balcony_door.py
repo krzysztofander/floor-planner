@@ -18,10 +18,10 @@ from ..utils import rotate_point, render_label_and_id
 from .external_models import ExternalModelElement
 from .info import DimensionArrow
 from .options import get_element_option
-from .vertical_levels import VertInfoLvl02
+from .vertical_levels import VertInfoDoor
 
 
-class BalconyDoor(VertInfoLvl02, ExternalModelElement):
+class BalconyDoor(VertInfoDoor, ExternalModelElement):
     """
     Balcony door element.
 

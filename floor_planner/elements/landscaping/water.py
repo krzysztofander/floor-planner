@@ -12,10 +12,10 @@ import random
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import Element, CircularElement, SurfaceElement, RectangularElement
-from ..vertical_levels import VertInfoLvl02
+from ..vertical_levels import VertInfoLvl01
 
 
-class Fountain(VertInfoLvl02, CircularElement):
+class Fountain(VertInfoLvl01, CircularElement):
     """Fountain element with water spray pattern."""
 
     def __init__(
@@ -426,7 +426,7 @@ class Pond(Element):
         return " ".join(parts) if parts else ""
 
 
-class RectPool(VertInfoLvl02, RectangularElement):
+class RectPool(VertInfoLvl01, RectangularElement):
     """Rectangular swimming pool element for garden/summer use."""
 
     def __init__(
@@ -609,7 +609,7 @@ class RectPool(VertInfoLvl02, RectangularElement):
         return " ".join(parts)
 
 
-class OvalPool(VertInfoLvl02, RectangularElement):
+class OvalPool(VertInfoLvl01, RectangularElement):
     """Oval swimming pool element for garden/summer use."""
 
     def __init__(

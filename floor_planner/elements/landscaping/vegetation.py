@@ -12,7 +12,7 @@ from matplotlib.patches import Circle, Rectangle
 from ...utils import rotate_point, render_label_and_id, _render_text
 from ..element import Element, RectangularElement, SurfaceElement, CircularElement
 from ..options import get_show_species, get_show_bloom
-from ..vertical_levels import VertInfoLvl02, VertInfoLvl00
+from ..vertical_levels import VertInfoLvl01, VertInfoLvl00
 
 
 class VegetationElement:
@@ -51,7 +51,7 @@ class VegetationElement:
         return " ".join(parts) if parts else ""
 
 
-class CircularVegetation(VertInfoLvl02, CircularElement):
+class CircularVegetation(VertInfoLvl01, CircularElement):
     """Base class for circular vegetation elements (Tree, Shrub)."""
     
     def __init__(
@@ -363,7 +363,7 @@ class Shrub(CircularVegetation):
         )
 
 
-class Hedge(VertInfoLvl02, VegetationElement, RectangularElement):
+class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
     """Linear hedge element."""
 
     def __init__(
