@@ -748,10 +748,10 @@ Total models: 2
 
 #### 3.2 Model Integration
 - [x] External model reference system
-- [x] OBJ file loading with trimesh
+- [x] OBJ file parsing with UV expansion (handles texture seams)
 - [x] Transform hierarchy (normalization + placement)
 - [x] Mesh caching (reuse same mesh for multiple instances)
-- [x] Vertex and normal data export
+- [x] Vertex, normal, and UV data export
 - [x] Material preservation/override
 - [x] Texture path resolution and copying
 
@@ -760,7 +760,7 @@ Total models: 2
 **Implementation Notes:**
 - Created `gltf_exporter.py` with full glTF 2.0 structure
 - BufferBuilder handles binary data with proper alignment
-- OBJ files loaded via trimesh and converted to glTF meshes
+- OBJ files parsed directly to handle vertices with multiple UVs (expands vertex buffer)
 - Mesh caching prevents duplicate geometry (3 chairs → 1 mesh, 3 nodes)
 - Final transforms = placement × normalization (correctly applied)
 - Binary .bin file generated for geometry data
@@ -768,6 +768,7 @@ Total models: 2
 - Material selection: prefers materials with textures, avoids black diffuse
 - Texture copying: resolves paths, copies to export directory with caching
 - glTF PBR conversion: MTL → baseColorFactor/baseColorTexture/roughnessFactor
+- UV coordinate handling: creates unique vertex for each (v, vt, vn) combination to ensure POSITION/TEXCOORD_0 counts match
 
 **Test Results:**
 ```
@@ -1266,10 +1267,7 @@ def test_large_scene_performance():
 ## Dependencies
 
 ### New Dependencies
-- **pygltflib**: Python glTF 2.0 library for reading/writing glTF files
 - **numpy**: Matrix math (already included)
-- **Pillow**: Texture processing (already included)
-- **trimesh**: Mesh processing (OBJ loading, analysis)
 
 ### Optional Dependencies
 - **validators**: URL/path validation

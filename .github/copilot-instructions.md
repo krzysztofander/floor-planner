@@ -32,17 +32,26 @@ make all
 ### Testing & Regression Tests
 **CRITICAL: After ANY source code changes, ALWAYS run:**
 ```bash
-make all
+make clean; make tests
 ```
 
-This builds all example floor plans and serves as regression testing:
+This ensures a clean build and runs all test configurations:
+- `make clean` - removes all generated files to ensure fresh build
+- `make tests` - builds all test floor plans
+
+For full regression testing including examples:
+```bash
+make clean; make all
+```
+
+This builds all example floor plans and serves as comprehensive regression testing:
 - `room_templates` - tests room-based designs
 - `elements` - tests individual element rendering
 - `furniture` - tests furniture and rotation
 - `playground` - tests doors/windows
 - `simple` - tests basic floor plans
 
-The Makefile tracks source dependencies and rebuilds automatically.
+The Makefile tracks source dependencies and rebuilds automatically, but `make clean` ensures no stale artifacts remain.
 
 ### Manual Testing
 - Last successful run: `python -m floor_planner -c ../rzuty/dom_projekt3.yml`

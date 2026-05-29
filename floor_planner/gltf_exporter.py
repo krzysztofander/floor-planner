@@ -19,7 +19,6 @@ import struct
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
-import trimesh
 
 from floor_planner.transform import (
     create_placement_matrix,
@@ -423,6 +422,114 @@ class GLTFExporter:
         
         return material_index
     
+    def _parse_obj_with_uvs(self, obj_path: Path):
+        """
+        Parse OBJ file and expand vertices to handle multiple UVs per vertex.
+        
+        OBJ files can use the same vertex position with different UV coordinates.
+        This creates expanded vertex arrays where each unique (v, vt) pair gets
+        a separate vertex entry, ensuring POSITION and TEXCOORD_0 have matching counts.
+        
+        Args:
+            obj_path: Path to OBJ file
+        
+        Returns:
+            Tuple of (vertices, normals, uvs, faces) as numpy arrays, or (None, None, None, None)
+        """
+        try:
+            v_list = []   # Vertex positions
+            vt_list = []  # Texture coordinates
+            vn_list = []  # Vertex normals
+            
+            # Map (v_idx, vt_idx, vn_idx) -> expanded vertex index
+            vertex_map = {}
+            expanded_vertices = []
+            expanded_normals = []
+            expanded_uvs = []
+            expanded_faces = []
+            
+            with open(obj_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    
+                    if line.startswith('v '):
+                        # Vertex position
+                        parts = line.split()
+                        v_list.append([float(parts[1]), float(parts[2]), float(parts[3])])
+                    
+                    elif line.startswith('vt '):
+                        # Texture coordinate
+                        parts = line.split()
+                        u = float(parts[1])
+                        v = float(parts[2]) if len(parts) > 2 else 0.0
+                        vt_list.append([u, v])
+                    
+                    elif line.startswith('vn '):
+                        # Vertex normal
+                        parts = line.split()
+                        vn_list.append([float(parts[1]), float(parts[2]), float(parts[3])])
+                    
+                    elif line.startswith('f '):
+                        # Face definition: f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+                        parts = line.split()[1:]  # Skip 'f'
+                        face_indices = []
+                        
+                        for part in parts:
+                            indices = part.split('/')
+                            v_idx = int(indices[0]) - 1  # OBJ is 1-indexed
+                            vt_idx = int(indices[1]) - 1 if len(indices) > 1 and indices[1] else -1
+                            vn_idx = int(indices[2]) - 1 if len(indices) > 2 and indices[2] else -1
+                            
+                            # Create unique key for this vertex/uv/normal combination
+                            key = (v_idx, vt_idx, vn_idx)
+                            
+                            if key not in vertex_map:
+                                # Create new expanded vertex
+                                new_idx = len(expanded_vertices)
+                                vertex_map[key] = new_idx
+                                
+                                expanded_vertices.append(v_list[v_idx])
+                                
+                                if vt_idx >= 0 and vt_idx < len(vt_list):
+                                    expanded_uvs.append(vt_list[vt_idx])
+                                else:
+                                    expanded_uvs.append([0.0, 0.0])
+                                
+                                if vn_idx >= 0 and vn_idx < len(vn_list):
+                                    expanded_normals.append(vn_list[vn_idx])
+                                else:
+                                    expanded_normals.append([0.0, 1.0, 0.0])
+                            
+                            face_indices.append(vertex_map[key])
+                        
+                        # Triangulate face if needed (for quads, etc.)
+                        if len(face_indices) == 3:
+                            expanded_faces.append(face_indices)
+                        elif len(face_indices) == 4:
+                            # Split quad into two triangles
+                            expanded_faces.append([face_indices[0], face_indices[1], face_indices[2]])
+                            expanded_faces.append([face_indices[0], face_indices[2], face_indices[3]])
+                        elif len(face_indices) > 4:
+                            # Fan triangulation for n-gons
+                            for i in range(1, len(face_indices) - 1):
+                                expanded_faces.append([face_indices[0], face_indices[i], face_indices[i+1]])
+            
+            if not expanded_vertices:
+                return None, None, None, None
+            
+            vertices = np.array(expanded_vertices, dtype=np.float32)
+            uvs = np.array(expanded_uvs, dtype=np.float32) if expanded_uvs else None
+            normals = np.array(expanded_normals, dtype=np.float32) if expanded_normals else None
+            faces = np.array(expanded_faces, dtype=np.uint32)
+            
+            return vertices, normals, uvs, faces
+            
+        except Exception as e:
+            print(f"Warning: Failed to parse OBJ with UVs from {obj_path}: {e}")
+            import traceback
+            traceback.print_exc()
+            return None, None, None, None
+    
     def _load_obj_as_mesh(self, obj_path: Path) -> Optional[int]:
         """
         Load OBJ file and convert to glTF mesh.
@@ -439,12 +546,12 @@ class GLTFExporter:
             return self.mesh_cache[cache_key]
         
         try:
-            # Load OBJ file with trimesh
-            mesh = trimesh.load(obj_path, force='mesh')
+            # Parse OBJ file with proper UV handling (expands vertices for unique v/vt pairs)
+            vertices, normals, uvs, faces = self._parse_obj_with_uvs(obj_path)
             
-            # Get vertices and faces
-            vertices = mesh.vertices.astype(np.float32)
-            faces = mesh.faces.astype(np.uint32)
+            if vertices is None:
+                print(f"Warning: Failed to parse OBJ file {obj_path}")
+                return None
             
             # Create vertex position accessor
             position_accessor = self.buffer_builder.add_data(
@@ -469,13 +576,20 @@ class GLTFExporter:
             }
             
             # Add normals if available
-            if hasattr(mesh, 'vertex_normals') and mesh.vertex_normals is not None:
-                normals = mesh.vertex_normals.astype(np.float32)
+            if normals is not None:
                 normal_accessor = self.buffer_builder.add_data(
                     normals,
                     target=34962  # ARRAY_BUFFER
                 )
                 primitive["attributes"]["NORMAL"] = normal_accessor
+            
+            # Add UV texture coordinates if available
+            if uvs is not None:
+                texcoord_accessor = self.buffer_builder.add_data(
+                    uvs,
+                    target=34962  # ARRAY_BUFFER
+                )
+                primitive["attributes"]["TEXCOORD_0"] = texcoord_accessor
             
             # Parse and apply materials from MTL file
             model_dir = obj_path.parent

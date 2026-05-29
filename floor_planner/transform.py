@@ -55,13 +55,14 @@ def create_placement_matrix(
     cos_a = math.cos(angle_rad)
     sin_a = math.sin(angle_rad)
     
-    # 4x4 matrix: rotation around Y-axis + translation
-    # Column-major order (GPU-standard format, suitable for glTF export)
+    # 4x4 transformation matrix in standard form:
+    # Translation in the last column (not row!)
+    # This allows proper composition: final = placement @ normalization
     matrix = np.array([
-        [cos_a,            0.0,  -sin_a,           0.0],  # X-axis after rotation
-        [0.0,              1.0,   0.0,             0.0],  # Y-axis (vertical, unchanged)
-        [sin_a,            0.0,   cos_a,           0.0],  # Z-axis after rotation
-        [anchor_point[0],  v_anchor, anchor_point[1], 1.0]   # Translation (w=1)
+        [cos_a,   0.0,      -sin_a,          anchor_point[0]],  # X-axis + Tx
+        [0.0,     1.0,       0.0,            v_anchor       ],  # Y-axis + Ty
+        [sin_a,   0.0,       cos_a,          anchor_point[1]],  # Z-axis + Tz
+        [0.0,     0.0,       0.0,            1.0            ]   # Homogeneous coordinate
     ], dtype=np.float64)
     
     return matrix
@@ -231,21 +232,25 @@ def load_matrix_from_json(matrix_list: list) -> np.ndarray:
 
 def matrix_to_json(matrix: np.ndarray) -> list:
     """
-    Convert 4x4 numpy matrix to JSON-serializable nested list.
+    Convert 4x4 numpy matrix to glTF-compliant flat list.
+    
+    glTF requires matrices in column-major order as a flat array of 16 numbers.
     
     Args:
-        matrix: 4x4 numpy array
+        matrix: 4x4 numpy array (row-major in memory)
         
     Returns:
-        4x4 nested list [[row1], [row2], [row3], [row4]]
+        Flat list of 16 numbers in column-major order
         
     Example:
         >>> matrix = create_identity_matrix()
         >>> json_list = matrix_to_json(matrix)
-        >>> import json
-        >>> json.dumps({"matrix": json_list})
+        >>> len(json_list)
+        16
     """
     if matrix.shape != (4, 4):
         raise ValueError("Matrix must be 4x4")
     
-    return matrix.tolist()
+    # Flatten in column-major order (Fortran order)
+    # This transposes and flattens: [col0, col1, col2, col3]
+    return matrix.T.flatten().tolist()

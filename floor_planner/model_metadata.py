@@ -19,6 +19,84 @@ import numpy as np
 from .transform import load_matrix_from_json
 
 
+def _build_transform_matrix(
+    scale: list[float] | tuple[float, float, float],
+    rotation: list[float] | tuple[float, float, float],
+    translation: list[float] | tuple[float, float, float]
+) -> np.ndarray:
+    """
+    Build 4x4 transformation matrix from scale, rotation, and translation components.
+    
+    The transformation order is: Scale → Rotate → Translate (S * R * T)
+    This means: first scale, then rotate, then translate.
+    
+    Args:
+        scale: Scale factors [sx, sy, sz]
+        rotation: Euler angles [rx, ry, rz] in degrees (applied as X → Y → Z)
+        translation: Translation [tx, ty, tz]
+        
+    Returns:
+        4x4 transformation matrix (numpy array)
+    """
+    import math
+    
+    # Build scale matrix
+    sx, sy, sz = scale
+    scale_matrix = np.array([
+        [sx, 0, 0, 0],
+        [0, sy, 0, 0],
+        [0, 0, sz, 0],
+        [0, 0, 0, 1]
+    ], dtype=float)
+    
+    # Build rotation matrices (Euler angles in degrees)
+    rx, ry, rz = [math.radians(angle) for angle in rotation]
+    
+    # Rotation around X-axis
+    cos_x, sin_x = math.cos(rx), math.sin(rx)
+    rot_x = np.array([
+        [1, 0, 0, 0],
+        [0, cos_x, -sin_x, 0],
+        [0, sin_x, cos_x, 0],
+        [0, 0, 0, 1]
+    ], dtype=float)
+    
+    # Rotation around Y-axis
+    cos_y, sin_y = math.cos(ry), math.sin(ry)
+    rot_y = np.array([
+        [cos_y, 0, sin_y, 0],
+        [0, 1, 0, 0],
+        [-sin_y, 0, cos_y, 0],
+        [0, 0, 0, 1]
+    ], dtype=float)
+    
+    # Rotation around Z-axis
+    cos_z, sin_z = math.cos(rz), math.sin(rz)
+    rot_z = np.array([
+        [cos_z, -sin_z, 0, 0],
+        [sin_z, cos_z, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ], dtype=float)
+    
+    # Combine rotations: Z * Y * X (applied in reverse order)
+    rotation_matrix = rot_z @ rot_y @ rot_x
+    
+    # Build translation matrix
+    tx, ty, tz = translation
+    translation_matrix = np.array([
+        [1, 0, 0, tx],
+        [0, 1, 0, ty],
+        [0, 0, 1, tz],
+        [0, 0, 0, 1]
+    ], dtype=float)
+    
+    # Combine: Translation * Rotation * Scale
+    # This applies transformations in order: scale first, then rotate, then translate
+    # The translation is applied in the scaled/rotated space
+    return translation_matrix @ rotation_matrix @ scale_matrix
+
+
 @dataclass
 class BoundingBox:
     """Axis-aligned bounding box in normalized model space."""
@@ -151,9 +229,12 @@ class ModelMetadata:
     units: str = "meters"  # "meters", "centimeters", "inches"
     up_axis: str = "Y"  # "Y" or "Z"
     
-    # Normalization transform
+    # Normalization transform (supports both old matrix format and new scale/rotation/translation)
     normalization_matrix: np.ndarray = field(default_factory=lambda: np.eye(4))
     normalization_description: str = ""
+    normalization_scale: Optional[Tuple[float, float, float]] = None  # Scale factors [x, y, z]
+    normalization_rotation: Optional[Tuple[float, float, float]] = None  # Euler angles [rx, ry, rz] in degrees
+    normalization_translation: Optional[Tuple[float, float, float]] = None  # Translation [x, y, z]
     
     # Spatial properties
     anchor_point_name: str = "bottom_center"  # Semantic anchor point name
@@ -285,10 +366,30 @@ class ModelMetadata:
         
         # Normalization
         norm_data = data.get('normalization', {})
-        norm_matrix = load_matrix_from_json(
-            norm_data.get('matrix', [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-        )
         norm_description = norm_data.get('description', '')
+        
+        # Support both new format (scale/rotation/translation) and old format (matrix)
+        norm_scale = None
+        norm_rotation = None
+        norm_translation = None
+        
+        if 'scale' in norm_data or 'rotation' in norm_data or 'translation' in norm_data:
+            # New format: build matrix from components
+            scale = norm_data.get('scale', [1, 1, 1])
+            rotation = norm_data.get('rotation', [0, 0, 0])  # Euler angles in degrees
+            translation = norm_data.get('translation', [0, 0, 0])
+            
+            norm_scale = tuple(scale)
+            norm_rotation = tuple(rotation)
+            norm_translation = tuple(translation)
+            
+            # Build transformation matrix from components
+            norm_matrix = _build_transform_matrix(scale, rotation, translation)
+        else:
+            # Old format: use provided matrix
+            norm_matrix = load_matrix_from_json(
+                norm_data.get('matrix', [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            )
         
         # Spatial properties
         anchor_point_name = data.get('anchor_point', 'bottom_center')
@@ -334,6 +435,9 @@ class ModelMetadata:
             up_axis=up_axis,
             normalization_matrix=norm_matrix,
             normalization_description=norm_description,
+            normalization_scale=norm_scale,
+            normalization_rotation=norm_rotation,
+            normalization_translation=norm_translation,
             anchor_point_name=anchor_point_name,
             anchor_offset=anchor_offset,
             bounding_box=bounding_box,

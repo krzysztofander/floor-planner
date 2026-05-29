@@ -32,6 +32,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             color: str = 'black',
             label: str | None = None,
             height: float | None = None,
+            v_anchor: float | None = None,
             textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
@@ -55,6 +56,9 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             optional label for the element
         :param height:
             height of the storage box in meters; if None, uses default (2.0m)
+        :param v_anchor:
+            optional vertical anchor point in meters (height above floor/ground);
+            if None, uses element's default vertical level
         :param textures:
             texture specification for 3D export; string or dict; if None, uses element type default
         :param texture_scale:
@@ -70,6 +74,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             color=color,
             label=label,
             height=height,
+            v_anchor=v_anchor,
             textures=textures,
             texture_scale=texture_scale
         )
@@ -173,6 +178,7 @@ class Storage60(GenericStorage):
             color: str = 'black',
             label: str | None = None,
             height: float | None = None,
+            v_anchor: float | None = None,
             textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
@@ -184,6 +190,7 @@ class Storage60(GenericStorage):
             color=color,
             label=label,
             height=height,
+            v_anchor=v_anchor,
             textures=textures,
             texture_scale=texture_scale
         )
@@ -201,6 +208,7 @@ class Storage40(GenericStorage):
             color: str = 'black',
             label: str | None = None,
             height: float | None = None,
+            v_anchor: float | None = None,
             textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
@@ -212,6 +220,7 @@ class Storage40(GenericStorage):
             color=color,
             label=label,
             height=height,
+            v_anchor=v_anchor,
             textures=textures,
             texture_scale=texture_scale
         )
