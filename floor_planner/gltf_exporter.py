@@ -627,7 +627,390 @@ class GLTFExporter:
         except Exception as e:
             print(f"Warning: Failed to load OBJ file {obj_path}: {e}")
             return None
-    
+
+    # ------------------------------------------------------------------
+    # .3ds loader (built-in, no extra dependency)
+    # ------------------------------------------------------------------
+
+    def _load_3ds_as_mesh(self, file_path: Path) -> Optional[int]:
+        """
+        Load a .3ds file and convert to a glTF mesh.
+
+        Implements a minimal but complete reader for the 3DS chunk format:
+        vertices, faces, per-vertex UVs, flat normals (computed), and
+        per-material face groups.  Materials map to the same
+        ``_create_gltf_material`` pipeline as the OBJ loader.
+
+        Args:
+            file_path: Path to the .3ds file.
+
+        Returns:
+            Mesh index on success, None on failure.
+        """
+        cache_key = str(file_path)
+        if cache_key in self.mesh_cache:
+            return self.mesh_cache[cache_key]
+
+        try:
+            raw = file_path.read_bytes()
+
+            # ---- chunk helpers (closures over raw) ----
+            def read_header(off: int):
+                cid, clen = struct.unpack_from('<HI', raw, off)
+                return cid, clen, off + 6
+
+            def read_cstr(off: int):
+                end = raw.index(b'\x00', off)
+                return raw[off:end].decode('latin-1', errors='replace'), end + 1
+
+            # ---- collected data ----
+            materials: Dict[str, Dict[str, Any]] = {}
+            meshes_raw: list = []          # list of dicts
+
+            # ---- material parsers ----
+            def parse_color(off: int, end: int):
+                while off + 6 <= end:
+                    cid, clen, ds = read_header(off)
+                    if cid in (0x0011, 0x0012):        # COLOR_24 / LIN_COLOR_24
+                        r, g, b = struct.unpack_from('BBB', raw, ds)
+                        return [r / 255.0, g / 255.0, b / 255.0]
+                    if cid in (0x0010, 0x0013):        # COLOR_F / LIN_COLOR_F
+                        r, g, b = struct.unpack_from('<fff', raw, ds)
+                        return [float(r), float(g), float(b)]
+                    off += clen
+                return [0.8, 0.8, 0.8]
+
+            def parse_texmap(off: int, end: int):
+                while off + 6 <= end:
+                    cid, clen, ds = read_header(off)
+                    if cid == 0xA300:                   # MAT_MAPNAME
+                        name, _ = read_cstr(ds)
+                        return name
+                    off += clen
+                return None
+
+            def parse_material(off: int, end: int):
+                mat: Dict[str, Any] = {}
+                name: Optional[str] = None
+                while off + 6 <= end:
+                    cid, clen, ds = read_header(off)
+                    ce = off + clen
+                    if cid == 0xA000:   mat_name, _ = read_cstr(ds); name = mat_name  # noqa: E702
+                    elif cid == 0xA020: mat['diffuse'] = parse_color(ds, ce)           # MAT_DIFFUSE
+                    elif cid == 0xA200:                                                # MAT_TEXMAP
+                        tex = parse_texmap(ds, ce)
+                        if tex:
+                            mat['diffuse_texture'] = tex
+                    off = ce
+                if name is not None:
+                    materials[name] = mat
+
+            # ---- trimesh / face-group parsers ----
+            def parse_mat_groups(off: int, end: int, mesh: dict):
+                while off + 6 <= end:
+                    cid, clen, ds = read_header(off)
+                    if cid == 0x4130:                   # TRI_MATERIAL
+                        mat_name, no = read_cstr(ds)
+                        count = struct.unpack_from('<H', raw, no)[0]
+                        fidxs = list(struct.unpack_from(f'<{count}H', raw, no + 2))
+                        mesh['mat_groups'].append((mat_name, fidxs))
+                    off += clen
+
+            def parse_trimesh(off: int, end: int):
+                mesh: Dict[str, Any] = {
+                    'vertices': None, 'uvs': None, 'faces': None, 'mat_groups': []
+                }
+                while off + 6 <= end:
+                    cid, clen, ds = read_header(off)
+                    ce = off + clen
+
+                    if cid == 0x4110:   # TRI_VERTEXL
+                        count = struct.unpack_from('<H', raw, ds)[0]
+                        vals = struct.unpack_from(f'<{count * 3}f', raw, ds + 2)
+                        mesh['vertices'] = np.array(vals, dtype=np.float32).reshape(-1, 3)
+
+                    elif cid == 0x4140: # TRI_MAPPINGCOORS
+                        count = struct.unpack_from('<H', raw, ds)[0]
+                        vals = struct.unpack_from(f'<{count * 2}f', raw, ds + 2)
+                        mesh['uvs'] = np.array(vals, dtype=np.float32).reshape(-1, 2)
+
+                    elif cid == 0x4120: # TRI_FACEL1
+                        count = struct.unpack_from('<H', raw, ds)[0]
+                        vals = struct.unpack_from(f'<{count * 4}H', raw, ds + 2)
+                        # 4 shorts per face: a, b, c, flags — keep only first 3
+                        mesh['faces'] = np.array(vals, dtype=np.uint32).reshape(-1, 4)[:, :3]
+                        # TRI_MATERIAL sub-chunks follow face data
+                        parse_mat_groups(ds + 2 + count * 8, ce, mesh)
+
+                    off = ce
+
+                if mesh['vertices'] is not None and mesh['faces'] is not None:
+                    meshes_raw.append(mesh)
+
+            def walk_chunks(off: int, end: int):
+                while off + 6 <= end:
+                    cid, clen, ds = read_header(off)
+                    ce = off + clen
+                    if   cid == 0x3D3D: walk_chunks(ds, ce)    # EDIT3DS
+                    elif cid == 0xAFFF: parse_material(ds, ce) # EDIT_MATERIAL
+                    elif cid == 0x4000:                         # EDIT_OBJECT
+                        _, ne = read_cstr(ds)
+                        walk_chunks(ne, ce)
+                    elif cid == 0x4100: parse_trimesh(ds, ce)  # OBJ_TRIMESH
+                    off = ce
+
+            # Validate MAIN3DS header
+            if len(raw) < 6:
+                return None
+            root_id, root_len, root_ds = read_header(0)
+            if root_id != 0x4D4D:
+                print(f"Warning: Not a valid .3ds file: {file_path}")
+                return None
+            walk_chunks(root_ds, root_len)
+
+            if not meshes_raw:
+                print(f"Warning: No mesh data in .3ds file {file_path}")
+                return None
+
+            model_dir = file_path.parent
+            all_primitives: list = []
+
+            for mesh in meshes_raw:
+                verts: np.ndarray = mesh['vertices']
+                faces: np.ndarray = mesh['faces']
+                uvs: Optional[np.ndarray] = mesh['uvs']
+
+                # Compute flat (per-face) normals via cross-product
+                v0, v1, v2 = verts[faces[:, 0]], verts[faces[:, 1]], verts[faces[:, 2]]
+                fn = np.cross(v1 - v0, v2 - v0).astype(np.float32)
+                nlen = np.linalg.norm(fn, axis=1, keepdims=True)
+                fn /= np.where(nlen == 0, 1.0, nlen)
+
+                def _build_prim(face_sel: np.ndarray, mat_name: Optional[str]) -> Optional[dict]:
+                    if len(face_sel) == 0:
+                        return None
+                    sel_faces = faces[face_sel]
+                    positions = verts[sel_faces.reshape(-1)]           # (Nf*3, 3)
+                    normals_e = np.repeat(fn[face_sel], 3, axis=0)    # (Nf*3, 3)
+                    seq = np.arange(len(positions), dtype=np.uint32).reshape(-1, 3)
+
+                    pos_acc = self.buffer_builder.add_data(positions, target=34962)
+                    idx_acc = self.buffer_builder.add_data(seq.flatten(), target=34963)
+                    prim: Dict[str, Any] = {
+                        "attributes": {"POSITION": pos_acc,
+                                       "NORMAL": self.buffer_builder.add_data(normals_e, target=34962)},
+                        "indices": idx_acc,
+                        "mode": 4,
+                    }
+                    if uvs is not None and len(uvs) == len(verts):
+                        uv_e = uvs[sel_faces.reshape(-1)]
+                        prim["attributes"]["TEXCOORD_0"] = self.buffer_builder.add_data(uv_e, target=34962)
+
+                    if mat_name and mat_name in materials:
+                        props = dict(materials[mat_name])
+                        props.setdefault('diffuse', [0.8, 0.8, 0.8])
+                        prim["material"] = self._create_gltf_material(mat_name, props, model_dir)
+                    elif materials:
+                        best = self._select_best_mtl_material(materials)
+                        if best:
+                            props = dict(best[1])
+                            props.setdefault('diffuse', [0.8, 0.8, 0.8])
+                            prim["material"] = self._create_gltf_material(best[0], props, model_dir)
+                    return prim
+
+                mat_groups = mesh['mat_groups']
+                if mat_groups:
+                    assigned: set = set()
+                    for mat_name, fidxs in mat_groups:
+                        fidxs = [i for i in fidxs if i < len(faces)]
+                        assigned.update(fidxs)
+                        p = _build_prim(np.array(fidxs, dtype=np.intp), mat_name)
+                        if p:
+                            all_primitives.append(p)
+                    unassigned = list(set(range(len(faces))) - assigned)
+                    if unassigned:
+                        p = _build_prim(np.array(unassigned, dtype=np.intp), None)
+                        if p:
+                            all_primitives.append(p)
+                else:
+                    p = _build_prim(np.arange(len(faces), dtype=np.intp), None)
+                    if p:
+                        all_primitives.append(p)
+
+            if not all_primitives:
+                return None
+
+            gltf_mesh = {"name": file_path.stem, "primitives": all_primitives}
+            mesh_index = len(self.meshes)
+            self.meshes.append(gltf_mesh)
+            self.mesh_cache[cache_key] = mesh_index
+            return mesh_index
+
+        except Exception as e:
+            print(f"Warning: Failed to load .3ds file {file_path}: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    # ------------------------------------------------------------------
+    # .dae (COLLADA) loader — requires pycollada
+    # ------------------------------------------------------------------
+
+    def _load_dae_as_mesh(self, file_path: Path) -> Optional[int]:
+        """
+        Load a COLLADA .dae file and convert to a glTF mesh.
+
+        Uses the ``pycollada`` library (``pip install pycollada``).
+        Each COLLADA geometry primitive becomes one glTF primitive.
+        UV V-coordinates are flipped (COLLADA origin is bottom-left,
+        glTF origin is top-left).
+
+        Args:
+            file_path: Path to the .dae file.
+
+        Returns:
+            Mesh index on success, None on failure.
+        """
+        cache_key = str(file_path)
+        if cache_key in self.mesh_cache:
+            return self.mesh_cache[cache_key]
+
+        try:
+            try:
+                import collada                                      # pycollada
+                import collada.triangleset
+            except ImportError:
+                print(
+                    f"Warning: pycollada is not installed — cannot load {file_path}. "
+                    "Install it with: pip install pycollada"
+                )
+                return None
+
+            model_dir = file_path.parent
+            c = collada.Collada(
+                str(file_path),
+                ignore=[collada.DaeUnsupportedError, collada.DaeBrokenRefError],
+            )
+
+            all_primitives: list = []
+
+            for bound_geom in c.scene.objects('geometry'):
+                for prim in bound_geom.primitives():
+                    # Only handle triangle sets; skip lines, polylist if not triangulated
+                    if not hasattr(prim, 'vertex_index') or prim.vertex_index is None:
+                        continue
+
+                    v_idx = prim.vertex_index.reshape(-1)           # (Nt*3,)
+                    positions = np.array(prim.vertex[v_idx], dtype=np.float32)
+
+                    normals_exp: Optional[np.ndarray] = None
+                    if (prim.normal is not None
+                            and hasattr(prim, 'normal_index')
+                            and prim.normal_index is not None):
+                        n_idx = prim.normal_index.reshape(-1)
+                        normals_exp = np.array(prim.normal[n_idx], dtype=np.float32)
+
+                    uvs_exp: Optional[np.ndarray] = None
+                    if prim.texcoordset and prim.texcoord_indexset:
+                        uv_idx = prim.texcoord_indexset[0].reshape(-1)
+                        uv_data = prim.texcoordset[0][uv_idx].copy().astype(np.float32)
+                        uv_data[:, 1] = 1.0 - uv_data[:, 1]        # flip V
+                        uvs_exp = uv_data
+
+                    n_verts = len(positions)
+                    seq_faces = np.arange(n_verts, dtype=np.uint32).reshape(-1, 3)
+
+                    pos_acc = self.buffer_builder.add_data(positions, target=34962)
+                    idx_acc = self.buffer_builder.add_data(seq_faces.flatten(), target=34963)
+                    gltf_prim: Dict[str, Any] = {
+                        "attributes": {"POSITION": pos_acc},
+                        "indices": idx_acc,
+                        "mode": 4,
+                    }
+                    if normals_exp is not None:
+                        gltf_prim["attributes"]["NORMAL"] = self.buffer_builder.add_data(
+                            normals_exp, target=34962
+                        )
+                    if uvs_exp is not None:
+                        gltf_prim["attributes"]["TEXCOORD_0"] = self.buffer_builder.add_data(
+                            uvs_exp, target=34962
+                        )
+
+                    # Material
+                    mat_props = self._dae_material_props(prim, model_dir)
+                    if mat_props:
+                        mat_name = mat_props.get('name', 'dae_mat')
+                        gltf_prim["material"] = self._create_gltf_material(
+                            mat_name, mat_props, model_dir
+                        )
+
+                    all_primitives.append(gltf_prim)
+
+            if not all_primitives:
+                print(f"Warning: No geometry found in DAE file {file_path}")
+                return None
+
+            gltf_mesh = {"name": file_path.stem, "primitives": all_primitives}
+            mesh_index = len(self.meshes)
+            self.meshes.append(gltf_mesh)
+            self.mesh_cache[cache_key] = mesh_index
+            return mesh_index
+
+        except Exception as e:
+            print(f"Warning: Failed to load DAE file {file_path}: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _dae_material_props(
+        self, prim, model_dir: Path
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Extract material properties from a pycollada bound primitive into the
+        same dict format used by ``_create_gltf_material``.
+
+        Returns None when no material is bound or extraction fails.
+        """
+        try:
+            mat = getattr(prim, 'material', None)
+            if mat is None:
+                return None
+            effect = getattr(mat, 'effect', None)
+            if effect is None:
+                return None
+
+            props: Dict[str, Any] = {
+                'name': getattr(mat, 'id', None) or getattr(mat, 'name', 'dae_mat') or 'dae_mat'
+            }
+
+            diffuse = getattr(effect, 'diffuse', None)
+            if isinstance(diffuse, tuple):
+                props['diffuse'] = list(diffuse[:3])
+            elif diffuse is not None:
+                # Texture map — try to extract filename
+                props['diffuse'] = [1.0, 1.0, 1.0]
+                try:
+                    image = diffuse.sampler.surface.image
+                    img_path = Path(image.path) if getattr(image, 'path', None) else None
+                    if img_path and img_path.name:
+                        props['diffuse_texture'] = img_path.name
+                except Exception:
+                    pass
+
+            shininess = getattr(effect, 'shininess', None)
+            if shininess is not None:
+                props['shininess'] = float(shininess)
+
+            transparency = getattr(effect, 'transparency', None)
+            if transparency is not None:
+                alpha = float(transparency)
+                if alpha < 0.99:
+                    props['transparency'] = alpha
+
+            return props
+        except Exception:
+            return None
+
     def add_element(self, element: Element) -> Optional[int]:
         """
         Add floor plan element to scene.
@@ -1332,6 +1715,14 @@ class GLTFExporter:
         # Load mesh geometry if available
         if model_path and model_format == 'obj':
             mesh_index = self._load_obj_as_mesh(model_path)
+            if mesh_index is not None:
+                node["mesh"] = mesh_index
+        elif model_path and model_format == '3ds':
+            mesh_index = self._load_3ds_as_mesh(model_path)
+            if mesh_index is not None:
+                node["mesh"] = mesh_index
+        elif model_path and model_format == 'dae':
+            mesh_index = self._load_dae_as_mesh(model_path)
             if mesh_index is not None:
                 node["mesh"] = mesh_index
         elif model_path and model_format == 'gltf':
