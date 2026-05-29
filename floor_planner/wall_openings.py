@@ -35,16 +35,37 @@ def _opening_corners_world(opening: 'Element') -> list[tuple[float, float]]:
     ]
 
 
+def _opening_corners_world_3d(opening: 'Element') -> list[tuple[float, float, float]]:
+    """
+    Return the eight world-space (x, y, z) corners of an opening element's 3D box.
+
+    The 4 floor-plan (XY) corners are each duplicated at z = v_anchor (bottom)
+    and z = v_anchor + height (top), yielding 8 corners.
+    """
+    xy_corners = _opening_corners_world(opening)
+    z_bottom = opening.v_anchor
+    z_top = opening.v_anchor + opening.height
+    return [(x, y, z_bottom) for x, y in xy_corners] + \
+           [(x, y, z_top)    for x, y in xy_corners]
+
+
 def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: float = 0.1) -> bool:
     """
     Check if a door or window is embedded in a wall.
 
-    An opening is considered embedded when **at least one of its four corners**
-    falls inside the wall's bounding rectangle (length × thickness) in the wall's
-    local coordinate system, within *tolerance* metres.
+    An opening is considered embedded when **all eight** 3D corners of its
+    bounding box (length × thickness × height) fall inside the wall's 3D bounding
+    box (wall.length × wall.thickness × wall.height) in the wall's local coordinate
+    system, within *tolerance* metres.
 
-    The opening must also be roughly parallel to the wall (within 5°) so that
-    perpendicular walls next to each other are not incorrectly matched.
+    The eight corners are: the four floor-plan (XY) footprint corners each duplicated
+    at z = v_anchor (bottom) and z = v_anchor + height (top).
+
+    Additionally the corners must span the opening's LENGTH along the wall's local
+    X axis, to reject the degenerate case where only the thin edge of an opening
+    happens to overlap the wall.
+
+    The opening must also be roughly parallel to the wall (within 5°).
 
     Args:
         wall: Wall element to check.
@@ -61,14 +82,14 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
     if not isinstance(wall, WallND):
         return False
 
-    # Opening must be a door or window type (VertInfoLvl02 covers Door/BalconyDoor
+    # Opening must be a door or window type (VertInfoDoor covers Door/BalconyDoor
     # and its subclasses; VertInfoWindows covers Window and _FixedWindow variants).
     # This prevents other walls, furniture, etc. from being falsely detected.
     if not isinstance(opening, (VertInfoDoor, VertInfoWindows)):
         return False
 
-    # Both elements must have the required geometric attributes
-    required = ('anchor_point', 'length', 'thickness', 'orientation_angle')
+    # Both elements must have the required geometric attributes (including 3D)
+    required = ('anchor_point', 'length', 'thickness', 'orientation_angle', 'v_anchor', 'height')
     if not all(hasattr(wall, a) for a in required):
         return False
     if not all(hasattr(opening, a) for a in required):
@@ -81,26 +102,43 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
     if angle_diff > 5.0 and abs(angle_diff - 180) > 5.0:
         return False
 
-    # Transform each of the opening's 4 corners into wall-local coordinates
-    # and check whether at least one falls inside the wall rectangle + tolerance.
+    # Wall's local coordinate frame: XY via -orientation_angle rotation, Z is world vertical.
     wall_ax, wall_ay = wall.anchor_point
     inv_rad = math.radians(-wall.orientation_angle)
     cos_inv = math.cos(inv_rad)
     sin_inv = math.sin(inv_rad)
 
-    for wx, wy in _opening_corners_world(opening):
+    wall_z_min = wall.v_anchor
+    wall_z_max = wall.v_anchor + wall.height
+
+    # Transform all 8 3D corners into wall-local coordinates.
+    # ALL 8 must lie within the wall's 3D bounding box (± tolerance).
+    corners_local = []
+    for wx, wy, wz in _opening_corners_world_3d(opening):
         dx = wx - wall_ax
         dy = wy - wall_ay
         local_x = dx * cos_inv - dy * sin_inv
         local_y = dx * sin_inv + dy * cos_inv
+        local_z = wz  # Z is global-vertical — not affected by XY rotation
 
-        in_length_span = -tolerance <= local_x <= wall.length + tolerance
-        in_thickness_band = -tolerance <= local_y <= wall.thickness + tolerance
+        if not (-tolerance <= local_x <= wall.length + tolerance):
+            return False
+        if not (-tolerance <= local_y <= wall.thickness + tolerance):
+            return False
+        if not (wall_z_min - tolerance <= local_z <= wall_z_max + tolerance):
+            return False
 
-        if in_length_span and in_thickness_band:
-            return True
+        corners_local.append((local_x, local_y, local_z))
 
-    return False
+    # The corners must span the opening's LENGTH along the wall (local X axis).
+    # This rejects the case where the opening's thickness axis runs along the wall's
+    # length direction, which would not cut a proper opening face.
+    xs = [c[0] for c in corners_local]
+    x_span = max(xs) - min(xs)
+    if x_span < opening.length - tolerance:
+        return False
+
+    return True
 
 
 def find_embedded_openings(wall: 'Element', all_elements: list['Element'], tolerance: float = 0.1) -> list['Element']:
@@ -162,26 +200,29 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
     # Collect opening info (relative to wall's local coordinate system)
     opening_infos = []
     for opening in openings:
-        # Transform opening to wall's local coordinates
-        opening_anchor = opening.anchor_point
-        dx = opening_anchor[0] - wall_anchor[0]
-        dy = opening_anchor[1] - wall_anchor[1]
-        
-        # Rotate to local coordinates
+        # Transform all 4 footprint corners into wall-local X to get the true span.
+        # Using just anchor + length would be wrong for anti-parallel openings
+        # (orientation_angle differs by 180°) where the anchor is the far end.
         angle_rad = math.radians(-wall_angle)
         cos_a = math.cos(angle_rad)
         sin_a = math.sin(angle_rad)
-        
-        local_x = dx * cos_a - dy * sin_a
-        local_y = dx * sin_a + dy * cos_a
-        
+
+        corner_local_xs = []
+        for wx, wy in _opening_corners_world(opening):
+            ddx = wx - wall_anchor[0]
+            ddy = wy - wall_anchor[1]
+            corner_local_xs.append(ddx * cos_a - ddy * sin_a)
+
+        start_x = min(corner_local_xs)
+        end_x   = max(corner_local_xs)
+
         # For pass-through holes, create opening on BOTH faces
         # (doors and windows should cut through the entire wall thickness)
         opening_info_base = {
             'element': opening,
-            'start_x': local_x,
-            'end_x': local_x + opening.length,
-            'width': opening.length,
+            'start_x': start_x,
+            'end_x': end_x,
+            'width': end_x - start_x,
             'height': opening.height if hasattr(opening, 'height') else wall_height,
             'bottom_y': opening.v_anchor if hasattr(opening, 'v_anchor') else wall_v_anchor,
         }

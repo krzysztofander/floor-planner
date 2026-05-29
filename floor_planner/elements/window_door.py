@@ -96,13 +96,13 @@ class WindowDoorDouble(BalconyDoor):
             self.secondary_normalization = {
                 'rotation':    [0, 180, 0],
                 #'translation': [self._default_width(), 0, _MODEL_DEPTH],
-                'translation': [self._default_width(), 0, thickness],
+                'translation': [self._default_width(), 0, thickness*2/3],
             }
         else:
             self.secondary_normalization = {
                 'rotation':    [0, 0, 0],
                 #'translation': [self._default_width(), 0, _MODEL_DEPTH],
-                'translation': [0, 0, 0],
+                'translation': [0, 0, thickness/3],
             }
         self.secondary_anchor_offset = None
 
