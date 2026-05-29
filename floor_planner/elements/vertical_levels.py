@@ -20,13 +20,9 @@ class VertInfoLvl00:
         """Return v_anchor for ground surface level."""
         return 0.00
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D.
-        
-        Elements with higher v_anchor get larger offsets to protrude from underlying surfaces.
-        Returns offset in meters to add to length and thickness.
-        """
-        return 0.0  # Ground level - no offset needed
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0, 0.0, 0.0)  # Ground level - no expansion needed
 
 
 class VertInfoLvl01:
@@ -40,9 +36,9 @@ class VertInfoLvl01:
         """Return v_anchor for structural level."""
         return 0.01
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return -0.00001  # Tiny offset for walls
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (-0.00001, -0.00001, 0.0)  # Tiny shrink for walls
 
 
 class VertInfoLvl02:
@@ -56,9 +52,9 @@ class VertInfoLvl02:
         """Return v_anchor for landscaping/door level."""
         return 0.02
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.001  # Small offset for doors to protrude from walls
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.001, 0.001, 0.0)  # Small expansion for doors to protrude from walls
 
 
 class VertInfoLvl03:
@@ -72,9 +68,9 @@ class VertInfoLvl03:
         """Return v_anchor for furniture level."""
         return 0.03
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return -0.012 
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (-0.012, -0.012, 0.0)  # Shrink furniture to avoid overlapping walls
 
 class VertInfoLvl04:
     """Furniture level (0.04m): Storage boxes, cabinets.
@@ -87,9 +83,9 @@ class VertInfoLvl04:
         """Return v_anchor for furniture level."""
         return 0.04
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return -0.011  # Storage boxes are often placed against walls and against applicances
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (-0.011, -0.011, 0.0)  # Shrink storage to avoid overlapping walls and adjacent elements
 
 class VertInfoOutlets:
     """Wall outlet level (0.30m): power outlets.
@@ -102,9 +98,9 @@ class VertInfoOutlets:
         """Return v_anchor for outlet level."""
         return 0.30
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.0003  # Outlets protrude slightly from walls
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0003, 0.0003, 0.0)  # Outlets protrude slightly from walls
 
 
 class VertInfoWindows:
@@ -117,10 +113,15 @@ class VertInfoWindows:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for window level."""
         return 1.00
-    
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.001  # Windows protrude significantly from walls to prevent z-fighting
+
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry.
+
+        Windows extend 0.002m beyond the wall on each end (length) and 0.002m
+        above/below (height) to prevent z-fighting at the wall boundary.
+        Thickness is not expanded — the window already fills the full wall depth.
+        """
+        return (0.004, 0.0, 0.004)
 
 
 class VertInfoSwitches:
@@ -134,9 +135,9 @@ class VertInfoSwitches:
         """Return v_anchor for switch level."""
         return 1.20
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.0012  # Switches protrude from walls
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0012, 0.0012, 0.0)  # Switches protrude from walls
 
 
 class VertInfoWallLamps:
@@ -150,9 +151,9 @@ class VertInfoWallLamps:
         """Return v_anchor for wall lamp level."""
         return 2.00
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.002  # Wall lamps protrude from walls
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.002, 0.002, 0.0)  # Wall lamps protrude from walls
 
 
 class VertInfoCeiling:
@@ -166,9 +167,9 @@ class VertInfoCeiling:
         """Return v_anchor for ceiling level."""
         return 2.70
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.0  # Ceiling fixtures don't overlap with walls
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0, 0.0, 0.0)  # Ceiling fixtures don't overlap with walls
 
 
 class VertInfoAnnotations:
@@ -182,6 +183,6 @@ class VertInfoAnnotations:
         """Return v_anchor for annotation level."""
         return 3.50
     
-    def _get_geometric_offset(self) -> float:
-        """Return geometric offset for z-fighting prevention in 3D."""
-        return 0.0  # Annotations are not exported to 3D
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0, 0.0, 0.0)  # Annotations are not exported to 3D

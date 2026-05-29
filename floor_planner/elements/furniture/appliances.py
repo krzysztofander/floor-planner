@@ -55,9 +55,14 @@ class Dishwasher(VertInfoLvl03, RectangularElement):
             label=label
         )  # Standard dishwasher width  # Standard dishwasher depth
 
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (+0.012, +0.012, -0.02)  # Shrink furniture to avoid overlapping walls
+
+
     def _default_height(self) -> float:
         """Return default height for dishwasher."""
-        return 0.85
+        return 0.72
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dishwasher."""

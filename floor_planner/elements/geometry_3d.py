@@ -106,41 +106,48 @@ class RectangularGeometry3D(Generate3DMixin):
                                                       dict[str, list[int]]]:
         """Generate box geometry with 8 vertices and 12 triangles."""
         
-        # Get geometric offset for z-fighting prevention
-        # Elements with higher v_anchor (windows, doors) protrude from walls
-        offset = 0.0
-        if hasattr(self, '_get_geometric_offset'):
-            offset = self._get_geometric_offset()
-        
-        # Apply offset to dimensions (makes element slightly larger in X and Z)
-        length_with_offset = self.length + offset
-        thickness_with_offset = self.thickness + offset
-        
+        # Get expansion for z-fighting prevention.
+        # Preferred interface: _get_3d_expansion() returns (length_exp, thickness_exp, height_exp)
+        # each value is the total expansion; half is applied on each side.
+        # Legacy fallback: _get_geometric_offset() returns one value for both length and thickness.
+        if hasattr(self, '_get_3d_expansion'):
+            length_exp, thickness_exp, height_exp = self._get_3d_expansion()
+        elif hasattr(self, '_get_geometric_offset'):
+            geo_offset = self._get_geometric_offset()
+            length_exp = geo_offset
+            thickness_exp = geo_offset
+            height_exp = 0.0
+        else:
+            length_exp = thickness_exp = height_exp = 0.0
+
+        length_half = length_exp / 2
+        thickness_half = thickness_exp / 2
+        height_half = height_exp / 2
+
         # Get bottom corners in 2D (before rotation)
         # Rectangular elements: length along X, thickness along Z
-        # Centered offset: extend equally on both sides
-        offset_half = offset / 2
+        # Centered expansion: extend equally on both sides
         local_corners = [
-            (-offset_half, -offset_half),                                    # bottom-left
-            (length_with_offset - offset_half, -offset_half),               # bottom-right
-            (length_with_offset - offset_half, thickness_with_offset - offset_half),  # top-right
-            (-offset_half, thickness_with_offset - offset_half)             # top-left
+            (-length_half, -thickness_half),                                          # bottom-left
+            (self.length + length_half, -thickness_half),                             # bottom-right
+            (self.length + length_half, self.thickness + thickness_half),             # top-right
+            (-length_half, self.thickness + thickness_half)                           # top-left
         ]
-        
+
         # Rotate corners around anchor point
-        rotated_corners = self._rotate_corners(local_corners, self.anchor_point, 
+        rotated_corners = self._rotate_corners(local_corners, self.anchor_point,
                                                self.orientation_angle)
-        
+
         # Generate 3D vertices
         vertices = []
-        
-        # Bottom face (Y = v_anchor)
+
+        # Bottom face (Y = v_anchor - height_half)
         for x, z in rotated_corners:
-            vertices.append((x, self.v_anchor, z))
-        
-        # Top face (Y = v_anchor + height)
+            vertices.append((x, self.v_anchor - height_half, z))
+
+        # Top face (Y = v_anchor + height + height_half)
         for x, z in rotated_corners:
-            vertices.append((x, self.v_anchor + self.height, z))
+            vertices.append((x, self.v_anchor + self.height + height_half, z))
         
         # Generate triangle indices for 6 faces (12 triangles total)
         # Indices are 0-based relative to this element's vertices
@@ -259,14 +266,18 @@ class CircularGeometry3D(Generate3DMixin):
                                                       dict[str, list[int]]]:
         """Generate cylinder geometry with n-segment circles."""
         
-        # Get geometric offset for z-fighting prevention
-        offset = 0.0
-        if hasattr(self, '_get_geometric_offset'):
-            offset = self._get_geometric_offset()
-        
+        # Get expansion for z-fighting prevention.
+        # For circular elements length_exp is used as the diameter expansion.
+        if hasattr(self, '_get_3d_expansion'):
+            diameter_exp, _, _ = self._get_3d_expansion()
+        elif hasattr(self, '_get_geometric_offset'):
+            diameter_exp = self._get_geometric_offset()
+        else:
+            diameter_exp = 0.0
+
         center_x, center_z = self.anchor_point
-        # Apply offset to radius (makes cylinder slightly larger)
-        radius = (self.diameter + offset) / 2
+        # Apply expansion to radius (makes cylinder slightly larger/smaller)
+        radius = (self.diameter + diameter_exp) / 2
         
         # Use element-specific segments if provided, otherwise use class default
         segments = getattr(self, 'circle_segments', self.CIRCLE_SEGMENTS)
