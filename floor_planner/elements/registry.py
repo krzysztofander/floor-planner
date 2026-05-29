@@ -4,14 +4,6 @@ Map element names to their classes.
 Author: Nikolay Lysenko
 """
 
-
-from floor_planner.elements.furniture.bed import DoubleBed, SingleBed
-from floor_planner.elements.furniture.appliances import (
-    Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
-)
-from floor_planner.elements.furniture.bathroom import Shower, Bathtub, Basin, Toilet
-from floor_planner.elements.furniture.furniture import Desk, DiningTable, Chair, Sofa
-
 from .basic import Wall, WallND, Window
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet

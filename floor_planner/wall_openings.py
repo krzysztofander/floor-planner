@@ -106,17 +106,7 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
     
     is_embedded = overlaps_wall and (starts_at_front or ends_at_back or spans_wall)
     
-    if not is_embedded:
-        return False
-    
-    return True
-    
-    # Additional check: opening should not extend beyond wall boundaries significantly
-    opening_end_x = local_x + opening.length
-    if opening_end_x < -tolerance or local_x > wall.length + tolerance:
-        return False
-    
-    return True
+    return is_embedded
 
 
 def find_embedded_openings(wall: 'Element', all_elements: list['Element'], tolerance: float = 0.1) -> list['Element']:

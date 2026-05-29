@@ -1,6 +1,6 @@
 # Feature: 3D Model Generation in OBJ/MTL Format
 
-**Status:** In Progress (Phases 1-6 Complete ✅, Phase 8 In Progress)  
+**Status:** Superseded by glTF export (OBJ export retained for backward compatibility; all new 3D development uses glTF via `gltf_exporter.py`)  
 **Priority:** High  
 **Estimated Effort:** 3-4 Weeks (8 phases, realistic textures in Phase 7)
 

@@ -10,7 +10,7 @@ Created: 2026-05-27
 """
 
 import json
-import os
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
@@ -38,8 +38,6 @@ def _build_transform_matrix(
     Returns:
         4x4 transformation matrix (numpy array)
     """
-    import math
-    
     # Build scale matrix
     sx, sy, sz = scale
     scale_matrix = np.array([

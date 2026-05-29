@@ -1,6 +1,6 @@
 # Feature: Vertical Positioning (v_anchor and height)
 
-**Status:** Planning  
+**Status:** Complete  
 **Priority:** High  
 **Estimated Effort:** 1-2 Weeks
 

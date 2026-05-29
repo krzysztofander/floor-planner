@@ -194,6 +194,31 @@ class GLTFExporter:
         # Store all elements for wall opening detection
         self.all_elements: List[Element] = []
     
+    def _select_best_mtl_material(
+        self, mtl_materials: Dict[str, Dict[str, Any]]
+    ) -> Optional[tuple]:
+        """
+        Select the best material from parsed MTL properties.
+
+        Scoring: prefer materials with diffuse textures (+10), avoid all-black
+        diffuse colors (+5 for non-black). Returns (name, props) or None.
+        """
+        best_material = None
+        best_score = -1
+
+        for material_name, material_props in mtl_materials.items():
+            score = 0
+            if 'diffuse_texture' in material_props:
+                score += 10
+            if 'diffuse' in material_props:
+                if sum(material_props['diffuse']) > 0.01:
+                    score += 5
+            if score > best_score:
+                best_score = score
+                best_material = (material_name, material_props)
+
+        return best_material
+
     def _add_specular_extension(self, material: Dict[str, Any], specular: List[float]) -> None:
         """
         Add KHR_materials_specular extension to material.
@@ -597,38 +622,18 @@ class GLTFExporter:
             
             if mtl_path.exists():
                 mtl_materials = self._parse_mtl_file(mtl_path)
-                
-                # Select best material (prefer materials with textures, avoid black materials)
-                best_material = None
-                best_score = -1
-                
-                for material_name, material_props in mtl_materials.items():
-                    score = 0
-                    
-                    # Prefer materials with textures
-                    if 'diffuse_texture' in material_props:
-                        score += 10
-                    
-                    # Avoid completely black materials (Kd = 0,0,0)
-                    if 'diffuse' in material_props:
-                        diffuse = material_props['diffuse']
-                        if sum(diffuse) > 0.01:  # Non-black
-                            score += 5
-                    
-                    if score > best_score:
-                        best_score = score
-                        best_material = (material_name, material_props)
-                
+
                 # Apply best material if found
+                best_material = self._select_best_mtl_material(mtl_materials)
                 if best_material:
                     material_name, material_props = best_material
-                    
+
                     material_index = self._create_gltf_material(
                         material_name,
                         material_props,
                         model_dir
                     )
-                    
+
                     primitive["material"] = material_index
             
             # Create mesh
@@ -848,8 +853,6 @@ class GLTFExporter:
         Returns:
             List of normal vectors (one per vertex)
         """
-        import numpy as np
-        
         # Initialize normals (will accumulate contributions from triangles)
         normals = [np.array([0.0, 0.0, 0.0]) for _ in vertices]
         
@@ -915,8 +918,6 @@ class GLTFExporter:
         Returns:
             List of (u, v) texture coordinates for each vertex
         """
-        import numpy as np
-        
         # Initialize UV coords
         texcoords = [(0.0, 0.0) for _ in vertices]
         
@@ -1110,35 +1111,14 @@ class GLTFExporter:
         
         # Generate normals from triangle geometry
         if has_openings:
-            # For walls with openings, generate normals for all major faces including
-            # front/back with holes. This ensures proper lighting and shadow calculation.
-            triangles_to_process = []
-            if 'front' in face_groups:
-                triangles_to_process.extend(face_groups['front'])
-            if 'back' in face_groups:
-                triangles_to_process.extend(face_groups['back'])
-            if 'top' in face_groups:
-                triangles_to_process.extend(face_groups['top'])
-            if 'bottom' in face_groups:
-                triangles_to_process.extend(face_groups['bottom'])
-            if 'left' in face_groups:
-                triangles_to_process.extend(face_groups['left'])
-            if 'right' in face_groups:
-                triangles_to_process.extend(face_groups['right'])
-            if 'opening_edges' in face_groups:
-                triangles_to_process.extend(face_groups['opening_edges'])
-            
-            print(f"DEBUG: Generating normals for wall with openings: {element.id}")
-            print(f"  Processing {len(triangles_to_process)} triangles (all faces)")
-            print(f"  Total triangles: {len(remapped_indices)}")
-            
-            normals = self._generate_normals(expanded_vertices, remapped_indices, triangles_to_process)
-            normals_array = np.array(normals, dtype=np.float32)
+            # For walls with openings, generate normals for all triangles
+            normals = self._generate_normals(expanded_vertices, remapped_indices)
         else:
             # For simple walls and other elements, generate normals for all triangles
             normals = self._generate_normals(expanded_vertices, remapped_indices)
-            normals_array = np.array(normals, dtype=np.float32)
-        
+
+        normals_array = np.array(normals, dtype=np.float32)
+
         # Create vertex position accessor
         position_accessor = self.buffer_builder.add_data(
             vertices_array,
@@ -1245,29 +1225,8 @@ class GLTFExporter:
             
             if mtl_path.exists():
                 mtl_materials = self._parse_mtl_file(mtl_path)
-                
-                # Select best material (same logic as external models and OBJ exporter)
-                # Prefer materials with textures, avoid completely black materials
-                best_material = None
-                best_score = -1
-                
-                for material_name, material_props in mtl_materials.items():
-                    score = 0
-                    
-                    # Prefer materials with textures
-                    if 'diffuse_texture' in material_props:
-                        score += 10
-                    
-                    # Avoid completely black materials (Kd = 0,0,0)
-                    if 'diffuse' in material_props:
-                        diffuse = material_props['diffuse']
-                        if sum(diffuse) > 0.01:  # Non-black
-                            score += 5
-                    
-                    if score > best_score:
-                        best_score = score
-                        best_material = (material_name, material_props)
-                
+
+                best_material = self._select_best_mtl_material(mtl_materials)
                 if best_material:
                     mtl_properties = best_material[1]
         

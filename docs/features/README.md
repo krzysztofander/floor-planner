@@ -57,13 +57,13 @@ Current feature plans in this folder:
 ### Completed
 - [species-rendering-feature.md](species-rendering-feature.md) - Species and bloom season display on vegetation
 - [landscaping-elements.md](landscaping-elements.md) - Comprehensive landscaping elements
-- [vertical-positioning-feature.md](vertical-positioning-feature.md) - Vertical positioning (v_anchor and height) for 2D rendering order and future 3D support
+- [vertical-positioning-feature.md](vertical-positioning-feature.md) - Vertical positioning (v_anchor and height) for 2D rendering order and 3D support
 - [wall-opening-detection.md](wall-opening-detection.md) - Automatic detection of doors/windows in walls and generation of wall geometry with cutouts for 3D visualization
+- [external-model-integration.md](external-model-integration.md) - Hybrid system supporting external 3D models (chairs, appliances) alongside procedural generation, with glTF export (Phases 1-4 complete; Phase 5 web viewer and Phase 3.4 animation embedding remain)
+- [3d-mtl-generation.md](3d-mtl-generation.md) - 3D model generation with textures — **superseded by glTF export** (OBJ export retained for backward compatibility, new development uses glTF)
 
 ### In Planning
-- [external-model-integration.md](external-model-integration.md) - **PRIORITY** Hybrid system supporting external 3D models (chairs, appliances) alongside procedural generation, with glTF export and animation support
 - [common-properties-refactor.md](common-properties-refactor.md) - Refactor Element hierarchy to consolidate common properties (color, length, thickness, diameter)
-- [3d-mtl-generation.md](3d-mtl-generation.md) - 3D model generation in OBJ/MTL format with textures
 
 ### On Hold
 - [multi-shape-elements.md](multi-shape-elements.md) - Compositional architecture for elements built from multiple shapes (superseded by external-model-integration for Phase 1)

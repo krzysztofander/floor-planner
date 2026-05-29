@@ -15,6 +15,8 @@ Author: Floor Planner Team
 Created: 2026-05-27
 """
 
+import math
+
 import matplotlib.axes
 import matplotlib.patches as mpatches
 
@@ -129,7 +131,6 @@ class ExternalModelTest(ExternalModelElement):
         ]
         
         # Rotate corners around anchor point
-        import math
         angle_rad = math.radians(self.orientation_angle)
         rotated_corners = [
             rotate_point(self.anchor_point, corner[0], corner[1], angle_rad)
