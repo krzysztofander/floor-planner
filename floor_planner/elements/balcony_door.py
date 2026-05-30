@@ -87,25 +87,50 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
         # length is used by the parent Element / anchor helpers
         self.length = doorway_width
 
-        # Secondary normalization: rotate the 3D model 180° around Y when the
-        # door opens outward so it visually matches the 2D floor plan.
-        # translation [width, 0, depth] corrects the negative-coordinate shift
-        # caused by the 180° Y rotation (T@R keeps the model in positive space).
-        # _MODEL_DEPTH is the Z extent of the external model (balcony_door.obj).
-        _MODEL_DEPTH = 0.12
-        if not opening_outside:
+        # Secondary normalization: partially open the 3D door wing (≈ 15° from
+        # the shut position) so the 3D view shows an ajar door that matches the
+        # 2D floor-plan schematic.
+        #
+        # Model space (after primary normalization, anchor_offset = [0,0,0]):
+        #   X ∈ [0, width]  → door-width direction
+        #   Y ∈ [0, height] → vertical
+        #   Z ∈ [0, depth]  → wall-thickness direction (Z=0 = room-side face)
+        #
+        # The hinge is on the X side closest to the YAML anchor_point.
+        #   to_the_right=False  → hinge at X=0  (already at origin)
+        #   to_the_right=True   → hinge at X=width (must shift, rotate, shift back)
+        #
+        # "Inside" opening → door swings toward Z+ (into the room shown above Z=0).
+        #   Rotate around Y by +OPEN_DEG.
+        # "Outside" opening → door swings toward Z- (outside).
+        #   Rotate around Y by -OPEN_DEG.
+        #
+        # For to_the_right=True the hinge is at X=width, so we:
+        #   1. secondary_anchor_offset = [width, 0, 0]   → moves hinge to origin
+        #   2. Rotate (± OPEN_DEG) around Y              → door swings
+        #   3. secondary_normalization translation = [width, 0, 0]  → moves back
+        #
+        # For to_the_right=False the hinge is already at origin, so anchor_offset
+        # is [0,0,0] and translation = [0,0,0].
+
+        OPEN_DEG = 15.0
+        W = self._default_width()   # 0.9 m
+
+        if to_the_right:
+            # Hinge at X=W: shift to origin, rotate, shift back
+            rot_y = OPEN_DEG if opening_outside else -OPEN_DEG
             self.secondary_normalization = {
-                'rotation':    [0, 140, 0],
-                #'translation': [self._default_width(), 0, _MODEL_DEPTH],
-                'translation': [self._default_width(), 0, thickness],
+                'rotation':    [0, rot_y, 0],
+                'translation': [W, 0, 0],
             }
+            self.secondary_anchor_offset = [W, 0, 0]
         else:
+            # Hinge at X=0: already at origin
+            rot_y = -OPEN_DEG if opening_outside else OPEN_DEG
             self.secondary_normalization = {
-                'rotation':    [0, 20, 0],
-                #'translation': [self._default_width(), 0, _MODEL_DEPTH],
-                'translation': [0, 0, 0],
+                'rotation': [0, rot_y, 0],
             }
-        self.secondary_anchor_offset = None
+            self.secondary_anchor_offset = None
 
     # ------------------------------------------------------------------
     # ExternalModelElement hooks

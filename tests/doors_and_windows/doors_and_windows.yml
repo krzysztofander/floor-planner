@@ -2,6 +2,7 @@ project:
   dpi: 200
   pdf_file: null
   png_dir: "."
+  visualisation_dir: "visualisation_3d"  # Folder for 3D glTF export
 default_options:
   Door:
     label_color: green
