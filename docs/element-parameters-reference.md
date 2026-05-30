@@ -301,6 +301,16 @@ Double bed.
 
 **Note:** Dimensions are fixed at length=2.15m, thickness=1.7m.
 
+### MasterBed
+King-size master bed with a realistic external 3D model (OBJ, diffuse texture).
+
+**Parameters:**
+- `anchor_point`: tuple[float, float] - coordinates of anchor point (in meters); bottom-left corner at the foot of the bed when `orientation_angle == 0`
+- `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the bed
+- `label`: str | None = None - optional label for the element
+
+**Note:** Dimensions are fixed from the external 3D model: width=1.749m × length=2.257m × height=1.190m. Setting width/length/height raises an error. YAML type key: `master_bed`.
+
 ### SingleBed
 Single bed.
 
@@ -500,6 +510,26 @@ N-element sofa with configurable number of seats.
 - `label`: str | None = None - optional label for the element
 
 **Note:** Each seat is 0.8m wide; total length = num_seats × 0.8m; depth is fixed at 0.9m.
+
+### WoodenChair
+Wooden chair with a realistic external 3D model.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float] - coordinates of anchor point (in meters); bottom-left corner when `orientation_angle == 0`
+- `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the chair
+- `label`: str | None = None - optional label for the element
+
+**Note:** Dimensions are fixed from the external 3D model: ~0.5m × 0.5m × 0.85m. Cannot override width/length/height. YAML type key: `wooden_chair`.
+
+### SofaModel
+Realistic loveseat/sofa with an external 3D model (Cinema 4D export, photo texture).
+
+**Parameters:**
+- `anchor_point`: tuple[float, float] - coordinates of anchor point (in meters); bottom-left corner when `orientation_angle == 0`
+- `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the sofa
+- `label`: str | None = None - optional label for the element
+
+**Note:** Dimensions are fixed from the external 3D model: width=0.490m (depth) × length=1.368m (arm-to-arm) × height=0.489m. At `orientation_angle == 0` the long axis runs in the Y direction; use `orientation_angle: 90` to lay it along X. YAML type key: `sofa_model`.
 
 ---
 
