@@ -124,6 +124,10 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
                 'translation': [W, 0, 0],
             }
             self.secondary_anchor_offset = [W, 0, 0]
+            # Animation pivot: hinge is at X=W in child-node space (after
+            # secondary_anchor_offset moves it to origin, then the translation
+            # puts it back at X=W in the parent's local space).
+            _hinge_x = W
         else:
             # Hinge at X=0: already at origin
             rot_y = -OPEN_DEG if opening_outside else OPEN_DEG
@@ -131,6 +135,23 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
                 'rotation': [0, rot_y, 0],
             }
             self.secondary_anchor_offset = None
+            _hinge_x = 0.0
+
+        # Animation descriptor (Option B: metadata in glTF extras).
+        # The 3D player reads child node extras.animation to drive door opening.
+        # open_angle sign: positive = counter-clockwise around Y when viewed from above.
+        # For opening_outside=False the door swings toward Z+ (into the room),
+        # which is a positive Y-axis rotation; for opening_outside=True it is negative.
+        _open_sign = -1.0 if opening_outside else 1.0
+        self.animation = {
+            'type':         'hinge_rotation',
+            'axis':         [0, 1, 0],
+            'pivot_local':  [_hinge_x, 0.0, 0.0],
+            'closed_angle': 0.0,
+            'open_angle':   _open_sign * 90.0,
+            'duration':     0.5,
+            'trigger':      'click',
+        }
 
     # ------------------------------------------------------------------
     # ExternalModelElement hooks

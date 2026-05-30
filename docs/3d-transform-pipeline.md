@@ -167,7 +167,11 @@ not Y.
 | Emitting transform to glTF | **Yes** — `matrix_to_json(final_transform)` converts to column-major flat list of 16 | No |
 | Applying the matrix to mesh vertices | No | **Yes** — the glTF node `matrix` field is applied by the renderer |
 
-### How the matrix is passed to the 3D player
+> **Note:** All five steps are fully computed and baked by the Python tool.
+> The 3D player applies the resulting `node.matrix` passively; it performs no
+> transform computation of its own.
+
+### How the matrix is passed to the 3D player (non-animated elements)
 
 `_add_external_model_element()` in `floor_planner/gltf_exporter.py` writes the
 fully-composed matrix into the glTF node:
@@ -198,6 +202,118 @@ glTF node.matrix = [m00, m10, m20, m30,  m01, m11, m21, m31,  ...]   (column-maj
 
 The `extras` object is purely informational metadata for tooling or debugging; it
 is not used by the renderer for any transform.
+
+---
+
+## Animation support (Option B — extras metadata + node hierarchy)
+
+Animated elements (currently: `BalconyDoor`; future: sliding garage doors, etc.)
+use a **two-node glTF hierarchy** instead of a single baked node.  The split
+allows the 3D player to animate the inner node independently while the outer
+Placement stays fixed.
+
+### Node hierarchy
+
+```
+Parent node  →  matrix = Placement only  (Steps 1–5 = Placement; static)
+  └── Child node  →  TRS = Steps 1–4  +  mesh  +  extras.animation
+```
+
+glTF's scene graph multiplies `parent.matrix × child.TRS` at render time, so the
+rendered rest-pose is identical to the single-node non-animated version.  The
+player animates only the **child** node's `rotation` (hinge) or `translation`
+(slide).
+
+> **Why split?**  The glTF spec forbids a node from having both a `matrix` field
+> **and** TRS (`translation`/`rotation`/`scale`) fields.  Animation channels can
+> only target TRS properties, not `matrix`.  So the child must use TRS.
+
+### What the Python tool emits
+
+```python
+# Parent — Placement only, static matrix
+parent_node = {
+    "name": "balcony_door_004_placement",
+    "matrix": [...],          # 16-float column-major Placement matrix
+    "children": [child_idx],
+    "extras": { "element_type": "balcony_door", ... }
+}
+
+# Child — normalization chain as TRS + animation descriptor in extras
+child_node = {
+    "name": "balcony_door_005_anim",
+    "translation": [tx, ty, tz],
+    "rotation":    [qx, qy, qz, qw],   # unit quaternion decomposed from Steps 1-4
+    "scale":       [sx, sy, sz],
+    "mesh": ...,
+    "extras": {
+        "animation": {
+            "type":         "hinge_rotation",
+            "axis":         [0, 1, 0],         # Y-axis (vertical hinge)
+            "pivot_local":  [0.0, 0.0, 0.0],   # hinge point in child-node space
+            "closed_angle": 0.0,               # degrees, door shut
+            "open_angle":   90.0,              # degrees, door fully open
+            "duration":     0.5,               # seconds
+            "trigger":      "click"
+        }
+    }
+}
+```
+
+The TRS values are computed by decomposing the Steps 1–4 matrix via
+`matrix_to_trs()` in `floor_planner/transform.py`.
+
+The child's rest-pose (TRS) already includes the 15° ajar angle from
+`secondary_normalization`.  The `closed_angle` and `open_angle` in the animation
+descriptor are relative to that rest-pose and are applied **on top of** it by the
+player.
+
+### What the 3D player must do
+
+Only the child node (`_anim` suffix, has `extras.animation`) requires player logic.
+
+```js
+// Pseudo-code for a hinge_rotation door
+function onSceneLoad(gltf) {
+    for (const node of gltf.nodes) {
+        if (node.extras?.animation?.type === 'hinge_rotation') {
+            node.userData.anim = node.extras.animation;
+            node.addEventListener('click', () => toggleDoor(node));
+        }
+    }
+}
+
+function toggleDoor(node) {
+    const a = node.userData.anim;
+    // Rotate node around a.pivot_local along a.axis
+    // from current angle toward a.open_angle (or back to a.closed_angle)
+    // over a.duration seconds.
+    // DO NOT touch the parent node's matrix.
+}
+```
+
+For `slide_translation` (e.g. garage door):
+```js
+// Translate node along a.axis by a.distance over a.duration seconds.
+```
+
+### How to add animation to a new element
+
+1. Set `self.animation` dict in the element's `__init__` (see
+   `ExternalModelElement.animation` class-level docstring for full schema).
+2. No exporter changes needed — `_add_external_model_element()` detects
+   `element.animation is not None` and automatically emits the two-node hierarchy.
+
+```python
+# Example: sliding garage door
+self.animation = {
+    'type':     'slide_translation',
+    'axis':     [1, 0, 0],    # slide along X
+    'distance': self.door_width,
+    'duration': 1.2,
+    'trigger':  'click',
+}
+```
 
 ---
 

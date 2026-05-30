@@ -24,6 +24,7 @@ from floor_planner.transform import (
     create_placement_matrix,
     compose_transforms,
     matrix_to_json,
+    matrix_to_trs,
 )
 from floor_planner.elements.element import Element
 from floor_planner.elements.external_models import ExternalModelElement
@@ -174,6 +175,9 @@ class GLTFExporter:
         
         self.buffer_builder = BufferBuilder()
         self.nodes: List[Dict[str, Any]] = []
+        # Indices of nodes that should appear as scene roots.
+        # Child nodes (e.g. animation children) are NOT added here.
+        self.root_node_indices: List[int] = []
         self.meshes: List[Dict[str, Any]] = []
         self.materials: List[Dict[str, Any]] = []
         self.textures: List[Dict[str, Any]] = []
@@ -1539,6 +1543,7 @@ class GLTFExporter:
         
         node_index = len(self.nodes)
         self.nodes.append(node)
+        self.root_node_indices.append(node_index)
         
         return node_index
     
@@ -1686,53 +1691,156 @@ class GLTFExporter:
     def _add_external_model_element(self, element: ExternalModelElement) -> int:
         """
         Add element with external 3D model.
-        
+
+        For unanimated elements emits a single node carrying the fully-composed
+        matrix (Steps 1-5 baked together).
+
+        For animated elements (element.animation is not None) emits two nodes:
+          - Parent node: Placement matrix only (static, never changes).
+          - Child node:  Steps 1-4 as separate TRS fields + mesh + extras.animation.
+            The 3D player animates the child node's TRS in response to user
+            interaction; the parent Placement is automatically composed by the
+            glTF scene graph.
+
         Args:
             element: Element with external model
-        
+
         Returns:
-            Node index
+            Node index of the (parent) node added to self.nodes
         """
-        # Get model path and format
         model_path = element.model_path
         model_format = element.get_model_format()
-        
-        # Get placement transform (includes normalization)
-        final_transform = element.get_final_transform()
-        
-        # Create node with transform
-        node = {
-            "name": f"{element.get_registry_key()}_{len(self.nodes):03d}",
-            "matrix": matrix_to_json(final_transform),
+
+        def _load_mesh(node: dict) -> None:
+            """Attach mesh geometry to node in-place if model file is readable."""
+            if model_path and model_format == 'obj':
+                mesh_index = self._load_obj_as_mesh(model_path)
+                if mesh_index is not None:
+                    node["mesh"] = mesh_index
+            elif model_path and model_format == '3ds':
+                mesh_index = self._load_3ds_as_mesh(model_path)
+                if mesh_index is not None:
+                    node["mesh"] = mesh_index
+            elif model_path and model_format == 'dae':
+                mesh_index = self._load_dae_as_mesh(model_path)
+                if mesh_index is not None:
+                    node["mesh"] = mesh_index
+            elif model_path and model_format == 'gltf':
+                print(f"Warning: glTF model loading not yet implemented for {model_path}")
+
+        anim_data = getattr(element, 'animation', None)
+
+        if anim_data is None:
+            # ── Non-animated: single node, fully-baked matrix (original behaviour) ──
+            final_transform = element.get_final_transform()
+            node = {
+                "name": f"{element.get_registry_key()}_{len(self.nodes):03d}",
+                "matrix": matrix_to_json(final_transform),
+                "extras": {
+                    "element_type": element.get_registry_key(),
+                    "external_model": True,
+                    "model_path": str(model_path),
+                    "model_format": model_format,
+                },
+            }
+            _load_mesh(node)
+            node_index = len(self.nodes)
+            self.nodes.append(node)
+            self.root_node_indices.append(node_index)
+            return node_index
+
+        # ── Animated: parent (Placement) + child (Steps 1-4, animatable TRS) ──
+        #
+        # glTF spec: a node with `matrix` may NOT also carry TRS or be an
+        # animation target.  So the parent uses `matrix` (Placement only, static)
+        # and the child uses separate translation/rotation/scale (TRS) fields so
+        # the player can drive animation channels on it.
+
+        # Parent: Placement only
+        placement_matrix = element.get_placement_transform()
+        child_index = len(self.nodes) + 1          # will be appended right after parent
+
+        parent_node = {
+            "name": f"{element.get_registry_key()}_{len(self.nodes):03d}_placement",
+            "matrix": matrix_to_json(placement_matrix),
+            "children": [child_index],
             "extras": {
                 "element_type": element.get_registry_key(),
                 "external_model": True,
                 "model_path": str(model_path),
                 "model_format": model_format,
-            }
+            },
         }
-        
-        # Load mesh geometry if available
-        if model_path and model_format == 'obj':
-            mesh_index = self._load_obj_as_mesh(model_path)
-            if mesh_index is not None:
-                node["mesh"] = mesh_index
-        elif model_path and model_format == '3ds':
-            mesh_index = self._load_3ds_as_mesh(model_path)
-            if mesh_index is not None:
-                node["mesh"] = mesh_index
-        elif model_path and model_format == 'dae':
-            mesh_index = self._load_dae_as_mesh(model_path)
-            if mesh_index is not None:
-                node["mesh"] = mesh_index
-        elif model_path and model_format == 'gltf':
-            # TODO: Implement glTF model loading
-            print(f"Warning: glTF model loading not yet implemented for {model_path}")
-        
-        node_index = len(self.nodes)
-        self.nodes.append(node)
-        
-        return node_index
+
+        # Child: Steps 1-4 (normalization chain, no Placement) decomposed to TRS
+        # so animation channels can target translation/rotation/scale independently.
+        from floor_planner.transform import build_normalization_matrix
+
+        normalization = element.get_normalization_transform()
+
+        sec_norm_data = getattr(element, 'secondary_normalization', None)
+        sec_norm_matrix = (
+            build_normalization_matrix(sec_norm_data)
+            if sec_norm_data is not None
+            else np.eye(4)
+        )
+
+        anchor_offset_matrix = np.eye(4)
+        if element._model_metadata and element._model_metadata.anchor_offset != (0.0, 0.0, 0.0):
+            off = element._model_metadata.anchor_offset
+            anchor_offset_matrix[0, 3] = -off[0]
+            anchor_offset_matrix[1, 3] = -off[1]
+            anchor_offset_matrix[2, 3] = -off[2]
+
+        sec_anchor_data = getattr(element, 'secondary_anchor_offset', None)
+        sec_anchor_matrix = np.eye(4)
+        if sec_anchor_data is not None:
+            sec_anchor_matrix[0, 3] = -sec_anchor_data[0]
+            sec_anchor_matrix[1, 3] = -sec_anchor_data[1]
+            sec_anchor_matrix[2, 3] = -sec_anchor_data[2]
+
+        child_matrix = compose_transforms(
+            sec_anchor_matrix,
+            anchor_offset_matrix,
+            sec_norm_matrix,
+            normalization,
+        )
+
+        translation, rotation_quat, scale = matrix_to_trs(child_matrix)
+
+        child_node = {
+            # glTF TRS fields — required for animation targeting
+            "name": f"{element.get_registry_key()}_{child_index:03d}_anim",
+            "translation": translation.tolist(),
+            "rotation":    rotation_quat.tolist(),   # [x, y, z, w]
+            "scale":       scale.tolist(),
+            "extras": {
+                # ----------------------------------------------------------------
+                # animation — read by the 3D player to drive interactive animation.
+                #
+                # type:          'hinge_rotation' | 'slide_translation'
+                # pivot_local:   [x,y,z] rotation pivot in this node's local space
+                # axis:          [x,y,z] unit vector of rotation/slide axis
+                # closed_angle:  degrees — door fully closed (usually 0)
+                # open_angle:    degrees — door fully open (positive = CCW from above)
+                # distance:      metres  — travel for slide_translation
+                # duration:      seconds — animation duration
+                # trigger:       'click' | 'auto'
+                #
+                # The player MUST NOT modify the parent node's transform.
+                # Only this node's rotation (hinge) or translation (slide) changes.
+                # ----------------------------------------------------------------
+                "animation": anim_data,
+            },
+        }
+        _load_mesh(child_node)
+
+        parent_idx = len(self.nodes)
+        self.nodes.append(parent_node)
+        self.nodes.append(child_node)
+        # Only the parent is a scene root; the child is referenced via parent.children
+        self.root_node_indices.append(parent_idx)
+        return parent_idx
     
     def export(self, filename: str = "floor_plan_3d.gltf") -> Path:
         """
@@ -1757,7 +1865,7 @@ class GLTFExporter:
             "scenes": [
                 {
                     "name": "Floor Plan Scene",
-                    "nodes": list(range(len(self.nodes)))
+                    "nodes": self.root_node_indices
                 }
             ],
             "nodes": self.nodes,
