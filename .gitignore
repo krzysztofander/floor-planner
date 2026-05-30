@@ -201,6 +201,7 @@ tests/**/*.mtl
 tests/**/*.bin
 tests/**/*.sh
 tests/**/*.md
+camera.json
 
 # Generated md files
 examples/**/*.md
