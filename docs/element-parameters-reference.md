@@ -15,8 +15,9 @@ Comprehensive parameter documentation for all non-landscaping elements in the fl
 10. [Furniture - Appliances](#furniture---appliances)
 11. [Furniture - Bathroom](#furniture---bathroom)
 12. [Furniture - General](#furniture---general)
-13. [Furniture - Decorations](#furniture---decorations)
-14. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
+13. [Furniture - Blender Models](#furniture---blender-models)
+14. [Furniture - Decorations](#furniture---decorations)
+15. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
 
 ---
 
@@ -309,7 +310,7 @@ King-size master bed with a realistic external 3D model (OBJ, diffuse texture).
 - `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the bed
 - `label`: str | None = None - optional label for the element
 
-**Note:** Dimensions are fixed from the external 3D model: width=1.749m × length=2.257m × height=1.190m. Setting width/length/height raises an error. YAML type key: `master_bed`.
+**Note:** Dimensions are fixed from the external 3D model: width=1.749m × length=2.257m × height=1.190m. Setting width/length/height raises an error. YAML type key: `model_master_bed`.
 
 ### SingleBed
 Single bed.
@@ -519,7 +520,7 @@ Wooden chair with a realistic external 3D model.
 - `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the chair
 - `label`: str | None = None - optional label for the element
 
-**Note:** Dimensions are fixed from the external 3D model: ~0.5m × 0.5m × 0.85m. Cannot override width/length/height. YAML type key: `wooden_chair`.
+**Note:** Dimensions are fixed from the external 3D model: ~0.5m × 0.5m × 0.85m. Cannot override width/length/height. YAML type key: `model_wooden_chair`.
 
 ### SofaModel
 Realistic loveseat/sofa with an external 3D model (Cinema 4D export, photo texture).
@@ -529,7 +530,96 @@ Realistic loveseat/sofa with an external 3D model (Cinema 4D export, photo textu
 - `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the sofa
 - `label`: str | None = None - optional label for the element
 
-**Note:** Dimensions are fixed from the external 3D model: width=0.490m (depth) × length=1.368m (arm-to-arm) × height=0.489m. At `orientation_angle == 0` the long axis runs in the Y direction; use `orientation_angle: 90` to lay it along X. YAML type key: `sofa_model`.
+**Note:** Dimensions are fixed from the external 3D model: width=0.490m (depth) × length=1.368m (arm-to-arm) × height=0.489m. At `orientation_angle == 0` the long axis runs in the Y direction; use `orientation_angle: 90` to lay it along X. YAML type key: `model_sofa_model`.
+
+---
+
+## Furniture - Blender Models
+
+All elements in this section are sourced from Blender `.blend` files exported to OBJ.
+Dimensions are fixed from the model geometry — `width`, `length`, and `height` cannot be
+overridden in YAML. All anchors are at the **bottom-left-front corner** when
+`orientation_angle == 0`.
+
+### Armchair
+Bergère / club armchair.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float] - bottom-left-front corner at `orientation_angle == 0`
+- `orientation_angle`: float = 0 - rotation in degrees
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=0.776 m × length=0.825 m × height=0.747 m. YAML type key: `model_armchair`.
+
+### Chair20
+High-back dining / accent chair.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=0.661 m × length=0.687 m × height=1.295 m (tall back-rest). YAML type key: `model_chair_20`.
+
+### ChaiseLongue1
+Chaise longue / daybed.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0 - at 0° the long axis runs in Y
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=0.783 m × length=1.649 m × height=0.808 m. YAML type key: `model_chaise_longue_1`.
+
+### Desk1
+Large office/study desk with upper hutch.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0 - at 0° the long axis runs in X
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=2.059 m × length=0.971 m × height=1.095 m. YAML type key: `model_desk_1`.
+
+### Sofa22
+Large 3-seat sofa. Backrest at far-Y edge; typically placed against a wall at `orientation_angle == 0`.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0 - at 0° the long axis runs in X
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=2.835 m × length=0.904 m × height=0.702 m. YAML type key: `model_sofa_22`.
+
+### Sofa23
+Medium 2-seat sofa. Backrest at far-Y edge.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0 - at 0° the long axis runs in X
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=2.003 m × length=0.903 m × height=0.702 m. YAML type key: `model_sofa_23`.
+
+### Stool7
+Bar / counter stool (roughly square footprint).
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=0.297 m × length=0.297 m × height=0.670 m. YAML type key: `model_stool_7`.
+
+### Table01
+Large dining / conference table.
+
+**Parameters:**
+- `anchor_point`: tuple[float, float]
+- `orientation_angle`: float = 0 - at 0° the long axis runs in X
+- `label`: str | None = None
+
+**Note:** Fixed dims: width=4.123 m × length=1.671 m × height=0.854 m. YAML type key: `model_table_01`.
 
 ---
 

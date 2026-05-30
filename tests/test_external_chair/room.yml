@@ -65,13 +65,13 @@
         label: "storage 1x1x1"
 
 
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [1+chair_anchor_x_offset, 1]
         orientation_angle: 0
         color: brown
         label: "Wooden Chair"
 
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [1+chair_anchor_x_offset*2, 1]
         orientation_angle: 90
         color: brown

@@ -134,7 +134,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col2_y_2"
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [x_col2 + 0.5, y_2]
         doorway_width: balcony_door_doorway_width
         door_width: balcony_door_door_width
@@ -149,7 +149,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col3_y_2"
-      - type: window_door
+      - type: model_window_door
         anchor_point: [x_col3 + 0.5, y_2]
         doorway_width: balcony_door_doorway_width
         door_width: balcony_door_door_width
@@ -162,7 +162,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col1_y_3"
-      - type: window_door_double
+      - type: model_window_door_double
         anchor_point: [x_col1 + 0.5, y_3]
         doorway_width: balcony_door_doorway_width *2
         door_width: balcony_door_door_width*2
@@ -176,7 +176,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col2_y_3"
-      - type: window_90x120
+      - type: model_window_90x120
         anchor_point: [x_col2 + 0.5, y_3]
         overall_width: 0.9
         overall_thickness: wall_thickness
@@ -189,7 +189,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col3_y_3"
-      - type: window_140x120
+      - type: model_window_140x120
         anchor_point: [x_col3 + 0.5, y_3]
         overall_width: 1.4
         overall_thickness: wall_thickness
@@ -202,7 +202,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col1_y_4"
-      - type: window_double_160x120
+      - type: model_window_double_160x120
         anchor_point: [x_col1 + 0.5, y_4]
         overall_width: 1.6
         overall_thickness: wall_thickness
@@ -215,7 +215,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col2_y_4"
-      - type: window_double_160x140
+      - type: model_window_double_160x140
         anchor_point: [x_col2 + 0.5, y_4]
         overall_width: 1.6
         overall_thickness: wall_thickness
@@ -229,7 +229,7 @@
         thickness: wall_thickness
         orientation_angle: 0
         label: "x_col3_y_4"
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [x_col3 + 0.5, y_4]
         doorway_width: balcony_door_doorway_width
         door_width: balcony_door_door_width

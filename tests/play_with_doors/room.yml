@@ -56,7 +56,7 @@
 
 
     # Doors and south wall
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [door_spacing, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -67,7 +67,7 @@
         opening_outside: false
         label: "south balcony_door l inside"
         color: brown
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [door_spacing + (door_spacing+doorway_width)*1, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -78,7 +78,7 @@
         opening_outside: false
         label: "south balcony_door r inside"
         color: brown
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [door_spacing + (door_spacing+doorway_width)*2, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -89,7 +89,7 @@
         opening_outside: true
         label: "south balcony_door l outside"
         color: brown
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [door_spacing + (door_spacing+doorway_width)*3, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -107,7 +107,7 @@
         orientation_angle: 0
         label: "South window"
     # Doors and windows north wall
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [doorway_width + door_spacing, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -118,7 +118,7 @@
         opening_outside: false
         label: "north balcony_door r inside"
         color: brown
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*1, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -129,7 +129,7 @@
         opening_outside: false
         label: "north balcony_door l inside"
         color: brown
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*2, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -140,7 +140,7 @@
         opening_outside: true
         label: "north balcony_door r outside"
         color: brown
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*3, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -159,7 +159,7 @@
         orientation_angle: 180
         label: "north window"
     # Doors and windows west wall
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [0, door_spacing + doorway_width]
         doorway_width: doorway_width
         door_width: door_width
@@ -170,7 +170,7 @@
         opening_outside: true
         label: "west r balcony_door outside"
         color: black
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*1]
         doorway_width: doorway_width
         door_width: door_width
@@ -181,7 +181,7 @@
         opening_outside: true
         label: "west l balcony_door outside"
         color: black
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*2]
         doorway_width: doorway_width
         door_width: door_width
@@ -192,7 +192,7 @@
         opening_outside: false
         label: "west r balcony_door inside"
         color: black
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*3]
         doorway_width: doorway_width
         door_width: door_width
@@ -211,7 +211,7 @@
         orientation_angle: 270
         label: "west window"
     # Doors and windows east wall
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [room_width , door_spacing ]
         doorway_width: doorway_width
         door_width: door_width
@@ -222,7 +222,7 @@
         opening_outside: false
         label: "east l balcony_door inside"
         color: black
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*1]
         doorway_width: doorway_width
         door_width: door_width
@@ -233,7 +233,7 @@
         opening_outside: false
         label: "east r balcony_door inside"
         color: black
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*2]
         doorway_width: doorway_width
         door_width: door_width
@@ -244,7 +244,7 @@
         opening_outside: true
         label: "east l balcony_door outside"
         color: black
-      - type: balcony_door
+      - type: model_balcony_door
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*3]
         doorway_width: doorway_width
         door_width: door_width

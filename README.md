@@ -176,7 +176,6 @@ Place custom textures in `textures/defaults/<element_type>/` to override system 
 
 See:
 - `docs/NAMING_CONVENTION.md` - Complete naming convention specification
-- `floor_planner/supplemental_textures.py` - Multi-texture element definitions
 - `scripts/validate_texture_material_structure.py` - Validation tool
 
 See:

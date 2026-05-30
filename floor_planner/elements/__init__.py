@@ -23,6 +23,12 @@ from .element import Element, RectangularElement, SurfaceElement, CircularElemen
 from .external_models import ExternalModelElement
 from .external_model_test import ExternalModelTest
 from .wooden_chair import WoodenChair
+from .master_bed import MasterBed
+from .sofa_model import SofaModel
+from .blender_furniture import (
+    Armchair, Chair20, ChaiseLongue1, Desk1,
+    Sofa22, Sofa23, Stool7, Table01,
+)
 from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .multipurpose import Line, Polygon
@@ -48,6 +54,16 @@ ___all__ = [
     'ExternalModelElement',
     'ExternalModelTest',
     'WoodenChair',
+    'MasterBed',
+    'SofaModel',
+    'Armchair',
+    'Chair20',
+    'ChaiseLongue1',
+    'Desk1',
+    'Sofa22',
+    'Sofa23',
+    'Stool7',
+    'Table01',
     'LEDStrip',
     'Line',
     'Polygon',

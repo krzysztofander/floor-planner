@@ -13,6 +13,12 @@ from .electricity import ElectricalCable, PowerOutlet
 from .element import Element
 from .external_model_test import ExternalModelTest
 from .wooden_chair import WoodenChair
+from .master_bed import MasterBed
+from .sofa_model import SofaModel
+from .blender_furniture import (
+    Armchair, Chair20, ChaiseLongue1, Desk1,
+    Sofa22, Sofa23, Stool7, Table01,
+)
 from .info import DimensionArrow, TextBox
 from .lighting import CeilingLamp, LEDStrip, Switch, WallLamp
 from .multipurpose import Line, Polygon, Circle
@@ -39,16 +45,26 @@ def create_elements_registry() -> dict[str, type[Element]]:
         'ceiling_lamp': CeilingLamp,
         'dimension_arrow': DimensionArrow,
         'door': Door,
-        'balcony_door': BalconyDoor,
-        'window_door': WindowDoor,
-        'window_door_double': WindowDoorDouble,
-        'window_140x120': Window140x120,
-        'window_90x120': Window90x120,
-        'window_double_160x120': WindowDouble160x120,
-        'window_double_160x140': WindowDouble160x140,
+        'model_balcony_door': BalconyDoor,
+        'model_window_door': WindowDoor,
+        'model_window_door_double': WindowDoorDouble,
+        'model_window_140x120': Window140x120,
+        'model_window_90x120': Window90x120,
+        'model_window_double_160x120': WindowDouble160x120,
+        'model_window_double_160x140': WindowDouble160x140,
         'electrical_cable': ElectricalCable,
-        'external_model_test': ExternalModelTest,
-        'wooden_chair': WoodenChair,
+        'model_external_model_test': ExternalModelTest,
+        'model_wooden_chair': WoodenChair,
+        'model_master_bed': MasterBed,
+        'model_sofa_model': SofaModel,
+        'model_armchair': Armchair,
+        'model_chair_20': Chair20,
+        'model_chaise_longue_1': ChaiseLongue1,
+        'model_desk_1': Desk1,
+        'model_sofa_22': Sofa22,
+        'model_sofa_23': Sofa23,
+        'model_stool_7': Stool7,
+        'model_table_01': Table01,
         'led_strip': LEDStrip,
         'line': Line,
         'polygon': Polygon,
@@ -124,18 +140,23 @@ def get_element_type_from_instance(element: Element) -> str:
         bed = DoubleBed(...)
         get_element_type_from_instance(bed)  # Returns: 'double_bed'
     """
+    from .external_models import ExternalModelElement
+    # For external model elements, return the _registry_key directly.
+    # This keeps file-system paths (models/, textures/fallback/) stable
+    # regardless of the model_ prefix used in YAML configs.
+    if isinstance(element, ExternalModelElement):
+        return element.get_registry_key()
+
     registry = create_elements_registry()
     element_class = type(element)
-    
+
     # Search registry for matching class
     for key, cls in registry.items():
         if cls is element_class:
             return key
-    
+
     # Fallback: convert class name to lowercase with underscores
-    # This handles cases where class might not be in registry
     class_name = element_class.__name__
-    # Convert CamelCase to snake_case
     import re
     snake_case = re.sub(r'(?<!^)(?=[A-Z])', '_', class_name).lower()
     return snake_case

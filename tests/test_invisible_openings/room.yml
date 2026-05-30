@@ -119,7 +119,7 @@
         color: blue
         label: "storage"
       
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [-3, -3]
         orientation_angle: 0
         color: brown

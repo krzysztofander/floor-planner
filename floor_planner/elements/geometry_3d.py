@@ -315,36 +315,45 @@ class CircularGeometry3D(Generate3DMixin):
         face_groups = {}
         triangle_idx = 0
         
-        # Bottom cap triangles (fan from center)
+        # Bottom cap triangles (fan from center).
+        # Vertices go CCW from above, so (center, next_i, i) produces a +Y normal (inward).
+        # Reverse to (center, i, next_i) for outward -Y normal.
         bottom_tris = []
         for i in range(segments):
             next_i = (i + 1) % segments
-            indices.append((bottom_center_idx, next_i, i))
+            indices.append((bottom_center_idx, i, next_i))
             bottom_tris.append(triangle_idx)
             triangle_idx += 1
         face_groups['bottom'] = bottom_tris
         
-        # Top cap triangles (fan from center)
+        # Top cap triangles (fan from center).
+        # (center, top[i], top[next_i]) produces a -Y normal (inward).
+        # Reverse to (center, top[next_i], top[i]) for outward +Y normal.
         top_tris = []
         for i in range(segments):
             next_i = (i + 1) % segments
-            indices.append((top_center_idx, segments + i, segments + next_i))
+            indices.append((top_center_idx, segments + next_i, segments + i))
             top_tris.append(triangle_idx)
             triangle_idx += 1
         face_groups['top'] = top_tris
         
         # Side faces (2 triangles per segment)
+        # Winding is CCW when viewed from outside (outward normals).
+        # Vertices go CCW from above, so from outside the cylinder the quad is:
+        #   bottom[i] (left), bottom[next] (right), top[next] (top-right), top[i] (top-left)
+        # CCW from outside: bottom[i] → top[next] → bottom[next]  (tri 1)
+        #                   bottom[i] → top[i]    → top[next]     (tri 2)
         sides_tris = []
         for i in range(segments):
             next_i = (i + 1) % segments
             
-            # Triangle 1: bottom[i], bottom[next], top[next]
-            indices.append((i, next_i, segments + next_i))
+            # Triangle 1: bottom[i], top[next], bottom[next]  (CCW from outside)
+            indices.append((i, segments + next_i, next_i))
             sides_tris.append(triangle_idx)
             triangle_idx += 1
             
-            # Triangle 2: bottom[i], top[next], top[i]
-            indices.append((i, segments + next_i, segments + i))
+            # Triangle 2: bottom[i], top[i], top[next]  (CCW from outside)
+            indices.append((i, segments + i, segments + next_i))
             sides_tris.append(triangle_idx)
             triangle_idx += 1
         

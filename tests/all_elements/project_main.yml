@@ -6,7 +6,7 @@ project:
 
 default_layout:
   bottom_left_corner: [0, 0]
-  top_right_corner: [35, 60]
+  top_right_corner: [35, 76]
   scale_numerator: 1
   scale_denominator: 50
   grid_major_step: 5
@@ -22,6 +22,7 @@ default_options:
     label_color: steelblue
 
 reusable_elements:
+  blender_furniture:  "blender_furniture.yml"
   structural:       "structural.yml"
   doors:            "doors.yml"
   fixed_windows:    "fixed_windows.yml"
@@ -39,6 +40,7 @@ floor_plans:
       text: "All_Elements"
       font_size: 20
     inherited_elements:
+      - blender_furniture
       - structural
       - doors
       - fixed_windows

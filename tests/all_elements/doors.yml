@@ -19,7 +19,7 @@
   label: "door"
 
 # Balcony door (external 3D model)
-- type: balcony_door
+- type: model_balcony_door
   anchor_point: [7.5, 53.0]
   doorway_width: 1.0
   door_width: 0.9
@@ -29,7 +29,7 @@
   label: "balcony_door"
 
 # Window door (all-glass wing)
-- type: window_door
+- type: model_window_door
   anchor_point: [12.5, 53.0]
   doorway_width: 1.0
   door_width: 0.9
@@ -39,7 +39,7 @@
   label: "window_door"
 
 # Double window door
-- type: window_door_double
+- type: model_window_door_double
   anchor_point: [18.0, 53.0]
   doorway_width: 1.6
   door_width: 1.5

@@ -61,20 +61,6 @@ textures/
 | `'double_bed'` | `double_bed/` | `double_bed.jpg` | `double_bed.mtl` |
 | `'ceiling_lamp'` | `ceiling_lamp/` | `ceiling_lamp.jpg` | `ceiling_lamp.mtl` |
 
-### Supplemental Textures
-
-Multi-texture elements (doors, desks) use: `<element_type>_<descriptor>.jpg`
-
-Defined in [`floor_planner/supplemental_textures.py`](../floor_planner/supplemental_textures.py):
-
-```python
-SUPPLEMENTAL_TEXTURES = {
-    'door': ['frame'],      # door.jpg + door_frame.jpg
-    'desk': ['sides'],      # desk.jpg + desk_sides.jpg
-    'table': ['sides'],     # table.jpg + table_sides.jpg
-}
-```
-
 ## Material Files (.mtl)
 
 Material files define Phong shading properties:

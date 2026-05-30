@@ -79,7 +79,7 @@
         orientation_angle: 270
         room_edge: true
 
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [1, 1]
         orientation_angle: 0
         color: brown

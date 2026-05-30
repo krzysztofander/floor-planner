@@ -24,7 +24,7 @@
   label: "single bed"
 
 # master_bed: external 3D model, dimensions fixed
-- type: master_bed
+- type: model_master_bed
   anchor_point: [14.0, 37.0]
   orientation_angle: 0
   label: "master bed"

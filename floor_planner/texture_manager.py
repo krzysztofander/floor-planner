@@ -1,38 +1,17 @@
 """
 Texture management for 3D model generation.
 
-This module handles texture file resolution, path management, and multi-texture
-support for floor plan elements. Element types from registry determine folder
-and texture names directly.
+This module handles texture file resolution, path management for floor plan
+elements. Element types from registry determine folder and texture names directly.
 
 Naming convention:
 - Element type from registry → folder name and base texture name
 - Example: 'generic_storage' → folder 'generic_storage/', file 'generic_storage.jpg'
-- Supplemental textures use: '<element_type>_<suffix>.jpg' (e.g., 'door_frame.jpg')
 """
 
 from pathlib import Path
 from typing import Union
 import shutil
-
-from .supplemental_textures import SUPPLEMENTAL_TEXTURES, get_all_texture_names
-
-
-from .supplemental_textures import SUPPLEMENTAL_TEXTURES, get_all_texture_names
-
-
-# Standard face names for multi-texture support
-STANDARD_FACE_NAMES = [
-    'all',      # All faces (default for single texture)
-    'front',    # Front face
-    'back',     # Back face
-    'top',      # Top face
-    'bottom',   # Bottom face
-    'sides',    # All vertical sides
-    'left',     # Left side
-    'right',    # Right side
-    'frame',    # Frame/edge (e.g., door frame)
-]
 
 
 class TextureManager:
@@ -65,52 +44,19 @@ class TextureManager:
         """
         Get default texture filenames for an element type.
         
-        Uses registry key as base texture name. Supplemental textures from
-        SUPPLEMENTAL_TEXTURES registry.
+        Uses registry key as base texture name.
         
         Args:
-            element_type: Type of element from registry (e.g., 'wall', 'generic_storage', 'door')
+            element_type: Type of element from registry (e.g., 'wall', 'generic_storage')
             
         Returns:
-            Dict mapping face names to texture filenames
-            e.g., {'all': 'wall.jpg'} or {'front': 'door.jpg', 'frame': 'door_frame.jpg'}
+            Dict mapping face name 'all' to the base texture filename.
             
         Examples:
             get_default_textures('wall') → {'all': 'wall.jpg'}
             get_default_textures('generic_storage') → {'all': 'generic_storage.jpg'}
-            get_default_textures('door') → {'front': 'door.jpg', 'back': 'door.jpg', 'frame': 'door_frame.jpg'}
         """
-        # Base texture always uses element_type as filename
-        base_texture = f"{element_type}.jpg"
-        
-        # Check if element has supplemental textures
-        if element_type in SUPPLEMENTAL_TEXTURES:
-            # Multi-texture element
-            result = {}
-            suffixes = SUPPLEMENTAL_TEXTURES[element_type]
-            
-            # Map common texture patterns
-            if element_type == 'door':
-                result = {
-                    'front': base_texture,
-                    'back': base_texture,
-                    'frame': f"{element_type}_frame.jpg",
-                }
-            elif element_type in ['desk', 'table']:
-                result = {
-                    'top': base_texture,
-                    'sides': f"{element_type}_sides.jpg",
-                }
-            else:
-                # Generic handling - base texture for 'all', supplemental for named faces
-                result = {'all': base_texture}
-                for suffix in suffixes:
-                    result[suffix] = f"{element_type}_{suffix}.jpg"
-            
-            return result
-        else:
-            # Single texture for all faces
-            return {'all': base_texture}
+        return {'all': f"{element_type}.jpg"}
     
     def normalize_texture_spec(self, texture_spec: Union[str, dict[str, str], None], 
                                element_type: str) -> dict[str, str]:

@@ -69,7 +69,7 @@
         label: "storage 0.5x0.2x0.1"
     # chair at 0,0. looking at XZ plane (downwards Y plane) the bottom left corner
     # of the chair should match up with the bottom left corner of the storage
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [0,0]
         orientation_angle: 0
         color: brown
@@ -84,7 +84,7 @@
         height: 0.1
         color: brown
         label: "storage 0.5x0.2x0.1"
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [2,1]
         orientation_angle: 0
         color: brown
@@ -99,7 +99,7 @@
         height: 0.1
         color: brown
         label: "storage 0.5x0.2x0.1"
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [4,3]
         orientation_angle: 90
         color: brown
@@ -114,7 +114,7 @@
         height: 0.1
         color: brown
         label: "storage 0.5x0.2x0.1"
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [2,5]
         orientation_angle: 180
         color: brown
@@ -129,7 +129,7 @@
         height: 0.1
         color: brown
         label: "storage 0.5x0.2x0.1"
-      - type: wooden_chair
+      - type: model_wooden_chair
         anchor_point: [2,7]
         orientation_angle: 270
         color: brown

@@ -168,14 +168,6 @@ Rooms have:
    - MTL newmtl = Registry key: `newmtl generic_storage`
    - MTL map_Kd = Texture filename: `map_Kd generic_storage.jpg`
    
-   **For multi-texture elements** (doors with frames, desks with separate top/sides):
-   - Add to `floor_planner/supplemental_textures.py`:
-     ```python
-     SUPPLEMENTAL_TEXTURES = {
-         'new_element': ['frame', 'detail'],  # Creates new_element_frame.jpg, new_element_detail.jpg
-     }
-     ```
-   
    **Skip textures only for:**
    - Abstract/UI elements: `line`, `polygon`, `circle`, `dimension_arrow`, `text_box`, `room`
    - Elements without physical 3D representation
