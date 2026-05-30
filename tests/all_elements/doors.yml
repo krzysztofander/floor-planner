@@ -1,0 +1,48 @@
+# ─── DOORS ───────────────────────────────────────────────────────────────────
+# Row anchor y=53.  Door arcs extend ~0.9 m upward from anchor.
+# All doors at orientation_angle=0, to_the_right=false, opening_outside=false.
+
+- type: text_box
+  anchor_point: [17.5, 55.5]
+  lines:
+    - "DOORS  (door · balcony_door · window_door · window_door_double)"
+  transparency: 0.0
+
+# Standard door
+- type: door
+  anchor_point: [2.5, 53.0]
+  doorway_width: 1.0
+  door_width: 0.9
+  thickness: 0.05
+  orientation_angle: 0
+  to_the_right: false
+  label: "door"
+
+# Balcony door (external 3D model)
+- type: balcony_door
+  anchor_point: [7.5, 53.0]
+  doorway_width: 1.0
+  door_width: 0.9
+  thickness: 0.12
+  orientation_angle: 0
+  to_the_right: false
+  label: "balcony_door"
+
+# Window door (all-glass wing)
+- type: window_door
+  anchor_point: [12.5, 53.0]
+  doorway_width: 1.0
+  door_width: 0.9
+  thickness: 0.12
+  orientation_angle: 0
+  to_the_right: false
+  label: "window_door"
+
+# Double window door
+- type: window_door_double
+  anchor_point: [18.0, 53.0]
+  doorway_width: 1.6
+  door_width: 1.5
+  thickness: 0.12
+  orientation_angle: 0
+  label: "window_door_double"

@@ -1,0 +1,30 @@
+# ─── BEDS ────────────────────────────────────────────────────────────────────
+# Row anchor y=37.
+# double_bed:  2.15 m (X) × 1.70 m (Y)
+# single_bed:  2.00 m (X) × 0.90 m (Y)
+# master_bed:  1.75 m (X) × 2.26 m (Y)  [external 3D model]
+# x positions give ≥ 3 m gap between elements.
+
+- type: text_box
+  anchor_point: [17.5, 40.0]
+  lines:
+    - "BEDS  (double_bed · single_bed · master_bed)"
+  transparency: 0.0
+
+- type: double_bed
+  anchor_point: [2.5, 37.0]
+  orientation_angle: 0
+  color: grey
+  label: "double bed"
+
+- type: single_bed
+  anchor_point: [8.5, 37.0]
+  orientation_angle: 0
+  color: grey
+  label: "single bed"
+
+# master_bed: external 3D model, dimensions fixed
+- type: master_bed
+  anchor_point: [14.0, 37.0]
+  orientation_angle: 0
+  label: "master bed"

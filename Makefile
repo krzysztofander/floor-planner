@@ -108,6 +108,7 @@ TESTS_PNG += tests/test_external_chair/output/chair.png
 TESTS_PNG += tests/test_external_chair_placement/output/chair.png
 TESTS_PNG += tests/test_wall_openings/output/openings.png
 TESTS_PNG += tests/play_with_doors/output/some_floor.png
+TESTS_PNG += tests/all_elements/output/All_Elements.png
 
 
 tests: $(TESTS_PNG)
@@ -137,6 +138,10 @@ $(word 6,$(TESTS_PNG)): tests/test_wall_openings/project_main.yml tests/test_wal
 	$(PYTHON) -m floor_planner -c $<
 
 $(word 7,$(TESTS_PNG)): tests/play_with_doors/project_main.yml tests/play_with_doors/*.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 8,$(TESTS_PNG)): tests/all_elements/project_main.yml tests/all_elements/*.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

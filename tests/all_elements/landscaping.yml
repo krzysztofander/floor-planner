@@ -1,0 +1,168 @@
+# ─── LANDSCAPING ─────────────────────────────────────────────────────────────
+#
+# Row 1 (y≈11.5)  – VEGETATION:  tree · shrub · hedge · lawn · fence · garden_path · retaining_wall
+# Row 2 (y=7.0)   – WATER/HARDSCAPE: fountain · pond · pergola · raised_bed · gazebo · rect_pool
+# Row 3 (y=2.0)   – STRUCTURES:  oval_pool · deck · garden_house
+#
+# NOTE: tree, shrub, fountain, pond, gazebo anchor_point = CENTRE of element.
+#       All others anchor_point = bottom-left corner.
+
+# ── Section headers ──
+
+- type: text_box
+  anchor_point: [17.5, 14.5]
+  lines:
+    - "LANDSCAPING – VEGETATION  (tree · shrub · hedge · lawn · fence · garden_path · retaining_wall)"
+  transparency: 0.0
+
+- type: text_box
+  anchor_point: [17.5, 9.5]
+  lines:
+    - "LANDSCAPING – WATER & HARDSCAPE  (fountain · pond · pergola · raised_bed · gazebo · rect_pool)"
+  transparency: 0.0
+
+- type: text_box
+  anchor_point: [17.5, 5.0]
+  lines:
+    - "LANDSCAPING – STRUCTURES  (oval_pool · deck · garden_house)"
+  transparency: 0.0
+
+# ═════════════════════════════════════════════════════════
+# ROW 1  y=11.5 – Vegetation & linear elements
+# ═════════════════════════════════════════════════════════
+
+# Tree  ⌀ 3 m, centre anchor
+- type: tree
+  anchor_point: [3.0, 12.0]
+  diameter: 3.0
+  height: 6.0
+  trunk_diameter: 0.4
+  color: '#5B8A3C'
+  label: "tree"
+
+# Shrub  ⌀ 1.5 m, centre anchor
+- type: shrub
+  anchor_point: [8.0, 11.5]
+  diameter: 1.5
+  height: 1.2
+  color: '#7DB870'
+  label: "shrub"
+
+# Hedge  2.5 × 0.5 m, corner anchor
+- type: hedge
+  anchor_point: [12.0, 11.0]
+  length: 2.5
+  thickness: 0.5
+  height: 1.5
+  orientation_angle: 0
+  color: '#556B2F'
+  label: "hedge"
+
+# Lawn  2.5 × 1.5 m, corner anchor
+- type: lawn
+  anchor_point: [17.0, 11.0]
+  length: 2.5
+  width: 1.5
+  orientation_angle: 0
+  color: '#7CFC00'
+  label: "lawn"
+
+# Fence  2.5 m, corner anchor
+- type: fence
+  anchor_point: [22.0, 11.0]
+  length: 2.5
+  thickness: 0.1
+  orientation_angle: 0
+  label: "fence"
+
+# Garden path  2.5 × 0.6 m, corner anchor
+- type: garden_path
+  anchor_point: [26.5, 11.0]
+  length: 2.5
+  width: 0.6
+  orientation_angle: 0
+  label: "garden path"
+
+# Retaining wall  2.5 × 0.3 m, corner anchor
+- type: retaining_wall
+  anchor_point: [31.0, 11.0]
+  length: 2.5
+  thickness: 0.3
+  height: 0.8
+  orientation_angle: 0
+  label: "retaining wall"
+
+# ═════════════════════════════════════════════════════════
+# ROW 2  y=7.0 – Water features & hardscape
+# ═════════════════════════════════════════════════════════
+
+# Fountain  ⌀ 1.5 m, centre anchor
+- type: fountain
+  anchor_point: [2.5, 7.5]
+  diameter: 1.5
+  label: "fountain"
+
+# Pond  2.5 × 1.5 m, centre anchor
+- type: pond
+  anchor_point: [7.5, 7.5]
+  length: 2.5
+  width: 1.5
+  label: "pond"
+
+# Pergola  3.0 × 2.0 m, corner anchor
+- type: pergola
+  anchor_point: [12.0, 7.0]
+  length: 3.0
+  width: 2.0
+  orientation_angle: 0
+  label: "pergola"
+
+# Raised bed  1.5 × 0.8 m, corner anchor
+- type: raised_bed
+  anchor_point: [18.0, 7.0]
+  length: 1.5
+  width: 0.8
+  orientation_angle: 0
+  label: "raised bed"
+
+# Gazebo  ⌀ 2.5 m, centre anchor
+- type: gazebo
+  anchor_point: [23.5, 7.5]
+  diameter: 2.5
+  label: "gazebo"
+
+# Rectangular pool  3.5 × 1.5 m, corner anchor
+- type: rect_pool
+  anchor_point: [28.0, 7.0]
+  length: 3.5
+  thickness: 1.5
+  orientation_angle: 0
+  label: "rect pool"
+
+# ═════════════════════════════════════════════════════════
+# ROW 3  y=2.0 – Garden structures
+# ═════════════════════════════════════════════════════════
+
+# Oval pool  3.5 × 1.5 m, corner anchor
+- type: oval_pool
+  anchor_point: [2.5, 2.0]
+  length: 3.5
+  thickness: 1.5
+  orientation_angle: 0
+  label: "oval pool"
+
+# Deck  3.5 × 2.0 m, corner anchor
+- type: deck
+  anchor_point: [9.0, 2.0]
+  length: 3.5
+  width: 2.0
+  orientation_angle: 0
+  label: "deck"
+
+# Garden house  3.5 × 2.5 m, corner anchor
+- type: garden_house
+  anchor_point: [16.0, 2.0]
+  length: 3.5
+  width: 2.5
+  orientation_angle: 0
+  label: "garden house"

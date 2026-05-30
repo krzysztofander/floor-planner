@@ -1,0 +1,53 @@
+# ─── LIGHTING ────────────────────────────────────────────────────────────────
+# Row anchor y=19.
+
+- type: text_box
+  anchor_point: [17.5, 20.5]
+  lines:
+    - "LIGHTING  (ceiling_lamp · wall_lamp · led_strip · switch variants)"
+  transparency: 0.0
+
+# Ceiling lamp
+- type: ceiling_lamp
+  anchor_point: [2.5, 19.0]
+  symbol_diameter: 0.3
+  line_width: 0.75
+  label: "ceiling lamp"
+
+# Wall lamp
+- type: wall_lamp
+  anchor_point: [6.5, 19.0]
+  symbol_diameter: 0.2
+  orientation_angle: 0
+  label: "wall lamp"
+
+# LED strip  1.4 × 0.1 m
+- type: led_strip
+  anchor_point: [10.5, 19.0]
+  length: 1.4
+  width: 0.1
+  orientation_angle: 0
+  label: "LED strip"
+
+# Switch – 1-key
+- type: switch
+  anchor_point: [15.5, 19.0]
+  symbol_length: 0.2
+  orientation_angle: 0
+  label: "switch"
+
+# Switch – 2-key
+- type: switch
+  anchor_point: [18.5, 19.0]
+  symbol_length: 0.2
+  orientation_angle: 0
+  two_key: true
+  label: "2-key"
+
+# Switch – pass-through
+- type: switch
+  anchor_point: [21.5, 19.0]
+  symbol_length: 0.2
+  orientation_angle: 0
+  pass_through: true
+  label: "pass-thru"

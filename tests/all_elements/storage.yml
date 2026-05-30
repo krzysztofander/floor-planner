@@ -1,0 +1,38 @@
+# ─── STORAGE ─────────────────────────────────────────────────────────────────
+# Row anchor y=33.
+
+- type: text_box
+  anchor_point: [17.5, 34.5]
+  lines:
+    - "STORAGE  (generic_storage · storage40 · storage60 · tabletop)"
+  transparency: 0.0
+
+- type: generic_storage
+  anchor_point: [2.5, 33.0]
+  length: 1.5
+  thickness: 0.4
+  orientation_angle: 0
+  color: grey
+  label: "generic storage"
+
+- type: storage40
+  anchor_point: [7.0, 33.0]
+  length: 1.5
+  orientation_angle: 0
+  color: grey
+  label: "storage 40"
+
+- type: storage60
+  anchor_point: [11.5, 33.0]
+  length: 1.5
+  orientation_angle: 0
+  color: grey
+  label: "storage 60"
+
+- type: tabletop
+  anchor_point: [16.0, 33.0]
+  length: 1.5
+  thickness: 0.6
+  orientation_angle: 0
+  color: grey
+  label: "tabletop"

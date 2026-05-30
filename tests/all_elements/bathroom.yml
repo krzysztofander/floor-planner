@@ -1,0 +1,40 @@
+# ─── BATHROOM ────────────────────────────────────────────────────────────────
+# Row anchor y=42.
+
+- type: text_box
+  anchor_point: [17.5, 43.8]
+  lines:
+    - "BATHROOM  (shower · bathtub · basin · toilet)"
+  transparency: 0.0
+
+# Shower  0.9×0.9 m
+- type: shower
+  anchor_point: [2.5, 42.0]
+  orientation_angle: 0
+  length: 0.9
+  thickness: 0.9
+  color: black
+  label: "shower"
+
+# Bathtub  1.7×0.8 m
+- type: bathtub
+  anchor_point: [7.0, 42.0]
+  orientation_angle: 0
+  length: 1.7
+  thickness: 0.8
+  color: black
+  label: "bathtub"
+
+# Basin  0.6×0.5 m
+- type: basin
+  anchor_point: [13.5, 42.0]
+  orientation_angle: 0
+  color: black
+  label: "basin"
+
+# Toilet  0.7×0.4 m
+- type: toilet
+  anchor_point: [18.0, 42.0]
+  orientation_angle: 0
+  color: black
+  label: "toilet"

@@ -1,0 +1,32 @@
+# ─── FIXED WINDOWS ───────────────────────────────────────────────────────────
+# Row anchor y=50.  These are standalone window symbols (external 3D models).
+
+- type: text_box
+  anchor_point: [17.5, 51.5]
+  lines:
+    - "FIXED WINDOWS  (140×120 · 90×120 · double 160×120 · double 160×140)"
+  transparency: 0.0
+
+- type: window_140x120
+  anchor_point: [2.5, 50.0]
+  overall_thickness: 0.2
+  orientation_angle: 0
+  label: "140×120"
+
+- type: window_90x120
+  anchor_point: [7.0, 50.0]
+  overall_thickness: 0.2
+  orientation_angle: 0
+  label: "90×120"
+
+- type: window_double_160x120
+  anchor_point: [11.0, 50.0]
+  overall_thickness: 0.2
+  orientation_angle: 0
+  label: "dbl 160×120"
+
+- type: window_double_160x140
+  anchor_point: [16.5, 50.0]
+  overall_thickness: 0.2
+  orientation_angle: 0
+  label: "dbl 160×140"
