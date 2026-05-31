@@ -12,13 +12,15 @@ import math
 
 import matplotlib.axes
 from matplotlib.patches import Arc, Rectangle
+from matplotlib.pylab import cos
 
 from ..constants import RIGHT_ANGLE_IN_DEGREES
-from ..utils import rotate_point, render_label_and_id
+from ..utils import rotate_point
 from .external_models import ExternalModelElement
 from .info import DimensionArrow
 from .options import get_element_option
 from .vertical_levels import VertInfoDoor
+from .door import Door2D
 
 
 class BalconyDoor(VertInfoDoor, ExternalModelElement):
@@ -75,83 +77,153 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             **kwargs
         )
 
-        # Door-specific 2D parameters (not touched by ExternalModelElement)
-        self.doorway_width = doorway_width
-        self.door_width = door_width
-        self.thickness = thickness
-        self.frame_width = (doorway_width - door_width) / 2
-        self.to_the_right = to_the_right
-        self.hinges_point = (1 - hinges_point) if opening_outside else hinges_point
-        self.opening_outside = opening_outside
-
-        # length is used by the parent Element / anchor helpers
+        self.door2d = Door2D(anchor_point,doorway_width,door_width,thickness,
+                orientation_angle,to_the_right,hinges_point,
+                opening_outside)
+        
+        # length and thickness  used by the parent Element / anchor helpers
         self.length = doorway_width
+        self.thickness = thickness
 
-        # Secondary normalization: partially open the 3D door wing (≈ 15° from
-        # the shut position) so the 3D view shows an ajar door that matches the
-        # 2D floor-plan schematic.
-        #
-        # Model space (after primary normalization, anchor_offset = [0,0,0]):
-        #   X ∈ [0, width]  → door-width direction
-        #   Y ∈ [0, height] → vertical
-        #   Z ∈ [0, depth]  → wall-thickness direction (Z=0 = room-side face)
-        #
-        # The hinge is on the X side closest to the YAML anchor_point.
-        #   to_the_right=False  → hinge at X=0  (already at origin)
-        #   to_the_right=True   → hinge at X=width (must shift, rotate, shift back)
-        #
-        # "Inside" opening → door swings toward Z+ (into the room shown above Z=0).
-        #   Rotate around Y by +OPEN_DEG.
-        # "Outside" opening → door swings toward Z- (outside).
-        #   Rotate around Y by -OPEN_DEG.
-        #
-        # For to_the_right=True the hinge is at X=width, so we:
-        #   1. secondary_anchor_offset = [width, 0, 0]   → moves hinge to origin
-        #   2. Rotate (± OPEN_DEG) around Y              → door swings
-        #   3. secondary_normalization translation = [width, 0, 0]  → moves back
-        #
-        # For to_the_right=False the hinge is already at origin, so anchor_offset
-        # is [0,0,0] and translation = [0,0,0].
 
-        OPEN_DEG = 15.0
-        W = self._default_width()   # 0.9 m
+        if True: # Krzysztof: my way of opening door on 3D:
+            
+            BASE_ROT = 22
+            WING_WIDTH_ON_MODEL = 0.12  # The model's door wing is 0.12 m wide in the Z direction (wall thickness direction)
+            MODEL_DOOR_WIDTH = 0.9      # The model's door wing is 0.9 m wide in the X direction (door-width direction)
+            STREACH_TO_DOORFRAME = True     # Whether to stretch the model to fit the doorway width
 
-        if to_the_right:
-            # Hinge at X=W: shift to origin, rotate, shift back
-            rot_y = OPEN_DEG if opening_outside else -OPEN_DEG
+            hinge_point = [0,0] # how to move the hinge point before applying rotation of wing
+            x_shift = 0 # after rotation how much to move the door in X
+            z_shift = 0 # after rotation how much to move the door in Z, inside a hole
+            
+            # K: Either stretch the model to fit the doorway or leave
+            # a bit of room each side so the door is in the middle of the doorway.
+            if STREACH_TO_DOORFRAME:
+                space_for_door_wing = 0
+                stretch_to_doorframe = doorway_width / MODEL_DOOR_WIDTH
+            else:
+                space_for_door_wing =  (doorway_width - door_width)/2
+                stretch_to_doorframe = 1.0
+            # Finally, the calculations for the secondary normalization (door swing) depend on
+            # the opening direction and hinge side:
+            if opening_outside:
+                if to_the_right:
+                    #right outside
+                    open_deg = 180-BASE_ROT
+                    hinge_point = [0, WING_WIDTH_ON_MODEL]
+                    x_shift = doorway_width - space_for_door_wing
+                    z_shift = (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
+                    
+                else:
+                    #left outside
+                    open_deg = BASE_ROT
+                    #hinge_point = [0, WING_WIDTH_ON_MODEL]
+                    hinge_point = [0, 0]
+                    x_shift = space_for_door_wing
+                    z_shift = (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
+                    
+            else:    
+                if to_the_right:
+                    #right inside
+                    open_deg = 180+BASE_ROT
+                    hinge_point = [0, 0]
+                    x_shift = doorway_width - space_for_door_wing
+                    z_shift = WING_WIDTH_ON_MODEL + (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
+                else:
+                    #left inside
+                    open_deg = -BASE_ROT
+                    hinge_point = [0, WING_WIDTH_ON_MODEL ]
+                    x_shift = space_for_door_wing
+                    z_shift = WING_WIDTH_ON_MODEL + (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
+
+            primary_translation = rotate_point([0,0], hinge_point[0], hinge_point[1], math.radians(open_deg))
             self.secondary_normalization = {
-                'rotation':    [0, rot_y, 0],
-                'translation': [W, 0, 0],
-            }
-            self.secondary_anchor_offset = [W, 0, 0]
-            # Animation pivot: hinge is at X=W in child-node space (after
-            # secondary_anchor_offset moves it to origin, then the translation
-            # puts it back at X=W in the parent's local space).
-            _hinge_x = W
-        else:
-            # Hinge at X=0: already at origin
-            rot_y = -OPEN_DEG if opening_outside else OPEN_DEG
-            self.secondary_normalization = {
-                'rotation': [0, rot_y, 0],
-            }
-            self.secondary_anchor_offset = None
-            _hinge_x = 0.0
+                    'scale':       [stretch_to_doorframe, 1, 1],
+                    'rotation':    [0, open_deg, 0],
+                    'translation': [primary_translation[0],0,-primary_translation[1]],
+                }
+            self.secondary_anchor_offset = [-x_shift,0,-z_shift]
+        else:  # Krzysztof --- to do the animation refer here, by the AI ---
 
-        # Animation descriptor (Option B: metadata in glTF extras).
-        # The 3D player reads child node extras.animation to drive door opening.
-        # open_angle sign: positive = counter-clockwise around Y when viewed from above.
-        # For opening_outside=False the door swings toward Z+ (into the room),
-        # which is a positive Y-axis rotation; for opening_outside=True it is negative.
-        _open_sign = -1.0 if opening_outside else 1.0
-        self.animation = {
-            'type':         'hinge_rotation',
-            'axis':         [0, 1, 0],
-            'pivot_local':  [_hinge_x, 0.0, 0.0],
-            'closed_angle': 0.0,
-            'open_angle':   _open_sign * 90.0,
-            'duration':     0.5,
-            'trigger':      'click',
-        }
+            # Door-specific 2D parameters (not touched by ExternalModelElement)
+            self.doorway_width = doorway_width
+            self.door_width = door_width
+            self.thickness = thickness
+            self.frame_width = (doorway_width - door_width) / 2
+            self.to_the_right = to_the_right
+            self.hinges_point = (1 - hinges_point) if opening_outside else hinges_point
+            self.opening_outside = opening_outside
+
+            # length is used by the parent Element / anchor helpers
+            self.length = doorway_width
+
+            # Secondary normalization: partially open the 3D door wing (≈ 15° from
+            # the shut position) so the 3D view shows an ajar door that matches the
+            # 2D floor-plan schematic.
+            #
+            # Model space (after primary normalization, anchor_offset = [0,0,0]):
+            #   X ∈ [0, width]  → door-width direction
+            #   Y ∈ [0, height] → vertical
+            #   Z ∈ [0, depth]  → wall-thickness direction (Z=0 = room-side face)
+            #
+            # The hinge is on the X side closest to the YAML anchor_point.
+            #   to_the_right=False  → hinge at X=0  (already at origin)
+            #   to_the_right=True   → hinge at X=width (must shift, rotate, shift back)
+            #
+            # "Inside" opening → door swings toward Z+ (into the room shown above Z=0).
+            #   Rotate around Y by +OPEN_DEG.
+            # "Outside" opening → door swings toward Z- (outside).
+            #   Rotate around Y by -OPEN_DEG.
+            #
+            # For to_the_right=True the hinge is at X=width, so we:
+            #   1. secondary_anchor_offset = [width, 0, 0]   → moves hinge to origin
+            #   2. Rotate (± OPEN_DEG) around Y              → door swings
+            #   3. secondary_normalization translation = [width, 0, 0]  → moves back
+            #
+            # For to_the_right=False the hinge is already at origin, so anchor_offset
+            # is [0,0,0] and translation = [0,0,0].
+
+            OPEN_DEG = 22.0
+            W = self._default_width()   # 0.9 m
+
+            if to_the_right:
+                # Hinge at X=W: shift to origin, rotate, shift back
+                rot_y = OPEN_DEG if opening_outside else -OPEN_DEG
+                self.secondary_normalization = {
+                    'rotation':    [0, rot_y, 0],
+                    'translation': [W, 0, 0],
+                }
+                self.secondary_anchor_offset = [W, 0, 0]
+                # Animation pivot: hinge is at X=W in child-node space (after
+                # secondary_anchor_offset moves it to origin, then the translation
+                # puts it back at X=W in the parent's local space).
+                _hinge_x = W
+            else:
+                # Hinge at X=0: already at origin
+                rot_y = -OPEN_DEG if opening_outside else OPEN_DEG
+                self.secondary_normalization = {
+                    'rotation': [0, rot_y, 0],
+                }
+                self.secondary_anchor_offset = None
+                _hinge_x = 0.0
+
+            # Animation descriptor (Option B: metadata in glTF extras).
+            # The 3D player reads child node extras.animation to drive door opening.
+            # open_angle sign: positive = counter-clockwise around Y when viewed from above.
+            # For opening_outside=False the door swings toward Z+ (into the room),
+            # which is a positive Y-axis rotation; for opening_outside=True it is negative.
+            _open_sign = -1.0 if opening_outside else 1.0
+            self.animation = {
+                'type':         'hinge_rotation',
+                'axis':         [0, 1, 0],
+                'pivot_local':  [_hinge_x, 0.0, 0.0],
+                'closed_angle': 0.0,
+                'open_angle':   _open_sign * 90.0,
+                'duration':     0.5,
+                'trigger':      'click',
+            }
+        
 
     # ------------------------------------------------------------------
     # ExternalModelElement hooks
@@ -166,6 +238,19 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
     def _default_height(self) -> float:
         return 2.1
 
+    def get_to_the_right(self) -> bool:
+        """Return whether the door opens to the right."""
+        return self.door2d.to_the_right
+   
+    def get_doorway_width(self) -> float:
+        """Return the doorway width."""
+        return self.door2d.doorway_width
+   
+    def get_door_width(self) -> float:
+        """Return the door width."""
+        return self.door2d.door_width
+
+
     # ------------------------------------------------------------------
     # 2-D drawing – identical to Door.draw()
     # ------------------------------------------------------------------
@@ -175,145 +260,6 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
         draw_color = self.get_draw_color()
         if draw_color is None:
             return
-
-        orientation_angle_in_rad = math.radians(self.orientation_angle)
-
-        # Frame section on the hinge side
-        frame_with_hinges = Rectangle(
-            self.anchor_point,
-            self.frame_width,
-            self.thickness,
-            angle=self.orientation_angle,
-            facecolor=draw_color
-        )
-        frame_with_hinges.set_zorder(self.get_zorder())
-        ax.add_patch(frame_with_hinges)
-
-        # White gap (the opening in the wall)
-        shift = self.frame_width
-        hole_anchor = (
-            self.anchor_point[0] + math.cos(orientation_angle_in_rad) * shift,
-            self.anchor_point[1] + math.sin(orientation_angle_in_rad) * shift,
-        )
-        whole_in_a_wall = Rectangle(
-            hole_anchor,
-            self.door_width,
-            self.thickness,
-            angle=self.orientation_angle,
-            facecolor='white'
-        )
-        whole_in_a_wall.set_zorder(self.get_zorder())
-        ax.add_patch(whole_in_a_wall)
-
-        # Frame section on the latch side
-        shift2 = self.frame_width + self.door_width
-        frame_opp_anchor = (
-            self.anchor_point[0] + math.cos(orientation_angle_in_rad) * shift2,
-            self.anchor_point[1] + math.sin(orientation_angle_in_rad) * shift2,
-        )
-        frame_without_hinges = Rectangle(
-            frame_opp_anchor,
-            self.frame_width,
-            self.thickness,
-            angle=self.orientation_angle,
-            facecolor=draw_color
-        )
-        frame_without_hinges.set_zorder(self.get_zorder())
-        ax.add_patch(frame_without_hinges)
-
-        # Optional dimension arrow
-        if get_element_option("BalconyDoor", "dimensions") or get_element_option("Door", "dimensions"):
-            dims_point = rotate_point(
-                anchor_point=self.anchor_point,
-                offset_x=self.frame_width,
-                offset_y=self.thickness * (0.8 if self.opening_outside else 0.2),
-                angle_rad=orientation_angle_in_rad
-            )
-            DimensionArrow(
-                anchor_point=dims_point,
-                length=self.door_width,
-                orientation_angle=self.orientation_angle,
-                annotate_above=not self.opening_outside,
-                color=get_element_option("Door", "label_color", "black")
-            ).draw(ax)
-
-        # Schematic door-wing line + opening arc
-        anchor_x_offset = self.door_schematic_line_thickness if self.opening_outside else 0
-
-        if self.to_the_right:
-            hinges_pt = rotate_point(
-                self.anchor_point,
-                -self.door_schematic_line_thickness + self.frame_width + self.door_width + anchor_x_offset,
-                self.thickness * self.hinges_point,
-                orientation_angle_in_rad
-            )
-            arc_anchor = rotate_point(
-                self.anchor_point,
-                -self.door_schematic_line_thickness + self.frame_width + self.door_width,
-                self.thickness * self.hinges_point,
-                orientation_angle_in_rad
-            )
-        else:
-            hinges_pt = rotate_point(
-                self.anchor_point,
-                self.frame_width + anchor_x_offset,
-                self.thickness * self.hinges_point,
-                orientation_angle_in_rad
-            )
-            arc_anchor = rotate_point(
-                self.anchor_point,
-                self.frame_width + self.door_schematic_line_thickness,
-                self.thickness * self.hinges_point,
-                orientation_angle_in_rad
-            )
-
-        door_wing = Rectangle(
-            hinges_pt,
-            self.door_schematic_line_thickness,
-            self.door_width,
-            angle=self.orientation_angle + (180 if self.opening_outside else 0),
-            facecolor=draw_color
-        )
-        door_wing.set_zorder(self.get_zorder())
-        ax.add_patch(door_wing)
-
-        extra = 2  # degrees for smooth arc connection
-        if self.opening_outside:
-            if self.to_the_right:
-                start_angle = RIGHT_ANGLE_IN_DEGREES * 2
-                end_angle   = RIGHT_ANGLE_IN_DEGREES * 3 + extra
-            else:
-                start_angle = -RIGHT_ANGLE_IN_DEGREES - extra
-                end_angle   = 0
-        else:
-            if self.to_the_right:
-                start_angle = RIGHT_ANGLE_IN_DEGREES - extra
-                end_angle   = RIGHT_ANGLE_IN_DEGREES * 2
-            else:
-                start_angle = 0
-                end_angle   = RIGHT_ANGLE_IN_DEGREES + extra
-
-        arc = Arc(
-            arc_anchor,
-            2 * (self.door_width - self.door_schematic_line_thickness),
-            2 * self.door_width,
-            angle=self.orientation_angle,
-            theta1=start_angle,
-            theta2=end_angle,
-            color=draw_color,
-            linewidth=1
-        )
-        arc.set_zorder(self.get_zorder())
-        ax.add_patch(arc)
-
-        # Label
-        if self.opening_outside:
-            text_rot = 40 + (RIGHT_ANGLE_IN_DEGREES * 2 if self.to_the_right else RIGHT_ANGLE_IN_DEGREES * 3)
-        else:
-            text_rot = 40 + (RIGHT_ANGLE_IN_DEGREES if self.to_the_right else 0)
-        text_rot = (360 + text_rot + self.orientation_angle) % 360
-
-        render_label_and_id(
-            ax, self, 'BalconyDoor', hinges_pt, text_rot,
-            label_prefix="   ---", id_prefix="   ---"
-        )
+        z_order = self.get_zorder()
+        self.door2d.draw2D(draw_color, z_order, ax)
+        self.door2d.render_door_label_and_id(self, self.__class__.__name__, ax)

@@ -1,5 +1,5 @@
 project:
-  dpi: 200
+  dpi: 120
   pdf_file: null
   png_dir: "output"         # Folder where to store the png file
   visualisation_dir: "output/3d"  # Folder for 3D glTF export
@@ -17,20 +17,24 @@ default_options:
     inner_area: true        # Display inner area in center of room
 default_layout:
   bottom_left_corner: [-1, -1]
-  top_right_corner: [12,11]
+  top_right_corner: [22,11]
   scale_numerator: 1
   scale_denominator: 40
   grid_major_step: 1
   grid_minor_step: 0.1
 vars:
-  x_placement: 0            # constants that can be used in reusable elements
-  y_placement: 0            # constants that can be used in reusable elements
   room_vertical_width: 10
   room_horizontal_length: 9
+
+  x_placement: 0            # constants that can be used in reusable elements
+  y_placement: 0            # constants that can be used in reusable elements
+
+
   wall_thickness: 0.15
 
 reusable_elements:
   play_with_doors_room: "room.yml"       # include files
+  play_with_hinges_point_test_room: "room_hinges_point_test.yml"  # include files
   # can define elements here too.
 
 floor_plans:
@@ -39,7 +43,8 @@ floor_plans:
       font_size: 18
     inherited_elements:
       - play_with_doors_room  # include reusable elements.
-                              # It can be a list of elements or a single element.
+      - play_with_hinges_point_test_room  # include reusable elements.
+            
 
     report:                   # report options for the floor plan
       anchor_point: [4, 7]

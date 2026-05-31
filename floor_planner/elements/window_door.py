@@ -105,6 +105,11 @@ class WindowDoorDouble(BalconyDoor):
                 'translation': [0, 0, thickness/3],
             }
         self.secondary_anchor_offset = None
+        self.door_width = self.get_door_width()
+        self.doorway_width = self.get_doorway_width()
+        self.frame_width = self.doorway_width - self.door_width
+        self.opening_outside = opening_outside
+        self.hinges_point = hinges_point
 
     _registry_key = 'window_door_double'
     _requires_external_model = True

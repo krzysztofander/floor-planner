@@ -155,6 +155,7 @@ def get_element_type_from_instance(element: Element) -> str:
         if cls is element_class:
             return key
 
+    raise ValueError(f"Element class {element_class.__name__} not found in registry. Please add it to the registry or ensure it's an ExternalModelElement with a defined _registry_key.")
     # Fallback: convert class name to lowercase with underscores
     class_name = element_class.__name__
     import re

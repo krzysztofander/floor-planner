@@ -58,10 +58,10 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             f.write("| ID | Doorway Width (m) | Door Width (m) | Opens to Right | Corner 1 (x,y) | Corner 2 (x,y) | Corner 3 (x,y) | Corner 4 (x,y) |\n")
             f.write("|---|---|---|---|---|---|---|---|\n")
             for element in grouped['Door']:
-                to_right = "Yes" if element.to_the_right else "No"
+                to_right = "Yes" if element.get_to_the_right() else "No"
                 corners = element.get_corners()
                 corner_strs = [f"({c[0]:.3f}, {c[1]:.3f})" for c in corners]
-                f.write(f"| {element.id} | {element.doorway_width} | {element.door_width} | {to_right} | "
+                f.write(f"| {element.id} | {element.get_doorway_width()} | {element.get_door_width()} | {to_right} | "
                        f"{corner_strs[0]} | {corner_strs[1]} | {corner_strs[2]} | {corner_strs[3]} |\n")
             f.write("\n")
 

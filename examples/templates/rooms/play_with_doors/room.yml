@@ -12,10 +12,10 @@
       anchor_y: y_placement
       room_length: room_horizontal_length
       room_width: room_vertical_width
-      wall_n_thickness: wall_thickness*1
-      wall_e_thickness: wall_thickness*1.3
-      wall_s_thickness: wall_thickness*1.6
-      wall_w_thickness: wall_thickness*1.9
+      wall_n_thickness: 15
+      wall_e_thickness: 20
+      wall_s_thickness: 30
+      wall_w_thickness: 25
 
     anchor_point: [anchor_x,anchor_y]
 
