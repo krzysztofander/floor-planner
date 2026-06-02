@@ -22,6 +22,96 @@ from .options import get_element_option
 from .vertical_levels import VertInfoDoor
 from .door import Door2D
 
+class Door3D:
+    def __init__(
+            self,
+            doorway_width: float,
+            door_width: float,
+            thickness: float,
+            opening_outside: bool = False,
+            to_the_right: bool = False,
+            hinges_depth: float = 0.95
+    ):
+        self.doorway_width = doorway_width
+        self.door_width = door_width
+        self.opening_outside = opening_outside
+        self.to_the_right = to_the_right
+        self.thickness = thickness
+        self.hinges_depth = hinges_depth
+
+
+        self.secondary_normalization = {
+                'scale':       [1, 1, 1],
+                'rotation':    [0, 0, 0],
+                'translation': [0, 0, 0],
+            }
+        self.secondary_anchor_offset = [0,0,0]      
+
+    def getSecondaryNormalization(self):
+        return self.secondary_normalization
+    def getSecondaryAnchorOffset(self):
+        return self.secondary_anchor_offset
+
+    def calcNormalisationAndOffset(self):
+    
+        BASE_ROT = 22
+        WING_WIDTH_ON_MODEL = 0.12  # The model's door wing is 0.12 m wide in the Z direction (wall thickness direction)
+        MODEL_DOOR_WIDTH = 0.9      # The model's door wing is 0.9 m wide in the X direction (door-width direction)
+        STREACH_TO_DOORFRAME = True     # Whether to stretch the model to fit the doorway width
+
+        hinge_point = [0,0] # how to move the hinge point before applying rotation of wing
+        x_shift = 0 # after rotation how much to move the door in X
+        z_shift = 0 # after rotation how much to move the door in Z, inside a hole
+        
+        # K: Either stretch the model to fit the doorway or leave
+        # a bit of room each side so the door is in the middle of the doorway.
+        if STREACH_TO_DOORFRAME:
+            space_for_door_wing = 0
+            stretch_to_doorframe = self.doorway_width / MODEL_DOOR_WIDTH
+        else:
+            space_for_door_wing =  (self.doorway_width - self.door_width)/2
+            stretch_to_doorframe = 1.0
+        # Finally, the calculations for the secondary normalization (door swing) depend on
+        # the opening direction and hinge side:
+        if self.opening_outside:
+            if self.to_the_right:
+                #right outside
+                open_deg = 180-BASE_ROT
+                hinge_point = [0, WING_WIDTH_ON_MODEL]
+                x_shift = self.doorway_width - space_for_door_wing
+                z_shift = (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
+                
+            else:
+                #left outside
+                open_deg = BASE_ROT
+                #hinge_point = [0, WING_WIDTH_ON_MODEL]
+                hinge_point = [0, 0]
+                x_shift = space_for_door_wing
+                z_shift = (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
+                
+        else:    
+            if self.to_the_right:
+                #right inside
+                open_deg = 180+BASE_ROT
+                hinge_point = [0, 0]
+                x_shift = self.doorway_width - space_for_door_wing
+                z_shift = WING_WIDTH_ON_MODEL + (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
+            else:
+                #left inside
+                open_deg = -BASE_ROT
+                hinge_point = [0, WING_WIDTH_ON_MODEL ]
+                x_shift = space_for_door_wing
+                z_shift = WING_WIDTH_ON_MODEL + (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
+
+        primary_translation = rotate_point([0,0], hinge_point[0], hinge_point[1], math.radians(open_deg))
+        self.secondary_normalization = {
+                'scale':       [stretch_to_doorframe, 1, 1],
+                'rotation':    [0, open_deg, 0],
+                'translation': [primary_translation[0],0,-primary_translation[1]],
+            }
+        self.secondary_anchor_offset = [-x_shift,0,-z_shift]
+
+
 
 class BalconyDoor(VertInfoDoor, ExternalModelElement):
     """
@@ -51,8 +141,6 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
     _registry_key = 'balcony_door'
     _requires_external_model = True
 
-    door_schematic_line_thickness = 0.04
-
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -80,70 +168,27 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
         self.door2d = Door2D(anchor_point,doorway_width,door_width,thickness,
                 orientation_angle,to_the_right,hinges_point,
                 opening_outside)
-        
+
+        self.door3d = Door3D(
+            doorway_width=doorway_width,
+            door_width=door_width,
+            thickness=thickness,
+            opening_outside=opening_outside,
+            to_the_right=to_the_right,
+            hinges_depth= self.door2d.getHingesDepth()
+        )
+
+
         # length and thickness  used by the parent Element / anchor helpers
         self.length = doorway_width
         self.thickness = thickness
 
 
         if True: # Krzysztof: my way of opening door on 3D:
+            self.door3d.calcNormalisationAndOffset()  
+            self.secondary_normalization = self.door3d.getSecondaryNormalization()
+            self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
             
-            BASE_ROT = 22
-            WING_WIDTH_ON_MODEL = 0.12  # The model's door wing is 0.12 m wide in the Z direction (wall thickness direction)
-            MODEL_DOOR_WIDTH = 0.9      # The model's door wing is 0.9 m wide in the X direction (door-width direction)
-            STREACH_TO_DOORFRAME = True     # Whether to stretch the model to fit the doorway width
-
-            hinge_point = [0,0] # how to move the hinge point before applying rotation of wing
-            x_shift = 0 # after rotation how much to move the door in X
-            z_shift = 0 # after rotation how much to move the door in Z, inside a hole
-            
-            # K: Either stretch the model to fit the doorway or leave
-            # a bit of room each side so the door is in the middle of the doorway.
-            if STREACH_TO_DOORFRAME:
-                space_for_door_wing = 0
-                stretch_to_doorframe = doorway_width / MODEL_DOOR_WIDTH
-            else:
-                space_for_door_wing =  (doorway_width - door_width)/2
-                stretch_to_doorframe = 1.0
-            # Finally, the calculations for the secondary normalization (door swing) depend on
-            # the opening direction and hinge side:
-            if opening_outside:
-                if to_the_right:
-                    #right outside
-                    open_deg = 180-BASE_ROT
-                    hinge_point = [0, WING_WIDTH_ON_MODEL]
-                    x_shift = doorway_width - space_for_door_wing
-                    z_shift = (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
-                    
-                else:
-                    #left outside
-                    open_deg = BASE_ROT
-                    #hinge_point = [0, WING_WIDTH_ON_MODEL]
-                    hinge_point = [0, 0]
-                    x_shift = space_for_door_wing
-                    z_shift = (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
-                    
-            else:    
-                if to_the_right:
-                    #right inside
-                    open_deg = 180+BASE_ROT
-                    hinge_point = [0, 0]
-                    x_shift = doorway_width - space_for_door_wing
-                    z_shift = WING_WIDTH_ON_MODEL + (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
-                else:
-                    #left inside
-                    open_deg = -BASE_ROT
-                    hinge_point = [0, WING_WIDTH_ON_MODEL ]
-                    x_shift = space_for_door_wing
-                    z_shift = WING_WIDTH_ON_MODEL + (thickness - WING_WIDTH_ON_MODEL)  * self.door2d.hinges_point
-
-            primary_translation = rotate_point([0,0], hinge_point[0], hinge_point[1], math.radians(open_deg))
-            self.secondary_normalization = {
-                    'scale':       [stretch_to_doorframe, 1, 1],
-                    'rotation':    [0, open_deg, 0],
-                    'translation': [primary_translation[0],0,-primary_translation[1]],
-                }
-            self.secondary_anchor_offset = [-x_shift,0,-z_shift]
         else:  # Krzysztof --- to do the animation refer here, by the AI ---
 
             # Door-specific 2D parameters (not touched by ExternalModelElement)
