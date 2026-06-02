@@ -42,6 +42,30 @@ class WindowDoor(BalconyDoor):
     def _default_height(self) -> float:
         return 2.1
 
+class SolidDoor1(BalconyDoor):
+    """
+    Solid door with a single full-height panel.
+
+    Identical to BalconyDoor in every way except the 3D model — this one shows
+    a solid panel from sill to top bar with no glass section.
+
+    YAML parameters: same as BalconyDoor / Door.
+    """
+
+    _registry_key = 'solid_door_1'
+    _requires_external_model = True
+
+    def _default_width(self) -> float:
+        return 0.9
+
+    def _default_length(self) -> float:
+        return 0.9
+
+    def _default_height(self) -> float:
+        return 2.1
+
+class SolidDoor2(SolidDoor1):
+    _registry_key = 'solid_door_2'
 
 class WindowDoorDouble(BalconyDoor):
     """

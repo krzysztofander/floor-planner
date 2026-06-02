@@ -6,7 +6,7 @@ Author: Nikolay Lysenko
 
 from .basic import Wall, WallND, Window
 from .balcony_door import BalconyDoor
-from .window_door import WindowDoor, WindowDoorDouble
+from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble
 from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
@@ -47,6 +47,8 @@ def create_elements_registry() -> dict[str, type[Element]]:
         'door': Door,
         'model_balcony_door': BalconyDoor,
         'model_window_door': WindowDoor,
+        'model_solid_door_1': SolidDoor1,
+        'model_solid_door_2': SolidDoor2,
         'model_window_door_double': WindowDoorDouble,
         'model_window_140x120': Window140x120,
         'model_window_90x120': Window90x120,

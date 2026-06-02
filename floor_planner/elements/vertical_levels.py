@@ -45,7 +45,7 @@ class VertInfoDoor:
     """Door level (0.02m): doors and balcony doors.
     
     Secondary structures - drawn over walls but under furniture.
-    Used for: Door, BalconyDoor, WindowDoor, WindowDoorDouble.
+    Used for: Door, BalconyDoor, WindowDoor, SolidDoorN, WindowDoorDouble.
     """
     
     def _default_v_anchor(self) -> float:

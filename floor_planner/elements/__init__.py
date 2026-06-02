@@ -15,7 +15,7 @@ from .options import (
 )
 from .basic import Wall, WallND, Window
 from .balcony_door import BalconyDoor
-from .window_door import WindowDoor, WindowDoorDouble
+from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble
 from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
@@ -87,6 +87,8 @@ ___all__ = [
     'Fountain',
     'Pond',
     'RectPool',
+    'SolidDoor1',
+    'SolidDoor2',
     'OvalPool',
     'Pergola',
     'RaisedBed',
