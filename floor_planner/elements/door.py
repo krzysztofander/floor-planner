@@ -73,8 +73,12 @@ class Door2D():
         self.frame_width = (doorway_width - door_width) / 2
         self.to_the_right = to_the_right
         # If opening outside, take the opposite hinges point so "1.0" is always extended hinges
-        self.hinges_point = 1 - hinges_point  if opening_outside else hinges_point
+        self.hinges_depth = 1 - hinges_point  if opening_outside else hinges_point
         self.opening_outside = opening_outside
+
+    def getHingesDepth(self) -> float:
+        """Return the relative position of the hinges along the doorway."""
+        return self.hinges_depth
 
     def getHingesAndArcAnchorPoint(self, door_wing_thickness: float) -> tuple[tuple[float, float], tuple[float, float]]:
         """Return coordinates of the hinges point and the arc anchor point."""
@@ -116,21 +120,21 @@ class Door2D():
         if self.to_the_right:
             hinges_point = rotate_point(anchor_point=anchor_point,
                                      offset_x=-door_wing_thickness + self.frame_width + self.door_width + anchor_point_x_offset,
-                                     offset_y=self.thickness * self.hinges_point,
+                                     offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
             arc_anchor_point = rotate_point(anchor_point=anchor_point,
                                      offset_x=-door_wing_thickness +self.frame_width + self.door_width ,
-                                     offset_y=self.thickness * self.hinges_point,
+                                     offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
 
         else:
             hinges_point = rotate_point(anchor_point=anchor_point,
                                      offset_x=self.frame_width + anchor_point_x_offset,
-                                     offset_y=self.thickness * self.hinges_point,
+                                     offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
             arc_anchor_point = rotate_point(anchor_point=anchor_point,
                                      offset_x=self.frame_width + door_wing_thickness,
-                                     offset_y=self.thickness * self.hinges_point,
+                                     offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
         return hinges_point, arc_anchor_point
     
