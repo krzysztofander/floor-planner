@@ -18,6 +18,8 @@ Example directory structure:
 from pathlib import Path
 from typing import Optional
 
+from floor_planner.utils import WarnMsg
+
 
 class MaterialManager:
     """
@@ -136,7 +138,7 @@ class MaterialManager:
                 self._material_cache[cache_key] = material
                 return material.copy()
             except Exception as e:
-                print(f"Warning: Failed to parse {mtl_path}: {e}")
+                WarnMsg(f"Failed to parse {mtl_path}: {e}")
                 print(f"  Using default material for {element_type}")
         else:
             # .mtl file doesn't exist
@@ -157,7 +159,7 @@ class MaterialManager:
                         found = True
                         return material.copy()
                     except Exception as e:
-                        print(f"Warning: Failed to parse {base_mtl}: {e}")
+                        WarnMsg(f"Failed to parse {base_mtl}: {e}")
             
             # Try in fallback directory
             if not found and self.fallback_texture_dir:
@@ -171,11 +173,11 @@ class MaterialManager:
                             found = True
                             return material.copy()
                         except Exception as e:
-                            print(f"Warning: Failed to parse {base_mtl}: {e}")
+                            WarnMsg(f"Failed to parse {base_mtl}: {e}")
             
             # If still not found, use default material
             if not found:
-                print(f"Warning: Material file not found: {mtl_path}")
+                WarnMsg(f"Material file not found: {mtl_path}")
                 print(f"  Using default material for {element_type}")
         
         # Return default material

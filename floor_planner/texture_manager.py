@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Union
 import shutil
 
+from floor_planner.utils import WarnMsg
+
 
 class TextureManager:
     """
@@ -172,7 +174,7 @@ class TextureManager:
             
             # Check if file exists
             if not texture_path.exists():
-                print(f"Warning: Texture file not found: {texture_path}")
+                WarnMsg(f"Texture file not found: {texture_path}")
                 print(f"  Looking for fallback texture for {element_type}")
                 
                 # Fall back to default texture
@@ -255,7 +257,7 @@ class TextureManager:
             shutil.copy2(texture_path, output_path)
             self._copied_textures.add(str(output_path))
         else:
-            print(f"Warning: Cannot copy texture, file not found: {texture_path}")
+            WarnMsg(f"Cannot copy texture, file not found: {texture_path}")
         
         return output_path
     
@@ -308,7 +310,7 @@ def validate_texture_faces(texture_dict: dict[str, str], valid_faces: list[str])
     valid = True
     for face in texture_dict.keys():
         if face not in valid_faces and face != 'all':
-            print(f"Warning: Invalid face name '{face}'. Valid faces: {valid_faces}")
+            WarnMsg(f"Invalid face name '{face}'. Valid faces: {valid_faces}")
             valid = False
     return valid
 

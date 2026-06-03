@@ -15,6 +15,7 @@ from .geometry_3d import is_3d_eligible
 from .elements.registry import get_element_type_from_instance
 from .wall_openings import find_embedded_openings, generate_wall_with_openings
 from .elements.foundation.basic import WallND
+from .utils import WarnMsg
 
 if TYPE_CHECKING:
     from .floor_plan import FloorPlan
@@ -119,8 +120,7 @@ class OBJExporter:
             
             # Check if element has 3D geometry generation
             if not hasattr(element, 'generate_vertices_and_indices'):
-                print(f"Warning: Element {element.get_id()} ({type(element).__name__}) "
-                      f"does not support 3D geometry generation. Skipping.")
+                WarnMsg(f"Element {element.get_id()} ({type(element).__name__}) does not support 3D geometry generation. Skipping.")
                 continue
             
             # Generate geometry

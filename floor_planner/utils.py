@@ -238,4 +238,10 @@ def render_text_as_label_and_id(
     if id_color is not None:
         _render_text(ax, position, element.get_id(), rotation, id_color, centered=centered)
 
+def WarnMsg(msg: str) -> None:
+    """Print warning message."""
+    #print(f"WARNING: {msg}")
+    exit("WARNING: " + msg)
+    
+
 

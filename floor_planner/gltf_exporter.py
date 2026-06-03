@@ -33,6 +33,7 @@ from floor_planner.elements.registry import get_element_type_from_instance
 from floor_planner.texture_manager import TextureManager
 from floor_planner.elements.foundation.basic import WallND
 from floor_planner.wall_openings import find_embedded_openings, generate_wall_with_openings
+from floor_planner.utils import WarnMsg
 
 
 class BufferBuilder:
@@ -318,7 +319,7 @@ class GLTFExporter:
                             materials[current_material]['transparency'] = float(args)
         
         except Exception as e:
-            print(f"Warning: Failed to parse MTL file {mtl_path}: {e}")
+            WarnMsg(f"Failed to parse MTL file {mtl_path}: {e}")
         
         return materials
     
@@ -337,7 +338,7 @@ class GLTFExporter:
         source_path = model_dir / texture_path
         
         if not source_path.exists():
-            print(f"Warning: Texture file not found: {source_path}")
+            WarnMsg(f"Texture file not found: {source_path}")
             return None
         
         # Check cache
@@ -367,7 +368,7 @@ class GLTFExporter:
             return image_index
             
         except Exception as e:
-            print(f"Warning: Failed to copy texture {source_path}: {e}")
+            WarnMsg(f"Failed to copy texture {source_path}: {e}")
             return None
     
     def _create_gltf_material(
@@ -558,7 +559,7 @@ class GLTFExporter:
             return result if result else None
 
         except Exception as e:
-            print(f"Warning: Failed to parse multi-material OBJ from {obj_path}: {e}")
+            WarnMsg(f"Failed to parse multi-material OBJ from {obj_path}: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -590,7 +591,7 @@ class GLTFExporter:
             # Parse OBJ grouped by material (handles both single- and multi-material files)
             material_groups = self._parse_obj_by_materials(obj_path)
             if not material_groups:
-                print(f"Warning: Failed to parse OBJ file {obj_path}")
+                WarnMsg(f"Failed to parse OBJ file {obj_path}")
                 return None
 
             primitives = []
@@ -629,7 +630,7 @@ class GLTFExporter:
             return mesh_index
 
         except Exception as e:
-            print(f"Warning: Failed to load OBJ file {obj_path}: {e}")
+            WarnMsg(f"Failed to load OBJ file {obj_path}: {e}")
             return None
 
     # ------------------------------------------------------------------
@@ -768,12 +769,12 @@ class GLTFExporter:
                 return None
             root_id, root_len, root_ds = read_header(0)
             if root_id != 0x4D4D:
-                print(f"Warning: Not a valid .3ds file: {file_path}")
+                WarnMsg(f"Not a valid .3ds file: {file_path}")
                 return None
             walk_chunks(root_ds, root_len)
 
             if not meshes_raw:
-                print(f"Warning: No mesh data in .3ds file {file_path}")
+                WarnMsg(f"No mesh data in .3ds file {file_path}")
                 return None
 
             model_dir = file_path.parent
@@ -851,7 +852,7 @@ class GLTFExporter:
             return mesh_index
 
         except Exception as e:
-            print(f"Warning: Failed to load .3ds file {file_path}: {e}")
+            WarnMsg(f"Failed to load .3ds file {file_path}: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -951,7 +952,7 @@ class GLTFExporter:
                     all_primitives.append(gltf_prim)
 
             if not all_primitives:
-                print(f"Warning: No geometry found in DAE file {file_path}")
+                WarnMsg(f"No geometry found in DAE file {file_path}")
                 return None
 
             gltf_mesh = {"name": file_path.stem, "primitives": all_primitives}
@@ -961,7 +962,7 @@ class GLTFExporter:
             return mesh_index
 
         except Exception as e:
-            print(f"Warning: Failed to load DAE file {file_path}: {e}")
+            WarnMsg(f"Failed to load DAE file {file_path}: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -1670,7 +1671,7 @@ class GLTFExporter:
                     self.texture_paths[cache_key] = image_index
                     
                 except Exception as e:
-                    print(f"Warning: Failed to copy texture {texture_path}: {e}")
+                    WarnMsg(f"Failed to copy texture {texture_path}: {e}")
                     image_index = None
             else:
                 image_index = self.texture_paths[cache_key]
@@ -1732,7 +1733,7 @@ class GLTFExporter:
                 if mesh_index is not None:
                     node["mesh"] = mesh_index
             elif model_path and model_format == 'gltf':
-                print(f"Warning: glTF model loading not yet implemented for {model_path}")
+                WarnMsg(f"glTF model loading not yet implemented for {model_path}")
 
         anim_data = getattr(element, 'animation', None)
 
