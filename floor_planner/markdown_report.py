@@ -15,6 +15,8 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
     :param output_path:
         path to output markdown file
     """
+
+    #FIXME: Unwind the composite elements, the ones that have a list of other element. See ElementBase.
     # Group elements by type
     grouped = defaultdict(list)
     for element in all_elements:
@@ -41,6 +43,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             f.write("\n")
 
         # Report Windows
+        # FIXME: Doors should be combined with windows coming as external models
         if 'Window' in grouped:
             f.write("## Windows\n\n")
             f.write("| ID | Length (m) | Overall Thickness (m) | Corner 1 (x,y) | Corner 2 (x,y) | Corner 3 (x,y) | Corner 4 (x,y) |\n")
@@ -53,6 +56,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             f.write("\n")
 
         # Report Doors
+        # FIXME: Doors should be combined with BalconyDoor, WindowDoor, SolidDoor1, etc. into single section. Currently they are not reported at all
         if 'Door' in grouped:
             f.write("## Doors\n\n")
             f.write("| ID | Doorway Width (m) | Door Width (m) | Opens to Right | Corner 1 (x,y) | Corner 2 (x,y) | Corner 3 (x,y) | Corner 4 (x,y) |\n")
