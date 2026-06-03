@@ -32,6 +32,7 @@ class Door2D():
             to_the_right: bool = False,
             hinges_point: float = 0.95,
             opening_outside: bool = False,
+            door_orientation_in_doorway: float = 0.5
      ):
         """
         Initialize an instance.
@@ -70,7 +71,8 @@ class Door2D():
         self.doorway_width = doorway_width
         self.thickness = thickness
         self.door_width = door_width
-        self.frame_width = (doorway_width - door_width) / 2
+        self.frame_width_left = (doorway_width - door_width) * door_orientation_in_doorway 
+        self.frame_width_right = (doorway_width - door_width) * (1 - door_orientation_in_doorway)
         self.to_the_right = to_the_right
         # If opening outside, take the opposite hinges point so "1.0" is always extended hinges
         self.hinges_depth = 1 - hinges_point  if opening_outside else hinges_point
@@ -119,21 +121,21 @@ class Door2D():
         
         if self.to_the_right:
             hinges_point = rotate_point(anchor_point=anchor_point,
-                                     offset_x=-door_wing_thickness + self.frame_width + self.door_width + anchor_point_x_offset,
+                                     offset_x=-door_wing_thickness + self.frame_width_left + self.door_width + anchor_point_x_offset,
                                      offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
             arc_anchor_point = rotate_point(anchor_point=anchor_point,
-                                     offset_x=-door_wing_thickness +self.frame_width + self.door_width ,
+                                     offset_x=-door_wing_thickness +self.frame_width_left + self.door_width ,
                                      offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
 
         else:
             hinges_point = rotate_point(anchor_point=anchor_point,
-                                     offset_x=self.frame_width + anchor_point_x_offset,
+                                     offset_x=self.frame_width_left + anchor_point_x_offset,
                                      offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
             arc_anchor_point = rotate_point(anchor_point=anchor_point,
-                                     offset_x=self.frame_width + door_wing_thickness,
+                                     offset_x=self.frame_width_left + door_wing_thickness,
                                      offset_y=self.thickness * self.hinges_depth,
                                      angle_rad=orientation_angle_in_rad)
         return hinges_point, arc_anchor_point
@@ -153,7 +155,7 @@ class Door2D():
         # Draw a part of frame up to the hinges
         frame_with_hinges = Rectangle(
             self.anchor_point,
-            self.frame_width,
+            self.frame_width_left,
             self.thickness,
             angle=frame_orientation_angle,
             facecolor=draw_color
@@ -161,7 +163,7 @@ class Door2D():
         frame_with_hinges.set_zorder(z_orderm)
         ax.add_patch(frame_with_hinges)
         # Draw a whole in the wall
-        shift = self.frame_width
+        shift = self.frame_width_left
         whole_in_the_wall_anchor = (
             self.anchor_point[0] + math.cos(orientation_angle_in_rad) * shift,
             self.anchor_point[1] + math.sin(orientation_angle_in_rad) * shift
@@ -176,14 +178,14 @@ class Door2D():
         whole_in_a_wall.set_zorder(z_orderm)
         ax.add_patch(whole_in_a_wall)
         # Draw a part of frame opposite to the hinges.
-        shift = self.frame_width + self.door_width
+        shift = self.frame_width_right + self.door_width
         frame_without_hinges_anchor_point = (
             self.anchor_point[0] + math.cos(orientation_angle_in_rad) * shift,
             self.anchor_point[1] + math.sin(orientation_angle_in_rad) * shift
         )
         frame_without_hinges = Rectangle(
             frame_without_hinges_anchor_point,
-            self.frame_width,
+            self.frame_width_right,
             self.thickness,
             angle=frame_orientation_angle,
             facecolor=draw_color
@@ -193,7 +195,7 @@ class Door2D():
         # Draw dimension arrow for the doorway width if specified in options
         if get_element_option("Door","dimensions"):
             dims_point = rotate_point(anchor_point=self.anchor_point,
-                                    offset_x=self.frame_width,
+                                    offset_x=self.frame_width_left,
                                     offset_y=self.thickness * 0.8 if self.opening_outside else self.thickness * 0.2,
                                     angle_rad=orientation_angle_in_rad)
             dimension = DimensionArrow(

@@ -147,6 +147,7 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             doorway_width: float,
             door_width: float,
             thickness: float,
+            door_orientation_in_doorway: float = 0.5,
             orientation_angle: float = 0,
             to_the_right: bool = False,
             color: str = 'black',
@@ -167,7 +168,7 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
 
         self.door2d = Door2D(anchor_point,doorway_width,door_width,thickness,
                 orientation_angle,to_the_right,hinges_point,
-                opening_outside)
+                opening_outside,door_orientation_in_doorway)
 
         self.door3d = Door3D(
             doorway_width=doorway_width,
