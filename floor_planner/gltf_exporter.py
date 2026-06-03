@@ -336,7 +336,7 @@ class GLTFExporter:
         """
         # Resolve texture path (can be just filename or relative path)
         source_path = model_dir / texture_path
-        
+        source_path = source_path.resolve()
         if not source_path.exists():
             WarnMsg(f"Texture file not found: {source_path}")
             return None
