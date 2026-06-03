@@ -28,10 +28,10 @@ from floor_planner.transform import (
 )
 from floor_planner.elements.element import Element
 from floor_planner.elements.external_models import ExternalModelElement
-from floor_planner.elements.geometry_3d import is_3d_eligible
+from floor_planner.geometry_3d import is_3d_eligible
 from floor_planner.elements.registry import get_element_type_from_instance
 from floor_planner.texture_manager import TextureManager
-from floor_planner.elements.basic import WallND
+from floor_planner.elements.foundation.basic import WallND
 from floor_planner.wall_openings import find_embedded_openings, generate_wall_with_openings
 
 

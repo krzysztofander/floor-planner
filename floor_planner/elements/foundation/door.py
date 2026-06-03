@@ -10,12 +10,12 @@ import math
 import matplotlib.axes
 from matplotlib.patches import Arc, Rectangle
 
-from ..constants import RIGHT_ANGLE_IN_DEGREES
-from ..utils import rotate_point, render_label_and_id
-from .element import RectangularElement
-from .info import DimensionArrow
-from .options import get_element_option
-from .vertical_levels import VertInfoDoor
+from ...constants import RIGHT_ANGLE_IN_DEGREES
+from ...utils import rotate_point, render_label_and_id
+from ..element import RectangularElement
+from ..symbols.info import DimensionArrow
+from ...options import get_element_option
+from ..vertical_levels import VertInfoDoor
 
 class Door2D():
     """Helper for drawing a door, used both for programmatic doors and models """

@@ -75,7 +75,7 @@ def is_element_embedded_in_wall(wall: 'Element', opening: 'Element', tolerance: 
     Returns:
         True if opening is embedded in wall, False otherwise.
     """
-    from .elements.basic import WallND
+    from .elements.foundation.basic import WallND
     from .elements.vertical_levels import VertInfoDoor, VertInfoWindows
 
     # Wall must be a WallND subclass

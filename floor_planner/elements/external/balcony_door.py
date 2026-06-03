@@ -14,13 +14,13 @@ import matplotlib.axes
 from matplotlib.patches import Arc, Rectangle
 from matplotlib.pylab import cos
 
-from ..constants import RIGHT_ANGLE_IN_DEGREES
-from ..utils import rotate_point
-from .external_models import ExternalModelElement
-from .info import DimensionArrow
-from .options import get_element_option
-from .vertical_levels import VertInfoDoor
-from .door import Door2D
+from ...constants import RIGHT_ANGLE_IN_DEGREES
+from ...utils import rotate_point
+from ..external_models import ExternalModelElement
+from ..symbols.info import DimensionArrow
+from ...options import get_element_option
+from ..vertical_levels import VertInfoDoor
+from ..foundation.door import Door2D
 
 class Door3D:
     def __init__(

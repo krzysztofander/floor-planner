@@ -10,9 +10,9 @@ import math
 import matplotlib.axes
 from matplotlib.patches import Arc, Circle, Rectangle
 
-from ..constants import RIGHT_ANGLE_IN_DEGREES
-from .element import Element
-from .vertical_levels import VertInfoCeiling, VertInfoWallLamps, VertInfoSwitches
+from ...constants import RIGHT_ANGLE_IN_DEGREES
+from ..element import Element
+from ..vertical_levels import VertInfoCeiling, VertInfoWallLamps, VertInfoSwitches
 
 
 class CeilingLamp(VertInfoCeiling, Element):

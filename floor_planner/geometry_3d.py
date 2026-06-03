@@ -13,10 +13,10 @@ from abc import ABC, abstractmethod
 import math
 from typing import TYPE_CHECKING
 
-from ..utils import rotate_point
+from .utils import rotate_point
 
 if TYPE_CHECKING:
-    from .element import Element
+    from .elements.element import Element
 
 
 def is_3d_eligible(element: 'Element') -> bool:
@@ -36,8 +36,8 @@ def is_3d_eligible(element: 'Element') -> bool:
         - Elements with color = 'invisible'
         - Elements with zero dimensions (length, thickness, diameter)
     """
-    from .info import DimensionArrow, TextBox
-    from ..floor_plan import Room
+    from .elements.symbols.info import DimensionArrow, TextBox
+    from .floor_plan import Room
 
     if element.isList():
         return any(is_3d_eligible(sub_element) for sub_element in element.getList())

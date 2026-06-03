@@ -20,10 +20,10 @@ import math
 import matplotlib.axes
 from matplotlib.patches import Rectangle
 
-from ..utils import rotate_point, render_label_and_id, text_readability_rotation
-from .external_models import ExternalModelElement
-from .vertical_levels import VertInfoWindows
-from .options import get_element_option
+from ...utils import rotate_point, render_label_and_id, text_readability_rotation
+from ..external_models import ExternalModelElement
+from ..vertical_levels import VertInfoWindows
+from ...options import get_element_option
 
 
 class _FixedWindow(VertInfoWindows, ExternalModelElement):

@@ -14,12 +14,10 @@ from collections import defaultdict
 import yaml
 
 from floor_planner import elements
-from floor_planner.elements import create_elements_registry
 from floor_planner.floor_plan import FloorPlan
 from floor_planner.project import Project
 from floor_planner.markdown_report import generate_elements_report
 from floor_planner.variables import validate_constants, resolve_constants, resolve_element_params
-from floor_planner.elements.room import Room
 
 def load_reusable_elements(reusable_elements_config: dict, config_dir: Path) -> dict:
     """
@@ -216,7 +214,7 @@ def main() -> None:
     # Set default options globally
     elements.set_element_options(default_options)
 
-    elements_registry = create_elements_registry()
+    elements_registry = elements.create_elements_registry()
 
     # Load reusable elements (including external files)
     reusable_elements = load_reusable_elements(
@@ -261,7 +259,7 @@ def main() -> None:
                 if element_type == 'room':
                     # Create room with nested elements
                     room_params = copy.deepcopy(element_params)
-                    room = Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
+                    room = elements.Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
                     floor_plan.add_element(room)
                     all_elements.append(room)
                     elements_by_id[room.get_id()] = room
@@ -280,7 +278,7 @@ def main() -> None:
             element_type = element_params_copy.get('type')
             if element_type == 'room':
                 # Create room with nested elements
-                room = Room.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
+                room = elements.Room.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
                 floor_plan.add_element(room)
                 all_elements.append(room)
                 elements_by_id[room.id] = room

@@ -12,8 +12,8 @@ from matplotlib.patches import Arc, Rectangle
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import Element, RectangularElement
-from ..info import DimensionArrow
-from ..options import get_dimensions, get_element_option
+from ..symbols.info import DimensionArrow
+from ...options import get_dimensions, get_element_option
 from ..vertical_levels import VertInfoLvl03, VertInfoLvl04
 
 

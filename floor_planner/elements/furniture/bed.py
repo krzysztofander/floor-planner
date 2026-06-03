@@ -12,7 +12,7 @@ from matplotlib.patches import Arc, Rectangle
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import Element, RectangularElement
-from ..info import DimensionArrow
+from ..symbols.info import DimensionArrow
 from ..vertical_levels import VertInfoLvl03
 
 class MultiBed(VertInfoLvl03, RectangularElement):

@@ -4,34 +4,19 @@ Map element names to their classes.
 Author: Nikolay Lysenko
 """
 
-from .basic import Wall, WallND, Window
-from .balcony_door import BalconyDoor
-from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble, WindowDoorDoubleMk2
-from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
-from .door import Door
-from .electricity import ElectricalCable, PowerOutlet
+from .foundation.basic import Wall, WallND, Window
+from .external import *
+from .foundation.door import Door
+from .symbols.electricity import ElectricalCable, PowerOutlet
 from .element import ElementBase
-from .external_model_test import ExternalModelTest
-from .wooden_chair import WoodenChair
-from .master_bed import MasterBed
-from .sofa_model import SofaModel
-from .blender_furniture import (
-    Armchair, Chair20, ChaiseLongue1, Desk1,
-    Sofa22, Sofa23, Stool7, Table01,
-)
-from .info import DimensionArrow, TextBox
-from .lighting import CeilingLamp, LEDStrip, Switch, WallLamp
-from .multipurpose import Line, Polygon, Circle
-from .room import Room
-from .furniture.storage import GenericStorage, Storage40, Storage60, Tabletop
-from .furniture.bed import DoubleBed, SingleBed
-from .furniture.appliances import (
-    Dishwasher, Fridge, Freezer, WashingMachine, Dryer, Stovetop, SingleSink, DoubleSink
-)
-from .furniture.bathroom import Shower, Bathtub, Basin, Toilet
-from .furniture.furniture import Desk, DiningTable, Chair, Sofa
-from .furniture.decorations import FishTank
-from .landscaping import Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool
+
+from .symbols.info import DimensionArrow, TextBox
+from .lightning.lighting import CeilingLamp, LEDStrip, Switch, WallLamp
+from .symbols.multipurpose import Line, Polygon, Circle
+from .foundation.room import Room
+from .composite import *
+from .furniture import *
+from .landscaping import * 
 
 
 def create_elements_registry() -> dict[str, type['ElementBase']]:
@@ -50,13 +35,12 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'model_solid_door_1': SolidDoor1,
         'model_solid_door_2': SolidDoor2,
         'model_window_door_double': WindowDoorDouble,
-        'model_window_door_double_mk2': WindowDoorDoubleMk2,
+        'composite_model_window_door_double': Composite_WindowDoorDouble,
         'model_window_140x120': Window140x120,
         'model_window_90x120': Window90x120,
         'model_window_double_160x120': WindowDouble160x120,
         'model_window_double_160x140': WindowDouble160x140,
         'electrical_cable': ElectricalCable,
-        'model_external_model_test': ExternalModelTest,
         'model_wooden_chair': WoodenChair,
         'model_master_bed': MasterBed,
         'model_sofa_model': SofaModel,

@@ -9,8 +9,8 @@ from abc import ABC, abstractmethod
 
 import matplotlib.axes
 
-from .options import generate_element_id, get_show_invisible
-from .geometry_3d import RectangularGeometry3D, CircularGeometry3D, SurfaceGeometry3D
+from ..options import generate_element_id, get_show_invisible
+from ..geometry_3d import RectangularGeometry3D, CircularGeometry3D, SurfaceGeometry3D
 
 from ..utils import rotate_point
 import math

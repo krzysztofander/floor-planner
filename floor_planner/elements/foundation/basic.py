@@ -10,11 +10,11 @@ import math
 import matplotlib.axes
 from matplotlib.patches import Arc, Rectangle
 
-from ..utils import rotate_point, render_label_and_id, text_readability_rotation
-from .element import Element, RectangularElement
-from .info import DimensionArrow
-from .options import get_dimensions, get_element_option
-from .vertical_levels import VertInfoLvl01, VertInfoWindows
+from ...utils import rotate_point, render_label_and_id, text_readability_rotation
+from ..element import Element, RectangularElement
+from ..symbols.info import DimensionArrow
+from ...options import get_dimensions, get_element_option
+from ..vertical_levels import VertInfoLvl01, VertInfoWindows
 
 
 class WallND(VertInfoLvl01, RectangularElement):

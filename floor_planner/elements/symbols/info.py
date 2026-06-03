@@ -11,8 +11,8 @@ import matplotlib.axes
 import numpy as np
 from matplotlib.patches import Polygon
 
-from .element import Element
-from .vertical_levels import VertInfoAnnotations
+from ..element import Element
+from ..vertical_levels import VertInfoAnnotations
 
 
 class DimensionArrow(VertInfoAnnotations, Element):

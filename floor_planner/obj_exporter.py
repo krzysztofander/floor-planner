@@ -11,10 +11,10 @@ import math
 
 from .material_manager import MaterialManager
 from .texture_manager import TextureManager
-from .elements.geometry_3d import is_3d_eligible
+from .geometry_3d import is_3d_eligible
 from .elements.registry import get_element_type_from_instance
 from .wall_openings import find_embedded_openings, generate_wall_with_openings
-from .elements.basic import WallND
+from .elements.foundation.basic import WallND
 
 if TYPE_CHECKING:
     from .floor_plan import FloorPlan

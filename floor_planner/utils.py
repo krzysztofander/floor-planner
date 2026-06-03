@@ -9,7 +9,7 @@ from functools import lru_cache
 
 import matplotlib.axes
 
-from .elements.options import get_label_color, get_id_color
+from .options import get_label_color, get_id_color
 
 @lru_cache
 def _rotate_point(anchor_point: tuple[float, float],

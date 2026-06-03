@@ -8,7 +8,7 @@ Author: Nikolay Lysenko
 import matplotlib.axes
 from matplotlib import patches
 
-from .element import Element
+from ..element import Element
 
 
 class Line(Element):

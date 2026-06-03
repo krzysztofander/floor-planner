@@ -11,7 +11,7 @@ from matplotlib.patches import Circle, Rectangle
 
 from ...utils import rotate_point, render_label_and_id, _render_text
 from ..element import Element, RectangularElement, SurfaceElement, CircularElement
-from ..options import get_show_species, get_show_bloom
+from ...options import get_show_species, get_show_bloom
 from ..vertical_levels import VertInfoLvl01, VertInfoLvl00
 
 
