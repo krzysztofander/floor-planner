@@ -202,7 +202,7 @@ class WindowDoorDoubleMk2(ElementBase):
     ):
         super().__init__()
 
-        middle_bar_spacing = 0.05  # Space between the two wings in the 3D model (metres)
+        middle_bar_spacing = 0.00  # Space between the two wings in the 3D model (metres)
         calc_door_width = door_width/2
         calc_doorway_width = (doorway_width - middle_bar_spacing)/2
 

@@ -202,6 +202,7 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
     
     # Collect opening info (relative to wall's local coordinate system)
     opening_infos = []
+    opening_info_bases = []
     for opening in openings:
         # Transform all 4 footprint corners into wall-local X to get the true span.
         # Using just anchor + length would be wrong for anti-parallel openings
@@ -229,7 +230,36 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
             'height': opening.height if hasattr(opening, 'height') else wall_height,
             'bottom_y': opening.v_anchor if hasattr(opening, 'v_anchor') else wall_v_anchor,
         }
-        
+        opening_info_bases.append(opening_info_base)
+    # Krzysztof: need to merge openings that are adjacent to each other
+
+    def merge_openings(_opening_info_bases) -> int:
+        # These loops iterate each opening with each opening
+        tolerance_merge = 0.005  # 0.5 cm tolerance for merging adjacent openings
+        for i in range(len(_opening_info_bases)):
+            for j in range(i + 1, len(_opening_info_bases)):
+                oi1 = _opening_info_bases[i]
+                oi2 = _opening_info_bases[j]
+                if  abs(oi1['end_x'] - oi2['start_x']) < tolerance_merge \
+                    and abs(oi1['bottom_y'] - oi2['bottom_y']) < tolerance_merge \
+                    and abs(oi1['height'] - oi2['height']) < tolerance_merge:
+                    # Merge oi2 into oi1
+                    oi1['start_x'] = min(oi1['start_x'], oi2['start_x'])
+                    oi1['end_x'] = max(oi1['end_x'], oi2['end_x'])
+                    oi1['width'] = oi1['end_x'] - oi1['start_x']
+                    # Mark oi2 as merged (could also remove it from the list)
+                    return j # Return index of merged opening to remove 
+        return -1 # No more merges needed
+     
+    # Keep merging until no more adjacent openings are found
+    while True: 
+        merged_index = merge_openings(opening_info_bases)
+        if merged_index < 0:
+            break
+        else:
+            opening_info_bases.pop(merged_index)
+    
+    for opening_info_base in opening_info_bases:
         # Add the opening to both front and back faces
         opening_info_front = {**opening_info_base, 'face': 'front'}
         opening_info_back = {**opening_info_base, 'face': 'back'}
