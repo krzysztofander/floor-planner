@@ -55,7 +55,7 @@ class Room(Element):
         # Mark walls as room walls
         for wall in walls:
             wall.is_room_wall = True
-            wall.room_id = self.id
+            wall.room_id = self.get_id()
 
         # Validate and organize walls
         self._validate_and_organize_walls()

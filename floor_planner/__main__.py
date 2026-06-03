@@ -264,7 +264,7 @@ def main() -> None:
                     room = Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
                     floor_plan.add_element(room)
                     all_elements.append(room)
-                    elements_by_id[room.id] = room
+                    elements_by_id[room.get_id()] = room
                 else:
                     # Create regular element
                     element_class = elements_registry[element_type]
@@ -274,7 +274,7 @@ def main() -> None:
                     element = element_class(**element_params_clean)
                     floor_plan.add_element(element)
                     all_elements.append(element)
-                    elements_by_id[element.id] = element
+                    elements_by_id[element.get_id()] = element
         for element_params in floor_plan_params.get('elements', []):
             element_params_copy = copy.deepcopy(element_params)
             element_type = element_params_copy.get('type')
@@ -293,7 +293,7 @@ def main() -> None:
                 element = element_class(**element_params_copy)
                 floor_plan.add_element(element)
                 all_elements.append(element)
-                elements_by_id[element.id] = element
+                elements_by_id[element.get_id()] = element
         floor_plan.draw_elements()
 
         # Draw report if specified

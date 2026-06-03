@@ -36,7 +36,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             for element in all_walls:
                 corners = element.get_corners()
                 corner_strs = [f"({c[0]:.3f}, {c[1]:.3f})" for c in corners]
-                f.write(f"| {element.id} | {element.length} | {element.thickness} | "
+                f.write(f"| {element.get_id()} | {element.length} | {element.thickness} | "
                        f"{corner_strs[0]} | {corner_strs[1]} | {corner_strs[2]} | {corner_strs[3]} |\n")
             f.write("\n")
 
@@ -48,7 +48,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             for element in grouped['Window']:
                 corners = element.get_corners()
                 corner_strs = [f"({c[0]:.3f}, {c[1]:.3f})" for c in corners]
-                f.write(f"| {element.id} | {element.length} | {element.overall_thickness} | "
+                f.write(f"| {element.get_id()} | {element.length} | {element.overall_thickness} | "
                        f"{corner_strs[0]} | {corner_strs[1]} | {corner_strs[2]} | {corner_strs[3]} |\n")
             f.write("\n")
 
@@ -61,7 +61,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 to_right = "Yes" if element.get_to_the_right() else "No"
                 corners = element.get_corners()
                 corner_strs = [f"({c[0]:.3f}, {c[1]:.3f})" for c in corners]
-                f.write(f"| {element.id} | {element.get_doorway_width()} | {element.get_door_width()} | {to_right} | "
+                f.write(f"| {element.get_id()} | {element.get_doorway_width()} | {element.get_door_width()} | {to_right} | "
                        f"{corner_strs[0]} | {corner_strs[1]} | {corner_strs[2]} | {corner_strs[3]} |\n")
             f.write("\n")
 
@@ -75,7 +75,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             for element in invisible_walls:
                 corners = element.get_corners()
                 corner_strs = [f"({c[0]:.3f}, {c[1]:.3f})" for c in corners]
-                f.write(f"| {element.id} | {element.length} | {element.thickness} | "
+                f.write(f"| {element.get_id()} | {element.length} | {element.thickness} | "
                        f"{corner_strs[0]} | {corner_strs[1]} | {corner_strs[2]} | {corner_strs[3]} |\n")
             f.write("\n")
 
@@ -83,7 +83,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
         if 'Room' in grouped:
             f.write("## Rooms\n\n")
             for room in grouped['Room']:
-                f.write(f"### {room.id}\n\n")
+                f.write(f"### {room.get_id()}\n\n")
                 if room.label:
                     f.write(f"**Label:** {room.label}\n\n")
 
@@ -119,7 +119,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 for wall in edge_walls:
                     # Determine orientation from angle: 0/180 = Horizontal, 90/270 = Vertical
                     orientation = "Horizontal" if wall.orientation_angle % 180 == 0 else "Vertical"
-                    f.write(f"| {wall.id} | {orientation} | {wall.length:.3f} | {wall.thickness:.3f} |\n")
+                    f.write(f"| {wall.get_id()} | {orientation} | {wall.length:.3f} | {wall.thickness:.3f} |\n")
                 f.write("\n")
 
                 # List internal walls (walls with room_edge=False)
@@ -130,7 +130,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                     f.write("|---|---|---|---|\n")
                     for wall in internal_walls:
                         orientation = "Horizontal" if wall.orientation_angle % 180 == 0 else "Vertical"
-                        f.write(f"| {wall.id} | {orientation} | {wall.length:.3f} | {wall.thickness:.3f} |\n")
+                        f.write(f"| {wall.get_id()} | {orientation} | {wall.length:.3f} | {wall.thickness:.3f} |\n")
                     f.write("\n")
 
                 # List other elements in room (windows, doors, etc.)
@@ -140,7 +140,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                     f.write("|---|---|\n")
                     for element in room.other_elements:
                         element_type = element.__class__.__name__
-                        f.write(f"| {element.id} | {element_type} |\n")
+                        f.write(f"| {element.get_id()} | {element_type} |\n")
                     f.write("\n")
 
         # Report landscaping elements with detailed information
@@ -161,7 +161,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                         else:
                             bloom_season = element.bloom_season_start
                     bloom_color = element.bloom_color if hasattr(element, 'bloom_color') and element.bloom_color else '-'
-                    f.write(f"| {element.id} | {species} | {height} | {bloom_season} | {bloom_color} |\n")
+                    f.write(f"| {element.get_id()} | {species} | {height} | {bloom_season} | {bloom_color} |\n")
                 f.write("\n")
 
         # Report hardscaping elements
@@ -175,7 +175,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 style = element.style if hasattr(element, 'style') and element.style else '-'
                 height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
-                f.write(f"| {element.id} | {label} | {style} | {height} | {length} |\n")
+                f.write(f"| {element.get_id()} | {label} | {style} | {height} | {length} |\n")
             f.write("\n")
 
         if 'GardenPath' in grouped:
@@ -188,7 +188,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 material = element.material if hasattr(element, 'material') and element.material else '-'
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
-                f.write(f"| {element.id} | {label} | {material} | {length} | {width} |\n")
+                f.write(f"| {element.get_id()} | {label} | {material} | {length} | {width} |\n")
             f.write("\n")
 
         if 'RetainingWall' in grouped:
@@ -201,7 +201,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 thickness = f"{element.thickness:.2f}" if hasattr(element, 'thickness') and element.thickness else '-'
-                f.write(f"| {element.id} | {label} | {height} | {length} | {thickness} |\n")
+                f.write(f"| {element.get_id()} | {label} | {height} | {length} | {thickness} |\n")
             f.write("\n")
 
         # Report water features
@@ -215,7 +215,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 style = element.style if hasattr(element, 'style') and element.style else '-'
                 height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
                 diameter = f"{element.diameter:.2f}" if hasattr(element, 'diameter') and element.diameter else '-'
-                f.write(f"| {element.id} | {label} | {style} | {height} | {diameter} |\n")
+                f.write(f"| {element.get_id()} | {label} | {style} | {height} | {diameter} |\n")
             f.write("\n")
 
         if 'Pond' in grouped:
@@ -228,7 +228,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 shape = element.shape if hasattr(element, 'shape') and element.shape else '-'
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
-                f.write(f"| {element.id} | {label} | {shape} | {length} | {width} |\n")
+                f.write(f"| {element.get_id()} | {label} | {shape} | {length} | {width} |\n")
             f.write("\n")
 
         # Report garden structures
@@ -242,7 +242,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
                 post_size = f"{element.post_size:.2f}" if hasattr(element, 'post_size') and element.post_size else '-'
-                f.write(f"| {element.id} | {label} | {length} | {width} | {post_size} |\n")
+                f.write(f"| {element.get_id()} | {label} | {length} | {width} | {post_size} |\n")
             f.write("\n")
 
         if 'RaisedBed' in grouped:
@@ -255,7 +255,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
                 height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
-                f.write(f"| {element.id} | {label} | {length} | {width} | {height} |\n")
+                f.write(f"| {element.get_id()} | {label} | {length} | {width} | {height} |\n")
             f.write("\n")
 
         if 'Gazebo' in grouped:
@@ -266,7 +266,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
             for element in grouped['Gazebo']:
                 label = element.label if element.label else '-'
                 diameter = f"{element.diameter:.2f}" if hasattr(element, 'diameter') and element.diameter else '-'
-                f.write(f"| {element.id} | {label} | {diameter} |\n")
+                f.write(f"| {element.get_id()} | {label} | {diameter} |\n")
             f.write("\n")
 
         if 'Deck' in grouped:
@@ -278,7 +278,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 label = element.label if element.label else '-'
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
-                f.write(f"| {element.id} | {label} | {length} | {width} |\n")
+                f.write(f"| {element.get_id()} | {label} | {length} | {width} |\n")
             f.write("\n")
 
         if 'GardenHouse' in grouped:
@@ -291,7 +291,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 length = f"{element.length:.2f}" if hasattr(element, 'length') and element.length else '-'
                 width = f"{element.width:.2f}" if hasattr(element, 'width') and element.width else '-'
                 height = f"{element.height:.2f}" if hasattr(element, 'height') and element.height else '-'
-                f.write(f"| {element.id} | {label} | {length} | {width} | {height} |\n")
+                f.write(f"| {element.get_id()} | {label} | {length} | {width} | {height} |\n")
             f.write("\n")
 
         # Report other element types
@@ -304,7 +304,7 @@ def generate_elements_report(all_elements: list, output_path: str) -> None:
                 f.write("| ID |\n")
                 f.write("|---|\n")
                 for element in grouped[element_type]:
-                    f.write(f"| {element.id} |\n")
+                    f.write(f"| {element.get_id()} |\n")
                 f.write("\n")
 
         # Summary

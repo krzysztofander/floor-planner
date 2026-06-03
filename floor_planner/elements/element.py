@@ -94,7 +94,7 @@ class Element(ElementBase):
         self.color = color
         self.label = label
         # Generate unique ID based on class name and label, or use provided ID
-        self.id = id if id else generate_element_id(self.__class__.__name__, label)
+        self._id = id if id else generate_element_id(self.__class__.__name__, label)
         # Room association (set by Room class when element is part of a room)
         self.room_id: str | None = None
         
@@ -118,7 +118,7 @@ class Element(ElementBase):
 
     def get_id(self) -> str:
         """Get the element ID."""
-        return self.id
+        return self._id
 
     def get_draw_color(self) -> str | tuple[int, int, int] | None:
         """

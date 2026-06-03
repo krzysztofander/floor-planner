@@ -189,7 +189,7 @@ def render_label_and_id(
     # Render ID if color is configured
     id_color = get_id_color(element_type)
     if id_color is not None:
-        _render_text(ax, position, id_prefix + element.id, rotation, id_color, centered=centered)
+        _render_text(ax, position, id_prefix + element.get_id(), rotation, id_color, centered=centered)
 
 
 def render_text_as_label_and_id(
@@ -236,6 +236,6 @@ def render_text_as_label_and_id(
     # Render ID if color is configured
     id_color = get_id_color(element_type)
     if id_color is not None:
-        _render_text(ax, position, element.id, rotation, id_color, centered=centered)
+        _render_text(ax, position, element.get_id(), rotation, id_color, centered=centered)
 
 

@@ -119,7 +119,7 @@ class OBJExporter:
             
             # Check if element has 3D geometry generation
             if not hasattr(element, 'generate_vertices_and_indices'):
-                print(f"Warning: Element {element.id} ({type(element).__name__}) "
+                print(f"Warning: Element {element.get_id()} ({type(element).__name__}) "
                       f"does not support 3D geometry generation. Skipping.")
                 continue
             
@@ -140,16 +140,16 @@ class OBJExporter:
                     # Standard geometry for non-wall elements
                     vertices, indices, face_groups = element.generate_vertices_and_indices()
             except Exception as e:
-                print(f"Error generating geometry for {element.id}: {e}")
+                print(f"Error generating geometry for {element.get_id()}: {e}")
                 continue
             
             # Write object header
             obj_file.write(f"# ============================================================================\n")
-            obj_file.write(f"# Object: {element.id} ({type(element).__name__})\n")
+            obj_file.write(f"# Object: {element.get_id()} ({type(element).__name__})\n")
             obj_file.write(f"# Position: {element.anchor_point}, Height: {element.v_anchor} to {element.v_anchor + element.height}\n")
             obj_file.write(f"# ============================================================================\n")
             obj_file.write("\n")
-            obj_file.write(f"o {element.id}\n")
+            obj_file.write(f"o {element.get_id()}\n")
             obj_file.write("\n")
             
             # Write vertices

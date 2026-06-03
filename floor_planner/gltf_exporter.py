@@ -1529,7 +1529,7 @@ class GLTFExporter:
         # Create mesh
         element_type = element.__class__.__name__
         gltf_mesh = {
-            "name": f"{element_type}_{element.id}",
+            "name": f"{element_type}_{element.get_id()}",
             "primitives": [primitive]
         }
         
@@ -1538,11 +1538,11 @@ class GLTFExporter:
         
         # Create node
         node = {
-            "name": f"{element_type}_{element.id}",
+            "name": f"{element_type}_{element.get_id()}",
             "mesh": mesh_index,
             "extras": {
                 "element_type": element_type,
-                "element_id": element.id,
+                "element.get_id()": element.get_id(),
                 "procedural": True
             }
         }
