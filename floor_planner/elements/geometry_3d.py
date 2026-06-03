@@ -38,7 +38,10 @@ def is_3d_eligible(element: 'Element') -> bool:
     """
     from .info import DimensionArrow, TextBox
     from ..floor_plan import Room
-    
+
+    if element.isList():
+        return all(is_3d_eligible(sub_element) for sub_element in element.getList())
+
     if isinstance(element, (DimensionArrow, TextBox, Room)):
         return False
     

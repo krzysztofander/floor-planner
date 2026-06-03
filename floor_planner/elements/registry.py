@@ -6,11 +6,11 @@ Author: Nikolay Lysenko
 
 from .basic import Wall, WallND, Window
 from .balcony_door import BalconyDoor
-from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble
+from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble, WindowDoorDoubleMk2
 from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
-from .element import Element
+from .element import ElementBase
 from .external_model_test import ExternalModelTest
 from .wooden_chair import WoodenChair
 from .master_bed import MasterBed
@@ -34,7 +34,7 @@ from .furniture.decorations import FishTank
 from .landscaping import Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool
 
 
-def create_elements_registry() -> dict[str, type[Element]]:
+def create_elements_registry() -> dict[str, type['ElementBase']]:
     """
     Create registry of implemented elements.
 
@@ -50,6 +50,7 @@ def create_elements_registry() -> dict[str, type[Element]]:
         'model_solid_door_1': SolidDoor1,
         'model_solid_door_2': SolidDoor2,
         'model_window_door_double': WindowDoorDouble,
+        'model_window_door_double_mk2': WindowDoorDoubleMk2,
         'model_window_140x120': Window140x120,
         'model_window_90x120': Window90x120,
         'model_window_double_160x120': WindowDouble160x120,
@@ -121,7 +122,7 @@ def create_elements_registry() -> dict[str, type[Element]]:
     }
     return registry
 
-def get_element_type_from_instance(element: Element) -> str:
+def get_element_type_from_instance(element: ElementBase) -> str:
     """
     Get registry key (element type) from an element instance.
     
@@ -164,21 +165,3 @@ def get_element_type_from_instance(element: Element) -> str:
     snake_case = re.sub(r'(?<!^)(?=[A-Z])', '_', class_name).lower()
     return snake_case
 
-
-def element_sorter_by_type(element: Element) -> int:
-    """
-    Provide a sorting key for elements based on their type.
-    :param element:
-        element to be sorted
-    :return:
-        sorting key (lower values are sorted first)
-    """
-
-    if isinstance(element, (Wall, WallND)):
-        return 0  # Walls first
-    elif isinstance(element, Door):
-        return 1  # Doors second
-    elif isinstance(element, Window):
-        return 2  # Windows third
-    else:
-        return 3  # Other elements last

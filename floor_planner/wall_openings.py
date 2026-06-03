@@ -158,8 +158,11 @@ def find_embedded_openings(wall: 'Element', all_elements: list['Element'], toler
     for element in all_elements:
         if element is wall:  # Skip self
             continue
-        
-        if is_element_embedded_in_wall(wall, element, tolerance):
+        if element.isList():
+            for sub in element.getList():
+                if is_element_embedded_in_wall(wall, sub, tolerance):
+                    embedded.append(sub)
+        elif is_element_embedded_in_wall(wall, element, tolerance):
             embedded.append(element)
     
     return embedded

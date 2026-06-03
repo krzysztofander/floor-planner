@@ -19,7 +19,7 @@ from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble
 from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .door import Door
 from .electricity import ElectricalCable, PowerOutlet
-from .element import Element, RectangularElement, SurfaceElement, CircularElement
+from .element import ElementBase, Element, RectangularElement, SurfaceElement, CircularElement
 from .external_models import ExternalModelElement
 from .external_model_test import ExternalModelTest
 from .wooden_chair import WoodenChair

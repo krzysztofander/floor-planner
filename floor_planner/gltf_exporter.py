@@ -1025,6 +1025,12 @@ class GLTFExporter:
         Returns:
             Node index if added, None if element cannot be exported
         """
+        # Check if this is a list, iterate over sub-elements
+        if element.isList():
+            for sub in element.getList():
+                self.add_element(sub)
+            return None
+
         # Check if element has external model
         if isinstance(element, ExternalModelElement) and element.has_external_model():
             return self._add_external_model_element(element)

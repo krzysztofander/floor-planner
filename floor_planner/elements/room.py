@@ -162,7 +162,7 @@ class Room(Element):
 
             # Track in global lists
             all_elements.append(element)
-            elements_by_id[element.id] = element
+            elements_by_id[element.get_id()] = element
 
             # Organize by type
             if element.__class__.__name__ in ['Wall', 'WallND']:

@@ -12,10 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from .constants import METERS_PER_INCH
-from .elements import Element, Room
-from .elements.registry import element_sorter_by_type
-
-
+from .elements import ElementBase, Room
 
 class FloorPlan:
     """Floor plan."""
@@ -103,7 +100,7 @@ class FloorPlan:
         self.fig = fig
         self.ax = ax
         self.title = None
-        self.elements: list[Element] = []
+        self.elements: list[ElementBase] = []
 
     def add_title(
             self, text: str, font_size: int, rel_x: float = 0.5, rel_y: float = 0.95, **kwargs
@@ -132,7 +129,7 @@ class FloorPlan:
         )
         self.title = text
 
-    def add_element(self, element: Element) -> None:
+    def add_element(self, element: ElementBase) -> None:
         """
         Add element.
 
@@ -154,8 +151,7 @@ class FloorPlan:
         """
         print (f"Drawing floor plan {self.title} elements...")
 
-        for element in sorted(self.elements, key=element_sorter_by_type):
-            #print(f"  Drawing element: {element.__class__.__name__} with id {element.id}")
+        for element in self.elements:
             element.draw(self.ax)
 
     def draw_report(

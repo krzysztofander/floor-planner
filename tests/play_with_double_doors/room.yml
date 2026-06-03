@@ -57,7 +57,7 @@
 
 
     # Doors and south wall
-      - type: model_window_door_double
+      - type: model_window_door_double_mk2
         anchor_point: [door_spacing, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -85,7 +85,7 @@
         label: "South window"
 
     # Doors and windows north wall
-      - type: model_window_door_double
+      - type: model_window_door_double_mk2
         anchor_point: [doorway_width + door_spacing, room_length]
         doorway_width: doorway_width
         door_width: door_width

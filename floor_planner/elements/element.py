@@ -15,9 +15,31 @@ from .geometry_3d import RectangularGeometry3D, CircularGeometry3D, SurfaceGeome
 from ..utils import rotate_point
 import math
 
+class ElementBase(ABC):
 
+    def __init__(self):
+        self._elList: list[ElementBase] = []
 
-class Element(ABC):
+    def addToList(self, element: 'ElementBase') -> None:
+        self._elList.append(element)
+
+    def getList(self) -> list['ElementBase']:
+        return self._elList
+    
+    def isList(self) -> bool:
+        return len(self._elList) > 0
+    
+    @abstractmethod
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the element."""
+        pass
+
+    @abstractmethod
+    def get_id(self) -> str:
+        """Get the element ID."""
+        pass    
+
+class Element(ElementBase):
     """Abstract element."""
 
     # Class-level counter for ensuring unique v_anchor values
@@ -66,6 +88,8 @@ class Element(ABC):
             examples: 0.1 (fine), 0.2 (medium), 0.5 (large tiles);
             if None, texture stretches to fit entire surface (default)
         """
+        super().__init__()
+
         self.anchor_point = anchor_point
         self.color = color
         self.label = label
@@ -91,6 +115,10 @@ class Element(ABC):
         # 3D texture specification
         self.textures = textures
         self.texture_scale = texture_scale
+
+    def get_id(self) -> str:
+        """Get the element ID."""
+        return self.id
 
     def get_draw_color(self) -> str | tuple[int, int, int] | None:
         """
