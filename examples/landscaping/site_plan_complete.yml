@@ -65,8 +65,8 @@ floor_plans:
       # MAIN ENTRANCE PATH - Paving stones from street
       - type: garden_path
         anchor_point: [11.5, 1.0]
-        length: 8.0
-        width: 1.5
+        x_axis_size: 8.0
+        z_axis_size: 1.5
         material: 'paving'
         orientation_angle: 90
         color: '#B0B0B0'
@@ -94,16 +94,16 @@ floor_plans:
       # FRONT LAWN AREAS
       - type: lawn
         anchor_point: [1.5, 2.0]
-        length: 8.0
-        width: 5.0
+        x_axis_size: 8.0
+        z_axis_size: 5.0
         orientation_angle: 0
         color: '#7CFC00'
         label: 'Front Lawn Left'
       
       - type: lawn
         anchor_point: [15.0, 2.0]
-        length: 8.5
-        width: 5.0
+        x_axis_size: 8.5
+        z_axis_size: 5.0
         orientation_angle: 0
         color: '#7CFC00'
         label: 'Front Lawn Right'
@@ -134,16 +134,16 @@ floor_plans:
       # BACKYARD PATIO AREA
       - type: deck
         anchor_point: [9.0, 10.5]
-        length: 6.0
-        width: 4.0
+        x_axis_size: 6.0
+        z_axis_size: 4.0
         orientation_angle: 0
         color: '#D2B48C'
         label: 'Patio Deck'
       
       - type: pergola
         anchor_point: [10.0, 11.0]
-        length: 4.0
-        width: 3.0
+        x_axis_size: 4.0
+        z_axis_size: 3.0
         post_size: 0.25
         orientation_angle: 0
         color: '#8B4513'
@@ -152,8 +152,8 @@ floor_plans:
       # BACKYARD LAWN
       - type: lawn
         anchor_point: [6.0, 15.5]
-        length: 12.0
-        width: 2.5
+        x_axis_size: 12.0
+        z_axis_size: 2.5
         orientation_angle: 0
         color: '#32CD32'
         label: 'Back Lawn'
@@ -180,8 +180,8 @@ floor_plans:
       # VEGETABLE GARDEN AREA
       - type: raised_bed
         anchor_point: [2.0, 12.0]
-        length: 3.0
-        width: 1.2
+        x_axis_size: 3.0
+        z_axis_size: 1.2
         height: 0.4
         border_thickness: 0.15
         orientation_angle: 0
@@ -191,8 +191,8 @@ floor_plans:
       
       - type: raised_bed
         anchor_point: [2.0, 13.5]
-        length: 3.0
-        width: 1.2
+        x_axis_size: 3.0
+        z_axis_size: 1.2
         height: 0.4
         border_thickness: 0.15
         orientation_angle: 0
@@ -202,8 +202,8 @@ floor_plans:
       
       - type: raised_bed
         anchor_point: [2.0, 15.0]
-        length: 3.0
-        width: 1.2
+        x_axis_size: 3.0
+        z_axis_size: 1.2
         height: 0.4
         border_thickness: 0.15
         orientation_angle: 0
@@ -214,8 +214,8 @@ floor_plans:
       # GARDEN SHED
       - type: garden_house
         anchor_point: [2.0, 10.0]
-        length: 2.5
-        width: 2.0
+        x_axis_size: 2.5
+        z_axis_size: 2.0
         height: 2.2
         orientation_angle: 0
         color: '#DEB887'
@@ -278,8 +278,8 @@ floor_plans:
       # PATHWAY TO GAZEBO
       - type: garden_path
         anchor_point: [15.0, 2.5]
-        length: 6.0
-        width: 1.0
+        x_axis_size: 6.0
+        z_axis_size: 1.0
         material: 'stone'
         orientation_angle: 0
         color: '#A9A9A9'

@@ -280,8 +280,8 @@ class SurfaceElement(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float,
-            length: float,
-            width: float,
+            x_axis_size: float,
+            z_axis_size: float,
             color: tuple[int, int, int] | str | None = None,
             label: str | None = None,
             id: str | None = None,
@@ -299,11 +299,10 @@ class SurfaceElement(RectangularElement):
             angle (in degrees) that specifies orientation;
             measured between X-axis and the element in positive direction (counterclockwise);
             initial element is rotated around anchor point to get the desired orientation
-        :param length:
-            primary dimension (first face) in meters. THIS IS THE Z AXIS
-        :param width:
-            second face dimension in meters (for decks, paths, lawns, pools)
-            THIS IS THE X AXIS
+        :param x_axis_size:
+            this is the left/right on 2D
+        :param z_axis_size:
+            this is the up/down on 2D
         :param color:
             color for rendering as RGB tuple or string; 'invisible' for hidden elements
         :param label:
@@ -323,8 +322,8 @@ class SurfaceElement(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=width,  # WIDTH FOR SURFACE ELEMENTS MAPS TO X AXIS
-            thickness=length,  # LENGTH FOR SURFACE ELEMENTS MAPS TO Z AXIS
+            length=x_axis_size,    # X_AXIS_SIZE FOR SURFACE ELEMENTS MAPS TO length
+            thickness=z_axis_size,  # Z_AXIS_SIZE FOR SURFACE ELEMENTS MAPS TO thickness
             color=color,
             label=label,
             id=id,
@@ -334,7 +333,11 @@ class SurfaceElement(RectangularElement):
             texture_scale=texture_scale
         )
         # Expose width as semantic property for clarity
-        self.width = width
+        self.x_axis_size = x_axis_size  # Primary dimension along X axis (for surface elements, width is along X)
+        self.z_axis_size = z_axis_size  # Secondary dimension along Z axis
+
+        # Cancel width so it is not accidentally used
+        self.width = None   
 
     @abstractmethod
     def draw(self, ax: matplotlib.axes.Axes) -> None:

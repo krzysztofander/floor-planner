@@ -61,8 +61,8 @@
 # Lawn  2.5 × 1.5 m, corner anchor
 - type: lawn
   anchor_point: [17.0, 11.0]
-  length: 2.5
-  width: 1.5
+  x_axis_size: 2.5
+  z_axis_size: 1.5
   orientation_angle: 0
   color: '#7CFC00'
   label: "lawn"
@@ -78,8 +78,8 @@
 # Garden path  2.5 × 0.6 m, corner anchor
 - type: garden_path
   anchor_point: [26.5, 11.0]
-  length: 2.5
-  width: 0.6
+  x_axis_size: 2.5
+  z_axis_size: 0.6
   orientation_angle: 0
   label: "garden path"
 
@@ -112,16 +112,16 @@
 # Pergola  3.0 × 2.0 m, corner anchor
 - type: pergola
   anchor_point: [12.0, 7.0]
-  length: 3.0
-  width: 2.0
+  x_axis_size: 3.0
+  z_axis_size: 2.0
   orientation_angle: 0
   label: "pergola"
 
 # Raised bed  1.5 × 0.8 m, corner anchor
 - type: raised_bed
   anchor_point: [18.0, 7.0]
-  length: 1.5
-  width: 0.8
+  x_axis_size: 1.5
+  z_axis_size: 0.8
   orientation_angle: 0
   label: "raised bed"
 
@@ -154,15 +154,15 @@
 # Deck  3.5 × 2.0 m, corner anchor
 - type: deck
   anchor_point: [9.0, 2.0]
-  length: 3.5
-  width: 2.0
+  x_axis_size: 3.5
+  z_axis_size: 2.0
   orientation_angle: 0
   label: "deck"
 
 # Garden house  3.5 × 2.5 m, corner anchor
 - type: garden_house
   anchor_point: [16.0, 2.0]
-  length: 3.5
-  width: 2.5
+  x_axis_size: 3.5
+  z_axis_size: 2.5
   orientation_angle: 0
   label: "garden house"

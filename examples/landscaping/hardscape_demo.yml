@@ -62,8 +62,8 @@ reusable_elements:
     # Garden paths with different materials
     - type: garden_path
       anchor_point: [10.0, 2.0]
-      length: 6.0
-      width: 1.2
+      x_axis_size: 6.0
+      z_axis_size: 1.2
       material: 'gravel'
       color: '#D3D3D3'
       orientation_angle: 0
@@ -71,8 +71,8 @@ reusable_elements:
     
     - type: garden_path
       anchor_point: [10.0, 5.0]
-      length: 6.0
-      width: 1.2
+      x_axis_size: 6.0
+      z_axis_size: 1.2
       material: 'stone'
       color: '#A9A9A9'
       orientation_angle: 0
@@ -80,8 +80,8 @@ reusable_elements:
     
     - type: garden_path
       anchor_point: [10.0, 8.0]
-      length: 6.0
-      width: 1.2
+      x_axis_size: 6.0
+      z_axis_size: 1.2
       material: 'paving'
       color: '#B0B0B0'
       orientation_angle: 0
@@ -89,8 +89,8 @@ reusable_elements:
     
     - type: garden_path
       anchor_point: [10.0, 11.0]
-      length: 6.0
-      width: 1.2
+      x_axis_size: 6.0
+      z_axis_size: 1.2
       material: 'wood'
       color: '#8B7355'
       orientation_angle: 0
@@ -98,8 +98,8 @@ reusable_elements:
     
     - type: garden_path
       anchor_point: [10.0, 14.0]
-      length: 6.0
-      width: 1.2
+      x_axis_size: 6.0
+      z_axis_size: 1.2
       material: 'mulch'
       color: '#654321'
       orientation_angle: 0

@@ -20,8 +20,8 @@ class Pergola(SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            length: float,
-            width: float,
+            x_axis_size: float,
+            z_axis_size: float,
             post_size: float = 0.2,
             orientation_angle: float = 0,
             color: str = '#8B4513',
@@ -32,10 +32,10 @@ class Pergola(SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            pergola length in meters
-        :param width:
-            pergola width in meters
+        :param x_axis_size:
+            pergola size along X axis in meters
+        :param z_axis_size:
+            pergola size along Z axis in meters
         :param post_size:
             size of support posts in meters
         :param orientation_angle:
@@ -48,8 +48,8 @@ class Pergola(SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=color,
             label=label
         )
@@ -78,8 +78,8 @@ class Pergola(SurfaceElement):
         # Draw outline rectangle
         perimeter = Rectangle(
             self.anchor_point,
-            self.length,
-            self.width,
+            self.x_axis_size,
+            self.z_axis_size,
             angle=self.orientation_angle,
             facecolor='none',
             edgecolor=color,
@@ -93,9 +93,9 @@ class Pergola(SurfaceElement):
         """Draw corner posts."""
         corners = [
             (0, 0),
-            (self.length, 0),
-            (self.length, self.width),
-            (0, self.width)
+            (self.x_axis_size, 0),
+            (self.x_axis_size, self.z_axis_size),
+            (0, self.z_axis_size)
         ]
         
         for corner_x, corner_y in corners:
@@ -127,9 +127,9 @@ class Pergola(SurfaceElement):
     def _draw_cross_beams(self, ax: matplotlib.axes.Axes, color: str) -> None:
         """Draw cross beams for structural detail."""
         # Draw beams along length (parallel to width)
-        num_beams = max(2, int(self.width / 1.0))  # beam every ~1m
+        num_beams = max(2, int(self.z_axis_size / 1.0))  # beam every ~1m
         for i in range(1, num_beams):
-            y_offset = i * (self.width / num_beams)
+            y_offset = i * (self.z_axis_size / num_beams)
             start = rotate_point(
                 self.anchor_point,
                 0,
@@ -147,8 +147,8 @@ class Pergola(SurfaceElement):
 
     def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
         """Render label and ID for pergola."""
-        center_x = self.length / 2
-        center_y = self.width / 2
+        center_x = self.x_axis_size / 2
+        center_y = self.z_axis_size / 2
         center = rotate_point(
             self.anchor_point,
             center_x,
@@ -182,7 +182,7 @@ class Pergola(SurfaceElement):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.length}×{self.width}m")
+        parts.append(f"{self.x_axis_size}×{self.z_axis_size}m")
         return " ".join(parts) if parts else ""
 
 
@@ -192,8 +192,8 @@ class RaisedBed(SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            length: float,
-            width: float,
+            x_axis_size: float,
+            z_axis_size: float,
             height: float = 0.4,
             border_thickness: float = 0.15,
             fill_color: str = '#654321',
@@ -206,10 +206,10 @@ class RaisedBed(SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            bed length in meters
-        :param width:
-            bed width in meters
+        :param x_axis_size:
+            bed size along X axis in meters
+        :param z_axis_size:
+            bed size along Z axis in meters
         :param height:
             bed height in meters (for label/info)
         :param border_thickness:
@@ -226,8 +226,8 @@ class RaisedBed(SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=fill_color,  # Use fill_color as the main color for SurfaceElement
             label=label
         )
@@ -241,8 +241,8 @@ class RaisedBed(SurfaceElement):
         # Draw border (outer rectangle)
         border = Rectangle(
             self.anchor_point,
-            self.length,
-            self.width,
+            width = self.x_axis_size,
+            height = self.z_axis_size,
             angle=self.orientation_angle,
             facecolor=self.border_color,
             edgecolor='black',
@@ -261,8 +261,8 @@ class RaisedBed(SurfaceElement):
         )
         fill = Rectangle(
             fill_anchor,
-            self.length - 2 * self.border_thickness,
-            self.width - 2 * self.border_thickness,
+            width = self.x_axis_size - 2 * self.border_thickness,
+            height = self.z_axis_size - 2 * self.border_thickness,
             angle=self.orientation_angle,
             facecolor=self.fill_color,
             edgecolor='none',
@@ -276,8 +276,8 @@ class RaisedBed(SurfaceElement):
 
     def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
         """Render label and ID for raised bed."""
-        center_x = self.length / 2
-        center_y = self.width / 2
+        center_x = self.x_axis_size / 2
+        center_y = self.z_axis_size / 2
         center = rotate_point(
             self.anchor_point,
             center_x,
@@ -311,7 +311,7 @@ class RaisedBed(SurfaceElement):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.length}×{self.width}m")
+        parts.append(f"{self.x_axis_size}×{self.z_axis_size}m")
         if self.height:
             parts.append(f"h={self.height}m")
         return " ".join(parts) if parts else ""
@@ -451,8 +451,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            length: float,
-            width: float,
+            x_axis_size: float,
+            z_axis_size: float,
             color: str = '#D2691E',
             orientation_angle: float = 0,
             label: str | None = None
@@ -462,10 +462,10 @@ class Deck(VertInfoLvl01, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            deck length in meters
-        :param width:
-            deck width in meters
+        :param x_axis_size:
+            deck size along X axis in meters
+        :param z_axis_size:
+            deck size along Z axis in meters
         :param color:
             color for the deck
         :param orientation_angle:
@@ -476,8 +476,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=color,
             label=label
         )
@@ -495,8 +495,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
         # Draw main deck rectangle
         deck = Rectangle(
             self.anchor_point,
-            self.length,
-            self.width,
+            width=self.x_axis_size,
+            height=self.z_axis_size,
             angle=self.orientation_angle,
             facecolor=draw_color,
             edgecolor='black',
@@ -514,20 +514,20 @@ class Deck(VertInfoLvl01, SurfaceElement):
 
     def _draw_plank_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw parallel lines representing wood planks."""
-        num_planks = max(5, int(self.width / 0.15))  # plank every ~15cm
+        num_planks = max(5, int(self.x_axis_size / 0.15))  # plank every ~15cm
         
         for i in range(1, num_planks):
-            y_offset = i * (self.width / num_planks)
+            x_offset = i * (self.x_axis_size / num_planks)
             start = rotate_point(
                 self.anchor_point,
+                x_offset,
                 0,
-                y_offset,
                 math.radians(self.orientation_angle)
             )
             end = rotate_point(
                 self.anchor_point,
-                self.length,
-                y_offset,
+                x_offset,
+                self.z_axis_size,
                 math.radians(self.orientation_angle)
             )
             ax.plot([start[0], end[0]], [start[1], end[1]],
@@ -535,8 +535,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
 
     def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
         """Render label and ID for deck."""
-        center_x = self.length / 2
-        center_y = self.width / 2
+        center_x = self.x_axis_size / 2
+        center_y = self.z_axis_size / 2
         center = rotate_point(
             self.anchor_point,
             center_x,
@@ -570,7 +570,7 @@ class Deck(VertInfoLvl01, SurfaceElement):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.length}×{self.width}m")
+        parts.append(f"{self.x_axis_size}m×{self.z_axis_size}m")
         return " ".join(parts) if parts else ""
 
 
@@ -580,8 +580,8 @@ class GardenHouse(SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            length: float,
-            width: float,
+            x_axis_size: float,
+            z_axis_size: float,
             height: float = 2.5,
             color: str = '#DEB887',
             roof_color: str = '#8B4513',
@@ -593,10 +593,10 @@ class GardenHouse(SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            house length in meters
-        :param width:
-            house width in meters (door is on this side)
+        :param x_axis_size:
+            house size along X axis in meters
+        :param z_axis_size:
+            house size along Z axis in meters (door is on this side)
         :param height:
             house height in meters (for label/info)
         :param color:
@@ -611,8 +611,8 @@ class GardenHouse(SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=color,
             label=label
         )
@@ -629,8 +629,8 @@ class GardenHouse(SurfaceElement):
         # Draw main structure (walls)
         walls = Rectangle(
             self.anchor_point,
-            self.length,
-            self.width,
+            width = self.x_axis_size,
+            height = self.z_axis_size,
             angle=self.orientation_angle,
             facecolor=draw_color,
             edgecolor='black',
@@ -656,9 +656,9 @@ class GardenHouse(SurfaceElement):
         # Roof as polygon (4 sides with overhang)
         roof_corners = [
             (-overhang, -overhang),
-            (self.length + overhang, -overhang),
-            (self.length + overhang, self.width + overhang),
-            (-overhang, self.width + overhang)
+            (self.x_axis_size + overhang, -overhang),
+            (self.x_axis_size + overhang, self.z_axis_size + overhang),
+            (-overhang, self.z_axis_size + overhang)
         ]
         
         roof_points = []
@@ -686,13 +686,13 @@ class GardenHouse(SurfaceElement):
         ridge_start = rotate_point(
             self.anchor_point,
             -overhang,
-            self.width / 2,
+            self.z_axis_size / 2,
             math.radians(self.orientation_angle)
         )
         ridge_end = rotate_point(
             self.anchor_point,
-            self.length + overhang,
-            self.width / 2,
+            self.x_axis_size + overhang,
+            self.z_axis_size / 2,
             math.radians(self.orientation_angle)
         )
         ax.plot([ridge_start[0], ridge_end[0]], [ridge_start[1], ridge_end[1]],
@@ -700,10 +700,10 @@ class GardenHouse(SurfaceElement):
 
     def _draw_door(self, ax: matplotlib.axes.Axes) -> None:
         """Draw door on the width side (front of house) as a line."""
-        door_width = min(0.9, self.length * 0.4)  # door is 90cm or 40% of length
+        door_width = min(0.9, self.x_axis_size * 0.4)  # door is 90cm or 40% of length
         
         # Door centered on the front (width side)
-        door_x_start = (self.length - door_width) / 2
+        door_x_start = (self.x_axis_size - door_width) / 2
         door_x_end = door_x_start + door_width
         door_y = 0  # at the front edge
         
@@ -732,8 +732,8 @@ class GardenHouse(SurfaceElement):
 
     def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
         """Render label and ID for garden house."""
-        center_x = self.length / 2
-        center_y = self.width / 2
+        center_x = self.x_axis_size / 2
+        center_y = self.z_axis_size / 2
         center = rotate_point(
             self.anchor_point,
             center_x,
@@ -749,7 +749,7 @@ class GardenHouse(SurfaceElement):
                 ax=ax,
                 element=self,
                 element_type='GardenHouse',
-                position=(center[0], center[1] + self.width / 2 + 0.5),
+                position=(center[0], center[1] + self.z_axis_size / 2 + 0.5),
                 rotation=self.orientation_angle
             )
             self.label = original_label
@@ -758,7 +758,7 @@ class GardenHouse(SurfaceElement):
                 ax=ax,
                 element=self,
                 element_type='GardenHouse',
-                position=(center[0], center[1] + self.width / 2 + 0.5),
+                position=(center[0], center[1] + self.z_axis_size / 2 + 0.5),
                 rotation=self.orientation_angle
             )
 
@@ -767,7 +767,7 @@ class GardenHouse(SurfaceElement):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.length}×{self.width}m")
+        parts.append(f"{self.x_axis_size}×{self.z_axis_size}m")
         if self.height:
             parts.append(f"h={self.height}m")
         return " ".join(parts) if parts else ""

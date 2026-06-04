@@ -607,8 +607,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
-            length: float | None = None,
-            width: float | None = None,
+            x_axis_size: float | None = None,
+            z_axis_size: float | None = None,
             color: str = '#7CFC00',
             orientation_angle: float = 0,
             label: str | None = None
@@ -618,10 +618,10 @@ class Lawn(VertInfoLvl00, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            lawn length in meters
-        :param width:
-            lawn width in meters
+        :param x_axis_size:
+            lawn size along X axis in meters
+        :param z_axis_size:
+            lawn size along Z axis in meters
         :param color:
             color for the lawn (default: bright green)
         :param orientation_angle:
@@ -632,8 +632,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=color,
             label=label
         )
@@ -651,8 +651,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
         # Draw main lawn rectangle
         lawn = Rectangle(
             self.anchor_point,
-            self.length,
-            self.width,
+            self.x_axis_size,
+            self.z_axis_size,
             angle=self.orientation_angle,
             facecolor=draw_color,
             edgecolor='#228B22',
@@ -668,8 +668,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        center_x = self.length / 2
-        center_y = self.width / 2
+        center_x = self.x_axis_size / 2
+        center_y = self.z_axis_size / 2
         center = rotate_point(
             self.anchor_point,
             center_x,
@@ -692,13 +692,13 @@ class Lawn(VertInfoLvl00, SurfaceElement):
         random.seed(42)  # Consistent pattern
         
         # Draw some random short lines to simulate grass blades
-        num_lines = int(self.length * self.width * 2)  # Density based on area
+        num_lines = int(self.x_axis_size * self.z_axis_size * 2)  # Density based on area
         num_lines = min(num_lines, 50)  # Cap at 50 to avoid clutter
         
         for _ in range(num_lines):
             # Random position within lawn
-            local_x = random.uniform(0, self.length)
-            local_y = random.uniform(0, self.width)
+            local_x = random.uniform(0, self.x_axis_size)
+            local_y = random.uniform(0, self.z_axis_size)
             
             # Small random line
             line_length = 0.08
@@ -728,5 +728,5 @@ class Lawn(VertInfoLvl00, SurfaceElement):
         parts = []
         if self.label:
             parts.append(self.label)
-        parts.append(f"{self.length}m×{self.width}m")
+        parts.append(f"{self.x_axis_size}m×{self.z_axis_size}m")
         return " ".join(parts)

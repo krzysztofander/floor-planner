@@ -204,8 +204,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
-            length: float | None = None,
-            width: float | None = None,
+            x_axis_size: float | None = None,
+            z_axis_size: float | None = None,
             material: str = 'gravel',
             color: str = '#D3D3D3',
             orientation_angle: float = 0,
@@ -216,10 +216,10 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            path length in meters
-        :param width:
-            path width in meters
+        :param x_axis_size:
+            path size along X axis in meters
+        :param z_axis_size:
+            path size along Z axis in meters
         :param material:
             path material: 'gravel', 'stone', 'paving', 'wood', 'mulch'
         :param color:
@@ -232,8 +232,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=color,
             label=label
         )
@@ -252,8 +252,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         # Draw main path rectangle
         path = Rectangle(
             self.anchor_point,
-            self.length,
-            self.width,
+            self.x_axis_size,
+            self.z_axis_size,
             angle=self.orientation_angle,
             facecolor=draw_color,
             edgecolor='#A0A0A0',
@@ -283,10 +283,10 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         import math
         import random
         random.seed(42)  # Consistent pattern
-        num_dots = int(self.length * self.width * 50)  # density
+        num_dots = int(self.x_axis_size * self.z_axis_size * 50)  # density
         for _ in range(num_dots):
-            x_offset = random.uniform(0, self.length)
-            y_offset = random.uniform(0, self.width)
+            x_offset = random.uniform(0, self.x_axis_size)
+            y_offset = random.uniform(0, self.z_axis_size)
             point = rotate_point(
                 self.anchor_point,
                 x_offset,
@@ -299,10 +299,10 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         """Draw irregular stone patterns."""
         import math
         # Draw irregular polygons to simulate flagstones
-        num_stones_x = max(2, int(self.length / 0.5))
-        num_stones_y = max(2, int(self.width / 0.5))
-        step_x = self.length / num_stones_x
-        step_y = self.width / num_stones_y
+        num_stones_x = max(2, int(self.x_axis_size / 0.5))
+        num_stones_y = max(2, int(self.z_axis_size / 0.5))
+        step_x = self.x_axis_size / num_stones_x
+        step_y = self.z_axis_size / num_stones_y
         
         for i in range(num_stones_x):
             for j in range(num_stones_y):
@@ -325,8 +325,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         """Draw grid pattern for paving stones."""
         import math
         # Draw regular grid
-        num_lines_x = max(2, int(self.length / 0.3))
-        num_lines_y = max(2, int(self.width / 0.3))
+        num_lines_x = max(2, int(self.x_axis_size / 0.3))
+        num_lines_y = max(2, int(self.z_axis_size / 0.3))
         
         for i in range(1, num_lines_x):
             offset = i * (self.length / num_lines_x)
@@ -335,20 +335,20 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5)
         
         for j in range(1, num_lines_y):
-            offset = j * (self.width / num_lines_y)
+            offset = j * (self.z_axis_size / num_lines_y)
             start = rotate_point(self.anchor_point, 0, offset, math.radians(self.orientation_angle))
-            end = rotate_point(self.anchor_point, self.length, offset, math.radians(self.orientation_angle))
+            end = rotate_point(self.anchor_point, self.x_axis_size, offset, math.radians(self.orientation_angle))
             ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5)
 
     def _draw_wood_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw parallel lines for wood planks."""
         import math
         # Draw planks perpendicular to path direction
-        num_planks = max(3, int(self.length / 0.2))
+        num_planks = max(3, int(self.x_axis_size / 0.2))
         for i in range(1, num_planks):
-            offset = i * (self.length / num_planks)
+            offset = i * (self.x_axis_size / num_planks)
             start = rotate_point(self.anchor_point, offset, 0, math.radians(self.orientation_angle))
-            end = rotate_point(self.anchor_point, offset, self.width, math.radians(self.orientation_angle))
+            end = rotate_point(self.anchor_point, offset, self.z_axis_size, math.radians(self.orientation_angle))
             ax.plot([start[0], end[0]], [start[1], end[1]], color='#654321', linewidth=0.8, alpha=0.6)
 
     def _draw_mulch_pattern(self, ax: matplotlib.axes.Axes) -> None:
@@ -357,17 +357,17 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         import random
         random.seed(43)
         # Draw short random lines for organic texture
-        num_lines = int(self.length * self.width * 20)
+        num_lines = int(self.x_axis_size * self.z_axis_size * 20)
         for _ in range(num_lines):
-            x1 = random.uniform(0, self.length)
-            y1 = random.uniform(0, self.width)
+            x1 = random.uniform(0, self.x_axis_size)
+            y1 = random.uniform(0, self.z_axis_size)
             angle = random.uniform(0, 360)
             length = random.uniform(0.05, 0.15)
             x2 = x1 + length * math.cos(math.radians(angle))
             y2 = y1 + length * math.sin(math.radians(angle))
             # Clamp to path bounds
-            x2 = max(0, min(self.length, x2))
-            y2 = max(0, min(self.width, y2))
+            x2 = max(0, min(self.x_axis_size, x2))
+            y2 = max(0, min(self.z_axis_size, y2))
             
             p1 = rotate_point(self.anchor_point, x1, y1, math.radians(self.orientation_angle))
             p2 = rotate_point(self.anchor_point, x2, y2, math.radians(self.orientation_angle))
@@ -378,8 +378,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         import math
         label_text = self._build_label_text()
         if label_text:
-            center_x = self.length / 2
-            center_y = self.width / 2
+            center_x = self.x_axis_size / 2
+            center_y = self.z_axis_size / 2
             center = rotate_point(
                 self.anchor_point,
                 center_x,
@@ -392,7 +392,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
                 ax=ax,
                 element=self,
                 element_type='GardenPath',
-                position=(center[0], center[1] + self.width / 2 + 0.2),
+                position=(center[0], center[1] + self.z_axis_size / 2 + 0.2),
                 rotation=self.orientation_angle
             )
             self.label = original_label
@@ -567,8 +567,8 @@ class Ground(VertInfoLvlGround, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            length: float,
-            width: float,
+            x_axis_size: float,
+            z_axis_size: float,
             color: str = '#D2691E',
             orientation_angle: float = 0,
             label: str | None = None
@@ -578,16 +578,16 @@ class Ground(VertInfoLvlGround, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param length:
-            deck length in meters
-        :param width:
-            deck width in meters
+        :param x_axis_size:
+            ground size along X axis in meters
+        :param z_axis_size:
+            ground size along Z axis in meters
         :param color:
-            color for the deck
+            color for the ground
         :param orientation_angle:
             rotation angle in degrees
         :param label:
-            optional label for the deck
+            optional label for the ground
         """
         # Set default texture_scale for Ground to 0.5 (0.5m x 0.5m tiles)
         texture_scale = 0.5
@@ -595,8 +595,8 @@ class Ground(VertInfoLvlGround, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            width=width,
+            x_axis_size=x_axis_size,
+            z_axis_size=z_axis_size,
             color=color,
             label=label,
             texture_scale=texture_scale 
@@ -614,8 +614,8 @@ class Ground(VertInfoLvlGround, SurfaceElement):
 
         groundArea = Rectangle(
             self.anchor_point,
-            width=self.width,
-            height=self.length,
+            width=self.x_axis_size,
+            height=self.z_axis_size,
             angle=self.orientation_angle,
             facecolor='red',
             fill=False,
