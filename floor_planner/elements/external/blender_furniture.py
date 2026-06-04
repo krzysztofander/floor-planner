@@ -480,3 +480,37 @@ class Table01(ExternalModelElement):
             ax.add_patch(Circle(pt, 0.03, color=color))
 
         render_label_and_id(ax, self, 'Table01', self.anchor_point, self.orientation_angle)
+
+
+class Well(ExternalModelElement):
+    """
+
+    """
+
+    _registry_key = 'well'
+    _requires_external_model = True
+
+    def _default_width(self) -> float:
+        return 1
+
+    def _default_length(self) -> float:
+        return 1
+
+    def _default_height(self) -> float:
+        return 1.5
+
+    def draw(self, ax: Axes) -> None:
+        color = 'gray'
+        angle_rad = math.radians(self.orientation_angle)
+        w, l = self.width, self.length
+
+        _rect(ax, self.anchor_point, w, l, angle_rad, color)
+
+        # Cross to indicate seat
+        cx = _rotated_corner(self.anchor_point, w * 0.5, l * 0.5, angle_rad)
+        r = min(w, l) * 0.35
+        from matplotlib.patches import Circle
+        seat = Circle(cx, r, linewidth=1, edgecolor=color, facecolor='none')
+        ax.add_patch(seat)
+
+        render_label_and_id(ax, self, 'Well', self.anchor_point, self.orientation_angle)

@@ -7,7 +7,7 @@ Author: Krzysztof Bartczak
 from .balcony_door import BalconyDoor
 from .blender_furniture import (
     Armchair, Chair20, ChaiseLongue1, Desk1,
-    Sofa22, Sofa23, Stool7, Table01,
+    Sofa22, Sofa23, Stool7, Table01, Well
 )
 from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140
 from .master_bed import MasterBed
@@ -40,4 +40,5 @@ __all__ = [
     'MasterBed',
     'SofaModel',
     'WoodenChair',
+    'Well'
 ]

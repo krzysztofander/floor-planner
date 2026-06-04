@@ -4,6 +4,7 @@ Map element names to their classes.
 Author: Nikolay Lysenko
 """
 
+
 from .foundation.basic import Wall, WallND, Window
 from .external import *
 from .foundation.door import Door
@@ -52,6 +53,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'model_sofa_23': Sofa23,
         'model_stool_7': Stool7,
         'model_table_01': Table01,
+        'model_well': Well,
         'led_strip': LEDStrip,
         'line': Line,
         'polygon': Polygon,
@@ -103,7 +105,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'raised_bed': RaisedBed,
         'gazebo': Gazebo,
         'deck': Deck,
-        'garden_house': GardenHouse
+        'garden_house': GardenHouse,
     }
     return registry
 
