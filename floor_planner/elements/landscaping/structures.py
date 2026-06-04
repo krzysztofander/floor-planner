@@ -479,12 +479,13 @@ class Deck(VertInfoLvl01, SurfaceElement):
             x_axis_size=x_axis_size,
             z_axis_size=z_axis_size,
             color=color,
-            label=label
+            label=label,
+            texture_scale=0.6  # Default texture scale for deck (0.2m x 0.2m tiles)
         )
 
     def _default_height(self) -> float:
         """Return default height for deck."""
-        return 0.3
+        return 0.015
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the deck with wood plank pattern."""

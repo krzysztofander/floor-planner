@@ -32,11 +32,11 @@ class VertInfoLvl00:
     
     def _default_v_anchor(self) -> float:
         """Return v_anchor for ground surface level."""
-        return 0.00
+        return -0.01
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
-        return (0.0, 0.0, 0.0)  # Ground level - no expansion needed
+        return (0.0, -0.0022, 0.0)  # Ground level - some shrink
 
 
 class VertInfoLvl01:
