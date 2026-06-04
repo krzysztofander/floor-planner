@@ -634,6 +634,170 @@ class GLTFExporter:
             return None
 
     # ------------------------------------------------------------------
+    # .glb / glTF loader  (binary glTF 2.0, no extra dependency)
+    # ------------------------------------------------------------------
+
+    def _load_glb_as_mesh(self, glb_path: Path) -> Optional[int]:
+        """
+        Merge a binary glTF (.glb) file into the current export as one or more meshes.
+
+        The source GLB's geometry, materials, and textures are appended to the
+        target buffers / accessor lists with re-indexed references.  All meshes
+        found in the source are merged into a single glTF mesh with one primitive
+        per source primitive, so the caller gets back a single mesh index.
+
+        Args:
+            glb_path: Path to the .glb file.
+
+        Returns:
+            Mesh index on success, None on failure.
+        """
+        WarnMsg(f"glTF model loading may not fully work yet. For {glb_path}")
+
+        cache_key = str(glb_path)
+        if cache_key in self.mesh_cache:
+            return self.mesh_cache[cache_key]
+
+        try:
+            raw = glb_path.read_bytes()
+
+            # ---- Parse GLB container ----
+            magic, version, total_length = struct.unpack_from('<III', raw, 0)
+            if magic != 0x46546C67:  # 'glTF'
+                WarnMsg(f"Not a valid GLB file (bad magic): {glb_path}")
+                return None
+            if version != 2:
+                WarnMsg(f"Unsupported GLB version {version} (only v2 supported): {glb_path}")
+                return None
+
+            offset = 12
+            json_data: Optional[bytes] = None
+            bin_data: Optional[bytes] = None
+
+            while offset < total_length:
+                chunk_length, chunk_type = struct.unpack_from('<II', raw, offset)
+                offset += 8
+                chunk_bytes = raw[offset: offset + chunk_length]
+                offset += chunk_length
+                if chunk_type == 0x4E4F534A:   # JSON
+                    json_data = chunk_bytes
+                elif chunk_type == 0x004E4942:  # BIN
+                    bin_data = chunk_bytes
+
+            if json_data is None:
+                WarnMsg(f"GLB has no JSON chunk: {glb_path}")
+                return None
+
+            src = json.loads(json_data.decode('utf-8'))
+            bin_bytes = bin_data or b''
+
+            # ---- Index offsets into target lists ----
+            buf_view_offset  = len(self.buffer_builder.views)
+            accessor_offset  = len(self.buffer_builder.accessors)
+            mat_offset       = len(self.materials)
+            tex_offset       = len(self.textures) if hasattr(self, 'textures') else 0
+            img_offset       = len(self.images)   if hasattr(self, 'images')   else 0
+            sampler_offset   = len(self.samplers) if hasattr(self, 'samplers') else 0
+
+            # ---- Copy binary buffer, recording byte offset in target buffer ----
+            bin_base = len(self.buffer_builder.data)
+            self.buffer_builder.data.extend(bin_bytes)
+
+            # ---- Re-index bufferViews ----
+            for bv in src.get('bufferViews', []):
+                new_bv = dict(bv)
+                new_bv['buffer'] = 0                              # always buffer 0 in target
+                new_bv['byteOffset'] = bv.get('byteOffset', 0) + bin_base
+                self.buffer_builder.views.append(new_bv)
+
+            # ---- Re-index accessors ----
+            for acc in src.get('accessors', []):
+                new_acc = dict(acc)
+                if 'bufferView' in new_acc:
+                    new_acc['bufferView'] += buf_view_offset
+                self.buffer_builder.accessors.append(new_acc)
+
+            # ---- Re-index images ----
+            src_images = src.get('images', [])
+            for img in src_images:
+                new_img = dict(img)
+                if 'bufferView' in new_img:
+                    new_img['bufferView'] += buf_view_offset
+                # base64 uri images are copied as-is
+                if not hasattr(self, 'images'):
+                    self.images = []
+                self.images.append(new_img)
+
+            # ---- Re-index samplers ----
+            for smp in src.get('samplers', []):
+                if not hasattr(self, 'samplers'):
+                    self.samplers = []
+                self.samplers.append(dict(smp))
+
+            # ---- Re-index textures ----
+            for tex in src.get('textures', []):
+                new_tex = dict(tex)
+                if 'source' in new_tex:
+                    new_tex['source'] += img_offset
+                if 'sampler' in new_tex:
+                    new_tex['sampler'] += sampler_offset
+                if not hasattr(self, 'textures'):
+                    self.textures = []
+                self.textures.append(new_tex)
+
+            # ---- Re-index materials ----
+            def _remap_tex_index(d: dict, key: str) -> dict:
+                d = dict(d)
+                if key in d:
+                    d[key] = dict(d[key])
+                    if 'index' in d[key]:
+                        d[key]['index'] += tex_offset
+                return d
+
+            for mat in src.get('materials', []):
+                new_mat: Dict[str, Any] = dict(mat)
+                pbr = new_mat.get('pbrMetallicRoughness')
+                if pbr:
+                    pbr = _remap_tex_index(pbr, 'baseColorTexture')
+                    pbr = _remap_tex_index(pbr, 'metallicRoughnessTexture')
+                    new_mat['pbrMetallicRoughness'] = pbr
+                new_mat = _remap_tex_index(new_mat, 'normalTexture')
+                new_mat = _remap_tex_index(new_mat, 'occlusionTexture')
+                new_mat = _remap_tex_index(new_mat, 'emissiveTexture')
+                self.materials.append(new_mat)
+
+            # ---- Collect all primitives from all source meshes ----
+            primitives: List[Dict[str, Any]] = []
+            for src_mesh in src.get('meshes', []):
+                for prim in src_mesh.get('primitives', []):
+                    new_prim: Dict[str, Any] = {}
+                    # Re-index attribute accessors
+                    new_attrs = {}
+                    for attr_name, acc_idx in prim.get('attributes', {}).items():
+                        new_attrs[attr_name] = acc_idx + accessor_offset
+                    new_prim['attributes'] = new_attrs
+                    if 'indices' in prim:
+                        new_prim['indices'] = prim['indices'] + accessor_offset
+                    if 'material' in prim:
+                        new_prim['material'] = prim['material'] + mat_offset
+                    new_prim['mode'] = prim.get('mode', 4)  # TRIANGLES default
+                    primitives.append(new_prim)
+
+            if not primitives:
+                WarnMsg(f"GLB has no mesh primitives: {glb_path}")
+                return None
+
+            gltf_mesh = {"name": glb_path.stem, "primitives": primitives}
+            mesh_index = len(self.meshes)
+            self.meshes.append(gltf_mesh)
+            self.mesh_cache[cache_key] = mesh_index
+            return mesh_index
+
+        except Exception as e:
+            WarnMsg(f"Failed to load GLB file {glb_path}: {e}")
+            return None
+
+    # ------------------------------------------------------------------
     # .3ds loader (built-in, no extra dependency)
     # ------------------------------------------------------------------
 
@@ -1733,7 +1897,9 @@ class GLTFExporter:
                 if mesh_index is not None:
                     node["mesh"] = mesh_index
             elif model_path and model_format == 'gltf':
-                WarnMsg(f"glTF model loading not yet implemented for {model_path}")
+                mesh_index = self._load_glb_as_mesh(model_path)
+                if mesh_index is not None:
+                    node["mesh"] = mesh_index
 
         anim_data = getattr(element, 'animation', None)
 
