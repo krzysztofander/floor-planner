@@ -174,7 +174,7 @@ class TextureManager:
             
             # Check if file exists
             if not texture_path.exists():
-                WarnMsg(f"Texture file not found: {texture_path}")
+                #KB: this is not a warning. WarnMsg(f"Texture file not found: {texture_path}")
                 print(f"  Looking for fallback texture for {element_type}")
                 
                 # Fall back to default texture

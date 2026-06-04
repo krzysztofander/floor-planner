@@ -8,6 +8,20 @@ get the correct vertical positioning for drawing order.
 Author: Floor Planner Team
 """
 
+class VertInfoLvlGround:
+    """Below ground surface, earthworks.
+    
+    (below) Lowest drawing layer - always drawn even firster
+    Used for: Ground, Ground works
+    """
+    
+    def _default_v_anchor(self) -> float:
+        """Return v_anchor for ground surface level."""
+        return -0.10
+    
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (-0.0033, -0.0033, 0.0033)  
 
 class VertInfoLvl00:
     """Ground surfaces (0.00m): lawns, paths, pool surfaces.

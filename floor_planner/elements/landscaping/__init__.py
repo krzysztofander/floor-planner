@@ -5,8 +5,8 @@ Author: Krzysztof Bartczak
 """
 
 from .vegetation import Tree, Shrub, Hedge, Lawn
-from .hardscape import Fence, GardenPath, RetainingWall
+from .hardscape import Fence, GardenPath, RetainingWall, Ground
 from .water import Fountain, Pond, RectPool, OvalPool
 from .structures import Pergola, RaisedBed, Gazebo, Deck, GardenHouse
 
-__all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'Fence', 'GardenPath', 'RetainingWall', 'Fountain', 'Pond', 'RectPool', 'OvalPool', 'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GardenHouse']
+__all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'Fence', 'GardenPath', 'RetainingWall', 'Ground', 'Fountain', 'Pond', 'RectPool', 'OvalPool', 'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GardenHouse']

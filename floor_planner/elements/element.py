@@ -300,9 +300,10 @@ class SurfaceElement(RectangularElement):
             measured between X-axis and the element in positive direction (counterclockwise);
             initial element is rotated around anchor point to get the desired orientation
         :param length:
-            primary dimension (first face) in meters
+            primary dimension (first face) in meters. THIS IS THE Z AXIS
         :param width:
             second face dimension in meters (for decks, paths, lawns, pools)
+            THIS IS THE X AXIS
         :param color:
             color for rendering as RGB tuple or string; 'invisible' for hidden elements
         :param label:
@@ -322,8 +323,8 @@ class SurfaceElement(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=length,
-            thickness=width,  # width maps to thickness for geometry
+            length=width,  # WIDTH FOR SURFACE ELEMENTS MAPS TO X AXIS
+            thickness=length,  # LENGTH FOR SURFACE ELEMENTS MAPS TO Z AXIS
             color=color,
             label=label,
             id=id,

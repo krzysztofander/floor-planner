@@ -10,7 +10,7 @@ import matplotlib.patches as mpatches
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement
-from ..vertical_levels import VertInfoLvl01, VertInfoLvl00
+from ..vertical_levels import VertInfoLvl01, VertInfoLvl00, VertInfoLvlGround
 
 
 class Fence(VertInfoLvl01, RectangularElement):
@@ -561,3 +561,73 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
         if self.height:
             parts.append(f"h={self.height}m")
         return " ".join(parts) if parts else ""
+
+class Ground(VertInfoLvlGround, SurfaceElement):
+    """Deck/patio platform element."""
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            length: float,
+            width: float,
+            color: str = '#D2691E',
+            orientation_angle: float = 0,
+            label: str | None = None
+    ):
+        """
+        Initialize a Ground instance.
+
+        :param anchor_point:
+            coordinates of anchor point (bottom-left corner)
+        :param length:
+            deck length in meters
+        :param width:
+            deck width in meters
+        :param color:
+            color for the deck
+        :param orientation_angle:
+            rotation angle in degrees
+        :param label:
+            optional label for the deck
+        """
+        # Set default texture_scale for Ground to 0.5 (0.5m x 0.5m tiles)
+        texture_scale = 0.5
+
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=length,
+            width=width,
+            color=color,
+            label=label,
+            texture_scale=texture_scale 
+        )
+
+    def _default_height(self) -> float:
+        """Return default height for deck."""
+        return 0.1
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """The ground is drawn as a thin line. Use color hidden to suppress."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        groundArea = Rectangle(
+            self.anchor_point,
+            width=self.width,
+            height=self.length,
+            angle=self.orientation_angle,
+            facecolor='red',
+            fill=False,
+            edgecolor=draw_color,
+            linewidth=0.5,
+            alpha=0.7
+        )
+        groundArea.set_zorder(self.get_zorder())
+        ax.add_patch(groundArea)
+
+        self._render_label_and_id(ax)
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID for Ground."""
+        return  # Skip label rendering for Ground
