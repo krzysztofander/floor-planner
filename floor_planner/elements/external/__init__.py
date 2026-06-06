@@ -14,6 +14,7 @@ from .master_bed import MasterBed
 from .sofa_model import SofaModel
 from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble
 from .wooden_chair import WoodenChair
+from .trees import LeafyTree
 
 
 __all__ = [
@@ -40,5 +41,8 @@ __all__ = [
     'MasterBed',
     'SofaModel',
     'WoodenChair',
-    'Well'
+    # other
+    'Well',
+    'LeafyTree'
+
 ]
