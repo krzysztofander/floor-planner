@@ -329,9 +329,9 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         num_lines_y = max(2, int(self.z_axis_size / 0.3))
         
         for i in range(1, num_lines_x):
-            offset = i * (self.length / num_lines_x)
+            offset = i * (self.z_axis_size/ num_lines_x)
             start = rotate_point(self.anchor_point, offset, 0, math.radians(self.orientation_angle))
-            end = rotate_point(self.anchor_point, offset, self.width, math.radians(self.orientation_angle))
+            end = rotate_point(self.anchor_point, offset, self.x_axis_size, math.radians(self.orientation_angle))
             ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5)
         
         for j in range(1, num_lines_y):
