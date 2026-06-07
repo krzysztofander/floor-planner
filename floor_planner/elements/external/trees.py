@@ -1,11 +1,10 @@
 """
 
 """
-import math
+import random
 
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
-from matplotlib.lines import Line2D
 
 from floor_planner.elements.external_models import ExternalModelElement
 from floor_planner.elements.landscaping import CircularVegetation2D
@@ -58,25 +57,29 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
             bloom_color=bloom_color,
             z_order=self.get_zorder()
         )
-        # base on height, change the normalisation so its scaled
-        # based on orientation angle, rotate it.
-        #self.secondary_normalization = self.door3d.getSecondaryNormalization()
-        #self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
+
+        
+        scale_h = diameter / self._default_width()
+        scale_v = height / self._default_height()
+        
+        self.secondary_normalization = {
+                'scale':       [scale_h, scale_v, scale_h],
+                'rotation':    [0, random.uniform(0, 360), 0], # Random rotation around vertical axis for natural variation
+                'translation': [0, 0, 0],
+            }
+
 
     _registry_key = 'leafy_tree'
     _requires_external_model = True
 
     def _default_width(self) -> float:
-        """Default front-to-back depth: 0.49 m."""
-        return 2
+        return 4.4
 
     def _default_length(self) -> float:
-        """Default arm-to-arm length: 1.37 m."""
-        return 2
+        return 4.4
 
     def _default_height(self) -> float:
-        """Default floor-to-top-of-back height: 0.49 m."""
-        return 6
+        return 7.4
 
     def draw(self, ax: Axes) -> None:
         """
