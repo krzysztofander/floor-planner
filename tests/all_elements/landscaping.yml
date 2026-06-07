@@ -33,12 +33,20 @@
 
 # Tree  ⌀ 3 m, centre anchor
 - type: tree
-  anchor_point: [3.0, 12.0]
+  anchor_point: [2.0, 12.0]
   diameter: 3.0
   height: 6.0
   trunk_diameter: 0.4
   color: '#5B8A3C'
   label: "tree"
+
+- type: model_leafy_tree
+  anchor_point: [5.0, 11.5]
+  diameter: 2.0
+  height: 4.0
+  trunk_diameter: 0.3
+  color: '#4E7B2C'
+  label: "leafy tree"
 
 # Shrub  ⌀ 1.5 m, centre anchor
 - type: shrub

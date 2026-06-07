@@ -1,0 +1,32 @@
+project:
+  dpi: 150
+  pdf_file: null
+  png_dir: "output"
+  visualisation_dir: "output/3d"
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [20, 20]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 5
+  grid_minor_step: 1
+
+default_options:
+  Wall:
+    dimensions: false
+    show_invisible: false
+  Door:
+    label_color: green
+  Window:
+    label_color: steelblue
+
+reusable_elements:
+  landscaping:      "landscaping.yml"
+
+floor_plans:
+  - title:
+      text: "vege"
+      font_size: 20
+    inherited_elements:
+      - landscaping
