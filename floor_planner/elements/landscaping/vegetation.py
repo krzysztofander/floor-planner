@@ -257,6 +257,7 @@ class CircularVegetation(VertInfoLvl01, CircularElement):
         super().__init__(
             anchor_point=anchor_point,
             diameter=diameter,
+            height=height,
             color=color,
             label=label
         )
@@ -337,7 +338,7 @@ class Tree(CircularVegetation):
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the tree with trunk and canopy."""
         self.veg2d.draw(ax)   
-
+    
 
 class Shrub(CircularVegetation):
     """Shrub with circular canopy."""
