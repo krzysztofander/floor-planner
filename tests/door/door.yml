@@ -1,0 +1,11 @@
+  - type: model_balcony_door
+    anchor_point: [8, 9]
+    doorway_width: 1.9
+    door_width: 1.2
+    thickness: wall_thickness
+    orientation_angle: 0
+    to_the_right: false
+    hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
+    opening_outside: false
+    label: "south balcony_door l inside"
+    color: brown

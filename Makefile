@@ -111,6 +111,7 @@ TESTS_PNG += tests/play_with_doors/output/some_floor.png
 TESTS_PNG += tests/all_elements/output/All_Elements.png
 TESTS_PNG += tests/play_with_double_doors/output/some_floor.png
 TESTS_PNG += tests/vege/output/vege.png
+TESTS_PNG += tests/door/output/door.png
 
 
 tests: $(TESTS_PNG)
@@ -152,6 +153,10 @@ $(word 9,$(TESTS_PNG)): tests/play_with_double_doors/project_main.yml tests/play
 	$(PYTHON) -m floor_planner -c $<
 
 $(word 10,$(TESTS_PNG)): tests/vege/project_main.yml tests/vege/*.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 10,$(TESTS_PNG)): tests/door/project_main.yml tests/door/*.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

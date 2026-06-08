@@ -21,6 +21,7 @@ from ..symbols.info import DimensionArrow
 from ...options import get_element_option
 from ..vertical_levels import VertInfoDoor
 from ..foundation.door import Door2D
+from floor_planner.motion_3d import AnimationMetadata
 
 class Door3D:
     def __init__(
@@ -112,7 +113,6 @@ class Door3D:
         self.secondary_anchor_offset = [-x_shift,0,-z_shift]
 
 
-
 class BalconyDoor(VertInfoDoor, ExternalModelElement):
     """
     Balcony door element.
@@ -190,6 +190,20 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             self.secondary_normalization = self.door3d.getSecondaryNormalization()
             self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
             
+            # Movable part desciptor as metadata under the 'animation' key in the child node 
+            anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
+            anim_meta.addTRS(translation=[0,0,0], rotation=[0, 90, 0], scale=[1,1,1])
+                        
+            anim_meta.addActivation(point=(doorway_width/2, 1.2 ,0.3 if self.door3d.opening_outside else -0.3),
+                                    distance=(1.0, 0.5)
+                                    )  
+            # Todo, tune or remove that:
+            anim_meta.addActivation( (1.0 ,2.0 ,3.0), (2.0, 0.3))
+
+            self.animation = anim_meta.getAnimation()
+            # Todo, tune or remove that:
+            print("Animation metadata for balcony door:", self.animation)
+
         else:  # Krzysztof --- to do the animation refer here, by the AI ---
 
             # Door-specific 2D parameters (not touched by ExternalModelElement)
