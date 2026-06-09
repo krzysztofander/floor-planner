@@ -53,9 +53,22 @@ class Door3D:
     def getSecondaryAnchorOffset(self):
         return self.secondary_anchor_offset
 
+    def getPreAnimationTRS(self):
+        return {
+            'pre_translation': self.pre_translation,
+            'pre_rotation': self.pre_rotation,
+            'pre_scale': self.pre_scale,
+        }
+    def getPostAnimationTRS(self):
+        return {
+            'post_translation': self.post_translation,
+            'post_rotation': self.post_rotation,
+            'post_scale': self.post_scale,
+        }
+    def getOpeningAngle(self):
+        return self.openingMaxAngle
     def calcNormalisationAndOffset(self):
-    
-        BASE_ROT = 0
+        BASE_ROT = 0 
         WING_WIDTH_ON_MODEL = 0.12  # The model's door wing is 0.12 m wide in the Z direction (wall thickness direction)
         MODEL_DOOR_WIDTH = 0.9      # The model's door wing is 0.9 m wide in the X direction (door-width direction)
         STREACH_TO_DOORFRAME = True     # Whether to stretch the model to fit the doorway width
@@ -74,6 +87,12 @@ class Door3D:
             stretch_to_doorframe = 1.0
         # Finally, the calculations for the secondary normalization (door swing) depend on
         # the opening direction and hinge side:
+
+
+        self.pre_translation = [0, 0, 0]
+        self.pre_rotation = [0, 0, 0]
+        self.pre_scale = [stretch_to_doorframe, 1, 1]
+
         if self.opening_outside:
             if self.to_the_right:
                 #right outside
@@ -82,6 +101,9 @@ class Door3D:
                 x_shift = self.doorway_width - space_for_door_wing
                 z_shift = (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
                 
+                self.pre_translation[2] = WING_WIDTH_ON_MODEL
+                self.pre_rotation[1] = 180  # Rotate to face outside before applying swing
+                self.openingMaxAngle = -90 
             else:
                 #left outside
                 open_deg = BASE_ROT
@@ -90,6 +112,9 @@ class Door3D:
                 x_shift = space_for_door_wing
                 z_shift = (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
                 
+                self.pre_translation[2] = 0
+                self.pre_rotation[1] = 0
+                self.openingMaxAngle = 90
         else:    
             if self.to_the_right:
                 #right inside
@@ -97,13 +122,22 @@ class Door3D:
                 hinge_point = [0, 0]
                 x_shift = self.doorway_width - space_for_door_wing
                 z_shift = WING_WIDTH_ON_MODEL + (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
+                
+                self.pre_translation[2] = 0
+                self.pre_rotation[1] = 180  # Rotate to face outside before applying swing
+                self.openingMaxAngle = 90
             else:
                 #left inside
                 open_deg = -BASE_ROT
                 hinge_point = [0, WING_WIDTH_ON_MODEL ]
                 x_shift = space_for_door_wing
                 z_shift = WING_WIDTH_ON_MODEL + (self.thickness - WING_WIDTH_ON_MODEL)  * self.hinges_depth
+               
+                self.pre_translation[2] = -WING_WIDTH_ON_MODEL
+                self.pre_rotation[1] = 0
+                self.openingMaxAngle = -90
 
+        # set when no animation
         primary_translation = rotate_point([0,0], hinge_point[0], hinge_point[1], math.radians(open_deg))
         self.secondary_normalization = {
                 'scale':       [stretch_to_doorframe, 1, 1],
@@ -111,7 +145,11 @@ class Door3D:
                 'translation': [primary_translation[0],0,-primary_translation[1]],
             }
         self.secondary_anchor_offset = [-x_shift,0,-z_shift]
-
+        
+        #set for animation
+        self.post_translation = [x_shift, 0, z_shift]  # Move door back to correct position after rotation
+        self.post_rotation = [0, 0, 0]
+        self.post_scale = [1, 1, 1]
 
 class BalconyDoor(VertInfoDoor, ExternalModelElement):
     """
@@ -187,98 +225,24 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
 
         if True: # Krzysztof: my way of opening door on 3D:
             self.door3d.calcNormalisationAndOffset()  
-            self.secondary_normalization = self.door3d.getSecondaryNormalization()
-            self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
-          
-            # Movable part desciptor as metadata under the 'animation' key in the child node 
-            anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
-            anim_meta.addTRS(translation=[0,0,0], rotation=[0, 90, 0], scale=[0,0,0])
-                        
-            anim_meta.addActivation(point=(doorway_width/2, 1.2 ,0.3 if self.door3d.opening_outside else -0.3),
-                                    distance=(1.0, 0.5)
-                                    )  
-            self.animation = anim_meta.getAnimation()
-
-        else:  # Krzysztof --- to do the animation refer here, by the AI ---
-
-            # Door-specific 2D parameters (not touched by ExternalModelElement)
-            self.doorway_width = doorway_width
-            self.door_width = door_width
-            self.thickness = thickness
-            self.frame_width = (doorway_width - door_width) / 2
-            self.to_the_right = to_the_right
-            self.hinges_point = (1 - hinges_point) if opening_outside else hinges_point
-            self.opening_outside = opening_outside
-
-            # length is used by the parent Element / anchor helpers
-            self.length = doorway_width
-
-            # Secondary normalization: partially open the 3D door wing (≈ 15° from
-            # the shut position) so the 3D view shows an ajar door that matches the
-            # 2D floor-plan schematic.
-            #
-            # Model space (after primary normalization, anchor_offset = [0,0,0]):
-            #   X ∈ [0, width]  → door-width direction
-            #   Y ∈ [0, height] → vertical
-            #   Z ∈ [0, depth]  → wall-thickness direction (Z=0 = room-side face)
-            #
-            # The hinge is on the X side closest to the YAML anchor_point.
-            #   to_the_right=False  → hinge at X=0  (already at origin)
-            #   to_the_right=True   → hinge at X=width (must shift, rotate, shift back)
-            #
-            # "Inside" opening → door swings toward Z+ (into the room shown above Z=0).
-            #   Rotate around Y by +OPEN_DEG.
-            # "Outside" opening → door swings toward Z- (outside).
-            #   Rotate around Y by -OPEN_DEG.
-            #
-            # For to_the_right=True the hinge is at X=width, so we:
-            #   1. secondary_anchor_offset = [width, 0, 0]   → moves hinge to origin
-            #   2. Rotate (± OPEN_DEG) around Y              → door swings
-            #   3. secondary_normalization translation = [width, 0, 0]  → moves back
-            #
-            # For to_the_right=False the hinge is already at origin, so anchor_offset
-            # is [0,0,0] and translation = [0,0,0].
-
-            OPEN_DEG = 22.0
-            W = self._default_width()   # 0.9 m
-
-            if to_the_right:
-                # Hinge at X=W: shift to origin, rotate, shift back
-                rot_y = OPEN_DEG if opening_outside else -OPEN_DEG
-                self.secondary_normalization = {
-                    'rotation':    [0, rot_y, 0],
-                    'translation': [W, 0, 0],
-                }
-                self.secondary_anchor_offset = [W, 0, 0]
-                # Animation pivot: hinge is at X=W in child-node space (after
-                # secondary_anchor_offset moves it to origin, then the translation
-                # puts it back at X=W in the parent's local space).
-                _hinge_x = W
+            if False: # no animation
+                self.secondary_normalization = self.door3d.getSecondaryNormalization()
+                self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
             else:
-                # Hinge at X=0: already at origin
-                rot_y = -OPEN_DEG if opening_outside else OPEN_DEG
-                self.secondary_normalization = {
-                    'rotation': [0, rot_y, 0],
-                }
-                self.secondary_anchor_offset = None
-                _hinge_x = 0.0
-
-            # Animation descriptor (Option B: metadata in glTF extras).
-            # The 3D player reads child node extras.animation to drive door opening.
-            # open_angle sign: positive = counter-clockwise around Y when viewed from above.
-            # For opening_outside=False the door swings toward Z+ (into the room),
-            # which is a positive Y-axis rotation; for opening_outside=True it is negative.
-            _open_sign = -1.0 if opening_outside else 1.0
-            self.animation = {
-                'type':         'hinge_rotation',
-                'axis':         [0, 1, 0],
-                'pivot_local':  [_hinge_x, 0.0, 0.0],
-                'closed_angle': 0.0,
-                'open_angle':   _open_sign * 90.0,
-                'duration':     0.5,
-                'trigger':      'click',
-            }
-        
+                # Movable part desciptor as metadata under the 'animation' key in the child node 
+                anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
+            
+                anim_meta.addPreTRS(translation=self.door3d.getPreAnimationTRS()['pre_translation'],
+                                    rotation=self.door3d.getPreAnimationTRS()['pre_rotation'],
+                                    scale=self.door3d.getPreAnimationTRS()['pre_scale'])    
+                anim_meta.addTRS(translation=[0,0,0], rotation=[0, self.door3d.getOpeningAngle(), 0], scale=[1,1,1])
+                anim_meta.addPostTRS(translation=self.door3d.getPostAnimationTRS()['post_translation'],
+                                    rotation=self.door3d.getPostAnimationTRS()['post_rotation'],
+                                    scale=self.door3d.getPostAnimationTRS()['post_scale'])
+                anim_meta.addActivation(point=(doorway_width/2, 1.2 ,-0.5 if self.door3d.opening_outside else 0.5),
+                                        distance=(2.0, 1)
+                                        )  
+                self.animation = anim_meta.getAnimation()
 
     # ------------------------------------------------------------------
     # ExternalModelElement hooks
