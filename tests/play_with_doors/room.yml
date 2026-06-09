@@ -100,9 +100,10 @@
         opening_outside: true
         label: "south balcony_door r outside"
         color: brown
-      - type: window
+      - type: model_window_single_any
         anchor_point: [door_spacing + (door_spacing+doorway_width)*4,0]
         length: window_width
+        height: 1.1
         overall_thickness: wall_s_thickness
         orientation_angle: 0
         label: "South window"

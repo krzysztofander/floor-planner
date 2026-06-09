@@ -153,6 +153,51 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
 
 # ── Concrete classes ───────────────────────────────────────────────────────────
 
+class WindowSingleAny(_FixedWindow):
+    """Single-pane window, 1.40 m wide × 1.20 m tall."""
+    _registry_key = 'window_single_any'
+
+    def __init__(
+        self,
+        anchor_point: tuple[float, float],
+        overall_thickness: float,
+        single_line_thickness: float = -1,
+        length: float = 1.4,
+        height: float = 1.2,
+        orientation_angle: float = 0,
+        color: str = 'black',
+        label: str | None = None,
+        **kwargs
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            overall_thickness=overall_thickness,
+            single_line_thickness=single_line_thickness,
+            orientation_angle=orientation_angle,
+            color=color,
+            label=label,
+            **kwargs
+        )
+        self.length = length
+        self.height = height
+
+
+        self.secondary_normalization =      {
+                'scale':       [length / self._default_length(), height / self._default_height(), 1],
+                'rotation':    [0,0,0],
+                'translation': [0,0,0],
+            }
+        self.secondary_anchor_offset = [0,0,0]
+
+
+    def _default_width(self) -> float:
+        return 1.40
+
+    def _default_length(self) -> float:
+        return 1.40
+
+    def _default_height(self) -> float:
+        return 1.20
 
 class Window140x120(_FixedWindow):
     """Single-pane window, 1.40 m wide × 1.20 m tall."""

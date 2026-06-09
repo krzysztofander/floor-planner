@@ -19,7 +19,7 @@ _DOOR_TYPES: frozenset[str] = frozenset({
 })
 _WINDOW_TYPES: frozenset[str] = frozenset({
     'Window', 'Window140x120', 'Window90x120',
-    'WindowDouble160x120', 'WindowDouble160x140',
+    'WindowDouble160x120', 'WindowDouble160x140' , 'WindowSingleAny'
 })
 _CANONICAL_FALLBACK: dict[frozenset[str], str] = {
     _DOOR_TYPES: 'Door',
