@@ -55,7 +55,7 @@ class Door3D:
 
     def calcNormalisationAndOffset(self):
     
-        BASE_ROT = 22
+        BASE_ROT = 0
         WING_WIDTH_ON_MODEL = 0.12  # The model's door wing is 0.12 m wide in the Z direction (wall thickness direction)
         MODEL_DOOR_WIDTH = 0.9      # The model's door wing is 0.9 m wide in the X direction (door-width direction)
         STREACH_TO_DOORFRAME = True     # Whether to stretch the model to fit the doorway width
@@ -189,20 +189,15 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             self.door3d.calcNormalisationAndOffset()  
             self.secondary_normalization = self.door3d.getSecondaryNormalization()
             self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
-            
+          
             # Movable part desciptor as metadata under the 'animation' key in the child node 
             anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
-            anim_meta.addTRS(translation=[0,0,0], rotation=[0, 90, 0], scale=[1,1,1])
+            anim_meta.addTRS(translation=[0,0,0], rotation=[0, 90, 0], scale=[0,0,0])
                         
             anim_meta.addActivation(point=(doorway_width/2, 1.2 ,0.3 if self.door3d.opening_outside else -0.3),
                                     distance=(1.0, 0.5)
                                     )  
-            # Todo, tune or remove that:
-            anim_meta.addActivation( (1.0 ,2.0 ,3.0), (2.0, 0.3))
-
             self.animation = anim_meta.getAnimation()
-            # Todo, tune or remove that:
-            print("Animation metadata for balcony door:", self.animation)
 
         else:  # Krzysztof --- to do the animation refer here, by the AI ---
 

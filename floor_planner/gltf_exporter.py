@@ -1988,21 +1988,6 @@ class GLTFExporter:
             "rotation":    rotation_quat.tolist(),   # [x, y, z, w]
             "scale":       scale.tolist(),
             "extras": {
-                # ----------------------------------------------------------------
-                # animation — read by the 3D player to drive interactive animation.
-                #
-                # type:          'hinge_rotation' | 'slide_translation'
-                # pivot_local:   [x,y,z] rotation pivot in this node's local space
-                # axis:          [x,y,z] unit vector of rotation/slide axis
-                # closed_angle:  degrees — door fully closed (usually 0)
-                # open_angle:    degrees — door fully open (positive = CCW from above)
-                # distance:      metres  — travel for slide_translation
-                # duration:      seconds — animation duration
-                # trigger:       'click' | 'auto'
-                #
-                # The player MUST NOT modify the parent node's transform.
-                # Only this node's rotation (hinge) or translation (slide) changes.
-                # ----------------------------------------------------------------
                 "animation": anim_data,
             },
         }
