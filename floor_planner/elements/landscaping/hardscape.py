@@ -229,19 +229,21 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         :param label:
             optional label for the path
         """
+        self.material = material
+        self.texture_scale = 1.5
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             x_axis_size=x_axis_size,
             z_axis_size=z_axis_size,
             color=color,
-            label=label
+            label=label,
+            texture_scale=self.texture_scale
         )
-        self.material = material
 
     def _default_height(self) -> float:
         """Return default height for garden path."""
-        return 0.0
+        return 0.02
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the path with material-specific pattern."""
@@ -603,7 +605,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
         )
 
     def _default_height(self) -> float:
-        """Return default height for deck."""
+        """Return default height for ground."""
         return 0.1
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

@@ -478,7 +478,7 @@ class RectPool(VertInfoLvl01, RectangularElement):
 
     def _default_height(self) -> float:
         """Return default height for rectangular pool."""
-        return 0.0
+        return 1.4
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the rectangular swimming pool."""
