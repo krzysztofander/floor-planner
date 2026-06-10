@@ -24,6 +24,7 @@ from ...utils import rotate_point, render_label_and_id, text_readability_rotatio
 from ..external_models import ExternalModelElement
 from ..vertical_levels import VertInfoWindows
 from ...options import get_element_option
+from ..foundation.windows import Window2D
 
 
 class _FixedWindow(VertInfoWindows, ExternalModelElement):
@@ -57,14 +58,6 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
         """
         if single_line_thickness <= 0:
             single_line_thickness = overall_thickness / 10
-
-        internal_thickness = overall_thickness - 2 * single_line_thickness
-        if internal_thickness <= 0:
-            raise ValueError(
-                "Window cannot be drawn: overall_thickness is too small relative "
-                "to single_line_thickness."
-            )
-
         # Store 2D geometry params before super() sets dimensions from model.
         self.overall_thickness = overall_thickness
         self.thickness = overall_thickness  # exposed for wall-opening detection
@@ -79,76 +72,17 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
             **kwargs
         )
 
+        self.window2d = Window2D(self)
+
     # ------------------------------------------------------------------
     # 2D drawing — identical to Window.draw()
     # ------------------------------------------------------------------
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
-        """Draw window as two thin lines with a white gap between them."""
-        draw_color = self.get_draw_color()
-        if draw_color is None:
-            return
-
-        angle_rad = math.radians(self.orientation_angle)
-
-        # First (inner) line
-        first_line = Rectangle(
-            self.anchor_point,
-            self.length,
-            self.single_line_thickness,
-            angle=self.orientation_angle,
-            facecolor=draw_color,
-        )
-        first_line.set_zorder(self.get_zorder())
-        ax.add_patch(first_line)
-
-        # White gap between lines
-        gap_anchor = rotate_point(
-            anchor_point=self.anchor_point,
-            offset_x=0,
-            offset_y=self.single_line_thickness,
-            angle_rad=angle_rad,
-        )
-        gap = Rectangle(
-            gap_anchor,
-            self.length,
-            self.overall_thickness - 2 * self.single_line_thickness,
-            angle=self.orientation_angle,
-            facecolor='white',
-        )
-        gap.set_zorder(self.get_zorder())
-        ax.add_patch(gap)
-
-        # Second (outer) line
-        second_anchor = rotate_point(
-            anchor_point=self.anchor_point,
-            offset_x=0,
-            offset_y=self.overall_thickness - self.single_line_thickness,
-            angle_rad=angle_rad,
-        )
-        second_line = Rectangle(
-            second_anchor,
-            self.length,
-            self.single_line_thickness,
-            angle=self.orientation_angle,
-            facecolor=draw_color,
-        )
-        second_line.set_zorder(self.get_zorder())
-        ax.add_patch(second_line)
-
-        # Label centred in opening
-        label_pos = rotate_point(
-            anchor_point=self.anchor_point,
-            offset_x=self.length / 2,
-            offset_y=self.overall_thickness / 2,
-            angle_rad=angle_rad,
-        )
-        render_label_and_id(
-            ax, self, self.__class__.__name__,
-            label_pos,
-            text_readability_rotation(self.orientation_angle),
-            centered=True,
-        )
+        """Draw the window."""
+        self.window2d.draw(ax, z_order=self.get_zorder())
+        # Note: if color is "invisible", the label is still drawn
+        self.window2d.render_window_label_and_id(element_type_overwrite="Window", ax=ax)
 
 
 # ── Concrete classes ───────────────────────────────────────────────────────────

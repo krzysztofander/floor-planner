@@ -245,3 +245,8 @@ def WarnMsg(msg: str) -> None:
     
 
 
+def assert_has_attrs(obj, *attrs):
+    """Usage: assert_has_attrs(obj, "a", "b", "c")"""
+    missing = [a for a in attrs if not hasattr(obj, a)]
+    assert not missing, f"{type(obj).__name__} missing attributes: {missing}"
+

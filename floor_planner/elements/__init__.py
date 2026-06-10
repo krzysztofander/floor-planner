@@ -13,7 +13,8 @@ from ..options import (
     get_show_invisible,
     set_element_options, get_element_option
 )
-from .foundation.basic import Wall, WallND, Window
+from .foundation.basic import Wall, WallND
+from .foundation.windows import  Window
 from .external import *
 from .foundation.door import Door
 from .symbols.electricity import ElectricalCable, PowerOutlet
