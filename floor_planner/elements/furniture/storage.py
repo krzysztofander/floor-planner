@@ -33,7 +33,6 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             label: str | None = None,
             height: float | None = None,
             v_anchor: float | None = None,
-            textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
         """
@@ -59,9 +58,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
         :param v_anchor:
             optional vertical anchor point in meters (height above floor/ground);
             if None, uses element's default vertical level
-        :param textures:
-            texture specification for 3D export; string or dict; if None, uses element type default
-        :param texture_scale:
+         :param texture_scale:
             texture tiling scale in meters; if set, texture repeats every N meters
         :return:
             freshly created instance of `GenericStorage` class
@@ -75,7 +72,6 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             label=label,
             height=height,
             v_anchor=v_anchor,
-            textures=textures,
             texture_scale=texture_scale
         )
 
@@ -179,8 +175,7 @@ class Storage60(GenericStorage):
             label: str | None = None,
             height: float | None = None,
             v_anchor: float | None = None,
-            textures: str | dict[str, str] | None = None,
-            texture_scale: float | None = None
+             texture_scale: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -191,7 +186,6 @@ class Storage60(GenericStorage):
             label=label,
             height=height,
             v_anchor=v_anchor,
-            textures=textures,
             texture_scale=texture_scale
         )
 
@@ -209,8 +203,7 @@ class Storage40(GenericStorage):
             label: str | None = None,
             height: float | None = None,
             v_anchor: float | None = None,
-            textures: str | dict[str, str] | None = None,
-            texture_scale: float | None = None
+             texture_scale: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -221,8 +214,7 @@ class Storage40(GenericStorage):
             label=label,
             height=height,
             v_anchor=v_anchor,
-            textures=textures,
-            texture_scale=texture_scale
+             texture_scale=texture_scale
         )
 
 

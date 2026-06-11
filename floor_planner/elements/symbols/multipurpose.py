@@ -41,12 +41,11 @@ class Line(Element):
         :param label:
             optional label for the element
         """
-        super().__init__(label=label)
+        super().__init__(label=label, color=color, anchor_point=first_point)
         self.first_point = first_point
         self.second_point = second_point
         self.width = width
         self.style = self.style_to_matplotlib_code[style]
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw line."""
@@ -83,10 +82,9 @@ class Polygon(Element):
         :return:
             freshly created instance of `Polygon` class
         """
-        super().__init__(label=label)
+        super().__init__(label=label, color=color, anchor_point=(0, 0))
         self.vertices = vertices
         self.line_width = line_width
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw polygon"""
@@ -122,10 +120,9 @@ class Circle(Element):
         :param label:
             optional label for the element
         """
-        super().__init__(label=label)
+        super().__init__(label=label, color=color, anchor_point=anchor_point)
         self.center = anchor_point
         self.radius = radius
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw circle"""

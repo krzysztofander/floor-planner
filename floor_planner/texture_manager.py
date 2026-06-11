@@ -60,108 +60,92 @@ class TextureManager:
         """
         return {'all': f"{element_type}.jpg"}
     
-    def normalize_texture_spec(self, texture_spec: Union[str, dict[str, str], None], 
-                               element_type: str) -> dict[str, str]:
+    def normalize_texture_spec(self, element_type: str) -> dict[str, str]:
         """
         Normalize texture specification to dict format.
         
         Args:
-            texture_spec: User-provided texture spec (string, dict, or None)
             element_type: Type of element from registry (for default lookup)
             
         Returns:
             Dict mapping face names to texture paths
             
         Examples:
-            normalize_texture_spec("wood.jpg", "desk")
-            -> {'all': 'wood.jpg'}
+            normalize_texture_spec("desk")
+            -> {'all': 'desk.jpg'}
             
-            normalize_texture_spec({'front': 'a.jpg', 'frame': 'b.jpg'}, "door")
-            -> {'front': 'a.jpg', 'frame': 'b.jpg'}
+            normalize_texture_spec("door")
+            -> {'all': 'door.jpg'}
             
-            normalize_texture_spec(None, "generic_storage")
+            normalize_texture_spec("generic_storage")
             -> {'all': '/path/to/textures/defaults/generic_storage/generic_storage.jpg'}
         """
-        if texture_spec is None:
-            # Use defaults - check both defaults and fallback in per-element subdirectories
-            default_textures = self.get_default_textures(element_type)
-            result = {}
+
+       
+        default_textures = self.get_default_textures(element_type)
+        result = {}
+        
+        # Element subdirectory matches element_type exactly
+        element_subdir = element_type
+        
+        for face, filename in default_textures.items():
+            # Try .png first (for alpha channel support), then .jpg
+            png_filename = filename.replace('.jpg', '.png')
             
-            # Element subdirectory matches element_type exactly
-            element_subdir = element_type
+            found = False
             
-            for face, filename in default_textures.items():
-                # Try .png first (for alpha channel support), then .jpg
-                png_filename = filename.replace('.jpg', '.png')
+            # Check defaults directory first
+            default_dir = self.default_texture_dir / element_subdir
+            if default_dir.exists():
+                default_png_path = default_dir / png_filename
+                default_jpg_path = default_dir / filename
                 
-                found = False
-                
-                # Check defaults directory first
-                default_dir = self.default_texture_dir / element_subdir
-                if default_dir.exists():
-                    default_png_path = default_dir / png_filename
-                    default_jpg_path = default_dir / filename
+                if default_png_path.exists():
+                    result[face] = str(default_png_path.resolve())
+                    found = True
+                elif default_jpg_path.exists():
+                    result[face] = str(default_jpg_path.resolve())
+                    found = True
+            
+            # Then check fallback directory
+            if not found and self.fallback_texture_dir:
+                fallback_dir = self.fallback_texture_dir / element_subdir
+                if fallback_dir.exists():
+                    fallback_png = fallback_dir / png_filename
+                    fallback_jpg = fallback_dir / filename
                     
-                    if default_png_path.exists():
-                        result[face] = str(default_png_path.resolve())
+                    if fallback_png.exists():
+                        result[face] = str(fallback_png.resolve())
                         found = True
-                    elif default_jpg_path.exists():
-                        result[face] = str(default_jpg_path.resolve())
+                    elif fallback_jpg.exists():
+                        result[face] = str(fallback_jpg.resolve())
                         found = True
-                
-                # Then check fallback directory
-                if not found and self.fallback_texture_dir:
-                    fallback_dir = self.fallback_texture_dir / element_subdir
-                    if fallback_dir.exists():
-                        fallback_png = fallback_dir / png_filename
-                        fallback_jpg = fallback_dir / filename
-                        
-                        if fallback_png.exists():
-                            result[face] = str(fallback_png.resolve())
-                            found = True
-                        elif fallback_jpg.exists():
-                            result[face] = str(fallback_jpg.resolve())
-                            found = True
-                
-                # If still not found, use default.jpg from default subdirectory
-                if not found:
-                    default_default = self.fallback_texture_dir / 'default' / 'default.jpg' if self.fallback_texture_dir else None
-                    if default_default and default_default.exists():
-                        result[face] = str(default_default.resolve())
-                    else:
-                        # Last resort: use the expected path (will fail later with clear error)
-                        result[face] = str((self.default_texture_dir / element_subdir / filename).resolve())
             
-            return result
+            # If still not found, use default.jpg from default subdirectory
+            if not found:
+                default_default = self.fallback_texture_dir / 'default' / 'default.jpg' if self.fallback_texture_dir else None
+                if default_default and default_default.exists():
+                    result[face] = str(default_default.resolve())
+                else:
+                    # Last resort: use the expected path (will fail later with clear error)
+                    result[face] = str((self.default_texture_dir / element_subdir / filename).resolve())
         
-        elif isinstance(texture_spec, str):
-            # Single texture for all faces
-            return {'all': texture_spec}
-        
-        elif isinstance(texture_spec, dict):
-            # Already in dict format
-            return texture_spec.copy()
-        
-        else:
-            raise ValueError(f"Invalid texture specification: {texture_spec}. "
-                           f"Expected string, dict, or None.")
-    
+        return result
+           
     def resolve_element_textures(self, element_type: str, 
-                                 texture_spec: Union[str, dict[str, str], None],
-                                 config_dir: Path) -> dict[str, Path]:
+                                  config_dir: Path) -> dict[str, Path]:
         """
         Resolve element textures to absolute paths.
         
         Args:
             element_type: Type of element from registry
-            texture_spec: User-provided texture specification
             config_dir: Directory containing the YAML config file (for relative path resolution)
             
         Returns:
             Dict mapping face names to absolute texture file paths
         """
         # Normalize to dict format
-        texture_dict = self.normalize_texture_spec(texture_spec, element_type)
+        texture_dict = self.normalize_texture_spec(element_type)
         
         # Resolve each texture path
         resolved = {}

@@ -30,7 +30,6 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
         bloom_season_start: str | None = None,
         bloom_season_end: str | None = None,
         bloom_color: str | None = None,
-        textures: str | dict[str, str] | None = None,
         texture_scale: float | None = None,
         **kwargs
     ):
@@ -38,7 +37,6 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
             anchor_point=anchor_point,
             color=color,
             label=label,
-            textures=textures,
             texture_scale=texture_scale,
             **kwargs
             )

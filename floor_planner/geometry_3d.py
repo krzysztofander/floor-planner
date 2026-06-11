@@ -365,30 +365,10 @@ class CircularGeometry3D(Generate3DMixin):
         
         return vertices, indices, face_groups
 
-
-class SurfaceGeometry3D(RectangularGeometry3D):
-    """
-    3D geometry generation for surface elements (lawns, paths, decks, floors).
-    
-    Surface elements use 'width' instead of 'thickness' for semantic clarity,
-    but the 3D geometry generation is identical to RectangularGeometry3D.
-    
-    Note: Surface elements still have height > 0 to be rendered as 3D objects:
-        - Lawn: 0.05m (grass height)
-        - Path: 0.02m (paving thickness)
-        - Deck: 0.3m (elevated platform height)
-    
-    The parent class SurfaceElement already maps width → thickness internally,
-    so this mixin works exactly like RectangularGeometry3D.
-    """
-    pass  # Inherits all functionality from RectangularGeometry3D
-
-
 # Export public API
 __all__ = [
     'Generate3DMixin',
     'RectangularGeometry3D',
     'CircularGeometry3D',
-    'SurfaceGeometry3D',
     'is_3d_eligible',
 ]

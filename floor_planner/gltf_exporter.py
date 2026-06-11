@@ -1739,12 +1739,9 @@ class GLTFExporter:
         if element_type in self.material_cache:
             return self.material_cache[element_type]
         
-        # Get texture specification from element
-        texture_spec = getattr(element, 'textures', None)
-        
         # Resolve textures using TextureManager
         texture_paths = self.texture_manager.resolve_element_textures(
-            element_type, texture_spec, Path.cwd()
+            element_type, Path.cwd()
         )
         
         # Try to find and parse MTL file for this element type

@@ -58,14 +58,13 @@ class PowerOutlet(VertInfoOutlets, Element):
         :return:
             freshly created instance of `PowerOutlet` class
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label)
         self.length = length
         self.orientation_angle = orientation_angle
         self.waterproof = waterproof
         self.high_voltage = high_voltage
         self.low_current = low_current
         self.line_width = line_width
-        self.color = color
 
     def _default_height(self) -> float:
         """Return default height for power outlet."""
@@ -209,13 +208,11 @@ class ElectricalCable(Element):
         :return:
             freshly created instance of `ElectricalCable` class
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(anchor_point=anchor_point, color=color, label=label)
         self.symbol_length = symbol_length
         self.orientation_angle = orientation_angle
         self.n_arcs = n_arcs
         self.line_width = line_width
-        self.color = color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw electrical cable."""

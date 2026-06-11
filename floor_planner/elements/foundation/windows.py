@@ -139,7 +139,7 @@ class Window(VertInfoWindows, RectangularElement):
         :param label:
             optional label for the element
         :param kwargs:
-            additional parameters (e.g., texture_scale, textures, v_anchor, height, id);
+            additional parameters (e.g., texture_scale, v_anchor, height, id);
             texture_scale defaults to 0.2 (0.2m x 0.2m tiles) for windows if not specified
         :return:
             freshly created instance of `Window` class

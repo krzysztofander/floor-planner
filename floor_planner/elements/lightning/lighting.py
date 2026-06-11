@@ -42,10 +42,9 @@ class CeilingLamp(VertInfoCeiling, Element):
         :return:
             freshly created instance of `CeilingLamp` class
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label)
         self.symbol_diameter = symbol_diameter
         self.line_width = line_width
-        self.color = color
 
     def _default_height(self) -> float:
         """Return default height for ceiling lamp."""
@@ -126,12 +125,11 @@ class WallLamp(VertInfoWallLamps, Element):
         :return:
             freshly created instance of `WallLamp` class
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label)
         self.symbol_diameter = symbol_diameter
         self.orientation_angle = orientation_angle
         self.stub_relative_depth = stub_relative_depth
         self.line_width = line_width
-        self.color = color
 
     def _default_height(self) -> float:
         """Return default height for wall lamp."""
@@ -243,12 +241,11 @@ class LEDStrip(Element):
         :return:
             freshly created instance of `LEDStrip` class
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, label=label, color=color)
         self.length = length
         self.width = width
         self.orientation_angle = orientation_angle
         self.line_width = line_width
-        self.color = color
         self.circle_diameter_to_width = 0.6
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -328,13 +325,12 @@ class Switch(Element):
         :return:
             freshly created instance of `Switch` class
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, label=label, color=color)
         self.symbol_length = symbol_length
         self.orientation_angle = orientation_angle
         self.two_key = two_key
         self.pass_through = pass_through
         self.line_width = line_width
-        self.color = color
 
     def _default_height(self) -> float:
         """Return default height for switch."""

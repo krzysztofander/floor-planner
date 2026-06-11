@@ -217,11 +217,10 @@ class Pond(Element):
         :param label:
             optional label for the pond
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, label=label, color=color)
         self.length = length
         self.width = width
         self.shape = shape
-        self.color = color
         self.border_color = border_color
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

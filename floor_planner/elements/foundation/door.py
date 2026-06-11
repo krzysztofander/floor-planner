@@ -62,7 +62,7 @@ class Door2D():
         :param label:
             optional label for the element
         :param kwargs:
-            additional parameters (e.g., texture_scale, textures, v_anchor, height, id)
+            additional parameters (e.g., texture_scale,  v_anchor, height, id)
         :return:
             freshly created instance of `Door` class
         """
@@ -293,7 +293,7 @@ class Door(VertInfoDoor, RectangularElement):
         :param label:
             optional label for the element
         :param kwargs:
-            additional parameters (e.g., texture_scale, textures, v_anchor, height, id)
+            additional parameters (e.g., texture_scale, v_anchor, height, id)
         :return:
             freshly created instance of `Door` class
         """

@@ -56,7 +56,7 @@ class WallND(VertInfoLvl01, RectangularElement):
         :param room_edge:
             if True, this wall forms the boundary of a room (used for room validation and calculations)
         :param kwargs:
-            additional parameters (e.g., texture_scale, textures, v_anchor, height, id)
+            additional parameters (e.g., texture_scale,  v_anchor, height, id)
         :return:
             freshly created instance of `WallND` class
         """

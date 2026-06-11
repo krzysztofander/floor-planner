@@ -177,9 +177,9 @@ class OBJExporter:
             
             # Resolve element textures
             element_type = get_element_type_from_instance(element)
-            texture_spec = getattr(element, 'textures', None)
+        
             texture_paths = self.texture_manager.resolve_element_textures(
-                element_type, texture_spec, self.config_dir
+                element_type, self.config_dir
             )
             
             # Write faces grouped by material

@@ -104,7 +104,7 @@ class WindowDoorDouble(BalconyDoor):
             **kwargs
     ):
         # ExternalModelElement.__init__ rejects 'width', 'length', 'height' in kwargs
-        # but accepts all other keyword args (v_anchor, id, textures, etc.)
+        # but accepts all other keyword args (v_anchor, id, etc.)
         super().__init__(
             anchor_point=anchor_point,
             doorway_width=doorway_width,

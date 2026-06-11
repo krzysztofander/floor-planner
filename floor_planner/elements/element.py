@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 import matplotlib.axes
 
 from ..options import generate_element_id, get_show_invisible
-from ..geometry_3d import RectangularGeometry3D, CircularGeometry3D, SurfaceGeometry3D
+from ..geometry_3d import RectangularGeometry3D, CircularGeometry3D
 
 from ..utils import rotate_point
 import math
@@ -47,13 +47,12 @@ class Element(ElementBase):
 
     def __init__(
             self,
-            anchor_point: tuple[float, float] | None = None,
-            color: tuple[int, int, int] | str | None = None,
+            anchor_point: tuple[float, float],
+            color:  str,
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
         """
@@ -77,11 +76,6 @@ class Element(ElementBase):
             optional physical height of element in meters;
             if None, uses element's default from _default_height();
             used for semantic meaning and future 3D rendering
-        :param textures:
-            optional texture specification for 3D model export;
-            can be: string (single texture for all faces),
-                   dict (different textures per face, e.g., {'front': 'a.jpg', 'back': 'b.jpg'}),
-                   or None (use defaults from texture manager)
         :param texture_scale:
             optional texture tiling scale in meters (for 3D export only);
             if set, texture repeats every N meters instead of stretching to fit;
@@ -113,7 +107,6 @@ class Element(ElementBase):
         self.height = height if height is not None else self._default_height()
         
         # 3D texture specification
-        self.textures = textures
         self.texture_scale = texture_scale
 
     def get_id(self) -> str:
@@ -188,12 +181,11 @@ class RectangularElement(RectangularGeometry3D, Element):
             orientation_angle: float,
             length: float,
             thickness: float,
-            color: tuple[int, int, int] | str | None = None,
+            color:  str | None = None,
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
         """
@@ -219,8 +211,6 @@ class RectangularElement(RectangularGeometry3D, Element):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
-        :param textures:
-            optional texture specification for 3D export; string or dict
         :param texture_scale:
             optional texture tiling scale in meters; if set, texture repeats every N meters
         """
@@ -231,7 +221,6 @@ class RectangularElement(RectangularGeometry3D, Element):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            textures=textures,
             texture_scale=texture_scale
         )
         self.orientation_angle = orientation_angle
@@ -282,12 +271,11 @@ class SurfaceElement(RectangularElement):
             orientation_angle: float,
             x_axis_size: float,
             z_axis_size: float,
-            color: tuple[int, int, int] | str | None = None,
+            color: str | None = None,
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
         """
@@ -313,8 +301,6 @@ class SurfaceElement(RectangularElement):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
-        :param textures:
-            optional texture specification for 3D export; string or dict
         :param texture_scale:
             optional texture tiling scale in meters; if set, texture repeats every N meters
         """
@@ -329,7 +315,6 @@ class SurfaceElement(RectangularElement):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            textures=textures,
             texture_scale=texture_scale
         )
         # Expose width as semantic property for clarity
@@ -355,12 +340,11 @@ class CircularElement(CircularGeometry3D, Element):
             self,
             anchor_point: tuple[float, float],
             diameter: float,
-            color: tuple[int, int, int] | str | None = None,
+            color: str | None = None,
             label: str | None = None,
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: str | dict[str, str] | None = None,
             texture_scale: float | None = None
     ):
         """
@@ -380,8 +364,6 @@ class CircularElement(CircularGeometry3D, Element):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
-        :param textures:
-            optional texture specification for 3D export; string or dict
         :param texture_scale:
             optional texture tiling scale in meters; if set, texture repeats every N meters
         """
@@ -392,7 +374,6 @@ class CircularElement(CircularGeometry3D, Element):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            textures=textures,
             texture_scale=texture_scale
         )
         self.diameter = diameter

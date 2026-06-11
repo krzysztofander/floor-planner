@@ -57,14 +57,13 @@ class DimensionArrow(VertInfoAnnotations, Element):
         :return:
             freshly created instance of `DimensionArrow` class
         """
-        super().__init__(anchor_point=anchor_point, label=label)
+        super().__init__(anchor_point=anchor_point, label=label, color=color)
         self.length = length
         self.orientation_angle = orientation_angle
         self.width = width
         self.tip_length = tip_length
         self.font_size = font_size
         self.annotate_above = annotate_above
-        self.color = color
 
     def _default_height(self) -> float:
         """Return default height for dimension arrows (info elements have no physical height)."""
@@ -188,11 +187,9 @@ class TextBox(VertInfoAnnotations, Element):
         :param label:
             optional label for the element
         """
-        super().__init__(label=label)
-        self.anchor_point = anchor_point
+        super().__init__(label=label, anchor_point=anchor_point, color=color)
         self.lines = lines
         self.font_size = font_size
-        self.color = color
         self.transparency = transparency
         self.edgecolor = edgecolor
 
