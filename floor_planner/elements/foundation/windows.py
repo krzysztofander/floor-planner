@@ -168,10 +168,6 @@ class Window(VertInfoWindows, RectangularElement):
 
         self.window2d = Window2D(self)
 
-    def _default_height(self) -> float:
-        """Return default height for windows."""
-        return 1.4
-    
     def draw(self, ax):
         """Draw the window."""
         self.window2d.draw(ax, z_order=self.get_zorder())

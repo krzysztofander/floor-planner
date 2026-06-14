@@ -42,9 +42,6 @@ class WindowDoor(BalconyDoor):
     def _default_length(self) -> float:
         return 0.9
 
-    def _default_height(self) -> float:
-        return 2.1
-
 class SolidDoor1(BalconyDoor):
     """
     Solid door with a single full-height panel.
@@ -63,9 +60,6 @@ class SolidDoor1(BalconyDoor):
 
     def _default_length(self) -> float:
         return 0.9
-
-    def _default_height(self) -> float:
-        return 2.1
 
 class SolidDoor2(SolidDoor1):
     _registry_key = 'solid_door_2'
@@ -171,9 +165,6 @@ class WindowDoorDouble(BalconyDoor):
 
     def _default_length(self) -> float:
         return 1.8
-
-    def _default_height(self) -> float:
-        return 2.1
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw double door: outer frame + two symmetric wing arcs."""

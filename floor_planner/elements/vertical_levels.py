@@ -18,6 +18,10 @@ class VertInfoLvlGround:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for ground surface level."""
         return -0.10
+
+    def _default_height(self) -> float:
+        """Return default height for below-ground elements (soil/fill depth)."""
+        return 0.09
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -32,6 +36,10 @@ class VertInfoFloors:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for floor surface level."""
         return 0.0
+
+    def _default_height(self) -> float:
+        """Return default height for floor surface elements (thin slab)."""
+        return 0.02
 
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -78,6 +86,10 @@ class VertInfoDoor:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for landscaping/door level."""
         return 0.02
+
+    def _default_height(self) -> float:
+        """Return default height for door-level elements (standard door height)."""
+        return 2.1
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -124,6 +136,10 @@ class VertInfoOutlets:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for outlet level."""
         return 0.30
+
+    def _default_height(self) -> float:
+        """Return default height for wall outlet elements (outlet depth)."""
+        return 0.08
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -140,6 +156,10 @@ class VertInfoWindows:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for window level."""
         return 1.00
+
+    def _default_height(self) -> float:
+        """Return default height for window elements (standard window height)."""
+        return 1.4
 
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry.
@@ -161,6 +181,10 @@ class VertInfoSwitches:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for switch level."""
         return 1.20
+
+    def _default_height(self) -> float:
+        """Return default height for wall switch elements (switch depth)."""
+        return 0.08
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -177,6 +201,10 @@ class VertInfoWallLamps:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for wall lamp level."""
         return 2.00
+
+    def _default_height(self) -> float:
+        """Return default height for wall lamp elements (sconce depth)."""
+        return 0.3
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -193,6 +221,10 @@ class VertInfoCeiling:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for ceiling level."""
         return 2.70
+
+    def _default_height(self) -> float:
+        """Return default height for ceiling fixture elements (fixture depth)."""
+        return 0.07
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
@@ -213,6 +245,10 @@ class VertInfoCeilingSurface:
         """Return v_anchor for ceiling surface level."""
         return 2.69
 
+    def _default_height(self) -> float:
+        """Return default height for ceiling surface elements (thin slab)."""
+        return 0.01
+
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
         return (0.0, 0.0, 0.0)
@@ -228,6 +264,10 @@ class VertInfoAnnotations:
     def _default_v_anchor(self) -> float:
         """Return v_anchor for annotation level."""
         return 3.50
+
+    def _default_height(self) -> float:
+        """Return default height for annotation elements (non-physical)."""
+        return 0.0
     
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""

@@ -312,10 +312,6 @@ class Door(VertInfoDoor, RectangularElement):
             **kwargs
         )
 
-    def _default_height(self) -> float:
-        """Return default height for doors (standard door height)."""
-        return 2.1
-
     def get_to_the_right(self) -> bool:
         """Return whether the door opens to the right."""
         return self.door2d.to_the_right

@@ -45,9 +45,6 @@ class Floor(VertInfoFloors, SurfaceElement):
             **kwargs
         )
 
-    def _default_height(self) -> float:
-        return 0.02
-
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Floor is invisible in 2D — nothing to draw."""
         pass
@@ -83,9 +80,6 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
             height=height if height is not None else self._default_height(),
             **kwargs
         )
-
-    def _default_height(self) -> float:
-        return 0.01
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Ceiling is invisible in 2D — nothing to draw."""

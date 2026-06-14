@@ -596,10 +596,6 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             texture_scale=texture_scale 
         )
 
-    def _default_height(self) -> float:
-        """Return default height for ground."""
-        return 0.09
-
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """The ground is drawn as a thin line. Use color hidden to suppress."""
         draw_color = self.get_draw_color()

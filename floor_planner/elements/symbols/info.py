@@ -65,10 +65,6 @@ class DimensionArrow(VertInfoAnnotations, Element):
         self.font_size = font_size
         self.annotate_above = annotate_above
 
-    def _default_height(self) -> float:
-        """Return default height for dimension arrows (info elements have no physical height)."""
-        return 0.0
-
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw dimension arrow."""
         tip_angle = math.radians(30)
@@ -192,10 +188,6 @@ class TextBox(VertInfoAnnotations, Element):
         self.font_size = font_size
         self.transparency = transparency
         self.edgecolor = edgecolor
-
-    def _default_height(self) -> float:
-        """Return default height for text boxes (info elements have no physical height)."""
-        return 0.0
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw text box."""

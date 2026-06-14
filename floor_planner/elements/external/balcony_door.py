@@ -254,9 +254,6 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
     def _default_length(self) -> float:
         return 0.9
 
-    def _default_height(self) -> float:
-        return 2.1
-
     def get_to_the_right(self) -> bool:
         """Return whether the door opens to the right."""
         return self.door2d.to_the_right
