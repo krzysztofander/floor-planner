@@ -10,14 +10,16 @@ Comprehensive parameter documentation for all non-landscaping elements in the fl
 5. [Info/Annotations](#infoannotations)
 6. [Multipurpose/Shapes](#multipurposeshapes)
 7. [Rooms](#rooms)
-8. [Furniture - Storage](#furniture---storage)
-9. [Furniture - Beds](#furniture---beds)
-10. [Furniture - Appliances](#furniture---appliances)
-11. [Furniture - Bathroom](#furniture---bathroom)
-12. [Furniture - General](#furniture---general)
-13. [Furniture - Blender Models](#furniture---blender-models)
-14. [Furniture - Decorations](#furniture---decorations)
-15. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
+8. [Room Surfaces (Floor & Ceiling)](#room-surfaces-floor--ceiling)
+9. [Furniture - Storage](#furniture---storage)
+10. [Furniture - Beds](#furniture---beds)
+11. [Furniture - Appliances](#furniture---appliances)
+12. [Furniture - Bathroom](#furniture---bathroom)
+13. [Furniture - General](#furniture---general)
+14. [Furniture - Blender Models](#furniture---blender-models)
+15. [Furniture - Decorations](#furniture---decorations)
+16. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
+17. [Floor Plan v_anchor (3D Elevation)](#floor-plan-v_anchor-3d-elevation)
 
 ---
 
@@ -236,6 +238,62 @@ Room is a higher level container for other remaining elements.
 - `label`: str | None = None - optional label for the room
 
 **Note:** Rooms are typically created using `Room.create_from_params()` from YAML configuration rather than direct instantiation.
+
+---
+
+## Room Surfaces (Floor & Ceiling)
+
+Floor and ceiling are special child elements of a `room`. They are **3D-only** — invisible in 2D plans — and their `anchor_point` and `size` are automatically derived from the room's internal corners. Do **not** specify `anchor_point` or `size` in YAML; the room injects these automatically.
+
+### Floor
+Room floor plane. Spans the full interior of the room at floor level.
+
+**YAML type:** `floor`
+
+**Parameters (all optional):**
+- `v_anchor`: float | None = None — override vertical anchor; default is `VertInfoFloors` = 0.0 m
+- `height`: float | None = None — override slab thickness; default is 0.02 m
+- `label`: str | None = None — optional label
+
+**Example:**
+```yaml
+- type: room
+  anchor_point: [0, 0]
+  color: black
+  elements:
+    - type: wall
+      ...
+    - type: floor
+    - type: floor          # with overrides
+      v_anchor: 0.0
+      height: 0.05
+```
+
+### Ceiling
+Room ceiling plane. Spans the full interior of the room at ceiling level.
+
+**YAML type:** `ceiling`
+
+**Parameters (all optional):**
+- `v_anchor`: float | None = None — override vertical anchor; default is `VertInfoCeilingSurface` = 2.69 m
+- `height`: float | None = None — override slab thickness; default is 0.01 m
+- `label`: str | None = None — optional label
+
+**Example:**
+```yaml
+- type: room
+  anchor_point: [0, 0]
+  color: black
+  elements:
+    - type: wall
+      ...
+    - type: ceiling
+    - type: ceiling        # with overrides
+      v_anchor: 3.0
+      height: 0.02
+```
+
+**Note:** A room may contain both a `floor` and a `ceiling` entry simultaneously.
 
 ---
 
@@ -897,3 +955,48 @@ With texture_scale: 0.2 (tiling):
 - Each face calculates repeats based on its own dimensions
 - Horizontal faces use width/depth for tiling
 - Vertical faces use width/height for tiling
+
+---
+
+## Floor Plan v_anchor (3D Elevation)
+
+Each entry in `floor_plans:` accepts an optional top-level `v_anchor` key that sets the
+**Y-axis elevation (metres)** of the entire floor plan in the exported 3D model (glTF).
+It has no effect on 2D rendering.
+
+**Type:** `float`  
+**Default:** `0.0` (ground level)  
+**Unit:** metres
+
+### How it works
+
+When `v_anchor` is non-zero the exporter wraps all geometry from that floor plan in a
+single glTF node called `"floor_level"` with `translation: [0, v_anchor, 0]`.  All
+element nodes become children of this wrapper, so no element coordinates need to change —
+only the root transform shifts on Y.
+
+### YAML example — multi-storey building
+
+```yaml
+floor_plans:
+  - title: parter
+    v_anchor: 0.0     # ground floor (default, can be omitted)
+    layout: ...
+    elements: ...
+
+  - title: pietro
+    v_anchor: 3.0     # first floor, 3 m above ground floor
+    layout: ...
+    elements: ...
+
+  - title: poddasze
+    v_anchor: 6.0     # second floor / attic
+    layout: ...
+    elements: ...
+```
+
+### Notes
+
+- `v_anchor: 0.0` (or omitting the key) produces no wrapper node — identical to the previous behaviour.
+- The value is independent of the element-level `v_anchor` parameter.  Element-level `v_anchor` controls 2D rendering order within a floor plan; this key positions the whole floor plan on the Y axis in 3D.
+- When `floor` and `ceiling` room surface elements are used, their own `v_anchor` values are relative to the floor plan origin.  A ceiling at `v_anchor: 2.69` in a floor plan with `v_anchor: 3.0` will appear at Y = 5.69 m in the merged 3D scene.

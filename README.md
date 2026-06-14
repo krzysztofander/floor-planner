@@ -130,7 +130,20 @@ project:
   visualisation_dir: "visualisation_3d"  # Output directory for OBJ/MTL files
 ```
 
-Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` to control vertical positioning.
+Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` on individual elements to control vertical positioning within a floor plan.
+
+Use the floor plan-level `v_anchor` to stack multiple floors vertically in the exported 3D scene:
+```yaml
+floor_plans:
+  - title: parter
+    v_anchor: 0.0   # ground floor (default)
+    ...
+  - title: pietro
+    v_anchor: 3.0   # first floor, 3 m up
+    ...
+```
+
+See `docs/element-parameters-reference.md` — *Floor Plan v_anchor (3D Elevation)* for details.
 
 ### Texture and Material System
 The 3D export uses a registry-based texture/material system:

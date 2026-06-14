@@ -149,7 +149,7 @@ class Project:
                 else:
                     filename = f"floor_plan_{i}.gltf"
                 
-                output_path = floor_plan.export_to_gltf(output_dir, filename)
+                output_path = floor_plan.export_to_gltf(output_dir, filename, v_anchor=floor_plan.v_anchor)
                 print(f"  ✓ Exported: {output_path.name}")
             except Exception as e:
                 print(f"  ✗ Error exporting floor plan '{floor_plan.title}': {e}")

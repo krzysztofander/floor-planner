@@ -250,6 +250,7 @@ def main() -> None:
 
         layout_params = floor_plan_params.get('layout') or settings['default_layout']
         floor_plan = FloorPlan(**layout_params)
+        floor_plan.v_anchor = float(floor_plan_params.get('v_anchor', 0.0))
         title_params = floor_plan_params.get('title')
         if title_params:
             floor_plan.add_title(**title_params)

@@ -12,6 +12,9 @@ from ...variables import validate_constants, resolve_constants, resolve_element_
 from ..element import Element
 from ..symbols.info import DimensionArrow, TextBox
 from ...options import get_id_color, get_label_color, get_element_option
+from .surfaces import Floor, Ceiling
+
+_SURFACE_TYPES = {'floor': Floor, 'ceiling': Ceiling}
 
 
 class Room(Element):
@@ -111,11 +114,20 @@ class Room(Element):
         if not element_defs:
             raise ValueError("Room must have 'elements' list containing wall and other element definitions")
 
-        # Create all child elements
+        # Separate floor/ceiling surface defs — they need room.internal_corners, created after Room
+        surface_defs = []  # list of (type_str, params_dict)
+        regular_element_defs = []
+        for element_def in element_defs:
+            if element_def.get('type') in _SURFACE_TYPES:
+                surface_defs.append(dict(element_def))
+            else:
+                regular_element_defs.append(element_def)
+
+        # Create all regular child elements
         room_walls = []
         room_other_elements = []
 
-        for element_def in element_defs:
+        for element_def in regular_element_defs:
             element_type = element_def.pop('type')
             element_class = elements_registry.get(element_type)
 
@@ -174,13 +186,54 @@ class Room(Element):
         if len(room_walls) == 0:
             raise ValueError("Room must contain at least one wall")
 
-        return cls(
+        room = cls(
             walls=room_walls,
             other_elements=room_other_elements,
             anchor_point=room_anchor_point,
             color=room_color,
             label=label
         )
+
+        # Now that internal_corners are known, create floor/ceiling surface elements
+        if surface_defs:
+            cls._create_surface_elements(
+                room, surface_defs, floor_plan, all_elements, elements_by_id,
+                global_vars, room_vars
+            )
+
+        return room
+
+    @classmethod
+    def _create_surface_elements(cls, room, surface_defs, floor_plan, all_elements, elements_by_id, global_vars, room_vars):
+        """
+        Create Floor/Ceiling elements after the Room is built so that
+        internal_corners are available for anchor_point and size.
+        """
+        inner_bl = room.internal_corners[0]   # bottom-left
+        inner_tr = room.internal_corners[2]   # top-right
+        inner_anchor = inner_bl
+        inner_size = (
+            inner_tr[0] - inner_bl[0],
+            inner_tr[1] - inner_bl[1],
+        )
+
+        for surface_def in surface_defs:
+            surface_def = dict(surface_def)  # copy so pop doesn't mutate original
+            surface_type = surface_def.pop('type')
+            surface_class = _SURFACE_TYPES[surface_type]
+
+            # Resolve any vars in the optional params (v_anchor, height, label)
+            surface_def = resolve_element_params(surface_def, global_vars, room_vars)
+
+            # Inject room-derived geometry — not overrideable from YAML
+            surface_def['anchor_point'] = inner_anchor
+            surface_def['size'] = inner_size
+
+            element = surface_class(**surface_def)
+
+            floor_plan.add_element(element)
+            all_elements.append(element)
+            elements_by_id[element.get_id()] = element
 
 
 

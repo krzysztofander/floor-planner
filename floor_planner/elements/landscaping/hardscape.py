@@ -598,7 +598,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
 
     def _default_height(self) -> float:
         """Return default height for ground."""
-        return 0.1
+        return 0.09
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """The ground is drawn as a thin line. Use color hidden to suppress."""

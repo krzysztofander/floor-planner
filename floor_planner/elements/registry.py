@@ -7,6 +7,7 @@ Author: Nikolay Lysenko
 
 from .foundation.basic import Wall, WallND
 from .foundation.windows import Window
+from .foundation.surfaces import Floor, Ceiling
 from .external import *
 from .foundation.door import Door
 from .symbols.electricity import ElectricalCable, PowerOutlet
@@ -62,6 +63,8 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'polygon': Polygon,
         'power_outlet': PowerOutlet,
         'room': Room,
+        'floor': Floor,
+        'ceiling': Ceiling,
         'switch': Switch,
         'text_box': TextBox,
         'wall': Wall,

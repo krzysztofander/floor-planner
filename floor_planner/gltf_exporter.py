@@ -1997,18 +1997,37 @@ class GLTFExporter:
         self.root_node_indices.append(parent_idx)
         return parent_idx
     
-    def export(self, filename: str = "floor_plan_3d.gltf") -> Path:
+    def export(self, filename: str = "floor_plan_3d.gltf", v_anchor: float = 0.0) -> Path:
         """
         Export scene to glTF file.
         
         Args:
             filename: Output filename (default: floor_plan_3d.gltf)
+            v_anchor: Y-axis elevation for the entire floor plan (metres).  When
+                      non-zero a single wrapper node with translation [0, v_anchor, 0]
+                      is inserted as the sole scene root and all element nodes become
+                      its children.  This lets multiple floor plans (storeys) share
+                      one glTF scene with correct vertical stacking.
         
         Returns:
             Path to exported glTF file
         """
         output_path = self.output_dir / filename
         
+        # Optionally wrap all element nodes in a floor-level translation node.
+        # This allows multiple floor plans (storeys) to be stacked correctly on Y.
+        if v_anchor != 0.0 and self.root_node_indices:
+            floor_node = {
+                "name": "floor_level",
+                "translation": [0.0, float(v_anchor), 0.0],
+                "children": list(self.root_node_indices),
+            }
+            floor_node_index = len(self.nodes)
+            self.nodes.append(floor_node)
+            scene_roots = [floor_node_index]
+        else:
+            scene_roots = self.root_node_indices
+
         # Build glTF JSON structure
         gltf = {
             "asset": {
@@ -2020,7 +2039,7 @@ class GLTFExporter:
             "scenes": [
                 {
                     "name": "Floor Plan Scene",
-                    "nodes": self.root_node_indices
+                    "nodes": scene_roots
                 }
             ],
             "nodes": self.nodes,
@@ -2075,7 +2094,8 @@ class GLTFExporter:
 def export_floor_plan_to_gltf(
     elements: List[Element],
     output_dir: Path,
-    filename: str = "floor_plan_3d.gltf"
+    filename: str = "floor_plan_3d.gltf",
+    v_anchor: float = 0.0
 ) -> Path:
     """
     Export floor plan elements to glTF format.
@@ -2084,6 +2104,8 @@ def export_floor_plan_to_gltf(
         elements: List of floor plan elements to export
         output_dir: Directory to write glTF files
         filename: Output filename
+        v_anchor: Y-axis elevation for the entire floor plan (metres); adds a root
+                  translation node so all geometry is offset by this amount on Y.
     
     Returns:
         Path to exported glTF file
@@ -2099,4 +2121,4 @@ def export_floor_plan_to_gltf(
             exporter.add_element(element)
     
     # Export to file
-    return exporter.export(filename)
+    return exporter.export(filename, v_anchor=v_anchor)

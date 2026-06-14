@@ -101,6 +101,7 @@ class FloorPlan:
         self.ax = ax
         self.title = None
         self.elements: list[ElementBase] = []
+        self.v_anchor: float = 0.0  # Y-axis elevation for 3D export (set from YAML)
 
     def add_title(
             self, text: str, font_size: int, rel_x: float = 0.5, rel_y: float = 0.95, **kwargs
@@ -245,7 +246,8 @@ class FloorPlan:
     def export_to_gltf(
             self,
             output_dir: str | Path,
-            filename: str = "floor_plan_3d.gltf"
+            filename: str = "floor_plan_3d.gltf",
+            v_anchor: float | None = None,
     ) -> Path:
         """
         Export floor plan to glTF 2.0 format for 3D visualization.
@@ -270,7 +272,8 @@ class FloorPlan:
         output_path = export_floor_plan_to_gltf(
             elements=self.elements,
             output_dir=Path(output_dir),
-            filename=filename
+            filename=filename,
+            v_anchor=self.v_anchor if v_anchor is None else v_anchor
         )
         
         print(f"Exported glTF file: {output_path}")

@@ -22,7 +22,20 @@ class VertInfoLvlGround:
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
         return (-0.0033, -0.0033, 0.0033)  
+class VertInfoFloors:
+    """Floor surface level (0.005m): room floor planes.
+    
+    Just above ground-level decorations, below all furniture.
+    Used for: Floor surface element.
+    """
 
+    def _default_v_anchor(self) -> float:
+        """Return v_anchor for floor surface level."""
+        return 0.0
+
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0, 0.0, 0.0)
 class VertInfoLvl00:
     """Ground surfaces (0.00m): lawns, paths, pool surfaces.
     
@@ -184,6 +197,25 @@ class VertInfoCeiling:
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
         return (0.0, 0.0, 0.0)  # Ceiling fixtures don't overlap with walls
+
+
+
+
+
+class VertInfoCeilingSurface:
+    """Ceiling surface level (2.69m): room ceiling planes.
+    
+    Just below ceiling-mounted fixtures, above all furniture.
+    Used for: Ceiling surface element.
+    """
+
+    def _default_v_anchor(self) -> float:
+        """Return v_anchor for ceiling surface level."""
+        return 2.69
+
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0, 0.0, 0.0)
 
 
 class VertInfoAnnotations:
