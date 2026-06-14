@@ -21,8 +21,7 @@ reusable_elements:
     # Pergola
     - type: pergola
       anchor_point: [2.0, 2.0]
-      x_axis_size: 4.0
-      z_axis_size: 3.0
+      size: [4.0, 3.0]
       post_size: 0.2
       orientation_angle: 0
       color: '#8B4513'
@@ -30,8 +29,7 @@ reusable_elements:
     
     - type: pergola
       anchor_point: [2.0, 8.0]
-      x_axis_size: 3.5
-      z_axis_size: 3.5
+      size: [3.5, 3.5]
       post_size: 0.25
       orientation_angle: 45
       color: '#A0522D'
@@ -40,8 +38,7 @@ reusable_elements:
     # Raised Beds
     - type: raised_bed
       anchor_point: [9.0, 2.0]
-      x_axis_size: 3.0
-      z_axis_size: 1.2
+      size: [3.0, 1.2]
       height: 0.4
       border_thickness: 0.15
       fill_color: '#654321'
@@ -51,8 +48,7 @@ reusable_elements:
     
     - type: raised_bed
       anchor_point: [9.0, 5.0]
-      x_axis_size: 2.5
-      z_axis_size: 2.5
+      size: [2.5, 2.5]
       height: 0.6
       border_thickness: 0.2
       fill_color: '#704214'
@@ -71,16 +67,14 @@ reusable_elements:
     # Deck
     - type: deck
       anchor_point: [2.0, 13.0]
-      x_axis_size: 5.0
-      z_axis_size: 4.0
+      size: [5.0, 4.0]
       color: '#D2691E'
       orientation_angle: 0
       label: 'Patio Deck'
     
     - type: deck
       anchor_point: [10.0, 13.0]
-      x_axis_size: 3.5
-      z_axis_size: 3.5
+      size: [3.5, 3.5]
       color: '#CD853F'
       orientation_angle: 30
       label: 'Small Deck'
@@ -88,8 +82,7 @@ reusable_elements:
     # Garden House
     - type: garden_house
       anchor_point: [17.0, 13.0]
-      x_axis_size: 3.0
-      z_axis_size: 2.5
+      size: [3.0, 2.5]
       height: 2.5
       color: '#DEB887'
       roof_color: '#8B4513'
@@ -98,8 +91,7 @@ reusable_elements:
     
     - type: garden_house
       anchor_point: [17.0, 9.0]
-      x_axis_size: 2.5
-      z_axis_size: 2.0
+      size: [2.5, 2.0]
       height: 2.2
       color: '#F5DEB3'
       roof_color: '#A0522D'

@@ -20,8 +20,7 @@ class Pergola(SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            x_axis_size: float,
-            z_axis_size: float,
+            size: tuple[float, float],
             post_size: float = 0.2,
             orientation_angle: float = 0,
             color: str = '#8B4513',
@@ -32,10 +31,8 @@ class Pergola(SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            pergola size along X axis in meters
-        :param z_axis_size:
-            pergola size along Z axis in meters
+        :param size:
+            (x_size, z_size) tuple: pergola size along X and Z axes in meters
         :param post_size:
             size of support posts in meters
         :param orientation_angle:
@@ -48,8 +45,7 @@ class Pergola(SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=color,
             label=label
         )
@@ -192,8 +188,7 @@ class RaisedBed(SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            x_axis_size: float,
-            z_axis_size: float,
+            size: tuple[float, float],
             height: float = 0.4,
             border_thickness: float = 0.15,
             fill_color: str = '#654321',
@@ -206,10 +201,8 @@ class RaisedBed(SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            bed size along X axis in meters
-        :param z_axis_size:
-            bed size along Z axis in meters
+        :param size:
+            (x_size, z_size) tuple: bed size along X and Z axes in meters
         :param height:
             bed height in meters (for label/info)
         :param border_thickness:
@@ -226,8 +219,7 @@ class RaisedBed(SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=fill_color,  # Use fill_color as the main color for SurfaceElement
             label=label
         )
@@ -451,8 +443,7 @@ class Deck(VertInfoLvl01, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            x_axis_size: float,
-            z_axis_size: float,
+            size: tuple[float, float],
             color: str = '#D2691E',
             orientation_angle: float = 0,
             label: str | None = None
@@ -462,10 +453,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            deck size along X axis in meters
-        :param z_axis_size:
-            deck size along Z axis in meters
+        :param size:
+            (x_size, z_size) tuple: deck size along X and Z axes in meters
         :param color:
             color for the deck
         :param orientation_angle:
@@ -476,8 +465,7 @@ class Deck(VertInfoLvl01, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=color,
             label=label,
             texture_scale=0.6  # Default texture scale for deck (0.2m x 0.2m tiles)
@@ -581,8 +569,7 @@ class GardenHouse(SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            x_axis_size: float,
-            z_axis_size: float,
+            size: tuple[float, float],
             height: float = 2.5,
             color: str = '#DEB887',
             roof_color: str = '#8B4513',
@@ -594,10 +581,8 @@ class GardenHouse(SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            house size along X axis in meters
-        :param z_axis_size:
-            house size along Z axis in meters (door is on this side)
+        :param size:
+            (x_size, z_size) tuple: house size along X and Z axes in meters
         :param height:
             house height in meters (for label/info)
         :param color:
@@ -612,8 +597,7 @@ class GardenHouse(SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=color,
             label=label
         )

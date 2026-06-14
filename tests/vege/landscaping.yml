@@ -62,8 +62,7 @@
 # Lawn  2.5 × 1.5 m, corner anchor
 - type: lawn
   anchor_point: [4.0, 4.0]
-  x_axis_size: 1.5
-  z_axis_size: 1.5
+  size: [1.5, 1.5]
   orientation_angle: 0
   color: '#7CFC00'
   label: "lawn"

@@ -106,8 +106,7 @@ def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = No
                             'second_point',
                             'radius',
                             'width',
-                            'x_axis_size',
-                            'z_axis_size',
+                            'size',
                             'height',
                             'v_anchor',
                             ]

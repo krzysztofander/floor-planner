@@ -532,8 +532,7 @@ class Lawn(VertInfoLvl00, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
-            x_axis_size: float | None = None,
-            z_axis_size: float | None = None,
+            size: tuple[float, float] | None = None,
             color: str = '#7CFC00',
             orientation_angle: float = 0,
             label: str | None = None
@@ -543,10 +542,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            lawn size along X axis in meters
-        :param z_axis_size:
-            lawn size along Z axis in meters
+        :param size:
+            (x_size, z_size) tuple: lawn size along X and Z axes in meters
         :param color:
             color for the lawn (default: bright green)
         :param orientation_angle:
@@ -557,8 +554,7 @@ class Lawn(VertInfoLvl00, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=color,
             label=label
         )

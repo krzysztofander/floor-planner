@@ -269,8 +269,7 @@ class SurfaceElement(RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float,
-            x_axis_size: float,
-            z_axis_size: float,
+            size: tuple[float, float],
             color: str | None = None,
             label: str | None = None,
             id: str | None = None,
@@ -287,10 +286,9 @@ class SurfaceElement(RectangularElement):
             angle (in degrees) that specifies orientation;
             measured between X-axis and the element in positive direction (counterclockwise);
             initial element is rotated around anchor point to get the desired orientation
-        :param x_axis_size:
-            this is the left/right on 2D
-        :param z_axis_size:
-            this is the up/down on 2D
+        :param size:
+            (x_size, z_size) tuple in meters; x_size is the left/right dimension (2D),
+            z_size is the up/down dimension (2D)
         :param color:
             color for rendering as RGB tuple or string; 'invisible' for hidden elements
         :param label:
@@ -308,8 +306,8 @@ class SurfaceElement(RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=x_axis_size,    # X_AXIS_SIZE FOR SURFACE ELEMENTS MAPS TO length
-            thickness=z_axis_size,  # Z_AXIS_SIZE FOR SURFACE ELEMENTS MAPS TO thickness
+            length=size[0],    # size[0] maps to length (X axis, left/right)
+            thickness=size[1],  # size[1] maps to thickness (Z axis, up/down)
             color=color,
             label=label,
             id=id,
@@ -317,9 +315,9 @@ class SurfaceElement(RectangularElement):
             height=height,
             texture_scale=texture_scale
         )
-        # Expose width as semantic property for clarity
-        self.x_axis_size = x_axis_size  # Primary dimension along X axis (for surface elements, width is along X)
-        self.z_axis_size = z_axis_size  # Secondary dimension along Z axis
+        # Expose as semantic properties for clarity
+        self.x_axis_size = size[0]  # Primary dimension along X axis
+        self.z_axis_size = size[1]  # Secondary dimension along Z axis
 
         # Cancel width so it is not accidentally used
         self.width = None   

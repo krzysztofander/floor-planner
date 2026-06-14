@@ -204,8 +204,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
-            x_axis_size: float | None = None,
-            z_axis_size: float | None = None,
+            size: tuple[float, float] | None = None,
             material: str = 'gravel',
             color: str = '#D3D3D3',
             orientation_angle: float = 0,
@@ -216,10 +215,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            path size along X axis in meters
-        :param z_axis_size:
-            path size along Z axis in meters
+        :param size:
+            (x_size, z_size) tuple: path size along X and Z axes in meters
         :param material:
             path material: 'gravel', 'stone', 'paving', 'wood', 'mulch'
         :param color:
@@ -234,8 +231,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=color,
             label=label,
             texture_scale=self.texture_scale
@@ -569,8 +565,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            x_axis_size: float,
-            z_axis_size: float,
+            size: tuple[float, float],
             color: str = '#D2691E',
             orientation_angle: float = 0,
             label: str | None = None
@@ -580,10 +575,8 @@ class Ground(VertInfoLvlGround, SurfaceElement):
 
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
-        :param x_axis_size:
-            ground size along X axis in meters
-        :param z_axis_size:
-            ground size along Z axis in meters
+        :param size:
+            (x_size, z_size) tuple: ground size along X and Z axes in meters
         :param color:
             color for the ground
         :param orientation_angle:
@@ -597,8 +590,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            x_axis_size=x_axis_size,
-            z_axis_size=z_axis_size,
+            size=size,
             color=color,
             label=label,
             texture_scale=texture_scale 
