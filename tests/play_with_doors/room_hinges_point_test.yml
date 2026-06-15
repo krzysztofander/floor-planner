@@ -55,7 +55,14 @@
         orientation_angle: 270
         room_edge: true
         label: "West wall"
-
+      - type: gable_roof
+        anchor_point: [-1, -1]
+        size: [room_width + 2, room_length + 2]        # [x_size (horizontal), z_size (vertical)]
+        height: 3.0          # ridge height above wall plate
+        v_anchor: 2.7        # 3D base = top of walls (default)
+        orientation_angle: 0 # optional rotation
+        color: '#8B4513'     # optional outline colour
+        label: Main Roof     # optional
 
     # Doors and south wall
       - type: model_balcony_door

@@ -11,7 +11,8 @@ import math
 
 from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement, CircularElement, Element
-from ..vertical_levels import VertInfoLvl01, VertInfoLvl01
+from ..vertical_levels import VertInfoLvl01, VertInfoLvl01, VertInfoRoof
+from ...geometry_3d import GableRoofGeometry3D, HippedRoofGeometry3D
 
 
 class Pergola(SurfaceElement):
@@ -446,7 +447,9 @@ class Deck(VertInfoLvl01, SurfaceElement):
             size: tuple[float, float],
             color: str = '#D2691E',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None,
     ):
         """
         Initialize a Deck instance.
@@ -470,6 +473,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
             label=label,
             texture_scale=0.6  # Default texture scale for deck (0.2m x 0.2m tiles)
         )
+        self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
+        self.height = height if height is not None else self._default_height()
 
     def _default_height(self) -> float:
         """Return default height for deck."""
@@ -756,3 +761,120 @@ class GardenHouse(SurfaceElement):
         if self.height:
             parts.append(f"h={self.height}m")
         return " ".join(parts) if parts else ""
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Roof elements
+# ──────────────────────────────────────────────────────────────────────────────
+
+class _RoofBase(Element):
+    """
+    Shared base for roof elements.
+
+    In 2D draws a thin, unfilled dashed rectangle showing the roof footprint.
+    In 3D generates a proper roof shape via the geometry mixin.
+
+    YAML parameters (common to GableRoof and HippedRoof):
+        anchor_point      – bottom-left corner of the roof footprint
+        size              – (x_size, z_size) tuple in metres:
+                            x_size = horizontal (left/right in plan view),
+                            z_size = vertical   (up/down in plan view)
+        height            – ridge height above v_anchor  (default from VertInfoRoof)
+        v_anchor          – 3D Y of roof base, i.e. top of supporting walls
+                            (default 2.70 m from VertInfoRoof)
+        orientation_angle – rotation in degrees  (default 0)
+        color             – outline colour in 2D  (default '#8B4513')
+        label             – optional label string
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#8B4513',
+            label: str | None = None,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            color=color,
+            label=label,
+            v_anchor=v_anchor,
+            height=height if height is not None else self._default_height(),
+            texture_scale=0.3,
+            **kwargs,
+        )
+        self.x_axis_size = size[0]
+        self.z_axis_size = size[1]
+        self.orientation_angle = orientation_angle
+        self.texture_scale = 0.3  # Default texture scale for roof (0.2m x 0.2m tiles)
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw roof footprint as an unfilled dashed rectangle."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        outline = Rectangle(
+            self.anchor_point,
+            width=self.x_axis_size,
+            height=self.z_axis_size,
+            angle=self.orientation_angle,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.5,
+            linestyle='--',
+        )
+        outline.set_zorder(self.get_zorder())
+        ax.add_patch(outline)
+
+        if self.label:
+            center = rotate_point(
+                self.anchor_point,
+                self.x_axis_size / 2,
+                self.z_axis_size / 2,
+                math.radians(self.orientation_angle),
+            )
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type=self.__class__.__name__,
+                position=center,
+                rotation=self.orientation_angle,
+            )
+
+
+class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
+    """
+    Gable roof element.
+
+    Two sloping planes meeting at a ridge; triangular gable walls at each end.
+    The ridge runs along the *longer* plan dimension (or along X when square).
+
+    In 2D: unfilled dashed rectangle showing the footprint.
+    In 3D: proper gable roof geometry with no bottom face.
+
+    YAML type: ``gable_roof``
+
+    Parameters: see _RoofBase.
+    """
+
+
+class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
+    """
+    Hipped roof element.
+
+    All four sides slope toward the centre.
+    Square plan → pyramid.  Rectangular plan → elongated hipped roof with
+    a short ridge and triangular hip faces at the short ends.
+
+    In 2D: unfilled dashed rectangle showing the footprint.
+    In 3D: proper hipped/pyramid geometry with no bottom face.
+
+    YAML type: ``hipped_roof``
+
+    Parameters: see _RoofBase.
+    """

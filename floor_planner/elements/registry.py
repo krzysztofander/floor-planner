@@ -20,6 +20,7 @@ from .foundation.room import Room
 from .composite import *
 from .furniture import *
 from .landscaping import * 
+from .landscaping.structures import GableRoof, HippedRoof
 
 
 def create_elements_registry() -> dict[str, type['ElementBase']]:
@@ -112,6 +113,8 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'gazebo': Gazebo,
         'deck': Deck,
         'garden_house': GardenHouse,
+        'gable_roof': GableRoof,
+        'hipped_roof': HippedRoof,
     }
     return registry
 

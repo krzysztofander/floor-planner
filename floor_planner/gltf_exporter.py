@@ -1366,6 +1366,69 @@ class GLTFExporter:
         
         return expanded_vertices, remapped_indices, texcoords
     
+    def _generate_slope_uvs_expanded(
+        self,
+        element,
+        vertices: list[tuple[float, float, float]],
+        indices: list[tuple[int, int, int]],
+    ) -> tuple[list[tuple[float, float, float]], list[tuple[int, int, int]], list[tuple[float, float]]]:
+        """
+        Generate per-face UV coordinates for arbitrary slope/roof geometry.
+
+        Each triangle is expanded into 3 independent vertices so that each face
+        can have its own UV space.  UVs are computed by projecting each vertex
+        onto the face's local 2D plane (U along the first edge, V perpendicular
+        in that plane), then divided by ``texture_scale`` for tiling.
+
+        Args:
+            element:   Source element (read ``texture_scale`` from it).
+            vertices:  Flat vertex list referenced by ``indices``.
+            indices:   List of (i0, i1, i2) triangle index triples.
+
+        Returns:
+            (expanded_vertices, remapped_indices, texcoords)
+        """
+        texture_scale = getattr(element, 'texture_scale', None)
+        if not texture_scale or texture_scale <= 0:
+            texture_scale = 1.0
+
+        expanded_vertices: list[tuple[float, float, float]] = []
+        remapped_indices: list[tuple[int, int, int]] = []
+        texcoords: list[tuple[float, float]] = []
+
+        for i0, i1, i2 in indices:
+            v0 = np.array(vertices[i0], dtype=np.float64)
+            v1 = np.array(vertices[i1], dtype=np.float64)
+            v2 = np.array(vertices[i2], dtype=np.float64)
+
+            # Local U axis: along first edge
+            edge01 = v1 - v0
+            edge01_len = np.linalg.norm(edge01)
+            u_axis = edge01 / edge01_len if edge01_len > 1e-10 else np.array([1.0, 0.0, 0.0])
+
+            # Face normal
+            edge02 = v2 - v0
+            face_normal = np.cross(edge01, edge02)
+            fn_len = np.linalg.norm(face_normal)
+            face_normal = face_normal / fn_len if fn_len > 1e-10 else np.array([0.0, 1.0, 0.0])
+
+            # V axis: perpendicular to u_axis in the face plane
+            v_axis = np.cross(face_normal, u_axis)
+
+            # Project each vertex onto the local 2D frame
+            uv0 = (0.0, 0.0)
+            uv1 = (float(np.dot(v1 - v0, u_axis)) / texture_scale,
+                   float(np.dot(v1 - v0, v_axis)) / texture_scale)
+            uv2 = (float(np.dot(v2 - v0, u_axis)) / texture_scale,
+                   float(np.dot(v2 - v0, v_axis)) / texture_scale)
+
+            base = len(expanded_vertices)
+            expanded_vertices.extend([tuple(v0), tuple(v1), tuple(v2)])
+            remapped_indices.append((base, base + 1, base + 2))
+            texcoords.extend([uv0, uv1, uv2])
+
+        return expanded_vertices, remapped_indices, texcoords
+
     def _generate_normals(self, vertices: list[tuple[float, float, float]], 
                          indices: list[tuple[int, int, int]],
                          triangle_indices_to_process: list[int] = None) -> list[tuple[float, float, float]]:
@@ -1619,22 +1682,20 @@ class GLTFExporter:
                 element, vertices, indices
             )
         else:
-            # Complex geometry (walls with openings) - use vertices directly
-            expanded_vertices = vertices
-            remapped_indices = indices
-            
-            # Generate proper per-face UVs for walls with openings
+            # Complex geometry
             if has_openings and isinstance(element, WallND):
+                # Walls with openings: keep original vertex layout, generate wall UVs
+                expanded_vertices = vertices
+                remapped_indices = indices
                 texcoords = self._generate_wall_opening_uvs(
                     element, vertices, indices, face_groups
                 )
             else:
-                # Generic planar UVs for other complex geometry
-                texcoords = []
-                for x, y, z in vertices:
-                    u = (x % 4.0) / 4.0
-                    v = (y % 3.0) / 3.0
-                    texcoords.append((u, v))
+                # Roofs and other slope geometry: per-face UV expansion
+                # (respects texture_scale and maps correctly onto angled surfaces)
+                expanded_vertices, remapped_indices, texcoords = self._generate_slope_uvs_expanded(
+                    element, vertices, indices
+                )
         
         # Convert to numpy arrays
         vertices_array = np.array(expanded_vertices, dtype=np.float32)

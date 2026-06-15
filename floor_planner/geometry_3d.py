@@ -365,10 +365,275 @@ class CircularGeometry3D(Generate3DMixin):
         
         return vertices, indices, face_groups
 
+class GableRoofGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a gable roof.
+
+    Two sloping rectangular faces meet at a ridge; the two short ends are solid
+    triangular gable walls.  No bottom face (open underneath).
+
+    Ridge runs along the longer plan dimension.  When both dimensions are equal
+    the ridge runs along X (x_axis_size direction).
+
+    Uses element properties:
+        - anchor_point (x, z) - bottom-left corner in 2D floor plan
+        - x_axis_size  - horizontal plan dimension (left/right)
+        - z_axis_size  - vertical plan dimension (up/down)
+        - orientation_angle
+        - v_anchor  - Y coordinate of the roof base (eaves)
+        - height    - ridge height above v_anchor
+    """
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+        """Generate gable roof: 6 vertices, 6 triangles, no bottom."""
+
+        x = self.x_axis_size
+        z = self.z_axis_size
+        y0 = self.v_anchor
+        y1 = self.v_anchor + self.height
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            """Local plan coords → world (x, z) pair."""
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        # Four base (eave) corners
+        c0 = w(0, 0)
+        c1 = w(x, 0)
+        c2 = w(x, z)
+        c3 = w(0, z)
+
+        if x >= z:
+            # Ridge runs along the X direction, at plan-z = z/2
+            r0 = w(0,   z / 2)   # left  ridge end
+            r1 = w(x,   z / 2)   # right ridge end
+        else:
+            # Ridge runs along the Z direction, at plan-x = x/2
+            r0 = w(x / 2, 0)     # front ridge end
+            r1 = w(x / 2, z)     # back  ridge end
+
+        # Vertex list
+        # v0–v3: base corners (y = y0)
+        # v4:    near  ridge end (y = y1)
+        # v5:    far   ridge end (y = y1)
+        vertices = [
+            (c0[0], y0, c0[1]),   # v0
+            (c1[0], y0, c1[1]),   # v1
+            (c2[0], y0, c2[1]),   # v2
+            (c3[0], y0, c3[1]),   # v3
+            (r0[0], y1, r0[1]),   # v4
+            (r1[0], y1, r1[1]),   # v5
+        ]
+
+        if x >= z:
+            # Ridge along X  →  gable ends at plan-x = 0 (left) and plan-x = x (right)
+            #
+            #   v3 -------- v2          (base, back)
+            #   |    v4---v5  |  <-- ridge at y1
+            #   v0 -------- v1          (base, front)
+            #
+            # Front slope  (plan-z=0 face, outward normal toward –z_3d):
+            #   Quad v0–v1–v5–v4  →  (v0,v4,v5) + (v0,v5,v1)
+            # Back slope   (plan-z=z face, outward normal toward +z_3d):
+            #   Quad v3–v4–v5–v2  →  (v3,v2,v5) + (v3,v5,v4)  ← wait need to verify
+            # Left gable   (plan-x=0, outward normal toward –x):
+            #   Triangle v0–v3–v4
+            # Right gable  (plan-x=x, outward normal toward +x):
+            #   Triangle v1–v5–v2
+            indices = [
+                (0, 4, 5), (0, 5, 1),   # front slope
+                (2, 5, 3), (3, 5, 4),   # back slope
+                (0, 3, 4),              # left gable
+                (1, 5, 2),              # right gable
+            ]
+            face_groups = {
+                'front_slope': [0, 1],
+                'back_slope':  [2, 3],
+                'left_gable':  [4],
+                'right_gable': [5],
+                'slopes':      [0, 1, 2, 3],
+                'gables':      [4, 5],
+                'all':         [0, 1, 2, 3, 4, 5],
+            }
+        else:
+            # Ridge along Z  →  gable ends at plan-z=0 (front) and plan-z=z (back)
+            #
+            #   v3 ---- v5(top) ---- v2   (back base + back ridge)
+            #   |                    |
+            #   v0 ---- v4(top) ---- v1   (front base + front ridge)
+            #
+            # Left slope   (plan-x=0 side):  v0–v3–v5–v4
+            # Right slope  (plan-x=x side):  v1–v4–v5–v2
+            # Front gable  (plan-z=0):       v0–v4–v1
+            # Back gable   (plan-z=z):       v3–v2–v5  (outward +z)
+            indices = [
+                (0, 3, 5), (0, 5, 4),   # left slope
+                (1, 4, 5), (1, 5, 2),   # right slope
+                (0, 4, 1),              # front gable
+                (3, 2, 5),              # back gable
+            ]
+            face_groups = {
+                'left_slope':  [0, 1],
+                'right_slope': [2, 3],
+                'front_gable': [4],
+                'back_gable':  [5],
+                'slopes':      [0, 1, 2, 3],
+                'gables':      [4, 5],
+                'all':         [0, 1, 2, 3, 4, 5],
+            }
+
+        return vertices, indices, face_groups
+
+
+class HippedRoofGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a hipped roof.
+
+    All four sides slope toward the centre.  When the plan is square the roof
+    degenerates to a pyramid (single apex).  When the plan is rectangular, a
+    short ridge runs along the longer dimension and four trapezoidal/triangular
+    hip faces slope down to the eaves.  No bottom face.
+
+    Uses the same element properties as GableRoofGeometry3D.
+    """
+
+    _RIDGE_MIN = 0.05   # treat ridge as pyramid when shorter than this (m)
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+        """Generate hipped roof geometry, no bottom."""
+
+        x = self.x_axis_size
+        z = self.z_axis_size
+        y0 = self.v_anchor
+        y1 = self.v_anchor + self.height
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        # Four base corners (shared by all cases)
+        c0 = w(0, 0)
+        c1 = w(x, 0)
+        c2 = w(x, z)
+        c3 = w(0, z)
+
+        base_verts = [
+            (c0[0], y0, c0[1]),   # v0
+            (c1[0], y0, c1[1]),   # v1
+            (c2[0], y0, c2[1]),   # v2
+            (c3[0], y0, c3[1]),   # v3
+        ]
+
+        if x >= z:
+            hip_depth = z / 2
+            ridge_len  = x - 2 * hip_depth      # = x - z
+        else:
+            hip_depth = x / 2
+            ridge_len  = z - 2 * hip_depth      # = z - x
+
+        if ridge_len < self._RIDGE_MIN:
+            # ── Pyramid ──────────────────────────────────────────────────
+            apex = w(x / 2, z / 2)
+            vertices = base_verts + [(apex[0], y1, apex[1])]  # v4 = apex
+
+            # Four triangular faces (outward normals away from interior)
+            # Front  (plan-z=0): v0, v1, apex
+            # Right  (plan-x=x): v1, v2, apex
+            # Back   (plan-z=z): v2, v3, apex
+            # Left   (plan-x=0): v3, v0, apex
+            indices = [
+                (0, 1, 4),   # front
+                (1, 2, 4),   # right
+                (2, 3, 4),   # back
+                (3, 0, 4),   # left
+            ]
+            face_groups = {
+                'front': [0], 'right': [1], 'back': [2], 'left': [3],
+                'all':   [0, 1, 2, 3],
+            }
+        else:
+            # ── True hipped (elongated) ───────────────────────────────────
+            if x >= z:
+                # Ridge runs along X; hip triangles at left and right ends
+                rx0 = hip_depth          # ridge start x
+                rx1 = x - hip_depth      # ridge end   x
+                r0 = w(rx0, z / 2)
+                r1 = w(rx1, z / 2)
+            else:
+                # Ridge runs along Z; hip triangles at front and back ends
+                rz0 = hip_depth
+                rz1 = z - hip_depth
+                r0 = w(x / 2, rz0)
+                r1 = w(x / 2, rz1)
+
+            # v0–v3: base, v4: near ridge end, v5: far ridge end
+            vertices = base_verts + [
+                (r0[0], y1, r0[1]),   # v4
+                (r1[0], y1, r1[1]),   # v5
+            ]
+
+            if x >= z:
+                # Ridge along X
+                # Front slope  (plan-z=0): trapezoid v0–v1–v5–v4
+                # Back slope   (plan-z=z): trapezoid v3–v4–v5–v2
+                # Left hip     (plan-x=0): triangle  v0–v3–v4
+                # Right hip    (plan-x=x): triangle  v1–v5–v2
+                indices = [
+                    (0, 4, 5), (0, 5, 1),   # front slope
+                    (2, 5, 3), (3, 5, 4),   # back slope
+                    (0, 3, 4),              # left  hip
+                    (1, 5, 2),              # right hip
+                ]
+                face_groups = {
+                    'front_slope': [0, 1],
+                    'back_slope':  [2, 3],
+                    'left_hip':    [4],
+                    'right_hip':   [5],
+                    'slopes':      [0, 1, 2, 3],
+                    'hips':        [4, 5],
+                    'all':         [0, 1, 2, 3, 4, 5],
+                }
+            else:
+                # Ridge along Z
+                # Left slope   (plan-x=0): trapezoid v0–v3–v5–v4
+                # Right slope  (plan-x=x): trapezoid v1–v4–v5–v2
+                # Front hip    (plan-z=0): triangle  v0–v4–v1
+                # Back hip     (plan-z=z): triangle  v3–v2–v5
+                indices = [
+                    (0, 3, 5), (0, 5, 4),   # left  slope
+                    (1, 4, 5), (1, 5, 2),   # right slope
+                    (0, 4, 1),              # front hip
+                    (3, 2, 5),              # back  hip
+                ]
+                face_groups = {
+                    'left_slope':  [0, 1],
+                    'right_slope': [2, 3],
+                    'front_hip':   [4],
+                    'back_hip':    [5],
+                    'slopes':      [0, 1, 2, 3],
+                    'hips':        [4, 5],
+                    'all':         [0, 1, 2, 3, 4, 5],
+                }
+
+        return vertices, indices, face_groups
+
+
 # Export public API
 __all__ = [
     'Generate3DMixin',
     'RectangularGeometry3D',
     'CircularGeometry3D',
+    'GableRoofGeometry3D',
+    'HippedRoofGeometry3D',
     'is_3d_eligible',
 ]

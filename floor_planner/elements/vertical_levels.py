@@ -272,3 +272,23 @@ class VertInfoAnnotations:
     def _get_3d_expansion(self) -> tuple[float, float, float]:
         """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
         return (0.0, 0.0, 0.0)  # Annotations are not exported to 3D
+
+
+class VertInfoRoof:
+    """Roof level (2.70m): gable and hipped roof elements.
+
+    Roof base sits at the standard wall plate height.
+    Used for: GableRoof, HippedRoof.
+    """
+
+    def _default_v_anchor(self) -> float:
+        """Return v_anchor for roof level (top of walls)."""
+        return 2.70
+
+    def _default_height(self) -> float:
+        """Return default roof height above wall plate."""
+        return 2.5
+
+    def _get_3d_expansion(self) -> tuple[float, float, float]:
+        """Return (length_exp, thickness_exp, height_exp) for 3D geometry."""
+        return (0.0, 0.0, 0.0)
