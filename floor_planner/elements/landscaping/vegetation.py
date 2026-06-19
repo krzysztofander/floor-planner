@@ -160,14 +160,15 @@ class CircularVegetation2D(VegetationElement):
     def _render_label_and_id(self, ax: matplotlib.axes.Axes, element_type: str) -> None:
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
-        position = (self.anchor_point[0] + self.diameter / 2 + 0.2, self.anchor_point[1])
+        position = (self.anchor_point[0], self.anchor_point[1] - self.diameter / 4)
         render_text_as_label_and_id(
             ax=ax,
             element=self,
             text=label_text,
             element_type=element_type,
             position=position,
-            rotation=0
+            rotation=0,
+            centered=True
         )
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the shrub or (tree with trunk and canopy)"""

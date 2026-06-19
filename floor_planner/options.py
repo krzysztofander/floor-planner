@@ -21,9 +21,15 @@ _WINDOW_TYPES: frozenset[str] = frozenset({
     'Window', 'Window140x120', 'Window90x120',
     'WindowDouble160x120', 'WindowDouble160x140' , 'WindowSingleAny'
 })
+_VEGE_TYPES: frozenset[str] = frozenset({
+    'Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D', 'VegetationElement',
+    'LeafyTree', 'LeafyShrub'
+})
+
 _CANONICAL_FALLBACK: dict[frozenset[str], str] = {
     _DOOR_TYPES: 'Door',
     _WINDOW_TYPES: 'Window',
+    _VEGE_TYPES: 'Vegetation',
 }
 
 
