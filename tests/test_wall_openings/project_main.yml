@@ -44,6 +44,11 @@ floor_plans:
     inherited_elements:
       - test_room
 
+    elements:
+      - type: ground
+        anchor_point:  [-10, -10]
+        size: [20,20]
+
     report:
       anchor_point: [5, 3.5]
       notes:
