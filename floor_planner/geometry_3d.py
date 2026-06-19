@@ -365,6 +365,42 @@ class CircularGeometry3D(Generate3DMixin):
         
         return vertices, indices, face_groups
 
+def _add_roof_inner_surface(
+    vertices: list[tuple[float, float, float]],
+    indices: list[tuple[int, int, int]],
+    face_groups: dict[str, list[int]],
+    y_shift: float = -0.01,
+) -> tuple[list[tuple[float, float, float]],
+           list[tuple[int, int, int]],
+           dict[str, list[int]]]:
+    """
+    Append an inner (underside) surface to roof geometry.
+
+    The inner surface is an exact copy of the outer surface, shifted
+    ``y_shift`` metres in the world-Y direction and with triangle winding
+    reversed so its normals point inward (downward from below the roof).
+    This makes the roof visible both from above and from below without
+    needing double-sided materials.
+
+    Returns updated (vertices, indices, face_groups) with the inner copies
+    appended.  The inner face indices are added to the 'all' group only.
+    """
+    n = len(vertices)
+    inner_verts = [(x, y + y_shift, z) for (x, y, z) in vertices]
+    # Reverse winding: flip i1 ↔ i2 to invert normal direction
+    inner_indices = [(i0 + n, i2 + n, i1 + n) for (i0, i1, i2) in indices]
+
+    new_vertices = vertices + inner_verts
+    new_indices = indices + inner_indices
+
+    # Add inner triangle indices to 'all'; leave other groups unchanged
+    inner_tri_range = list(range(len(indices), len(indices) + len(inner_indices)))
+    new_face_groups = {k: list(v) for k, v in face_groups.items()}
+    new_face_groups['all'] = list(face_groups.get('all', list(range(len(indices))))) + inner_tri_range
+
+    return new_vertices, new_indices, new_face_groups
+
+
 class GableRoofGeometry3D(Generate3DMixin):
     """
     3D geometry for a gable roof.
@@ -487,6 +523,7 @@ class GableRoofGeometry3D(Generate3DMixin):
                 'all':         [0, 1, 2, 3, 4, 5],
             }
 
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
         return vertices, indices, face_groups
 
 
@@ -625,6 +662,7 @@ class HippedRoofGeometry3D(Generate3DMixin):
                     'all':         [0, 1, 2, 3, 4, 5],
                 }
 
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
         return vertices, indices, face_groups
 
 
