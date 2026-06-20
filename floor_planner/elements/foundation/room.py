@@ -128,6 +128,9 @@ class Room(Element):
         room_other_elements = []
 
         for element_def in regular_element_defs:
+            if not element_def.get('type'):
+                print(f"DEBUG: Element definition missing 'type': {element_def}")
+                raise ValueError("Element definition must include 'type' key")
             element_type = element_def.pop('type')
             element_class = elements_registry.get(element_type)
 
