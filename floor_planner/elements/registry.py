@@ -59,6 +59,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'model_table_01': Table01,
         'model_well': Well,
         'model_leafy_tree': LeafyTree,
+        'model_leafy_shrub_1': LeafyShrub1,
         'led_strip': LEDStrip,
         'line': Line,
         'polygon': Polygon,

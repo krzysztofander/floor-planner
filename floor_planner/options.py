@@ -23,7 +23,7 @@ _WINDOW_TYPES: frozenset[str] = frozenset({
 })
 _VEGE_TYPES: frozenset[str] = frozenset({
     'Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D', 'VegetationElement',
-    'LeafyTree', 'LeafyShrub'
+    'LeafyTree', 'LeafyShrub1', 'LeafyShrub2', 'LeafyShrub3', 'LeafyShrub4', 'LeafyShrub5',
 })
 
 _CANONICAL_FALLBACK: dict[frozenset[str], str] = {
