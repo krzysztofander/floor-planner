@@ -522,8 +522,6 @@ class RectPool(VertInfoLvl01, RectangularElement):
         if self.show_steps:
             self._draw_steps(ax)
 
-        # Draw water shimmer effect
-        self._draw_water_shimmer(ax)
 
         # Render label and ID
         from ...utils import render_text_as_label_and_id
@@ -577,27 +575,6 @@ class RectPool(VertInfoLvl01, RectangularElement):
             )
             step_rect.set_zorder(self.get_zorder())
             ax.add_patch(step_rect)
-
-    def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
-        """Draw subtle water shimmer effects."""
-        x = self.anchor_point[0]
-        y = self.anchor_point[1]
-        random.seed(46)
-        # Draw a few random light reflections
-        num_shimmers = int(self.length * self.thickness * 0.5)
-        for _ in range(num_shimmers):
-            shimmer_x = x + random.uniform(0, self.length)
-            shimmer_y = y + random.uniform(0, self.thickness)
-            size = random.uniform(0.05, 0.15)
-            shimmer = Circle(
-                (shimmer_x, shimmer_y),
-                size,
-                facecolor='white',
-                edgecolor='none',
-                alpha=random.uniform(0.1, 0.3)
-            )
-            shimmer.set_zorder(self.get_zorder())
-            ax.add_patch(shimmer)
 
     def _build_label_text(self) -> str:
         """Build label text with dimensions."""
@@ -711,9 +688,6 @@ class OvalPool(VertInfoLvl01, RectangularElement):
         if self.show_steps:
             self._draw_steps(ax)
 
-        # Draw water shimmer effect
-        self._draw_water_shimmer(ax)
-
         # Render label and ID
         from ...utils import render_text_as_label_and_id
         label_text = self._build_label_text()
@@ -750,30 +724,6 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             )
             step.set_zorder(self.get_zorder())
             ax.add_patch(step)
-
-    def _draw_water_shimmer(self, ax: matplotlib.axes.Axes) -> None:
-        """Draw subtle water shimmer effects."""
-        random.seed(47)
-        center_x = self.anchor_point[0] + self.length / 2
-        center_y = self.anchor_point[1] + self.thickness / 2
-        # Draw random light reflections within ellipse bounds
-        num_shimmers = int(self.length * self.thickness * 0.5)
-        for _ in range(num_shimmers):
-            # Generate points within ellipse
-            angle = random.uniform(0, 2 * math.pi)
-            r = random.uniform(0, 1) ** 0.5  # Square root for uniform distribution
-            shimmer_x = center_x + r * (self.length / 2) * 0.9 * math.cos(angle)
-            shimmer_y = center_y + r * (self.thickness / 2) * 0.9 * math.sin(angle)
-            size = random.uniform(0.05, 0.15)
-            shimmer = Circle(
-                (shimmer_x, shimmer_y),
-                size,
-                facecolor='white',
-                edgecolor='none',
-                alpha=random.uniform(0.1, 0.3)
-            )
-            shimmer.set_zorder(self.get_zorder())
-            ax.add_patch(shimmer)
 
     def _build_label_text(self) -> str:
         """Build label text with dimensions."""
