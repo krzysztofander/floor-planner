@@ -291,7 +291,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
                 y_offset,
                 math.radians(self.orientation_angle)
             )
-            ax.plot(point[0], point[1], 'o', color='gray', markersize=0.5, alpha=0.4)
+            ax.plot(point[0], point[1], 'o', color='gray', markersize=0.5, alpha=0.4, zorder=self.get_zorder())
 
     def _draw_stone_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw irregular stone patterns."""
@@ -317,7 +317,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
                 ]
                 xs = [c[0] for c in corners]
                 ys = [c[1] for c in corners]
-                ax.plot(xs + [xs[0]], ys + [ys[0]], color='#808080', linewidth=0.5, alpha=0.6)
+                ax.plot(xs + [xs[0]], ys + [ys[0]], color='#808080', linewidth=0.5, alpha=0.6, zorder=self.get_zorder())
 
     def _draw_paving_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw grid pattern for paving stones."""
@@ -327,16 +327,18 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         num_lines_y = max(2, int(self.z_axis_size / 0.3))
         
         for i in range(1, num_lines_x):
-            offset = i * (self.z_axis_size/ num_lines_x)
+            offset = i * (self.x_axis_size/ num_lines_x)
             start = rotate_point(self.anchor_point, offset, 0, math.radians(self.orientation_angle))
-            end = rotate_point(self.anchor_point, offset, self.x_axis_size, math.radians(self.orientation_angle))
-            ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5)
+            end = rotate_point(self.anchor_point, offset, self.z_axis_size, math.radians(self.orientation_angle))
+            
+            ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5, zorder=self.get_zorder())
+            
         
         for j in range(1, num_lines_y):
             offset = j * (self.z_axis_size / num_lines_y)
             start = rotate_point(self.anchor_point, 0, offset, math.radians(self.orientation_angle))
             end = rotate_point(self.anchor_point, self.x_axis_size, offset, math.radians(self.orientation_angle))
-            ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5)
+            ax.plot([start[0], end[0]], [start[1], end[1]], color='#606060', linewidth=0.5, alpha=0.5, zorder=self.get_zorder())
 
     def _draw_wood_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw parallel lines for wood planks."""
@@ -347,7 +349,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             offset = i * (self.x_axis_size / num_planks)
             start = rotate_point(self.anchor_point, offset, 0, math.radians(self.orientation_angle))
             end = rotate_point(self.anchor_point, offset, self.z_axis_size, math.radians(self.orientation_angle))
-            ax.plot([start[0], end[0]], [start[1], end[1]], color='#654321', linewidth=0.8, alpha=0.6)
+            ax.plot([start[0], end[0]], [start[1], end[1]], color='#654321', linewidth=0.8, alpha=0.6, zorder=self.get_zorder())
 
     def _draw_mulch_pattern(self, ax: matplotlib.axes.Axes) -> None:
         """Draw organic texture for mulch."""
@@ -369,7 +371,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             
             p1 = rotate_point(self.anchor_point, x1, y1, math.radians(self.orientation_angle))
             p2 = rotate_point(self.anchor_point, x2, y2, math.radians(self.orientation_angle))
-            ax.plot([p1[0], p2[0]], [p1[1], p2[1]], color='#654321', linewidth=0.3, alpha=0.3)
+            ax.plot([p1[0], p2[0]], [p1[1], p2[1]], color='#654321', linewidth=0.3, alpha=0.3, zorder=self.get_zorder())
 
     def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
         """Render label and ID for path."""
