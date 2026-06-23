@@ -264,6 +264,13 @@ def main() -> None:
                     floor_plan.add_element(room)
                     all_elements.append(room)
                     elements_by_id[room.get_id()] = room
+                elif element_type == 'group':
+                    # Create group with nested elements
+                    group_params = copy.deepcopy(element_params)
+                    group = elements.Group.create_from_params(group_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
+                    floor_plan.add_element(group)
+                    all_elements.append(group)
+                    elements_by_id[group.get_id()] = group
                 else:
                     # Create regular element
                     element_class = elements_registry[element_type]
@@ -283,6 +290,12 @@ def main() -> None:
                 floor_plan.add_element(room)
                 all_elements.append(room)
                 elements_by_id[room.id] = room
+            elif element_type == 'group':
+                # Create group with nested elements
+                group = elements.Group.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
+                floor_plan.add_element(group)
+                all_elements.append(group)
+                elements_by_id[group.get_id()] = group
             else:
                 # Create regular element
                 element_params_copy.pop('type')

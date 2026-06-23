@@ -3,9 +3,9 @@ PYSRC = $(wildcard floor_planner/*.py)
 PYSRC += $(wildcard floor_planner/elements/*.py)
 PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
 
-.PHONY: all clean room_templates elements furniture simple landscaping extras tests
+.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests
 
-all: room_templates elements furniture simple landscaping
+all: room_templates group_templates elements furniture simple landscaping
 
 # ==========================================
 
@@ -25,6 +25,19 @@ room_templates: $(ROOM_TEMPLATE_OUTPUTS)
 
 # Pattern rule: build output for each example by processing its project_main.yml
 $(ROOM_TEMPLATES_ROOT)/%/output/some_floor.png: $(ROOM_TEMPLATES_ROOT)/%/project_main.yml $(ROOM_TEMPLATES_ROOT)/%/*.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+# GROUP TEMPLATES
+# ----------------
+## Root directory for group templates
+GROUP_TEMPLATES_ROOT = examples/templates/groups
+## Output PNGs for each group template (title must match the png filename)
+GROUP_TEMPLATE_OUTPUTS = $(GROUP_TEMPLATES_ROOT)/group_east/output/group_east.png
+
+group_templates: $(GROUP_TEMPLATE_OUTPUTS)
+
+$(GROUP_TEMPLATES_ROOT)/%/output/group_east.png: $(GROUP_TEMPLATES_ROOT)/%/project_main.yml $(GROUP_TEMPLATES_ROOT)/%/*.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
@@ -149,6 +162,7 @@ $(word 8,$(TESTS_PNG)): tests/vege/project_main.yml tests/vege/*.yml $(PYSRC)
 # Clean generated outputs
 clean:
 	rm -f $(ROOM_TEMPLATE_OUTPUTS)
+	rm -f $(GROUP_TEMPLATE_OUTPUTS)
 	rm -f $(ELEMENTS_PNG)
 	rm -f $(SIMPLE_PNG)
 	rm -f $(LANDSCAPING_PNG)

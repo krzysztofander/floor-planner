@@ -25,5 +25,6 @@ from .symbols.info import DimensionArrow, TextBox
 from .lightning.lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .symbols.multipurpose import Line, Polygon
 from .foundation.room import Room
+from .foundation.group import Group
 from .landscaping import Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall, Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse, RectPool, OvalPool, GableRoof, HippedRoof
 from .registry import create_elements_registry

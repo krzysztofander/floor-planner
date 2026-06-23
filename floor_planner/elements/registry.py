@@ -17,6 +17,7 @@ from .symbols.info import DimensionArrow, TextBox
 from .lightning.lighting import CeilingLamp, LEDStrip, Switch, WallLamp
 from .symbols.multipurpose import Line, Polygon, Circle
 from .foundation.room import Room
+from .foundation.group import Group
 from .composite import *
 from .furniture import *
 from .landscaping import * 
@@ -64,6 +65,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'line': Line,
         'polygon': Polygon,
         'power_outlet': PowerOutlet,
+        'group': Group,
         'room': Room,
         'floor': Floor,
         'ceiling': Ceiling,
