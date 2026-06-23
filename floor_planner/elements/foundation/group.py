@@ -30,9 +30,93 @@ class Group(Element):
     class has ``IS_CONTAINER = True`` (e.g. another Group or a Room) is created
     via that class's ``create_from_params`` classmethod rather than direct
     instantiation.
+
+    Groups support the ``from_template`` key in their YAML definition.  When
+    present, the named template (registered via ``Group.register_templates``) is
+    merged into the group params before instantiation:
+
+    * template ``vars`` provide defaults; instance ``vars`` override them
+    * template ``elements`` are the base list; instance ``elements`` are appended
+    * instance ``anchor_point``, ``color``, ``label`` override template values
+
+    Templates are registered once per config load (``__main__.py``) and are
+    stored as a class-level dict, making them available to all nested
+    ``create_from_params`` calls without threading an extra argument everywhere.
     """
 
     IS_CONTAINER = True
+
+    # Class-level template registry: populated once per config load.
+    _group_templates: dict = {}
+
+    # ------------------------------------------------------------------
+    # Template registry
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def register_templates(cls, templates: dict) -> None:
+        """
+        Register group templates from the ``group_templates`` YAML section.
+
+        :param templates:
+            dict mapping template names to their raw parameter dicts (not yet
+            instantiated – just stored for later use by ``create_from_params``)
+        """
+        cls._group_templates = templates or {}
+
+    @classmethod
+    def _apply_template(cls, params: dict) -> dict:
+        """
+        If ``from_template`` is present in *params*, merge the named template
+        into the params dict and return the result.  The original dict is not
+        mutated.
+
+        Merge rules
+        -----------
+        * ``vars``        – template vars are the base; instance vars override
+        * ``elements``    – template elements first, instance elements appended
+        * everything else – instance value wins (``anchor_point``, ``color``, …)
+
+        :raises ValueError:
+            if the referenced template name is not registered
+        :raises ValueError:
+            if a template definition itself contains ``from_template``
+            (templates are not composable; that would add complexity for little gain)
+        """
+        template_name = params.get('from_template')
+        if template_name is None:
+            return params
+
+        template = cls._group_templates.get(template_name)
+        if template is None:
+            raise ValueError(
+                f"Group references unknown template {template_name!r}. "
+                f"Known templates: {list(cls._group_templates)}"
+            )
+        if 'from_template' in template:
+            raise ValueError(
+                f"Template {template_name!r} itself contains 'from_template'. "
+                "Template composition is not supported."
+            )
+
+        # Build merged params
+        merged = dict(template)  # shallow copy of template as the base
+
+        # vars: template defaults, instance overrides
+        merged['vars'] = {**template.get('vars', {}), **params.get('vars', {})}
+
+        # elements: template list first, instance additions appended
+        merged['elements'] = (
+            list(template.get('elements', [])) +
+            list(params.get('elements', []))
+        )
+
+        # All other scalar keys from instance override template
+        for key, value in params.items():
+            if key not in ('vars', 'elements', 'from_template'):
+                merged[key] = value
+
+        return merged
 
     def __init__(
             self,
@@ -215,6 +299,8 @@ class Group(Element):
         """
         if global_vars is None:
             global_vars = {}
+
+        params = cls._apply_template(params)
 
         container_vars, anchor, color, label = cls._resolve_params(params, global_vars)
 

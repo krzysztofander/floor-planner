@@ -216,6 +216,9 @@ def main() -> None:
 
     elements_registry = elements.create_elements_registry()
 
+    # Load and register group templates (raw dicts, not instantiated)
+    elements.Group.register_templates(settings.get('group_templates', {}))
+
     # Load reusable elements (including external files)
     reusable_elements = load_reusable_elements(
         settings.get('reusable_elements', {}),
