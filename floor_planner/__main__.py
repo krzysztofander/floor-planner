@@ -227,6 +227,36 @@ def main() -> None:
     # Track elements by ID for room creation
     elements_by_id = {}
 
+    def _add_element(element_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars):
+        """
+        Add a single element (or container) to the floor plan.
+
+        Container classes (those with IS_CONTAINER = True, e.g. Group and Room)
+        are created via their create_from_params() classmethod.  All other
+        element types are instantiated directly after variable resolution.
+        """
+        element_params = copy.deepcopy(element_params)
+        element_type = element_params.get('type')
+        element_class = elements_registry.get(element_type)
+        if element_class is None:
+            raise ValueError(f"Unknown element type: {element_type!r}")
+
+        if getattr(element_class, 'IS_CONTAINER', False):
+            container = element_class.create_from_params(
+                element_params, elements_registry, floor_plan,
+                all_elements, elements_by_id, global_vars
+            )
+            floor_plan.add_element(container)
+            all_elements.append(container)
+            elements_by_id[container.get_id()] = container
+        else:
+            element_params.pop('type')
+            element_params = resolve_element_params(element_params, global_vars)
+            element = element_class(**element_params)
+            floor_plan.add_element(element)
+            all_elements.append(element)
+            elements_by_id[element.get_id()] = element
+
     floor_plans = []
     for floor_plan_params in settings['floor_plans']:
         # Merge floor plan options with defaults (floor plan options override defaults)
@@ -256,56 +286,9 @@ def main() -> None:
             floor_plan.add_title(**title_params)
         for set_name in floor_plan_params.get('inherited_elements', []):
             for element_params in reusable_elements.get(set_name, []):
-                element_type = element_params.get('type')
-                if element_type == 'room':
-                    # Create room with nested elements
-                    room_params = copy.deepcopy(element_params)
-                    room = elements.Room.create_from_params(room_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
-                    floor_plan.add_element(room)
-                    all_elements.append(room)
-                    elements_by_id[room.get_id()] = room
-                elif element_type == 'group':
-                    # Create group with nested elements
-                    group_params = copy.deepcopy(element_params)
-                    group = elements.Group.create_from_params(group_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
-                    floor_plan.add_element(group)
-                    all_elements.append(group)
-                    elements_by_id[group.get_id()] = group
-                else:
-                    # Create regular element
-                    element_class = elements_registry[element_type]
-                    element_params_clean = {k: v for k, v in element_params.items() if k != 'type'}
-                    # Resolve constants in element parameters
-                    element_params_clean = resolve_element_params(element_params_clean, global_vars)
-                    element = element_class(**element_params_clean)
-                    floor_plan.add_element(element)
-                    all_elements.append(element)
-                    elements_by_id[element.get_id()] = element
+                _add_element(element_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
         for element_params in floor_plan_params.get('elements', []):
-            element_params_copy = copy.deepcopy(element_params)
-            element_type = element_params_copy.get('type')
-            if element_type == 'room':
-                # Create room with nested elements
-                room = elements.Room.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
-                floor_plan.add_element(room)
-                all_elements.append(room)
-                elements_by_id[room.id] = room
-            elif element_type == 'group':
-                # Create group with nested elements
-                group = elements.Group.create_from_params(element_params_copy, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
-                floor_plan.add_element(group)
-                all_elements.append(group)
-                elements_by_id[group.get_id()] = group
-            else:
-                # Create regular element
-                element_params_copy.pop('type')
-                element_class = elements_registry[element_type]
-                # Resolve constants in element parameters
-                element_params_copy = resolve_element_params(element_params_copy, global_vars)
-                element = element_class(**element_params_copy)
-                floor_plan.add_element(element)
-                all_elements.append(element)
-                elements_by_id[element.get_id()] = element
+            _add_element(element_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
         floor_plan.draw_elements()
 
         # Draw report if specified

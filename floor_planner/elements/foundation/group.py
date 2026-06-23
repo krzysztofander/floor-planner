@@ -2,7 +2,13 @@
 Group element: a container for other elements sharing a common anchor point.
 
 Unlike Room, a Group does not require any walls and imposes no structural
-constraints on its children. Groups can be nested recursively.
+constraints on its children.  Groups can be nested recursively.
+
+Room is a specialised Group that additionally validates its walls and
+computes geometric properties.  Any element class that sets
+``IS_CONTAINER = True`` is treated as a container by the shared
+``_create_children`` helper and is instantiated via its own
+``create_from_params`` classmethod rather than direct construction.
 
 Author: Krzysztof Bartczak
 """
@@ -19,10 +25,14 @@ class Group(Element):
     """
     A container element that groups other elements relative to a shared anchor point.
 
-    A Group provides the same anchor-point translation as Room but does not
-    require any walls and does not validate its contents in any way.
-    Groups can be nested: a Group element may contain other Groups.
+    A Group provides anchor-point translation for its children without imposing
+    any structural constraints.  Groups can be nested: a child element whose
+    class has ``IS_CONTAINER = True`` (e.g. another Group or a Room) is created
+    via that class's ``create_from_params`` classmethod rather than direct
+    instantiation.
     """
+
+    IS_CONTAINER = True
 
     def __init__(
             self,
@@ -35,15 +45,14 @@ class Group(Element):
         Initialize a group.
 
         :param child_elements:
-            list of child element objects; may include nested Group instances
+            list of child element objects (may include nested Groups / Rooms)
         :param anchor_point:
-            coordinates (x, y) of the group's reference point; all child element
+            coordinates (x, y) of the group's reference point; child element
             positions defined in YAML are relative to this point
         :param color:
-            default color (not used by Group itself but passed to Element for
-            consistency with the rest of the hierarchy)
+            default color passed down to walls that have no explicit color
         :param label:
-            optional label for the group (informational only)
+            optional label (informational only)
         """
         super().__init__(anchor_point=anchor_point, label=label, color=color)
         self.child_elements = child_elements or []
@@ -56,6 +65,120 @@ class Group(Element):
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Group has no visual representation of its own."""
         pass
+
+    # ------------------------------------------------------------------
+    # Shared helpers used by Group.create_from_params and Room.create_from_params
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _resolve_params(cls, params: dict, global_vars: dict) -> tuple:
+        """
+        Resolve scoped vars, anchor_point, color and label from container params.
+
+        :param params:
+            raw YAML parameter dict for this container
+        :param global_vars:
+            already-resolved global variables
+        :return:
+            (container_vars, anchor_point, color, label)
+        """
+        container_vars: dict = {}
+        for var_name, var_expr in params.get('vars', params.get('constants', {})).items():
+            container_vars[var_name] = resolve_constants(
+                var_expr, {**global_vars, **container_vars}
+            )
+
+        color = params.get('color', 'black')
+        label = params.get('label')
+        anchor = params.get('anchor_point', (0, 0))
+        if 'anchor_point' in params:
+            anchor = resolve_constants(anchor, {**global_vars, **container_vars})
+
+        return container_vars, anchor, color, label
+
+    @classmethod
+    def _create_children(
+            cls,
+            element_defs: list,
+            elements_registry: dict,
+            floor_plan,
+            all_elements: list,
+            elements_by_id: dict,
+            global_vars: dict,
+            container_vars: dict,
+            anchor_point: tuple[float, float],
+            color: str,
+    ) -> list:
+        """
+        Instantiate child elements from a list of definition dicts.
+
+        Elements whose class has ``IS_CONTAINER = True`` are created via
+        ``create_from_params``; their ``anchor_point`` is pre-translated by
+        this container's anchor before the recursive call.  All other elements
+        are resolved with variable substitution and translated coordinate keys,
+        then instantiated directly.
+
+        :return:
+            flat list of created child element instances
+        """
+        children: list = []
+        merged_vars = {**global_vars, **container_vars}
+
+        for element_def in element_defs:
+            element_def = copy.deepcopy(element_def)
+
+            if not element_def.get('type'):
+                raise ValueError(f"Element definition missing 'type': {element_def}")
+
+            element_type = element_def.pop('type')
+            element_class = elements_registry.get(element_type)
+            if element_class is None:
+                raise ValueError(f"Unknown element type: {element_type!r}")
+
+            if getattr(element_class, 'IS_CONTAINER', False):
+                # Pre-translate the nested container's anchor before recursion
+                if 'anchor_point' in element_def:
+                    rel_x, rel_y = resolve_constants(
+                        element_def['anchor_point'], merged_vars
+                    )
+                    element_def['anchor_point'] = (
+                        rel_x + anchor_point[0],
+                        rel_y + anchor_point[1],
+                    )
+
+                child = element_class.create_from_params(
+                    element_def,
+                    elements_registry,
+                    floor_plan,
+                    all_elements,
+                    elements_by_id,
+                    global_vars=merged_vars,
+                )
+
+            else:
+                # Regular element: resolve vars then translate coordinate keys
+                element_def = resolve_element_params(element_def, global_vars, container_vars)
+
+                for coord_key in ('anchor_point', 'first_point', 'second_point'):
+                    if coord_key in element_def:
+                        rx, ry = element_def[coord_key]
+                        element_def[coord_key] = (
+                            rx + anchor_point[0],
+                            ry + anchor_point[1],
+                        )
+
+                # Default wall color to the container color
+                if element_type in ('wall', 'wallnd') and 'color' not in element_def:
+                    element_def['color'] = color
+
+                child = element_class(**element_def)
+
+            floor_plan.add_element(child)
+            all_elements.append(child)
+            elements_by_id[child.get_id()] = child
+            children.append(child)
+
+        return children
 
     # ------------------------------------------------------------------
     # Factory
@@ -72,14 +195,11 @@ class Group(Element):
             global_vars: dict | None = None,
     ) -> 'Group':
         """
-        Create a Group from YAML parameters with nested elements.
-
-        Supports recursive nesting: child elements whose type is ``group``
-        are themselves created via this method.
+        Create a Group from YAML parameters.
 
         :param params:
-            dictionary with an optional 'elements' list containing child element
-            definitions, optional 'anchor_point', 'color', 'label', and 'vars'
+            dict with optional keys: ``elements``, ``anchor_point``, ``color``,
+            ``label``, ``vars``
         :param elements_registry:
             registry mapping element type names to classes
         :param floor_plan:
@@ -87,7 +207,7 @@ class Group(Element):
         :param all_elements:
             list to track all created elements
         :param elements_by_id:
-            dictionary to track elements by ID
+            dict to track elements by ID
         :param global_vars:
             global variables dictionary (optional)
         :return:
@@ -96,100 +216,18 @@ class Group(Element):
         if global_vars is None:
             global_vars = {}
 
-        # Resolve group-scoped vars using global vars + previously resolved group vars
-        group_vars_definitions = params.get('vars', params.get('constants', {}))
-        group_vars: dict = {}
-        for var_name, var_expression in group_vars_definitions.items():
-            available_values = {**global_vars, **group_vars}
-            group_vars[var_name] = resolve_constants(var_expression, available_values)
+        container_vars, anchor, color, label = cls._resolve_params(params, global_vars)
 
-        # Resolve group-level parameters
-        label = params.get('label')
-        group_color = params.get('color', 'black')
-
-        group_anchor_point = params.get('anchor_point', (0, 0))
-        if 'anchor_point' in params:
-            available_values = {**global_vars, **group_vars}
-            group_anchor_point = resolve_constants(params['anchor_point'], available_values)
-
-        element_defs = params.get('elements', [])
-
-        child_elements: list = []
-
-        for element_def in element_defs:
-            element_def = copy.deepcopy(element_def)
-
-            if not element_def.get('type'):
-                raise ValueError(f"Element definition inside group missing 'type': {element_def}")
-
-            element_type = element_def.pop('type')
-
-            if element_type == 'group':
-                # Recursive: nested group – pass merged vars down
-                merged_vars = {**global_vars, **group_vars}
-
-                # Translate the nested group's anchor_point by this group's anchor
-                if 'anchor_point' in element_def:
-                    rel_x, rel_y = resolve_constants(
-                        element_def['anchor_point'], merged_vars
-                    )
-                    element_def['anchor_point'] = (
-                        rel_x + group_anchor_point[0],
-                        rel_y + group_anchor_point[1],
-                    )
-
-                nested_group = cls.create_from_params(
-                    element_def,
-                    elements_registry,
-                    floor_plan,
-                    all_elements,
-                    elements_by_id,
-                    global_vars=merged_vars,
-                )
-                floor_plan.add_element(nested_group)
-                all_elements.append(nested_group)
-                elements_by_id[nested_group.get_id()] = nested_group
-                child_elements.append(nested_group)
-
-            else:
-                element_class = elements_registry.get(element_type)
-                if not element_class:
-                    raise ValueError(f"Unknown element type inside group: {element_type}")
-
-                # Resolve vars in element parameters (group vars override global)
-                element_def = resolve_element_params(element_def, global_vars, group_vars)
-
-                # Translate anchor_point relative to this group's anchor
-                if 'anchor_point' in element_def:
-                    rel_x, rel_y = element_def['anchor_point']
-                    element_def['anchor_point'] = (
-                        rel_x + group_anchor_point[0],
-                        rel_y + group_anchor_point[1],
-                    )
-                # Translate line endpoints
-                if 'first_point' in element_def:
-                    rel_x, rel_y = element_def['first_point']
-                    element_def['first_point'] = (
-                        rel_x + group_anchor_point[0],
-                        rel_y + group_anchor_point[1],
-                    )
-                if 'second_point' in element_def:
-                    rel_x, rel_y = element_def['second_point']
-                    element_def['second_point'] = (
-                        rel_x + group_anchor_point[0],
-                        rel_y + group_anchor_point[1],
-                    )
-
-                element = element_class(**element_def)
-
-                floor_plan.add_element(element)
-                all_elements.append(element)
-                elements_by_id[element.get_id()] = element
-                child_elements.append(element)
-
-        return cls(
-            child_elements=child_elements,
-            anchor_point=group_anchor_point,
-            color=group_color,
-            label=label,
+        children = cls._create_children(
+            params.get('elements', []),
+            elements_registry,
+            floor_plan,
+            all_elements,
+            elements_by_id,
+            global_vars,
+            container_vars,
+            anchor,
+            color,
         )
+
+        return cls(child_elements=children, anchor_point=anchor, color=color, label=label)
