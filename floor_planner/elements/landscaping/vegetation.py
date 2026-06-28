@@ -13,6 +13,7 @@ from ...utils import rotate_point, render_label_and_id, _render_text
 from ..element import Element, RectangularElement, SurfaceElement, CircularElement
 from ...options import get_show_species, get_show_bloom
 from ..vertical_levels import VertInfoLvl01, VertInfoLvl00
+from .species_db import resolve_species_params
 
 
 class VegetationElement:
@@ -286,10 +287,11 @@ class Tree(CircularVegetation):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            diameter: float = 4.0,
-            height: float = 10.0,
-            trunk_diameter: float = 0.3,
-            color: str = '#228B22',
+            diameter: float | None = None,
+            height: float | None = None,
+            trunk_diameter: float | None = None,
+            color: str | None = None,
+            trunk_color: str | None = None,
             label: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
@@ -299,20 +301,26 @@ class Tree(CircularVegetation):
         """
         Initialize a Tree instance.
 
+        When *species* is given, any parameter left as ``None`` is looked up
+        in the species database and filled in automatically.  Explicit values
+        always override the species defaults.
+
         :param anchor_point:
             coordinates of anchor point (center of tree canopy)
         :param diameter:
-            canopy diameter in meters
+            canopy diameter in meters (species default or 4.0)
         :param height:
-            tree height in meters (for label/info)
+            tree height in meters (species default or 10.0)
         :param trunk_diameter:
-            trunk diameter in meters
+            trunk diameter in meters (species default or 0.3)
         :param color:
-            color for the canopy
+            color for the canopy (species default or '#228B22')
+        :param trunk_color:
+            trunk fill color (species default or '#654321')
         :param label:
             optional label for the tree
         :param species:
-            optional species name
+            optional species name; drives automatic parameter defaults
         :param bloom_season_start:
             optional bloom start date in dd.mm format
         :param bloom_season_end:
@@ -320,13 +328,33 @@ class Tree(CircularVegetation):
         :param bloom_color:
             optional bloom color (used during bloom season)
         """
+        resolved = resolve_species_params(
+            species,
+            diameter=diameter,
+            height=height,
+            trunk_diameter=trunk_diameter,
+            color=color,
+            trunk_color=trunk_color,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color,
+        )
+        diameter           = resolved['diameter']           if resolved['diameter']           is not None else 4.0
+        height             = resolved['height']             if resolved['height']             is not None else 10.0
+        trunk_diameter     = resolved['trunk_diameter']     if resolved['trunk_diameter']     is not None else 0.3
+        color              = resolved['color']              if resolved['color']              is not None else '#228B22'
+        trunk_color        = resolved['trunk_color']        if resolved['trunk_color']        is not None else '#654321'
+        bloom_season_start = resolved['bloom_season_start']
+        bloom_season_end   = resolved['bloom_season_end']
+        bloom_color        = resolved['bloom_color']
+
         super().__init__(
             anchor_point=anchor_point,
             diameter=diameter,
             height=height,
             vegetation_type='Tree',
             trunk_diameter=trunk_diameter,
-            trunk_color='#654321',
+            trunk_color=trunk_color,
             color=color,
             label=label,
             species=species,
@@ -347,9 +375,9 @@ class Shrub(CircularVegetation):
     def __init__(
             self,
             anchor_point: tuple[float, float],
-            diameter: float = 1.0,
-            height: float = 1.5,
-            color: str = '#90EE90',
+            diameter: float | None = None,
+            height: float | None = None,
+            color: str | None = None,
             label: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
@@ -359,18 +387,22 @@ class Shrub(CircularVegetation):
         """
         Initialize a Shrub instance.
 
+        When *species* is given, any parameter left as ``None`` is looked up
+        in the species database and filled in automatically.  Explicit values
+        always override the species defaults.
+
         :param anchor_point:
             coordinates of anchor point (center of shrub)
         :param diameter:
-            shrub diameter in meters
+            shrub diameter in meters (species default or 1.0)
         :param height:
-            shrub height in meters (for label/info)
+            shrub height in meters (species default or 1.5)
         :param color:
-            color for the shrub
+            color for the shrub (species default or '#90EE90')
         :param label:
             optional label for the shrub
         :param species:
-            optional species name
+            optional species name; drives automatic parameter defaults
         :param bloom_season_start:
             optional bloom start date in dd.mm format
         :param bloom_season_end:
@@ -378,6 +410,22 @@ class Shrub(CircularVegetation):
         :param bloom_color:
             optional bloom color (used during bloom season)
         """
+        resolved = resolve_species_params(
+            species,
+            diameter=diameter,
+            height=height,
+            color=color,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color,
+        )
+        diameter           = resolved['diameter'] if resolved['diameter'] is not None else 1.0
+        height             = resolved['height']   if resolved['height']   is not None else 1.5
+        color              = resolved['color']     if resolved['color']    is not None else '#90EE90'
+        bloom_season_start = resolved['bloom_season_start']
+        bloom_season_end   = resolved['bloom_season_end']
+        bloom_color        = resolved['bloom_color']
+
         super().__init__(
             anchor_point=anchor_point,
             diameter=diameter,
@@ -405,7 +453,7 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             length: float | None = None,
             thickness: float | None = None,
             height: float | None = None,
-            color: str = '#556B2F',
+            color: str | None = None,
             orientation_angle: float = 0,
             label: str | None = None,
             species: str | None = None,
@@ -416,6 +464,10 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
         """
         Initialize a Hedge instance.
 
+        When *species* is given, any parameter left as ``None`` is looked up
+        in the species database and filled in automatically.  Explicit values
+        always override the species defaults.
+
         :param anchor_point:
             coordinates of anchor point (bottom-left corner)
         :param length:
@@ -423,15 +475,15 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
         :param thickness:
             hedge thickness (perpendicular depth) in meters
         :param height:
-            hedge height in meters (for label/info)
+            hedge height in meters (species default or class default)
         :param color:
-            color for the hedge
+            color for the hedge (species default or '#556B2F')
         :param orientation_angle:
             rotation angle in degrees
         :param label:
             optional label for the hedge
         :param species:
-            optional species name
+            optional species name; drives automatic parameter defaults
         :param bloom_season_start:
             optional bloom start date in dd.mm format
         :param bloom_season_end:
@@ -439,6 +491,20 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
         :param bloom_color:
             optional bloom color (used during bloom season)
         """
+        resolved = resolve_species_params(
+            species,
+            height=height,
+            color=color,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color,
+        )
+        height             = resolved['height']
+        color              = resolved['color']              if resolved['color']    is not None else '#556B2F'
+        bloom_season_start = resolved['bloom_season_start']
+        bloom_season_end   = resolved['bloom_season_end']
+        bloom_color        = resolved['bloom_color']
+
         RectangularElement.__init__(
             self,
             anchor_point=anchor_point,

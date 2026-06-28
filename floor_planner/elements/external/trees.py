@@ -7,6 +7,7 @@ from matplotlib.axes import Axes
 
 from floor_planner.elements.external_models import ExternalModelElement
 from floor_planner.elements.landscaping import CircularVegetation2D
+from floor_planner.elements.landscaping.species_db import resolve_species_params
 from floor_planner.elements.vertical_levels import VertInfoLvl01
 
 
@@ -18,11 +19,11 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
     def __init__(
         self,
         anchor_point: tuple[float, float],
-        diameter: float = 4.0,
-        height: float = 10.0,
-        trunk_diameter: float = 0.3,
-        color: str = '#228B22',
-        trunk_color: str = '#654321',
+        diameter: float | None = None,
+        height: float | None = None,
+        trunk_diameter: float | None = None,
+        color: str | None = None,
+        trunk_color: str | None = None,
         label: str | None = None,
         species: str | None = None,
         bloom_season_start: str | None = None,
@@ -31,6 +32,26 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
         texture_scale: float | None = None,
         **kwargs
     ):
+        resolved = resolve_species_params(
+            species,
+            diameter=diameter,
+            height=height,
+            trunk_diameter=trunk_diameter,
+            color=color,
+            trunk_color=trunk_color,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color,
+        )
+        diameter           = resolved['diameter']           if resolved['diameter']           is not None else 4.0
+        height             = resolved['height']             if resolved['height']             is not None else 10.0
+        trunk_diameter     = resolved['trunk_diameter']     if resolved['trunk_diameter']     is not None else 0.3
+        color              = resolved['color']              if resolved['color']              is not None else '#228B22'
+        trunk_color        = resolved['trunk_color']        if resolved['trunk_color']        is not None else '#654321'
+        bloom_season_start = resolved['bloom_season_start']
+        bloom_season_end   = resolved['bloom_season_end']
+        bloom_color        = resolved['bloom_color']
+
         super().__init__(
             anchor_point=anchor_point,
             color=color,
@@ -91,9 +112,9 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
     def __init__(
         self,
         anchor_point: tuple[float, float],
-        diameter: float = 2.0,
-        height: float = 2.0,
-        color: str = '#228B22',
+        diameter: float | None = None,
+        height: float | None = None,
+        color: str | None = None,
         label: str | None = None,
         species: str | None = None,
         bloom_season_start: str | None = None,
@@ -102,6 +123,22 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
         texture_scale: float | None = None,
         **kwargs
     ):
+        resolved = resolve_species_params(
+            species,
+            diameter=diameter,
+            height=height,
+            color=color,
+            bloom_season_start=bloom_season_start,
+            bloom_season_end=bloom_season_end,
+            bloom_color=bloom_color,
+        )
+        diameter           = resolved['diameter'] if resolved['diameter'] is not None else 2.0
+        height             = resolved['height']   if resolved['height']   is not None else 2.0
+        color              = resolved['color']     if resolved['color']    is not None else '#228B22'
+        bloom_season_start = resolved['bloom_season_start']
+        bloom_season_end   = resolved['bloom_season_end']
+        bloom_color        = resolved['bloom_color']
+
         super().__init__(
             anchor_point=anchor_point,
             color=color,
@@ -128,9 +165,6 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
         
         scale_h = diameter / self._default_width()
         scale_v = height / self._default_height()
-        #for test
-        #scale_h = 1
-        #scale_v = 1
 
         self.secondary_normalization = {
                 'scale':       [scale_h, scale_v, scale_h],
