@@ -5,6 +5,9 @@ Author: Krzysztof Bartczak
 
 import re
 
+# Matches {variable_name} references used inside string parameter values.
+_BRACE_REF_RE = re.compile(r'\{(\w+)\}')
+
 def validate_constants(constants_dict: dict, scope_name: str = "global") -> None:
     """
     Deprecated: Constants validation is no longer needed.
@@ -26,43 +29,55 @@ def resolve_constants(value, constants_dict: dict):
     - Direct constant references: "wall_thickness"
     - Arithmetic expressions: "wall_length + 0.5"
     - Expressions with multiple constants: "room1_x + wall_thickness * 2"
+    - String-valued variables: if a variable holds a string it is returned
+      as-is when directly referenced.  String variables are intentionally
+      *not* substituted inside arithmetic expressions; use the ``{var}``
+      syntax (see :func:`resolve_string_param`) for string fields.
+
+    When a value cannot be evaluated as an arithmetic expression (after all
+    numeric variable substitutions) it is returned unchanged as a string,
+    allowing string literals to flow through without raising an error.
 
     :param value:
         the value to resolve (can be a string reference, number, list, or dict)
     :param constants_dict:
-        dictionary of available constants
+        dictionary of available constants (may contain both numeric and string
+        values)
     :return:
-        resolved value
+        resolved value — float for numeric expressions, str for string
+        literals/variables, list/dict with recursively resolved elements
     """
     if isinstance(value, str):
-        # Check if it's a direct constant reference (no operators)
+        # Direct reference to a known variable
         if value in constants_dict:
-            return float(constants_dict[value])
+            var_val = constants_dict[value]
+            if isinstance(var_val, str):
+                return var_val          # string variable: return as-is
+            return float(var_val)
 
-        # Otherwise, treat as arithmetic expression
-        # Replace constant names with their values
+        # Arithmetic expression: substitute only numeric (non-string) variables
         expression = value
 
-        # Sort constants by length (descending) to avoid partial replacements
-        # e.g., replace 'wall_thickness' before 'wall' to avoid issues
+        # Sort by length descending to avoid partial name replacements
         sorted_constants = sorted(constants_dict.keys(), key=len, reverse=True)
 
         for const_name in sorted_constants:
-            # Use word boundaries to match whole constant names
+            const_val = constants_dict[const_name]
+            if isinstance(const_val, str):
+                continue            # skip string-valued vars in arithmetic
             pattern = r'\b' + re.escape(const_name) + r'\b'
-            expression = re.sub(pattern, str(constants_dict[const_name]), expression)
+            expression = re.sub(pattern, str(const_val), expression)
 
         # Safely evaluate the expression
         try:
-            # Use eval with restricted namespace for safety
-            # Only allow basic math operations
             result = eval(expression, {"__builtins__": {}}, {})
-            return float(result)
-        except (SyntaxError, NameError, TypeError) as e:
-            raise ValueError(
-                f"Invalid expression: '{value}'. "
-                f"After constant substitution: '{expression}'. Error: {e}"
-            )
+            try:
+                return float(result)
+            except (TypeError, ValueError):
+                return result           # result is already a non-numeric value
+        except (SyntaxError, NameError, TypeError):
+            # Cannot evaluate as arithmetic — treat as a string literal
+            return value
     elif isinstance(value, list):
         # Recursively resolve list elements
         return [resolve_constants(item, constants_dict) for item in value]
@@ -77,43 +92,159 @@ def resolve_constants(value, constants_dict: dict):
         return value
 
 
+def resolve_string_param(value, vars_dict: dict) -> str:
+    """
+    Resolve ``{variable_name}`` references inside a string parameter value.
+
+    This is the counterpart to :func:`resolve_constants` for parameters that
+    are expected to hold string values (e.g. ``species``, ``color``,
+    ``bloom_color``).  It recognises two forms of the ``{var}`` brace syntax:
+
+    **YAML flow-mapping form** (preferred, no extra quoting needed)::
+
+        species: {gat_1}       # YAML parses as dict {'gat_1': None}
+
+    **Quoted string form** (also accepted)::
+
+        species: "{gat_1}"    # YAML parses as the string '{gat_1}'
+
+    In both cases the value of the variable ``gat_1`` is substituted.  The
+    string form also supports partial and multiple substitutions::
+
+        label: "shrub ({gat_1}) h={height}"
+
+    Values without any ``{…}`` references are returned unchanged.
+
+    YAML vars example::
+
+        vars:
+          gat_1:       "Heptakodium"
+          bloom_clr_1: "pink"
+        elements:
+          - type: model_leafy_shrub_1
+            species:     {gat_1}       # → "Heptakodium"
+            bloom_color: {bloom_clr_1} # → "pink"
+
+    :param value:
+        raw value from YAML — either a ``str`` with ``{var}`` tokens or a
+        single-key dict ``{var_name: None}`` produced by YAML flow-mapping
+        parsing
+    :param vars_dict:
+        merged variable dictionary (global + container vars)
+    :return:
+        resolved string
+    :raises ValueError:
+        if a referenced variable name is not found in *vars_dict*
+    """
+    # YAML interprets bare {var_name} as a flow mapping → dict {var_name: None}
+    if isinstance(value, dict) and len(value) == 1:
+        (var_name, var_val) = next(iter(value.items()))
+        if var_val is None:
+            # Written as {var_name} in YAML without quoting
+            if var_name not in vars_dict:
+                raise ValueError(
+                    f"Unknown variable '{var_name}' in string reference '{{{{var_name}}}}'"
+                )
+            return str(vars_dict[var_name])
+
+    if not isinstance(value, str):
+        return value
+
+    if not _BRACE_REF_RE.search(value):
+        return value        # nothing to substitute
+
+    # Pure single reference: "{var_name}" → return raw variable value
+    full_match = re.fullmatch(r'\s*\{(\w+)\}\s*', value)
+    if full_match:
+        var_name = full_match.group(1)
+        if var_name not in vars_dict:
+            raise ValueError(
+                f"Unknown variable '{var_name}' in string reference '{value}'"
+            )
+        return str(vars_dict[var_name])
+
+    # Partial / multiple references: substitute each {var_name} in place
+    def _replace(m: re.Match) -> str:
+        var_name = m.group(1)
+        if var_name not in vars_dict:
+            raise ValueError(
+                f"Unknown variable '{var_name}' in string value '{value}'"
+            )
+        return str(vars_dict[var_name])
+
+    return _BRACE_REF_RE.sub(_replace, value)
+
+
 def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = None) -> dict:
     """
     Resolve variable references in element parameters.
+
+    Handles two kinds of resolution:
+
+    * **Numeric fields** (``anchor_point``, ``length``, ``size``, …) — passed
+      through :func:`resolve_constants`, which evaluates arithmetic expressions
+      built from numeric variables.
+    * **String fields** (``species``, ``color``, ``bloom_color``, …) — passed
+      through :func:`resolve_string_param`, which substitutes ``{var_name}``
+      references with the variable's string value.
 
     :param params:
         element parameters dictionary
     :param global_vars:
         global variables dictionary
     :param room_vars:
-        room-scoped variables dictionary (optional)
+        room/container-scoped variables dictionary (optional; overrides global)
     :return:
-        params with vars resolved
+        params dict with all resolvable references substituted
     """
-    # Merge vars: room-scoped override global
+    # Merge vars: container-scoped override global
     merged_values = {**global_vars}
     if room_vars:
         merged_values.update(room_vars)
 
-    # Resolve specific fields that can use constants/vars
-    fields_to_resolve = ['anchor_point',
-                            'thickness', 
-                            'length',
-                            'doorway_width', 
-                            'door_width',
-                            'overall_thickness',
-                            'first_point',
-                            'second_point',
-                            'radius',
-                            'width',
-                            'size',
-                            'height',
-                            'v_anchor',
-                            ]
+    # Numeric fields: evaluate arithmetic expressions
+    fields_to_resolve = [
+        'anchor_point',
+        'thickness',
+        'length',
+        'doorway_width',
+        'door_width',
+        'overall_thickness',
+        'first_point',
+        'second_point',
+        'radius',
+        'width',
+        'size',
+        'height',
+        'v_anchor',
+        'diameter',
+        'orientation_angle',
+    ]
 
     for field in fields_to_resolve:
         if field in params:
             params[field] = resolve_constants(params[field], merged_values)
+
+    # String fields: resolve {variable_name} references
+    string_fields = [
+        'species',
+        'color',
+        'trunk_color',
+        'bloom_color',
+        'bloom_season_start',
+        'bloom_season_end',
+        'label',
+        'material',
+        'textures',
+    ]
+
+    for field in string_fields:
+        if field in params:
+            # Apply to str values AND to dict values (YAML parses bare {var}
+            # as a flow-mapping dict — resolve_string_param handles both)
+            val = params[field]
+            if isinstance(val, (str, dict)):
+                params[field] = resolve_string_param(val, merged_values)
 
     return params
 
