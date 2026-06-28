@@ -119,13 +119,13 @@ SPECIES_DB: dict[str, dict] = {
         "bloom_color": "#FFCDD2",
     },
     # ---- Shrubs ----
-    "heptakodium": {
+    "Heptakodium": {
         "height": 3.3,
         "diameter": 2.0,
         "color": "#6B9E4E",
         "bloom_season_start": "01.08",
         "bloom_season_end": "31.08",
-        "bloom_color": "white",
+        "bloom_color": "pink",
     },
     "Jagoda Kamczacka": {
         "height": 1.0,
