@@ -11,7 +11,9 @@ Comprehensive parameter documentation for all non-landscaping elements in the fl
 6. [Multipurpose/Shapes](#multipurposeshapes)
 7. [Rooms](#rooms)
 8. [Room Surfaces (Floor & Ceiling)](#room-surfaces-floor--ceiling)
-9. [Furniture - Storage](#furniture---storage)
+9. [Groups](#groups)
+10. [Group Templates](#group-templates)
+11. [Furniture - Storage](#furniture---storage)
 10. [Furniture - Beds](#furniture---beds)
 11. [Furniture - Appliances](#furniture---appliances)
 12. [Furniture - Bathroom](#furniture---bathroom)
@@ -294,6 +296,152 @@ Room ceiling plane. Spans the full interior of the room at ceiling level.
 ```
 
 **Note:** A room may contain both a `floor` and a `ceiling` entry simultaneously.
+
+---
+
+## Groups
+
+### Group
+
+A lightweight container that positions child elements relative to a shared `anchor_point`.  Unlike `Room`, a `Group` has no structural requirements — it does not need walls and imposes no validation on its contents.  Groups can be nested recursively: a child element of type `group` (or `room`) is fully resolved before it is added to the parent.
+
+**YAML type:** `group`
+
+**Parameters:**
+- `anchor_point`: tuple[float, float] = (0, 0) — origin for all child coordinates; child `anchor_point` values are expressed relative to this point
+- `color`: str = 'black' — default wall color inherited by child walls that have no explicit `color`
+- `label`: str | None = None — optional informational label
+- `vars`: dict = {} — scoped variables; evaluated after global vars; can reference global vars and previously defined group vars using arithmetic expressions
+- `elements`: list — child element definitions; each must have a `type` key
+- `from_template`: str | None = None — name of a template from `group_templates`; see [Group Templates](#group-templates)
+
+**Merge rules when `from_template` is used:**
+- template `vars` supply defaults; instance `vars` override them
+- template `elements` come first; instance `elements` are appended after
+- `anchor_point`, `color`, `label` from the instance override the template
+
+**Example — standalone group:**
+```yaml
+- type: group
+  label: "bathroom"
+  anchor_point: [5, 2]
+  vars:
+    w: 2.5
+    h: 2.0
+    t: 0.15
+  elements:
+    - type: wall
+      anchor_point: [0, 0]
+      length: w
+      thickness: t
+      orientation_angle: 0
+      color: black
+    # ... more elements
+```
+
+**Example — nested groups:**
+```yaml
+- type: group
+  label: "apartment"
+  anchor_point: [0, 0]
+  elements:
+    - type: group
+      label: "kitchen corner"
+      anchor_point: [3, 0]   # relative to parent anchor
+      elements:
+        - type: text_box
+          anchor_point: [0, 0]
+          lines: ["kitchen"]
+          font_size: 10
+          color: gray
+          edgecolor: none
+```
+
+**Note:** `Group` itself draws nothing — only its children are rendered. A `group` can contain a `room` as a child.
+
+---
+
+## Group Templates
+
+Group templates are reusable group blueprints defined in the top-level `group_templates` section of a YAML config.  They are **never instantiated directly** — they only exist to be referenced by group instances via `from_template`.
+
+### Defining templates
+
+Templates live under the top-level `group_templates` key, each identified by a name:
+
+```yaml
+group_templates:
+
+  small_office:
+    vars:
+      room_w: 3.5
+      room_h: 2.8
+      wall_t: 0.15
+      window_w: 1.2
+    elements:
+      - type: wall
+        anchor_point: [0, 0]
+        length: room_w
+        thickness: wall_t
+        orientation_angle: 0
+        color: black
+      # ... remaining walls, windows, doors
+```
+
+Templates support the same keys as a `group` (`vars`, `elements`, `anchor_point`, `color`, `label`).  A template **must not** contain `from_template` itself — template composition is not supported.
+
+### Using a template
+
+Reference a template with `from_template` in any `group` or `room` element:
+
+```yaml
+- type: group
+  from_template: small_office      # inherit vars and elements
+  anchor_point: [0, 0]             # overrides template anchor_point (if any)
+  vars:
+    room_w: 5                      # override one template var
+    wall_t: 0.2                    # override another
+  elements:
+    - type: text_box               # APPENDED after template elements
+      anchor_point: [0.3, 0.3]
+      lines: ["office A"]
+      font_size: 9
+      color: gray
+      edgecolor: none
+```
+
+**Merge rules (summary):**
+
+| Key | Result |
+|-----|--------|
+| `vars` | template values are defaults; instance values override |
+| `elements` | template list first, instance list appended |
+| `anchor_point`, `color`, `label` | instance wins if present, else template |
+
+**Multiple instances from the same template:**
+
+```yaml
+group_templates:
+  bedroom:
+    vars: {w: 3, h: 3.5, t: 0.15}
+    elements: [ ... ]
+
+floor_plans:
+  - elements:
+      - type: group
+        from_template: bedroom
+        anchor_point: [0, 0]
+        label: "bedroom 1"
+
+      - type: group
+        from_template: bedroom
+        anchor_point: [4, 0]
+        label: "bedroom 2"
+        vars:
+          w: 4          # wider variant
+```
+
+**Note:** Templates are registered once per config load and are available to all nested groups in all floor plans of that config file.
 
 ---
 
@@ -718,9 +866,11 @@ Fish tank / aquarium.
 - Common values: 'black', 'grey', 'brown', 'blue', 'darkgray', 'darkslateblue'
 - Also supports hex colors (e.g., '#FF5733') and RGB tuples
 
-### Room Integration
-- Many elements have `room_id` property (set automatically when part of a room)
-- Elements inside rooms have their `anchor_point` relative to the room's anchor
+### Container Integration
+- `Room` and `Group` are containers; child `anchor_point` values are relative to the container's own `anchor_point`
+- `Room` validates that exactly 4 child walls have `room_edge=True` forming an axis-aligned rectangle; `Group` has no such requirement
+- Containers can be nested: a `group` or `room` may contain another `group` or `room` as a child element
+- `room_id` is set automatically on walls owned by a `Room`
 
 ### Visibility
 - Elements inherit visibility settings from global options

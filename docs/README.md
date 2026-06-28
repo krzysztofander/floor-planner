@@ -12,7 +12,7 @@ This directory contains documentation for developers and users of the Floor Plan
 ### 3D Export System
 - **[Texture and Material System](texture-material-system.md)** - Complete architecture documentation
 - **[Naming Convention](NAMING_CONVENTION.md)** - Registry-based naming rules
-- **[Element Parameters Reference](element-parameters-reference.md)** - All element parameters
+- **[Element Parameters Reference](element-parameters-reference.md)** - All element parameters, including [Groups](element-parameters-reference.md#groups) and [Group Templates](element-parameters-reference.md#group-templates)
 
 ### Feature Documentation
 - [Landscaping Elements](features/landscaping-elements.md) - Trees, shrubs, fences, ponds (Completed)

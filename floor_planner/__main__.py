@@ -19,22 +19,33 @@ from floor_planner.project import Project
 from floor_planner.markdown_report import generate_elements_report
 from floor_planner.variables import validate_constants, resolve_constants, resolve_element_params
 
-def load_reusable_elements(reusable_elements_config: dict, config_dir: Path) -> dict:
+def load_reusable_elements(reusable_elements_config: dict, config_dir: Path) -> tuple[dict, dict]:
     """
     Load reusable elements from configuration, including external files.
 
+    Each entry in *reusable_elements_config* can be:
+
+    * a **string** — path to an external YAML file.  The file may be either:
+      - a plain **list** of element definitions (original format), or
+      - a **dict** with optional keys ``group_templates`` (a dict of template
+        definitions) and ``elements`` (a list of element definitions).
+    * a **list** — inline element definitions (original format).
+
     :param reusable_elements_config:
-        reusable_elements section from main config, can contain inline definitions
-        or file references (string values pointing to external YAML files)
+        reusable_elements section from main config
     :param config_dir:
         directory containing the main config file (for resolving relative paths)
     :return:
-        dictionary of reusable element sets with all external files loaded
+        tuple (elements_dict, extra_templates_dict) where
+        *elements_dict* maps set names to their element lists and
+        *extra_templates_dict* collects any ``group_templates`` sections found
+        inside the loaded files (ready to be merged into the global template registry)
     """
     if not reusable_elements_config:
-        return {}
+        return {}, {}
 
     loaded_elements = {}
+    extra_templates: dict = {}
 
     for set_name, content in reusable_elements_config.items():
         if isinstance(content, str):
@@ -49,14 +60,28 @@ def load_reusable_elements(reusable_elements_config: dict, config_dir: Path) -> 
             with open(file_path) as ext_file:
                 external_content = yaml.load(ext_file, Loader=yaml.FullLoader)
 
-            # The external file should contain a list of element definitions
-            if not isinstance(external_content, list):
+            if isinstance(external_content, list):
+                # Original plain-list format
+                loaded_elements[set_name] = external_content
+            elif isinstance(external_content, dict):
+                # Extended dict format: optional 'group_templates' + 'elements'
+                file_templates = external_content.get('group_templates', {})
+                if file_templates:
+                    extra_templates.update(file_templates)
+                element_list = external_content.get('elements', [])
+                if not isinstance(element_list, list):
+                    raise ValueError(
+                        f"'elements' key in '{content}' must be a list, "
+                        f"got {type(element_list).__name__}"
+                    )
+                loaded_elements[set_name] = element_list
+            else:
                 raise ValueError(
-                    f"External reusable elements file '{content}' must contain a list of elements, "
+                    f"External reusable elements file '{content}' must contain a list "
+                    f"or a dict with 'elements'/'group_templates' keys, "
                     f"got {type(external_content).__name__}"
                 )
 
-            loaded_elements[set_name] = external_content
         elif isinstance(content, list):
             # It's an inline definition - use as-is
             loaded_elements[set_name] = content
@@ -66,7 +91,7 @@ def load_reusable_elements(reusable_elements_config: dict, config_dir: Path) -> 
                 f"or a string (file path), got {type(content).__name__}"
             )
 
-    return loaded_elements
+    return loaded_elements, extra_templates
 
 
 def _write_camera_json(
@@ -216,14 +241,21 @@ def main() -> None:
 
     elements_registry = elements.create_elements_registry()
 
-    # Load and register group templates (raw dicts, not instantiated)
-    elements.Group.register_templates(settings.get('group_templates', {}))
+    # Load and register group templates (raw dicts, not instantiated).
+    # Templates from the main config come first; templates found inside
+    # reusable element files are merged in afterwards (file templates win on
+    # name collision so that a dedicated file can override a global default).
+    config_templates = settings.get('group_templates', {})
 
-    # Load reusable elements (including external files)
-    reusable_elements = load_reusable_elements(
+    # Load reusable elements (including external files).
+    # Also collects any group_templates sections embedded in those files.
+    reusable_elements, file_templates = load_reusable_elements(
         settings.get('reusable_elements', {}),
         config_dir
     )
+
+    # Merge: config-level templates first, file-level templates override
+    elements.Group.register_templates({**config_templates, **file_templates})
 
     # Track all elements for report
     all_elements = []
