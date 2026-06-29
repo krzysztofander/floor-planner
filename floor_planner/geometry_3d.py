@@ -603,24 +603,31 @@ class HippedRoofOctantGeometry3D(Generate3DMixin):
                list[tuple[int, int, int]],
                dict[str, list[int]]]:
 
-        x  = self.x_axis_size   # lateral offset from midpoint to corner
-        z  = self.z_axis_size   # depth from apex to eave
-        y0 = self.v_anchor
-        y1 = self.v_anchor + self.height
+        x   = self.x_axis_size   # lateral offset from midpoint to corner
+        z   = self.z_axis_size   # depth from apex to eave
+        ext = getattr(self, 'extension', 0) or 0
+        y0  = self.v_anchor
+        y1  = self.v_anchor + self.height
         ax0, az0 = self.anchor_point
         angle_rad = math.radians(self.orientation_angle)
+
+        # Slope preserving: eave drops by (extension × slope_rate) below v_anchor
+        slope_rate = self.height / z if z else 0
+        y_eave = y0 - ext * slope_rate
+        z_eave = z + ext   # plan depth of the (optionally extended) eave
 
         def w(lx, lz):
             return rotate_point((ax0, az0), lx, lz, angle_rad)
 
-        tip    = w(0,                                    0)  # apex plan projection
-        mid    = w(0,                                    z)  # edge midpoint
-        corner = w(-x if self._octant_left else x,       z)  # adjacent corner
+        tip    = w(0,                                         0)       # apex plan projection
+        mid    = w(0,                                         z_eave)  # eave midpoint (on main axis)
+        corner = w(-(x + ext) if self._octant_left else x + ext,
+                                                         z_eave)  # eave corner (diagonal move)
 
         vertices = [
-            (tip[0],    y1, tip[1]),     # v0 — apex    (high)
-            (mid[0],    y0, mid[1]),     # v1 — midpoint (low)
-            (corner[0], y0, corner[1]),  # v2 — corner  (low)
+            (tip[0],    y1,     tip[1]),     # v0 — apex    (high)
+            (mid[0],    y_eave, mid[1]),     # v1 — midpoint (low)
+            (corner[0], y_eave, corner[1]),  # v2 — corner  (low)
         ]
 
         # Winding chosen so the outward normal points upward and away from the

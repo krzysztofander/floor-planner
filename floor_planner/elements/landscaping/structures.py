@@ -1043,7 +1043,35 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
     Combine 4 right + 4 left at 0°/90°/180°/270° to form a complete pyramid.
 
     YAML types: ``hipped_roof_octant_left``, ``hipped_roof_octant_right``
+
+    Extra YAML parameter:
+        extension  – extend the eave outward from the apex, preserving slope
+                     angle (horizontal metres, default 0)
     """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#8B4513',
+            label: str | None = None,
+            extension: float = 0,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            size=size,
+            height=height,
+            v_anchor=v_anchor,
+            orientation_angle=orientation_angle,
+            color=color,
+            label=label,
+            **kwargs,
+        )
+        self.extension = extension or 0
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the right-triangle footprint with its apex at anchor_point."""
@@ -1059,8 +1087,8 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
             return rotate_point(self.anchor_point, lx, lz, angle_rad)
 
         tip    = self.anchor_point
-        mid    = w(0,                                       z)  # edge midpoint
-        corner = w(-x if self._octant_left else x,          z)  # base corner
+        mid    = w(0,                                   z)  # edge midpoint
+        corner = w(-x if self._octant_left else x,      z)  # base corner
 
         triangle = Polygon(
             [tip, mid, corner],
@@ -1072,6 +1100,17 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
         )
         triangle.set_zorder(self.get_zorder())
         ax.add_patch(triangle)
+
+        # Dotted line showing the extended eave edge (slope-preserving overhang)
+        # Corner moves diagonally (x+ext, z+ext) so adjacent octants stay sealed.
+        if self.extension > 0:
+            z_ext = z + self.extension
+            x_ext = x + self.extension
+            p0 = w(0,                                    z_ext)
+            p1 = w(-x_ext if self._octant_left else x_ext, z_ext)
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                    color=draw_color, linewidth=0.8, linestyle=':',
+                    zorder=self.get_zorder())
 
         if self.label:
             cx = (tip[0] + mid[0] + corner[0]) / 3

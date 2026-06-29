@@ -253,3 +253,79 @@ floor_plans:
         orientation_angle: 270
         color: '#8B4500'
         label: 'Varying heights'
+
+      # ── 10. Pyramid with uniform eave extension ───────────────────────────
+      # Same 8-octant pyramid but every octant has extension=0.8 so the eave
+      # overhang is visible as dotted lines beyond the original triangle base.
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 0
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.8
+        orientation_angle: 0
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.8
+        orientation_angle: 90
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 1.8
+        orientation_angle: 90
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 1.8
+        orientation_angle: 180
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 180
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 270
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 270
+        color: '#6A006A'
+        label: 'Octant + ext'
