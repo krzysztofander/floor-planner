@@ -135,6 +135,14 @@ SPECIES_DB: dict[str, dict] = {
         "bloom_season_end": "01.05",
         "bloom_color": "white",
     },
+    "Biała Forsycja" :{
+        "height": 1.1,
+        "diameter": 1.3,
+        "color": "#4A7C3F",
+        "bloom_season_start": "10.04",
+        "bloom_season_end": "20.05",
+        "bloom_color": "white",
+    },  
     "Kalina Waka": {
         "height": 2.0,
         "diameter": 1.8,
@@ -158,6 +166,14 @@ SPECIES_DB: dict[str, dict] = {
         "bloom_season_start": "01.06",
         "bloom_season_end": "01.07",
         "bloom_color": "red",
+    },
+    "Ligustr": {
+        "height": 1.6,
+        "diameter": 1.5,
+        "color": "#7B9E5A",
+        "bloom_season_start": "01.05",
+        "bloom_season_end": "31.05",
+        "bloom_color": "#EEE8F0",
     },
     "Lilak": {
         "height": 2.2,
