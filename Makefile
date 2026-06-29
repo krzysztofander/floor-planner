@@ -3,9 +3,9 @@ PYSRC = $(wildcard floor_planner/*.py)
 PYSRC += $(wildcard floor_planner/elements/*.py)
 PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
 
-.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests
+.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs
 
-all: room_templates group_templates elements furniture simple landscaping
+all: room_templates group_templates elements furniture simple landscaping roofs
 
 # ==========================================
 
@@ -94,6 +94,15 @@ $(LANDSCAPING_WATER_PNG): examples/landscaping/water_features_demo.yml $(PYSRC)
 	$(PYTHON) -m floor_planner -c $<
 
 $(LANDSCAPING_STRUCTURES_PNG): examples/landscaping/structures_demo.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+# ROOFS
+# -----
+ROOFS_PNG = examples/roofs/Roofs_Demo.png
+roofs: $(ROOFS_PNG)
+
+$(ROOFS_PNG): examples/roofs/roofs_demo.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

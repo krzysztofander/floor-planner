@@ -405,19 +405,18 @@ class GableRoofGeometry3D(Generate3DMixin):
     """
     3D geometry for a gable roof.
 
-    Two sloping rectangular faces meet at a ridge; the two short ends are solid
-    triangular gable walls.  No bottom face (open underneath).
+    Only the two sloping planes — no gable-end triangles.
+    Ridge runs along the longer plan dimension (or X when square).
 
-    Ridge runs along the longer plan dimension.  When both dimensions are equal
-    the ridge runs along X (x_axis_size direction).
+    Extensions (extension_a / extension_b) extend the slope planes beyond the
+    footprint while preserving the original slope angle: the eave height drops
+    below v_anchor by (extension × slope_rate).
 
     Uses element properties:
         - anchor_point (x, z) - bottom-left corner in 2D floor plan
-        - x_axis_size  - horizontal plan dimension (left/right)
-        - z_axis_size  - vertical plan dimension (up/down)
-        - orientation_angle
-        - v_anchor  - Y coordinate of the roof base (eaves)
-        - height    - ridge height above v_anchor
+        - x_axis_size, z_axis_size, orientation_angle
+        - v_anchor, height
+        - extension_a, extension_b  (optional, default 0)
     """
 
     def generate_vertices_and_indices(
@@ -425,7 +424,6 @@ class GableRoofGeometry3D(Generate3DMixin):
     ) -> tuple[list[tuple[float, float, float]],
                list[tuple[int, int, int]],
                dict[str, list[int]]]:
-        """Generate gable roof: 6 vertices, 6 triangles, no bottom."""
 
         x = self.x_axis_size
         z = self.z_axis_size
@@ -433,95 +431,208 @@ class GableRoofGeometry3D(Generate3DMixin):
         y1 = self.v_anchor + self.height
         ax0, az0 = self.anchor_point
         angle_rad = math.radians(self.orientation_angle)
+        ext_a = getattr(self, 'extension_a', 0) or 0
+        ext_b = getattr(self, 'extension_b', 0) or 0
 
         def w(lx, lz):
-            """Local plan coords → world (x, z) pair."""
             return rotate_point((ax0, az0), lx, lz, angle_rad)
 
-        # Four base (eave) corners
-        c0 = w(0, 0)
-        c1 = w(x, 0)
-        c2 = w(x, z)
-        c3 = w(0, z)
-
         if x >= z:
-            # Ridge runs along the X direction, at plan-z = z/2
-            r0 = w(0,   z / 2)   # left  ridge end
-            r1 = w(x,   z / 2)   # right ridge end
-        else:
-            # Ridge runs along the Z direction, at plan-x = x/2
-            r0 = w(x / 2, 0)     # front ridge end
-            r1 = w(x / 2, z)     # back  ridge end
+            # Ridge along X; slopes rise from z=0 and z=z toward z=z/2
+            slope_rate = self.height / (z / 2)  # height-drop per metre of horizontal extension
 
-        # Vertex list
-        # v0–v3: base corners (y = y0)
-        # v4:    near  ridge end (y = y1)
-        # v5:    far   ridge end (y = y1)
-        vertices = [
-            (c0[0], y0, c0[1]),   # v0
-            (c1[0], y0, c1[1]),   # v1
-            (c2[0], y0, c2[1]),   # v2
-            (c3[0], y0, c3[1]),   # v3
-            (r0[0], y1, r0[1]),   # v4
-            (r1[0], y1, r1[1]),   # v5
-        ]
+            y_a = y0 - ext_a * slope_rate   # front eave y (below y0 when extended)
+            y_b = y0 - ext_b * slope_rate   # back  eave y
 
-        if x >= z:
-            # Ridge along X  →  gable ends at plan-x = 0 (left) and plan-x = x (right)
-            #
-            #   v3 -------- v2          (base, back)
-            #   |    v4---v5  |  <-- ridge at y1
-            #   v0 -------- v1          (base, front)
-            #
-            # Front slope  (plan-z=0 face, outward normal toward –z_3d):
-            #   Quad v0–v1–v5–v4  →  (v0,v4,v5) + (v0,v5,v1)
-            # Back slope   (plan-z=z face, outward normal toward +z_3d):
-            #   Quad v3–v4–v5–v2  →  (v3,v2,v5) + (v3,v5,v4)  ← wait need to verify
-            # Left gable   (plan-x=0, outward normal toward –x):
-            #   Triangle v0–v3–v4
-            # Right gable  (plan-x=x, outward normal toward +x):
-            #   Triangle v1–v5–v2
+            c0e = w(0, -ext_a)     # front-left  eave (plan z = -ext_a)
+            c1e = w(x, -ext_a)     # front-right eave
+            c2e = w(x, z + ext_b)  # back-right  eave (plan z = z + ext_b)
+            c3e = w(0, z + ext_b)  # back-left   eave
+            r0  = w(0, z / 2)      # left  ridge end
+            r1  = w(x, z / 2)      # right ridge end
+
+            vertices = [
+                (c0e[0], y_a, c0e[1]),   # v0  front-left  eave
+                (c1e[0], y_a, c1e[1]),   # v1  front-right eave
+                (c2e[0], y_b, c2e[1]),   # v2  back-right  eave
+                (c3e[0], y_b, c3e[1]),   # v3  back-left   eave
+                (r0[0],  y1,  r0[1]),    # v4  left  ridge
+                (r1[0],  y1,  r1[1]),    # v5  right ridge
+            ]
             indices = [
                 (0, 4, 5), (0, 5, 1),   # front slope
-                (2, 5, 3), (3, 5, 4),   # back slope
-                (0, 3, 4),              # left gable
-                (1, 5, 2),              # right gable
+                (2, 5, 3), (3, 5, 4),   # back  slope
             ]
             face_groups = {
                 'front_slope': [0, 1],
                 'back_slope':  [2, 3],
-                'left_gable':  [4],
-                'right_gable': [5],
                 'slopes':      [0, 1, 2, 3],
-                'gables':      [4, 5],
-                'all':         [0, 1, 2, 3, 4, 5],
+                'all':         [0, 1, 2, 3],
             }
         else:
-            # Ridge along Z  →  gable ends at plan-z=0 (front) and plan-z=z (back)
-            #
-            #   v3 ---- v5(top) ---- v2   (back base + back ridge)
-            #   |                    |
-            #   v0 ---- v4(top) ---- v1   (front base + front ridge)
-            #
-            # Left slope   (plan-x=0 side):  v0–v3–v5–v4
-            # Right slope  (plan-x=x side):  v1–v4–v5–v2
-            # Front gable  (plan-z=0):       v0–v4–v1
-            # Back gable   (plan-z=z):       v3–v2–v5  (outward +z)
+            # Ridge along Z; slopes rise from x=0 and x=x toward x=x/2
+            slope_rate = self.height / (x / 2)
+
+            y_a = y0 - ext_a * slope_rate   # left  eave y
+            y_b = y0 - ext_b * slope_rate   # right eave y
+
+            c0e = w(-ext_a,    0)   # front-left  eave (plan x = -ext_a)
+            c1e = w(x + ext_b, 0)   # front-right eave
+            c2e = w(x + ext_b, z)   # back-right  eave
+            c3e = w(-ext_a,    z)   # back-left   eave
+            r0  = w(x / 2, 0)       # front ridge end
+            r1  = w(x / 2, z)       # back  ridge end
+
+            vertices = [
+                (c0e[0], y_a, c0e[1]),   # v0  front-left  eave
+                (c1e[0], y_b, c1e[1]),   # v1  front-right eave
+                (c2e[0], y_b, c2e[1]),   # v2  back-right  eave
+                (c3e[0], y_a, c3e[1]),   # v3  back-left   eave
+                (r0[0],  y1,  r0[1]),    # v4  front ridge
+                (r1[0],  y1,  r1[1]),    # v5  back  ridge
+            ]
             indices = [
-                (0, 3, 5), (0, 5, 4),   # left slope
+                (0, 3, 5), (0, 5, 4),   # left  slope
                 (1, 4, 5), (1, 5, 2),   # right slope
-                (0, 4, 1),              # front gable
-                (3, 2, 5),              # back gable
             ]
             face_groups = {
                 'left_slope':  [0, 1],
                 'right_slope': [2, 3],
-                'front_gable': [4],
-                'back_gable':  [5],
                 'slopes':      [0, 1, 2, 3],
-                'gables':      [4, 5],
-                'all':         [0, 1, 2, 3, 4, 5],
+                'all':         [0, 1, 2, 3],
             }
+
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
+        return vertices, indices, face_groups
+
+
+class SingleSlopeRoofGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a single-slope (mono-pitch / lean-to) roof.
+
+    One rectangular sloping plane only — no gable end caps.
+    The low eave runs along plan-z=0, the high eave along plan-z=z_axis_size.
+
+    ``extension`` extends the slope plane beyond the footprint in the downhill
+    direction while preserving the slope angle: the extended eave y-coordinate
+    drops below v_anchor by (extension × slope_rate).
+
+    Uses element properties:
+        - anchor_point, x_axis_size, z_axis_size, orientation_angle
+        - v_anchor, height
+        - extension  (optional, default 0)
+    """
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+
+        x  = self.x_axis_size
+        z  = self.z_axis_size
+        y1 = self.v_anchor + self.height   # high eave
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+        ext = getattr(self, 'extension', 0) or 0
+
+        # Slope rate: height drop per metre of horizontal extension
+        slope_rate = self.height / z if z else 0
+        y_low = self.v_anchor - ext * slope_rate   # extended low eave y
+
+        def w(lx, lz):
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        le0 = w(0, -ext)   # low-left  (extended in plan)
+        le1 = w(x, -ext)   # low-right (extended in plan)
+        he0 = w(0, z)      # high-left
+        he1 = w(x, z)      # high-right
+
+        vertices = [
+            (le0[0], y_low, le0[1]),   # v0 low-left
+            (le1[0], y_low, le1[1]),   # v1 low-right
+            (he1[0], y1,    he1[1]),   # v2 high-right
+            (he0[0], y1,    he0[1]),   # v3 high-left
+        ]
+
+        indices = [
+            (0, 2, 1),   # slope tri 1
+            (0, 3, 2),   # slope tri 2
+        ]
+        face_groups = {
+            'slope': [0, 1],
+            'all':   [0, 1],
+        }
+
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
+        return vertices, indices, face_groups
+
+
+class HippedRoofOctantGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a true 1/8th pyramid octant.
+
+    A pyramid cut along all 4 axes of symmetry (2 cardinal + 2 diagonal) yields
+    8 equal right-triangle pieces — octants.  Each is a triangular slope whose
+    base edge runs from an edge-midpoint to the adjacent base corner.
+
+    Local layout (orientation_angle=0, pointing in +z direction):
+
+        apex (0, 0)  ← anchor_point / rotation pivot (high: v_anchor+height)
+            |
+            |  z_axis_size
+            |
+        midpoint (0, z)          eave midpoint (on main axis)
+
+    Right variant (_octant_left=False):  corner at (+x_axis_size, z_axis_size)
+    Left  variant (_octant_left=True):   corner at (-x_axis_size, z_axis_size)
+
+    For a square pyramid with half-span d, use x_axis_size = z_axis_size = d.
+    Combine 4 right + 4 left at 0°/90°/180°/270° to form the full pyramid.
+
+    The 3D apex sits at (anchor_x, v_anchor+height, anchor_z); the two eave
+    vertices sit at v_anchor.  Both 2D and 3D rotation pivot is anchor_point.
+    """
+
+    # Set by subclass: True = corner is to the LEFT, False = to the RIGHT
+    _octant_left: bool = False
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+
+        x  = self.x_axis_size   # lateral offset from midpoint to corner
+        z  = self.z_axis_size   # depth from apex to eave
+        y0 = self.v_anchor
+        y1 = self.v_anchor + self.height
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        tip    = w(0,                                    0)  # apex plan projection
+        mid    = w(0,                                    z)  # edge midpoint
+        corner = w(-x if self._octant_left else x,       z)  # adjacent corner
+
+        vertices = [
+            (tip[0],    y1, tip[1]),     # v0 — apex    (high)
+            (mid[0],    y0, mid[1]),     # v1 — midpoint (low)
+            (corner[0], y0, corner[1]),  # v2 — corner  (low)
+        ]
+
+        # Winding chosen so the outward normal points upward and away from the
+        # pyramid interior.  Verified analytically:
+        #   Right: (v1−v0)×(v2−v0) = (0, d², hd) — up + outward ✓
+        #   Left:  (v2−v0)×(v1−v0) = (0, d², hd) — same ✓
+        if self._octant_left:
+            indices = [(0, 2, 1)]
+        else:
+            indices = [(0, 1, 2)]
+
+        face_groups = {'slope': [0], 'all': [0]}
 
         vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
         return vertices, indices, face_groups
@@ -673,5 +784,7 @@ __all__ = [
     'CircularGeometry3D',
     'GableRoofGeometry3D',
     'HippedRoofGeometry3D',
+    'SingleSlopeRoofGeometry3D',
+    'HippedRoofOctantGeometry3D',
     'is_3d_eligible',
 ]

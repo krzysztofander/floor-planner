@@ -25,11 +25,16 @@ _VEGE_TYPES: frozenset[str] = frozenset({
     'Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D', 'VegetationElement',
     'LeafyTree', 'LeafyShrub1', 'LeafyShrub2', 'LeafyShrub3', 'LeafyShrub4', 'LeafyShrub5',
 })
+_ROOF_TYPES: frozenset[str] = frozenset({
+    'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
+    'HippedRoofOctantLeft', 'HippedRoofOctantRight',
+})
 
 _CANONICAL_FALLBACK: dict[frozenset[str], str] = {
     _DOOR_TYPES: 'Door',
     _WINDOW_TYPES: 'Window',
     _VEGE_TYPES: 'Vegetation',
+    _ROOF_TYPES: 'Roof',
 }
 
 

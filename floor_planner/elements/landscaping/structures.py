@@ -12,7 +12,8 @@ import math
 from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement, CircularElement, Element
 from ..vertical_levels import VertInfoLvl01, VertInfoLvl01, VertInfoRoof
-from ...geometry_3d import GableRoofGeometry3D, HippedRoofGeometry3D
+from ...geometry_3d import (GableRoofGeometry3D, HippedRoofGeometry3D,
+                             SingleSlopeRoofGeometry3D, HippedRoofOctantGeometry3D)
 
 
 class Pergola(SurfaceElement):
@@ -859,8 +860,87 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
 
     YAML type: ``gable_roof``
 
-    Parameters: see _RoofBase.
+    Extra YAML parameters beyond _RoofBase:
+        extension_a  – extend the "a" slope plane outward in plan (metres, default 0)
+        extension_b  – extend the "b" slope plane outward in plan (metres, default 0)
+
+        When the ridge runs along X (x_axis_size >= z_axis_size):
+          extension_a extends the front slope (plan-z = 0 side)
+          extension_b extends the back  slope (plan-z = z side)
+        When the ridge runs along Z:
+          extension_a extends the left  slope (plan-x = 0 side)
+          extension_b extends the right slope (plan-x = x side)
+
+        The extension value is the 2D horizontal distance; the slope plane simply
+        grows outward — its ridge line stays in place.
     """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#8B4513',
+            label: str | None = None,
+            extension_a: float = 0,
+            extension_b: float = 0,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            size=size,
+            height=height,
+            v_anchor=v_anchor,
+            orientation_angle=orientation_angle,
+            color=color,
+            label=label,
+            **kwargs,
+        )
+        self.extension_a = extension_a or 0
+        self.extension_b = extension_b or 0
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw roof footprint + extension indicators."""
+        super().draw(ax)
+
+        # Draw thin dashed lines showing the extended eave edges
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        x = self.x_axis_size
+        z = self.z_axis_size
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point(self.anchor_point, lx, lz, angle_rad)
+
+        if x >= z:
+            # Ridge along X; extensions in the z direction
+            if self.extension_a > 0:
+                p0 = w(0, -self.extension_a)
+                p1 = w(x, -self.extension_a)
+                ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+            if self.extension_b > 0:
+                p0 = w(0, z + self.extension_b)
+                p1 = w(x, z + self.extension_b)
+                ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+        else:
+            # Ridge along Z; extensions in the x direction
+            if self.extension_a > 0:
+                p0 = w(-self.extension_a, 0)
+                p1 = w(-self.extension_a, z)
+                ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+            if self.extension_b > 0:
+                p0 = w(x + self.extension_b, 0)
+                p1 = w(x + self.extension_b, z)
+                ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
 
 
 class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
@@ -878,3 +958,151 @@ class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
 
     Parameters: see _RoofBase.
     """
+
+
+class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
+    """
+    Single-slope (mono-pitch / lean-to) roof element.
+
+    One rectangular sloping plane:
+      - the low eave runs along plan-z = 0 at v_anchor
+      - the high eave runs along plan-z = z_axis_size at v_anchor + height
+
+    In 2D: unfilled dashed rectangle showing the footprint plus a dotted line
+           on the low eave if ``extension`` > 0.
+    In 3D: single sloping quad, no gable end caps.
+
+    YAML type: ``single_slope_roof``
+
+    Extra YAML parameters beyond _RoofBase:
+        extension   – extend the low-eave edge outward in the plan-z direction
+                      (horizontal distance in metres, default 0)
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#8B4513',
+            label: str | None = None,
+            extension: float = 0,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            size=size,
+            height=height,
+            v_anchor=v_anchor,
+            orientation_angle=orientation_angle,
+            color=color,
+            label=label,
+            **kwargs,
+        )
+        self.extension = extension or 0
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw footprint dashed rectangle + optional extension dotted line."""
+        super().draw(ax)
+
+        if self.extension <= 0:
+            return
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point(self.anchor_point, lx, lz, angle_rad)
+
+        # Dotted line showing extended low eave
+        p0 = w(0,               -self.extension)
+        p1 = w(self.x_axis_size, -self.extension)
+        ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+
+
+class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase):
+    """
+    Base for 1/8th pyramid octant pieces.
+
+    A true octant covers a 45° sector of a square pyramid, formed by cutting
+    along all 4 axes of symmetry.  Its eave edge runs from an edge-midpoint
+    to the adjacent base corner — a right-angle triangle in plan.
+
+    ``anchor_point`` is the **apex** (ridge tip) — rotation pivot in both plan
+    and 3D.  ``size = (x_axis_size, z_axis_size)``:
+      - x_axis_size: lateral offset from midpoint to corner (= half the pyramid
+                     base width for a square pyramid)
+      - z_axis_size: depth from apex to eave (= half the pyramid base depth)
+
+    For a square pyramid of base 2d×2d use size=[d, d].
+    Combine 4 right + 4 left at 0°/90°/180°/270° to form a complete pyramid.
+
+    YAML types: ``hipped_roof_octant_left``, ``hipped_roof_octant_right``
+    """
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the right-triangle footprint with its apex at anchor_point."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        x = self.x_axis_size
+        z = self.z_axis_size
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point(self.anchor_point, lx, lz, angle_rad)
+
+        tip    = self.anchor_point
+        mid    = w(0,                                       z)  # edge midpoint
+        corner = w(-x if self._octant_left else x,          z)  # base corner
+
+        triangle = Polygon(
+            [tip, mid, corner],
+            closed=True,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.5,
+            linestyle='--',
+        )
+        triangle.set_zorder(self.get_zorder())
+        ax.add_patch(triangle)
+
+        if self.label:
+            cx = (tip[0] + mid[0] + corner[0]) / 3
+            cz = (tip[1] + mid[1] + corner[1]) / 3
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type=self.__class__.__name__,
+                position=(cx, cz),
+                rotation=self.orientation_angle,
+            )
+
+
+class HippedRoofOctantLeft(_HippedRoofOctantBase):
+    """
+    Left octant (1/8th pyramid): the base corner lies to the LEFT of the
+    pointing direction when orientation_angle=0.
+
+    Combine with HippedRoofOctantRight at the same anchor_point and
+    orientations to assemble a pyramid or complex hipped roof.
+
+    YAML type: ``hipped_roof_octant_left``
+    """
+    _octant_left = True
+
+
+class HippedRoofOctantRight(_HippedRoofOctantBase):
+    """
+    Right octant (1/8th pyramid): the base corner lies to the RIGHT of the
+    pointing direction when orientation_angle=0.
+
+    YAML type: ``hipped_roof_octant_right``
+    """
+    _octant_left = False

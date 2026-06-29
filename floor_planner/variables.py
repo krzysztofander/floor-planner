@@ -219,6 +219,9 @@ def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = No
         'v_anchor',
         'diameter',
         'orientation_angle',
+        'extension',
+        'extension_a',
+        'extension_b',
     ]
 
     for field in fields_to_resolve:
