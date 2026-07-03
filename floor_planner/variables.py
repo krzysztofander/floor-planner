@@ -222,6 +222,7 @@ def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = No
         'extension',
         'extension_a',
         'extension_b',
+        'roof_thickness',
     ]
 
     for field in fields_to_resolve:

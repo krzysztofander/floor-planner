@@ -970,6 +970,7 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             label: str | None = None,
             extension_a: float = 0,
             extension_b: float = 0,
+            roof_thickness: float = 0.4,
             **kwargs,
     ):
         super().__init__(
@@ -984,6 +985,7 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
         )
         self.extension_a = extension_a or 0
         self.extension_b = extension_b or 0
+        self.roof_thickness = roof_thickness or 0.4
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw roof footprint + extension indicators."""
@@ -1041,7 +1043,32 @@ class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
     YAML type: ``hipped_roof``
 
     Parameters: see _RoofBase.
+    Extra parameter: roof_thickness (default 0.4)
     """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#8B4513',
+            label: str | None = None,
+            roof_thickness: float = 0.4,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            size=size,
+            height=height,
+            v_anchor=v_anchor,
+            orientation_angle=orientation_angle,
+            color=color,
+            label=label,
+            **kwargs,
+        )
+        self.roof_thickness = roof_thickness or 0.4
 
 
 class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
@@ -1073,6 +1100,7 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             color: str = '#8B4513',
             label: str | None = None,
             extension: float = 0,
+            roof_thickness: float = 0.4,
             **kwargs,
     ):
         super().__init__(
@@ -1086,6 +1114,7 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             **kwargs,
         )
         self.extension = extension or 0
+        self.roof_thickness = roof_thickness or 0.4
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw footprint dashed rectangle + optional extension dotted line."""
@@ -1143,6 +1172,7 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
             color: str = '#8B4513',
             label: str | None = None,
             extension: float = 0,
+            roof_thickness: float = 0.4,
             **kwargs,
     ):
         super().__init__(
@@ -1156,6 +1186,7 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
             **kwargs,
         )
         self.extension = extension or 0
+        self.roof_thickness = roof_thickness or 0.4
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the right-triangle footprint with its apex at anchor_point."""

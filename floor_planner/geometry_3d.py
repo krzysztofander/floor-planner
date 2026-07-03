@@ -369,34 +369,72 @@ def _add_roof_inner_surface(
     vertices: list[tuple[float, float, float]],
     indices: list[tuple[int, int, int]],
     face_groups: dict[str, list[int]],
-    y_shift: float = -0.01,
+    y_shift: float = 0.4,
 ) -> tuple[list[tuple[float, float, float]],
            list[tuple[int, int, int]],
-           dict[str, list[int]]]:
+           dict[str, list[int]]]:  # noqa: E501
     """
-    Append an inner (underside) surface to roof geometry.
+    Build a thick roof shell from inner (underside/ceiling) surface vertices.
 
-    The inner surface is an exact copy of the outer surface, shifted
-    ``y_shift`` metres in the world-Y direction and with triangle winding
-    reversed so its normals point inward (downward from below the roof).
-    This makes the roof visible both from above and from below without
-    needing double-sided materials.
+    Input ``vertices`` sit at ``v_anchor`` — the inner surface visible from
+    inside the building.  This function creates the outer (weather-facing)
+    surface by shifting every vertex **vertically** upward by ``y_shift``.
 
-    Returns updated (vertices, indices, face_groups) with the inner copies
-    appended.  The inner face indices are added to the 'all' group only.
+    The perpendicular distance between the two parallel slope planes equals
+    ``y_shift * cos(slope_angle)``.  Each geometry class therefore computes
+    ``y_shift = roof_thickness / cos(slope_angle)`` so the shell is exactly
+    ``roof_thickness`` thick regardless of slope steepness.
+
+    With a pure vertical shift, all octants whose inner apices share the same
+    (plan_x, height, plan_z) will have outer apices at the same position too,
+    so they continue to meet at the peak.
+
+    Vertex layout in the returned array::
+
+        0 … n-1    outer surface  (inner + y_shift, original winding)
+        n … 2n-1   inner surface  (at v_anchor, reversed winding)
+
+    ``face_groups`` (referencing 0 … n-1) therefore address the outer
+    surface, which is correct for texture and material assignment.
     """
     n = len(vertices)
-    inner_verts = [(x, y + y_shift, z) for (x, y, z) in vertices]
-    # Reverse winding: flip i1 ↔ i2 to invert normal direction
-    inner_indices = [(i0 + n, i2 + n, i1 + n) for (i0, i1, i2) in indices]
+    outer_verts = [(x, y + y_shift, z) for (x, y, z) in vertices]
+    inner_indices = [
+        (i0 + n, i2 + n, i1 + n)   # reversed winding → inward normals
+        for (i0, i1, i2) in indices
+    ]
 
-    new_vertices = vertices + inner_verts
-    new_indices = indices + inner_indices
+    # ── Closing strips: connect outer perimeter to inner perimeter ────────────
+    # A boundary edge is a directed half-edge (a→b) whose reverse (b→a) does
+    # not appear in any triangle.  For each such edge we add a quad strip
+    # (two triangles) bridging the outer and inner surfaces.
+    #
+    # Winding for the strip, viewed from outside the eave (outward normal):
+    #   For boundary edge a→b on the outer CCW surface:
+    #   tri1: (a, b, n+b)   — outer_a, outer_b, inner_b
+    #   tri2: (a, n+b, n+a) — outer_a, inner_b, inner_a
+    half_edges: set[tuple[int, int]] = set()
+    for i0, i1, i2 in indices:
+        half_edges.add((i0, i1))
+        half_edges.add((i1, i2))
+        half_edges.add((i2, i0))
 
-    # Add inner triangle indices to 'all'; leave other groups unchanged
-    inner_tri_range = list(range(len(indices), len(indices) + len(inner_indices)))
+    strip_indices: list[tuple[int, int, int]] = []
+    for a, b in half_edges:
+        if (b, a) not in half_edges:
+            strip_indices.append((a, b, n + b))
+            strip_indices.append((a, n + b, n + a))
+
+    new_vertices  = outer_verts + list(vertices)
+    new_indices   = list(indices) + inner_indices + strip_indices
+
+    inner_tri_start = len(indices)
+    inner_and_strip_range = list(range(inner_tri_start,
+                                       inner_tri_start + len(inner_indices) + len(strip_indices)))
     new_face_groups = {k: list(v) for k, v in face_groups.items()}
-    new_face_groups['all'] = list(face_groups.get('all', list(range(len(indices))))) + inner_tri_range
+    new_face_groups['all'] = (
+        list(face_groups.get('all', list(range(len(indices))))) + inner_and_strip_range
+    )
 
     return new_vertices, new_indices, new_face_groups
 
@@ -502,7 +540,14 @@ class GableRoofGeometry3D(Generate3DMixin):
                 'all':         [0, 1, 2, 3],
             }
 
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
+        # y_shift: vertical gap that gives perpendicular shell thickness = roof_thickness
+        # For a plane rising h over half-span hs: cos(α) = hs/sqrt(hs²+h²)
+        # → y_shift = roof_thickness / cos(α) = roof_thickness * sqrt(hs²+h²) / hs
+        thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
+        h = self.height
+        hs = (z / 2) if x >= z else (x / 2)   # half-span to ridge
+        y_shift = thickness * math.sqrt(hs * hs + h * h) / hs if hs > 1e-10 else thickness
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
         return vertices, indices, face_groups
 
 
@@ -564,7 +609,12 @@ class SingleSlopeRoofGeometry3D(Generate3DMixin):
             'all':   [0, 1],
         }
 
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
+        # y_shift for correct perpendicular shell thickness:
+        # slope spans z over horizontal, rises h → y_shift = t * sqrt(z²+h²)/z
+        thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
+        h = self.height
+        y_shift = thickness * math.sqrt(z * z + h * h) / z if z > 1e-10 else thickness
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
         return vertices, indices, face_groups
 
 
@@ -641,7 +691,13 @@ class HippedRoofOctantGeometry3D(Generate3DMixin):
 
         face_groups = {'slope': [0], 'all': [0]}
 
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
+        # y_shift: slope angle uses z (depth from apex to unextended eave),
+        # independent of extension (extension preserves slope angle).
+        thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
+        h = self.height
+        z_base = self.z_axis_size   # unextended span — same slope angle as extended
+        y_shift = thickness * math.sqrt(z_base * z_base + h * h) / z_base if z_base > 1e-10 else thickness
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
         return vertices, indices, face_groups
 
 
@@ -780,11 +836,14 @@ class HippedRoofGeometry3D(Generate3DMixin):
                     'all':         [0, 1, 2, 3, 4, 5],
                 }
 
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups)
+        thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
+        h = self.height
+        hs = (z / 2) if x >= z else (x / 2)   # half-span to ridge / apex midpoint
+        y_shift = thickness * math.sqrt(hs * hs + h * h) / hs if hs > 1e-10 else thickness
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
         return vertices, indices, face_groups
 
 
-# Export public API
 __all__ = [
     'Generate3DMixin',
     'RectangularGeometry3D',
