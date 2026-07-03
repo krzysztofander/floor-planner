@@ -422,8 +422,10 @@ def _add_roof_inner_surface(
     strip_indices: list[tuple[int, int, int]] = []
     for a, b in half_edges:
         if (b, a) not in half_edges:
-            strip_indices.append((a, b, n + b))
-            strip_indices.append((a, n + b, n + a))
+            # Correct outward-facing winding for the closing quad (outer_a →
+            # inner_a → inner_b → outer_b, CCW from outside):
+            strip_indices.append((a, n + a, n + b))
+            strip_indices.append((a, n + b, b))
 
     new_vertices  = outer_verts + list(vertices)
     new_indices   = list(indices) + inner_indices + strip_indices
