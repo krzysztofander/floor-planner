@@ -27,7 +27,8 @@ from .symbols.multipurpose import Line, Polygon
 from .foundation.room import Room
 from .foundation.group import Group
 from .landscaping import (Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall,
-                           Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GardenHouse,
+                           Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GenericSurface, 
+                           GardenHouse,
                            RectPool, OvalPool, GableRoof, HippedRoof,
                            SingleSlopeRoof, HippedRoofOctantLeft, HippedRoofOctantRight)
 from .registry import create_elements_registry

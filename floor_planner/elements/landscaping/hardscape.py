@@ -563,7 +563,7 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
         return " ".join(parts) if parts else ""
 
 class Ground(VertInfoLvlGround, SurfaceElement):
-    """Deck/patio platform element."""
+    """Literal ground/earth surface"""
     def __init__(
             self,
             anchor_point: tuple[float, float],

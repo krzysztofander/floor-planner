@@ -438,6 +438,90 @@ class Gazebo(VertInfoLvl01, CircularElement):
         parts.append(f"Ø{self.diameter}m")
         return " ".join(parts) if parts else ""
 
+class GenericSurface(VertInfoLvl01, SurfaceElement):
+    """generic surface e.g. concrete element."""
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            color: str = "#6D645E",
+            orientation_angle: float = 0,
+            label: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None,
+    ):
+        """
+        Initialize a GenericSurface instance.
+
+        :param anchor_point:
+            coordinates of anchor point (bottom-left corner)
+        :param size:
+            (x_size, z_size) tuple: surface size along X and Z axes in meters
+        :param color:
+            color for the deck
+        :param orientation_angle:
+            rotation angle in degrees
+        :param label:
+            optional label for the deck
+        """
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            size=size,
+            color=color,
+            label=label,
+            texture_scale=1.0 # Default texture scale 
+        )
+        self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
+        self.height = height if height is not None else self._default_height()
+
+    def _default_height(self) -> float:
+        """Return default height for surface element."""
+        return 0.30
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the deck with wood plank pattern."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        # Draw main surface rectangle
+        surf = Rectangle(
+            self.anchor_point,
+            width=self.x_axis_size,
+            height=self.z_axis_size,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            edgecolor='black',
+            linewidth=1.5,
+            alpha=0.1
+        )
+        surf.set_zorder(self.get_zorder())
+        ax.add_patch(surf)
+
+        # Render label and ID
+        self._render_label_and_id(ax)
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID for deck."""
+        center_x = self.x_axis_size / 2
+        center_y = self.z_axis_size / 2
+        center = rotate_point(
+            self.anchor_point,
+            center_x,
+            center_y,
+            math.radians(self.orientation_angle)
+        )
+    
+        render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type='GenericSurface',
+                position=(center[0], center[1]),
+                rotation=self.orientation_angle,
+                centered=True
+            )
 
 class Deck(VertInfoLvl01, SurfaceElement):
     """Deck/patio platform element."""

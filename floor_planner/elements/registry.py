@@ -115,6 +115,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'raised_bed': RaisedBed,
         'gazebo': Gazebo,
         'deck': Deck,
+        'surface': GenericSurface,
         'garden_house': GardenHouse,
         'gable_roof': GableRoof,
         'hipped_roof': HippedRoof,
