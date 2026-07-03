@@ -540,14 +540,13 @@ class GableRoofGeometry3D(Generate3DMixin):
                 'all':         [0, 1, 2, 3],
             }
 
-        # y_shift: vertical gap that gives perpendicular shell thickness = roof_thickness
-        # For a plane rising h over half-span hs: cos(α) = hs/sqrt(hs²+h²)
-        # → y_shift = roof_thickness / cos(α) = roof_thickness * sqrt(hs²+h²) / hs
+        # Use a flat vertical y_shift equal to roof_thickness.
+        # This guarantees that any two pieces sharing an inner vertex (same
+        # v_anchor + height) will also share the same outer vertex, keeping
+        # ridge/apex junctions watertight even when adjacent pieces have
+        # different slope angles.
         thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
-        h = self.height
-        hs = (z / 2) if x >= z else (x / 2)   # half-span to ridge
-        y_shift = thickness * math.sqrt(hs * hs + h * h) / hs if hs > 1e-10 else thickness
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, thickness)
         return vertices, indices, face_groups
 
 
@@ -609,12 +608,9 @@ class SingleSlopeRoofGeometry3D(Generate3DMixin):
             'all':   [0, 1],
         }
 
-        # y_shift for correct perpendicular shell thickness:
-        # slope spans z over horizontal, rises h → y_shift = t * sqrt(z²+h²)/z
+        # Flat vertical y_shift = roof_thickness (see GableRoof comment).
         thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
-        h = self.height
-        y_shift = thickness * math.sqrt(z * z + h * h) / z if z > 1e-10 else thickness
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, thickness)
         return vertices, indices, face_groups
 
 
@@ -691,13 +687,9 @@ class HippedRoofOctantGeometry3D(Generate3DMixin):
 
         face_groups = {'slope': [0], 'all': [0]}
 
-        # y_shift: slope angle uses z (depth from apex to unextended eave),
-        # independent of extension (extension preserves slope angle).
+        # Flat vertical y_shift = roof_thickness (see GableRoof comment).
         thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
-        h = self.height
-        z_base = self.z_axis_size   # unextended span — same slope angle as extended
-        y_shift = thickness * math.sqrt(z_base * z_base + h * h) / z_base if z_base > 1e-10 else thickness
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, thickness)
         return vertices, indices, face_groups
 
 
@@ -836,11 +828,9 @@ class HippedRoofGeometry3D(Generate3DMixin):
                     'all':         [0, 1, 2, 3, 4, 5],
                 }
 
+        # Flat vertical y_shift = roof_thickness (see GableRoof comment).
         thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
-        h = self.height
-        hs = (z / 2) if x >= z else (x / 2)   # half-span to ridge / apex midpoint
-        y_shift = thickness * math.sqrt(hs * hs + h * h) / hs if hs > 1e-10 else thickness
-        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, y_shift)
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, thickness)
         return vertices, indices, face_groups
 
 
