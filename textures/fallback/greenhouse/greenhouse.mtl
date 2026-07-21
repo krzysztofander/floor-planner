@@ -1,0 +1,8 @@
+# Glass material for greenhouse (walls and roof)
+newmtl greenhouse
+Ka 0.700000 0.800000 0.900000
+Kd 0.800000 0.900000 1.000000
+Ks 4.900000 4.900000 4.900000
+Ns 500.0
+d 0.4
+map_Kd greenhouse.png

@@ -14,7 +14,7 @@ from ..element import RectangularElement, SurfaceElement, CircularElement, Eleme
 from ..vertical_levels import VertInfoLvl01, VertInfoLvl01, VertInfoRoof
 from ...geometry_3d import (GableRoofGeometry3D, HippedRoofGeometry3D,
                              SingleSlopeRoofGeometry3D, HippedRoofOctantGeometry3D,
-                             HippedInternalOctantGeometry3D)
+                             HippedInternalOctantGeometry3D, GreenhouseGeometry3D)
 
 
 class Pergola(SurfaceElement):
@@ -1401,3 +1401,145 @@ class HippedInternalOctantRight(_HippedInternalOctantBase):
     YAML type: ``hipped_internal_octant_right``
     """
     _octant_left = False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Greenhouse element
+# ──────────────────────────────────────────────────────────────────────────────
+
+class Greenhouse(VertInfoLvl01, GreenhouseGeometry3D, SurfaceElement):
+    """
+    Glass greenhouse element for garden/landscape floor plans.
+
+    In 2D: light grey transparent rectangle with a glass-panel grid and a
+           ridge line indicating the gable roof direction.
+    In 3D: four vertical glass walls topped with a gable glass roof.
+           Both walls and roof use the ``window`` glass material.
+
+    YAML type: ``greenhouse``
+
+    YAML parameters:
+        anchor_point      – bottom-left corner of footprint
+        size              – (x_size, z_size) in metres
+        height            – wall height in metres  (default 2.5)
+        roof_height       – additional height from wall-top to ridge apex
+                            in metres (default 1.2)
+        color             – 2D fill colour (default '#D3D3D3' light grey)
+        orientation_angle – rotation in degrees (default 0)
+        label             – optional label string
+        v_anchor          – 3D Y of base; defaults to ground level (VertInfoLvl01)
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            roof_height: float = 1.2,
+            color: str = '#D3D3D3',
+            orientation_angle: float = 0,
+            label: str | None = None,
+            v_anchor: float | None = None,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            size=size,
+            color=color,
+            label=label,
+        )
+        self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
+        self.height = height if height is not None else self._default_height()
+        self.roof_height = roof_height
+       # self.alpha_mode = "BLEND" 
+
+    def _default_height(self) -> float:
+        return 2
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw greenhouse: light grey fill, glass-panel grid, ridge line."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        # Background fill
+        rect = Rectangle(
+            self.anchor_point,
+            width=self.x_axis_size,
+            height=self.z_axis_size,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            edgecolor='#555555',
+            linewidth=1.5,
+            alpha=0.35,
+        )
+        rect.set_zorder(self.get_zorder())
+        ax.add_patch(rect)
+
+        # Glass panel grid
+        self._draw_glass_grid(ax)
+
+        # Ridge line (gable direction indicator)
+        self._draw_ridge_line(ax)
+
+        # Label
+        self._render_label_and_id(ax)
+
+    def _draw_glass_grid(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw grid lines simulating glass panels (~1 m spacing)."""
+        panel = 1.0
+        angle_rad = math.radians(self.orientation_angle)
+        color = '#777777'
+
+        n_x = max(1, int(self.x_axis_size / panel))
+        for i in range(1, n_x):
+            xo = i * (self.x_axis_size / n_x)
+            p0 = rotate_point(self.anchor_point, xo, 0, angle_rad)
+            p1 = rotate_point(self.anchor_point, xo, self.z_axis_size, angle_rad)
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                    color=color, linewidth=0.5, alpha=0.6, zorder=self.get_zorder())
+
+        n_z = max(1, int(self.z_axis_size / panel))
+        for i in range(1, n_z):
+            zo = i * (self.z_axis_size / n_z)
+            p0 = rotate_point(self.anchor_point, 0, zo, angle_rad)
+            p1 = rotate_point(self.anchor_point, self.x_axis_size, zo, angle_rad)
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                    color=color, linewidth=0.5, alpha=0.6, zorder=self.get_zorder())
+
+    def _draw_ridge_line(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw a bold centre line showing the ridge/gable direction."""
+        angle_rad = math.radians(self.orientation_angle)
+        color = '#444444'
+
+        if self.x_axis_size >= self.z_axis_size:
+            p0 = rotate_point(self.anchor_point, 0,
+                               self.z_axis_size / 2, angle_rad)
+            p1 = rotate_point(self.anchor_point, self.x_axis_size,
+                               self.z_axis_size / 2, angle_rad)
+        else:
+            p0 = rotate_point(self.anchor_point, self.x_axis_size / 2,
+                               0, angle_rad)
+            p1 = rotate_point(self.anchor_point, self.x_axis_size / 2,
+                               self.z_axis_size, angle_rad)
+
+        ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                color=color, linewidth=1.5, alpha=0.85,
+                zorder=self.get_zorder())
+
+    def _render_label_and_id(self, ax: matplotlib.axes.Axes) -> None:
+        """Render label and ID at the centre of the greenhouse."""
+        angle_rad = math.radians(self.orientation_angle)
+        center = rotate_point(
+            self.anchor_point,
+            self.x_axis_size / 2,
+            self.z_axis_size / 2,
+            angle_rad,
+        )
+        render_label_and_id(
+            ax=ax,
+            element=self,
+            element_type='Greenhouse',
+            position=(center[0], center[1]),
+            rotation=self.orientation_angle,
+        )

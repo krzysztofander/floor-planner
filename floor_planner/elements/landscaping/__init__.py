@@ -10,7 +10,8 @@ from .water import Fountain, Pond, RectPool, OvalPool
 from .structures import (Pergola, RaisedBed, Gazebo, Deck, GenericSurface, GardenHouse,
                           GableRoof, HippedRoof, SingleSlopeRoof,
                           HippedRoofOctantLeft, HippedRoofOctantRight,
-                          HippedInternalOctantLeft, HippedInternalOctantRight)
+                          HippedInternalOctantLeft, HippedInternalOctantRight,
+                          Greenhouse)
 
 __all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D', 
            'VegetationElement', 'Fence', 'GardenPath', 'RetainingWall',
@@ -18,4 +19,5 @@ __all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D',
                'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GenericSurface', 
                'GardenHouse', 'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
                  'HippedRoofOctantLeft', 'HippedRoofOctantRight',
-                 'HippedInternalOctantLeft', 'HippedInternalOctantRight']
+                 'HippedInternalOctantLeft', 'HippedInternalOctantRight',
+                 'Greenhouse']

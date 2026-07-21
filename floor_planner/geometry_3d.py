@@ -774,6 +774,106 @@ class HippedInternalOctantGeometry3D(Generate3DMixin):
         return vertices, indices, face_groups
 
 
+class GreenhouseGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a greenhouse: four glass walls plus a gable glass roof.
+
+    The walls extend from v_anchor to v_anchor + height.
+    The gable roof apex sits at v_anchor + height + roof_height.
+    The ridge runs along the longer plan dimension (x_axis_size when x >= z).
+
+    Uses element properties:
+        - anchor_point, x_axis_size, z_axis_size, orientation_angle
+        - v_anchor, height          (wall base and wall height)
+        - roof_height               (additional height from wall-top to ridge apex)
+
+    Face groups:
+        'walls'  – 8 triangles (4 wall quads)
+        'roof'   – 6 triangles (2 slopes + 2 gable ends)
+        'all'    – all 14 triangles
+    """
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+
+        x   = self.x_axis_size
+        z   = self.z_axis_size
+        y0  = self.v_anchor            # bottom of walls
+        y1  = self.v_anchor + self.height  # top of walls / base of roof
+        rh  = getattr(self, 'roof_height', 1.2) or 1.2
+        y2  = y1 + rh                  # roof apex
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        c0 = w(0, 0);  c1 = w(x, 0);  c2 = w(x, z);  c3 = w(0, z)
+
+        # v0-v3: base corners (y0), v4-v7: wall-top corners (y1)
+        vertices = [
+            (c0[0], y0, c0[1]),   # v0  base  front-left
+            (c1[0], y0, c1[1]),   # v1  base  front-right
+            (c2[0], y0, c2[1]),   # v2  base  back-right
+            (c3[0], y0, c3[1]),   # v3  base  back-left
+            (c0[0], y1, c0[1]),   # v4  wall-top front-left
+            (c1[0], y1, c1[1]),   # v5  wall-top front-right
+            (c2[0], y1, c2[1]),   # v6  wall-top back-right
+            (c3[0], y1, c3[1]),   # v7  wall-top back-left
+        ]
+
+        # Ridge vertices v8, v9
+        if x >= z:
+            r0 = w(0, z / 2);  r1 = w(x, z / 2)   # ridge along x
+        else:
+            r0 = w(x / 2, 0);  r1 = w(x / 2, z)   # ridge along z
+        vertices.append((r0[0], y2, r0[1]))   # v8
+        vertices.append((r1[0], y2, r1[1]))   # v9
+
+        indices: list[tuple[int, int, int]] = []
+        face_groups: dict[str, list[int]] = {}
+
+        # ─── Walls (8 triangles, same winding as RectangularGeometry3D) ──────
+        # Front (-z), Back (+z), Left (-x), Right (+x)
+        wall_tris = [
+            (0, 5, 1), (0, 4, 5),   # front wall
+            (2, 7, 3), (2, 6, 7),   # back wall
+            (3, 4, 0), (3, 7, 4),   # left wall
+            (1, 6, 2), (1, 5, 6),   # right wall
+        ]
+        indices.extend(wall_tris)
+        face_groups['walls'] = list(range(len(wall_tris)))
+
+        # ─── Roof (6 triangles) ──────────────────────────────────────────────
+        if x >= z:
+            # Ridge along x (at z_mid); v8=left ridge, v9=right ridge
+            # Front slope faces –z/up, back slope faces +z/up,
+            # gable ends face ±x.
+            roof_tris = [
+                (4, 8, 9), (4, 9, 5),   # front slope  (–z / up)
+                (6, 9, 7), (7, 9, 8),   # back slope   (+z / up)
+                (4, 7, 8),              # left  gable end (–x)
+                (5, 9, 6),              # right gable end (+x)
+            ]
+        else:
+            # Ridge along z (at x_mid); v8=front ridge, v9=back ridge
+            roof_tris = [
+                (4, 7, 9), (4, 9, 8),   # left slope  (–x / up)
+                (5, 8, 9), (5, 9, 6),   # right slope (+x / up)
+                (4, 8, 5),              # front gable end (–z)
+                (7, 6, 9),              # back  gable end (+z)
+            ]
+        i0 = len(indices)
+        indices.extend(roof_tris)
+        face_groups['roof'] = list(range(i0, i0 + len(roof_tris)))
+
+        face_groups['all'] = list(range(len(indices)))
+        return vertices, indices, face_groups
+
+
 class HippedRoofGeometry3D(Generate3DMixin):
     """
     3D geometry for a hipped roof.
@@ -924,5 +1024,6 @@ __all__ = [
     'SingleSlopeRoofGeometry3D',
     'HippedRoofOctantGeometry3D',
     'HippedInternalOctantGeometry3D',
+    'GreenhouseGeometry3D',
     'is_3d_eligible',
 ]

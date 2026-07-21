@@ -5,7 +5,7 @@ project:
 
 default_layout:
   bottom_left_corner: [0, 0]
-  top_right_corner: [25, 20]
+  top_right_corner: [25, 30]
   scale_numerator: 1
   scale_denominator: 50
   grid_major_step: null
@@ -153,3 +153,41 @@ floor_plans:
           - 'Bottom Right: 2 garden houses with doors and 4-sided roofs'
         font_size: 9
         transparency: 0.0
+
+      # ── Greenhouse section ────────────────────────────────────────────────
+      - type: text_box
+        anchor_point: [1.0, 21.0]
+        lines:
+          - 'GREENHOUSES'
+        font_size: 11
+        transparency: 0.0
+
+      # Standard greenhouse (4m × 3m, ridge along x)
+      - type: greenhouse
+        anchor_point: [1.0, 22.0]
+        size: [4.0, 3.0]
+        height: 2.5
+        roof_height: 1.2
+        color: '#D3D3D3'
+        orientation_angle: 0
+        label: 'Greenhouse 4×3'
+
+      # Tall greenhouse (3m × 6m, ridge along z)
+      - type: greenhouse
+        anchor_point: [7.0, 22.0]
+        size: [3.0, 6.0]
+        height: 2.5
+        roof_height: 1.5
+        color: '#D3D3D3'
+        orientation_angle: 0
+        label: 'Tall 3×6'
+
+      # Rotated greenhouse (5m × 3m at 30°)
+      - type: greenhouse
+        anchor_point: [12.0, 23.0]
+        size: [5.0, 3.0]
+        height: 2.5
+        roof_height: 1.0
+        color: '#C8E0C8'
+        orientation_angle: 30
+        label: 'Rotated 30°'
