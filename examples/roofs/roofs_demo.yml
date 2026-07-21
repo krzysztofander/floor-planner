@@ -6,7 +6,7 @@ project:
 
 default_layout:
   bottom_left_corner: [0, 0]
-  top_right_corner: [50, 40]
+  top_right_corner: [65, 40]
   scale_numerator: 1
   scale_denominator: 100
   grid_major_step: 5
@@ -45,6 +45,11 @@ floor_plans:
       - type: text_box
         anchor_point: [38, 37]
         lines: ['HIPPED OCTANTS']
+        font_size: 9
+
+      - type: text_box
+        anchor_point: [52, 37]
+        lines: ['INTERNAL OCTANTS (VALLEY)']
         font_size: 9
 
       # ── 1. Plain gable roof ───────────────────────────────────────────────
@@ -329,3 +334,79 @@ floor_plans:
         orientation_angle: 270
         color: '#6A006A'
         label: 'Octant + ext'
+
+      # ── 11. Patio roof — inverted pyramid from 8 internal octants ─────────
+      # A drain-to-centre patio cover: anchor_point at the central valley (low),
+      # slopes rise outward to the eaves.  All 8 octants share the same centre.
+      # Patio footprint 10×10 m, half-span d=5.  Valley at (58, 20).
+
+      - type: text_box
+        anchor_point: [52, 35]
+        lines: ['Patio (inverted pyramid)']
+        font_size: 7
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 3.5
+        orientation_angle: 0
+        color: '#1A6A4A'
+        label: 'R0'
+        extension: 0.6
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 0
+        color: '#1A6A4A'
+        label: 'L0'
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 90
+        color: '#1A6A4A'
+        label: 'R90'
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 90
+        color: '#1A6A4A'
+        label: 'L90'
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 180
+        color: '#1A6A4A'
+        label: 'R180'
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 180
+        color: '#1A6A4A'
+        label: 'L180'
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 270
+        color: '#1A6A4A'
+        label: 'R270'
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 270
+        color: '#1A6A4A'
+        label: 'L270'
+

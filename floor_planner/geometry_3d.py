@@ -695,6 +695,85 @@ class HippedRoofOctantGeometry3D(Generate3DMixin):
         return vertices, indices, face_groups
 
 
+class HippedInternalOctantGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a 1/8th inverted-pyramid octant — the dual of
+    HippedRoofOctantGeometry3D.  Models the inside (valley) corner of a
+    complex roof, such as the interior corner of an L-shaped building or
+    a patio roof that drains toward a central valley.
+
+    The anchor_point is the **valley** (the lowest point / rotation pivot),
+    mirroring how the external octant's anchor_point is the apex.
+
+    Local layout (orientation_angle=0, pointing in +z direction):
+
+        valley (0, 0)  ← anchor_point / rotation pivot (low: v_anchor)
+            |
+            |  z_axis_size
+            |
+        midpoint (0, z)          eave midpoint (on main axis, HIGH)
+
+    Right variant (_octant_left=False):  corner at (+x_axis_size, z_axis_size) HIGH
+    Left  variant (_octant_left=True):   corner at (-x_axis_size, z_axis_size) HIGH
+
+    The same plan-view triangle tiles the area as with external octants:
+    combine 4 right + 4 left at 0°/90°/180°/270° (all at the same centre
+    valley point) to form a complete inverted pyramid (drain-to-centre patio
+    roof).
+    """
+
+    _octant_left: bool = False
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+
+        x   = self.x_axis_size   # lateral offset from midpoint to corner
+        z   = self.z_axis_size   # depth from valley to eave
+        ext = getattr(self, 'extension', 0) or 0
+        y0  = self.v_anchor              # LOW (valley)
+        y1  = self.v_anchor + self.height  # HIGH (eave, no extension)
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+
+        # Slope-preserving extension: eave edge rises above v_anchor+height
+        slope_rate = self.height / z if z else 0
+        y_eave = y1 + ext * slope_rate   # eave rises with extension
+        z_eave = z + ext
+        x_eave = x + ext
+
+        def w(lx, lz):
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        tip    = w(0, 0)                                               # valley (LOW)
+        mid    = w(0,  z_eave)                                         # eave midpoint (HIGH)
+        corner = w(-(x_eave) if self._octant_left else x_eave,
+                     z_eave)                                           # eave corner (HIGH)
+
+        vertices = [
+            (tip[0],    y0,      tip[1]),    # v0 — valley (LOW)
+            (mid[0],    y_eave,  mid[1]),    # v1 — mid eave (HIGH)
+            (corner[0], y_eave,  corner[1]), # v2 — corner eave (HIGH)
+        ]
+
+        # Winding so that the outward normal points upward and inward (toward
+        # the valley centre).  Verified analytically:
+        #   Right (0,1,2): (v1−v0)×(v2−v0) = (0, xz, −hx) — up + inward ✓
+        #   Left  (0,2,1): (v2−v0)×(v1−v0) = (0, xz, −hx) — same ✓
+        if self._octant_left:
+            indices = [(0, 2, 1)]
+        else:
+            indices = [(0, 1, 2)]
+
+        face_groups = {'slope': [0], 'all': [0]}
+
+        thickness = getattr(self, 'roof_thickness', 0.4) or 0.4
+        vertices, indices, face_groups = _add_roof_inner_surface(vertices, indices, face_groups, thickness)
+        return vertices, indices, face_groups
+
+
 class HippedRoofGeometry3D(Generate3DMixin):
     """
     3D geometry for a hipped roof.
@@ -844,5 +923,6 @@ __all__ = [
     'HippedRoofGeometry3D',
     'SingleSlopeRoofGeometry3D',
     'HippedRoofOctantGeometry3D',
+    'HippedInternalOctantGeometry3D',
     'is_3d_eligible',
 ]

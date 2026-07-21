@@ -21,7 +21,7 @@ from .foundation.group import Group
 from .composite import *
 from .furniture import *
 from .landscaping import * 
-from .landscaping.structures import GableRoof, HippedRoof, SingleSlopeRoof, HippedRoofOctantLeft, HippedRoofOctantRight
+from .landscaping.structures import GableRoof, HippedRoof, SingleSlopeRoof, HippedRoofOctantLeft, HippedRoofOctantRight, HippedInternalOctantLeft, HippedInternalOctantRight
 
 
 def create_elements_registry() -> dict[str, type['ElementBase']]:
@@ -122,6 +122,8 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'single_slope_roof': SingleSlopeRoof,
         'hipped_roof_octant_left': HippedRoofOctantLeft,
         'hipped_roof_octant_right': HippedRoofOctantRight,
+        'hipped_internal_octant_left': HippedInternalOctantLeft,
+        'hipped_internal_octant_right': HippedInternalOctantRight,
     }
     return registry
 

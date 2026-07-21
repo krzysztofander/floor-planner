@@ -28,6 +28,7 @@ _VEGE_TYPES: frozenset[str] = frozenset({
 _ROOF_TYPES: frozenset[str] = frozenset({
     'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
     'HippedRoofOctantLeft', 'HippedRoofOctantRight',
+    'HippedInternalOctantLeft', 'HippedInternalOctantRight',
 })
 
 _CANONICAL_FALLBACK: dict[frozenset[str], str] = {

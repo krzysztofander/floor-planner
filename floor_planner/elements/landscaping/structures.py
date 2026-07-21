@@ -13,7 +13,8 @@ from ...utils import rotate_point, render_label_and_id
 from ..element import RectangularElement, SurfaceElement, CircularElement, Element
 from ..vertical_levels import VertInfoLvl01, VertInfoLvl01, VertInfoRoof
 from ...geometry_3d import (GableRoofGeometry3D, HippedRoofGeometry3D,
-                             SingleSlopeRoofGeometry3D, HippedRoofOctantGeometry3D)
+                             SingleSlopeRoofGeometry3D, HippedRoofOctantGeometry3D,
+                             HippedInternalOctantGeometry3D)
 
 
 class Pergola(SurfaceElement):
@@ -1258,5 +1259,145 @@ class HippedRoofOctantRight(_HippedRoofOctantBase):
     pointing direction when orientation_angle=0.
 
     YAML type: ``hipped_roof_octant_right``
+    """
+    _octant_left = False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Internal corner octant elements (valley / drain-to-centre)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _RoofBase):
+    """
+    Base for 1/8th inverted-pyramid octant pieces.
+
+    Models the **inside** corner of a complex roof — a valley where two roof
+    planes meet and water drains inward.  It is the dual of
+    ``_HippedRoofOctantBase``:
+
+    * External octant: anchor_point is the **apex** (HIGH ridge tip); the
+      triangular slope descends from there to the LOW eave.
+    * Internal octant: anchor_point is the **valley** (LOW drain point); the
+      triangular slope ascends from there to the HIGH eave/ridge edges.
+
+    ``anchor_point`` is the **valley bottom** — the lowest point and the
+    rotation pivot in both plan and 3D.
+
+    The plan-view triangle is identical to the external octant:
+      - anchor/valley at (0, 0)      ← LOW  (v_anchor)
+      - mid            at (0, z)     ← HIGH (v_anchor + height)
+      - corner (right) at (+x, z)    ← HIGH
+      - corner (left)  at (-x, z)    ← HIGH
+
+    Combine 4 right + 4 left at 0°/90°/180°/270° (all at the same centre
+    valley point) to form a complete inverted pyramid (drain-to-centre patio
+    roof).
+
+    YAML types: ``hipped_internal_octant_left``, ``hipped_internal_octant_right``
+
+    YAML parameters (same as _HippedRoofOctantBase):
+        anchor_point      – valley bottom (LOW), rotation pivot
+        size              – (x_axis_size, z_axis_size) in metres
+        height            – vertical rise from valley to eave (default from VertInfoRoof)
+        v_anchor          – 3D Y of valley base (default 2.70 m from VertInfoRoof)
+        orientation_angle – rotation in degrees  (default 0)
+        color             – outline colour in 2D  (default '#8B4513')
+        label             – optional label string
+        extension         – extend the HIGH eave edge outward (horizontal metres, default 0)
+        roof_thickness    – inner surface offset for 3D export (default 0.4)
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#8B4513',
+            label: str | None = None,
+            extension: float = 0,
+            roof_thickness: float = 0.4,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            size=size,
+            height=height,
+            v_anchor=v_anchor,
+            orientation_angle=orientation_angle,
+            color=color,
+            label=label,
+            **kwargs,
+        )
+        self.extension = extension or 0
+        self.roof_thickness = roof_thickness or 0.4
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the right-triangle footprint with its valley at anchor_point."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        x = self.x_axis_size
+        z = self.z_axis_size
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point(self.anchor_point, lx, lz, angle_rad)
+
+        tip    = self.anchor_point
+        mid    = w(0,                                   z)  # eave midpoint
+        corner = w(-x if self._octant_left else x,      z)  # eave corner
+
+        triangle = Polygon(
+            [tip, mid, corner],
+            closed=True,
+            facecolor='none',
+            edgecolor=draw_color,
+            linewidth=1.5,
+            linestyle='-.',
+        )
+        triangle.set_zorder(self.get_zorder())
+        ax.add_patch(triangle)
+
+        # Dotted line showing the extended eave edge (slope-preserving overhang)
+        if self.extension > 0:
+            z_ext = z + self.extension
+            x_ext = x + self.extension
+            p0 = w(0,                                    z_ext)
+            p1 = w(-x_ext if self._octant_left else x_ext, z_ext)
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                    color=draw_color, linewidth=0.8, linestyle=':',
+                    zorder=self.get_zorder())
+
+        if self.label:
+            cx = (tip[0] + mid[0] + corner[0]) / 3
+            cz = (tip[1] + mid[1] + corner[1]) / 3
+            render_label_and_id(
+                ax=ax,
+                element=self,
+                element_type=self.__class__.__name__,
+                position=(cx, cz),
+                rotation=self.orientation_angle,
+            )
+
+
+class HippedInternalOctantLeft(_HippedInternalOctantBase):
+    """
+    Left internal octant (1/8th inverted pyramid): the eave corner lies to the
+    LEFT of the pointing direction when orientation_angle=0.
+
+    YAML type: ``hipped_internal_octant_left``
+    """
+    _octant_left = True
+
+
+class HippedInternalOctantRight(_HippedInternalOctantBase):
+    """
+    Right internal octant (1/8th inverted pyramid): the eave corner lies to the
+    RIGHT of the pointing direction when orientation_angle=0.
+
+    YAML type: ``hipped_internal_octant_right``
     """
     _octant_left = False
