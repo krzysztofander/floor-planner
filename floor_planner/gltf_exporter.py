@@ -1828,13 +1828,21 @@ class GLTFExporter:
             "pbrMetallicRoughness": {}
         }
         
+       # Handle transparency from MTL 'd' value (d=1.0 = opaque, d=0.0 = fully transparent)
+        alpha = 1.0
+        if 'transparency' in mtl_properties:
+            alpha = float(mtl_properties['transparency'])
+            if alpha < 0.99:
+                material["alphaMode"] = "BLEND"
+  
+
         # Set base color from MTL diffuse (Kd) or default
         if mtl_properties and 'diffuse' in mtl_properties:
             diffuse = mtl_properties['diffuse']
             # If diffuse is black but we have a texture, use white to show texture
             if 'diffuse_texture' in mtl_properties and sum(diffuse) < 0.01:
                 diffuse = [1.0, 1.0, 1.0]
-            material["pbrMetallicRoughness"]["baseColorFactor"] = diffuse + [1.0]
+            material["pbrMetallicRoughness"]["baseColorFactor"] = diffuse + [alpha]
         else:
             # Fallback colors if no MTL found
             default_colors = {
@@ -1844,7 +1852,7 @@ class GLTFExporter:
                 'window': [0.8, 0.9, 1.0],
             }
             base_color = default_colors.get(element_type, [0.8, 0.8, 0.8])
-            material["pbrMetallicRoughness"]["baseColorFactor"] = base_color + [1.0]
+            material["pbrMetallicRoughness"]["baseColorFactor"] = base_color + [alpha]
         
         # Set roughness from MTL shininess (Ns) or default
         if mtl_properties and 'shininess' in mtl_properties:
