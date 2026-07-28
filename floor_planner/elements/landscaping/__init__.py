@@ -8,16 +8,16 @@ from .vegetation import Tree, Shrub, Hedge, Lawn, CircularVegetation2D, Vegetati
 from .hardscape import Fence, GardenPath, RetainingWall, Ground
 from .water import Fountain, Pond, RectPool, OvalPool
 from .structures import (Pergola, RaisedBed, Gazebo, Deck, GenericSurface, GardenHouse,
-                          GableRoof, HippedRoof, SingleSlopeRoof,
-                          HippedRoofOctantLeft, HippedRoofOctantRight,
-                          HippedInternalOctantLeft, HippedInternalOctantRight,
                           Greenhouse)
+from ..foundation.roof import (GableRoof, HippedRoof, SingleSlopeRoof,
+                                HippedRoofOctantLeft, HippedRoofOctantRight,
+                                HippedInternalOctantLeft, HippedInternalOctantRight)
 
-__all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D', 
+__all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D',
            'VegetationElement', 'Fence', 'GardenPath', 'RetainingWall',
-             'Ground', 'Fountain', 'Pond', 'RectPool', 'OvalPool',
-               'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GenericSurface', 
-               'GardenHouse', 'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
-                 'HippedRoofOctantLeft', 'HippedRoofOctantRight',
-                 'HippedInternalOctantLeft', 'HippedInternalOctantRight',
-                 'Greenhouse']
+           'Ground', 'Fountain', 'Pond', 'RectPool', 'OvalPool',
+           'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GenericSurface',
+           'GardenHouse', 'Greenhouse',
+           'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
+           'HippedRoofOctantLeft', 'HippedRoofOctantRight',
+           'HippedInternalOctantLeft', 'HippedInternalOctantRight']
