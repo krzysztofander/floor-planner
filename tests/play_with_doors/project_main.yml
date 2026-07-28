@@ -17,7 +17,7 @@ default_options:
     inner_area: true        # Display inner area in center of room
 default_layout:
   bottom_left_corner: [-1, -1]
-  top_right_corner: [22,11]
+  top_right_corner: [22,22]
   scale_numerator: 1
   scale_denominator: 40
   grid_major_step: 1
@@ -29,13 +29,15 @@ vars:
   x_placement: 0            # constants that can be used in reusable elements
   y_placement: 0            # constants that can be used in reusable elements
 
+  x_placement_sliding: 0   # placement for the sliding-door room (to the right)
+  y_placement_sliding: 11
 
   wall_thickness: 0.15
 
 reusable_elements:
   play_with_doors_room: "room.yml"       # include files
   play_with_hinges_point_test_room: "room_hinges_point_test.yml"  # include files
-  # can define elements here too.
+  play_with_sliding_doors_room: "room_sliding.yml"  # sliding-door variant
 
 floor_plans:
   - title:
@@ -44,6 +46,7 @@ floor_plans:
     inherited_elements:
       - play_with_doors_room  # include reusable elements.
       - play_with_hinges_point_test_room  # include reusable elements.
+      - play_with_sliding_doors_room  # sliding balcony doors (placed at x=11)
             
 
     report:                   # report options for the floor plan
