@@ -2,10 +2,11 @@ PYTHON = .venv/bin/python3
 PYSRC = $(wildcard floor_planner/*.py)
 PYSRC += $(wildcard floor_planner/elements/*.py)
 PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
+PYSRC += $(wildcard floor_planner/elements/foundation/*.py)
 
-.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs
+.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs glass_structures
 
-all: room_templates group_templates elements furniture simple landscaping roofs
+all: room_templates group_templates elements furniture simple landscaping roofs glass_structures
 
 # ==========================================
 
@@ -103,6 +104,15 @@ ROOFS_PNG = examples/roofs/Roofs_Demo.png
 roofs: $(ROOFS_PNG)
 
 $(ROOFS_PNG): examples/roofs/roofs_demo.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+# GLASS STRUCTURES
+# ----------------
+GLASS_PNG = examples/glass_structures/Glass_Structures_Demo.png
+glass_structures: $(GLASS_PNG)
+
+$(GLASS_PNG): examples/glass_structures/glass_demo.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

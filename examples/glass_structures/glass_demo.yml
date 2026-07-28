@@ -1,0 +1,263 @@
+project:
+  dpi: 300
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "3d"
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner:   [26, 30]
+  scale_numerator:    1
+  scale_denominator:  50
+  grid_major_step:    5
+  grid_minor_step:    1
+
+default_options:
+  label_color: 'black'
+  dimensions: false
+  id_color: 'gray'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Glass Structures Demo
+# Shows: GlassPanel (wall), GlassSlope (roof), GlassDoor (animated door)
+# ─────────────────────────────────────────────────────────────────────────────
+
+floor_plans:
+  - title:
+      text: 'Glass Structures Demo'
+      font_size: 14
+    elements:
+
+      # ── Section labels ──────────────────────────────────────────────────────
+      - type: text_box
+        anchor_point: [1.0, 19.5]
+        lines: ['GLASS PANELS (GlassPanel)']
+        font_size: 8
+
+      - type: text_box
+        anchor_point: [10.0, 19.5]
+        lines: ['GLASS SLOPES (GlassSlope)']
+        font_size: 8
+
+      - type: text_box
+        anchor_point: [1.0, 9.5]
+        lines: ['GLASS DOORS (GlassDoor)']
+        font_size: 8
+
+      # ── GlassPanel examples ─────────────────────────────────────────────────
+
+      # Standard 3 m wide × 2.5 m tall glass wall panel
+      - type: glass_panel
+        anchor_point: [1.0, 14.0]
+        length: 3.0
+        thickness: 0.08
+        height: 2.5
+        orientation_angle: 0
+        label: '3m panel'
+
+      # Tall narrow panel (1 m × 3 m)
+      - type: glass_panel
+        anchor_point: [5.5, 14.0]
+        length: 1.0
+        thickness: 0.08
+        height: 3.0
+        orientation_angle: 0
+        label: '1×3m'
+
+      # Wide low panel (4 m × 1.5 m), rotated 90°
+      - type: glass_panel
+        anchor_point: [7.5, 12.0]
+        length: 4.0
+        thickness: 0.08
+        height: 1.5
+        orientation_angle: 90
+        label: 'rotated'
+
+      # ── GlassSlope examples ─────────────────────────────────────────────────
+
+      # Gentle slope: 4 m wide, 3 m depth, 1 m rise
+      - type: glass_slope
+        anchor_point: [10.0, 14.0]
+        size: [4.0, 3.0]
+        height: 1.0
+        v_anchor: 2.5
+        orientation_angle: 0
+        label: 'gentle 18°'
+
+      # Steep slope: 3 m wide, 2 m depth, 2 m rise
+      - type: glass_slope
+        anchor_point: [10.0, 10.5]
+        size: [3.0, 2.0]
+        height: 2.0
+        v_anchor: 2.5
+        orientation_angle: 0
+        label: 'steep 45°'
+
+      # Slope with extension overhang
+      - type: glass_slope
+        anchor_point: [14.5, 14.0]
+        size: [3.0, 3.0]
+        height: 1.5
+        v_anchor: 2.5
+        extension: 0.6
+        orientation_angle: 0
+        label: 'with ext'
+
+      # ── GlassDoor examples ──────────────────────────────────────────────────
+
+      # Standard left-opening glass door
+      - type: glass_door
+        anchor_point: [1.0, 5.0]
+        doorway_width: 0.96
+        door_width: 0.86
+        thickness: 0.20
+        orientation_angle: 0
+        to_the_right: false
+        opening_outside: false
+        label: 'left, inside'
+
+      # Right-opening glass door (opens outward)
+      - type: glass_door
+        anchor_point: [3.5, 5.0]
+        doorway_width: 0.96
+        door_width: 0.86
+        thickness: 0.20
+        orientation_angle: 0
+        to_the_right: true
+        opening_outside: true
+        label: 'right, outside'
+
+      # Wide glass door (1.2 m)
+      - type: glass_door
+        anchor_point: [6.5, 5.0]
+        doorway_width: 1.26
+        door_width: 1.16
+        thickness: 0.20
+        orientation_angle: 0
+        to_the_right: false
+        opening_outside: false
+        label: 'wide 1.2m'
+
+      # ── Winter garden vignette ──────────────────────────────────────────────
+      # A small winter garden showing all 3 types together
+
+      - type: text_box
+        anchor_point: [18.0, 19.5]
+        lines: ['WINTER GARDEN EXAMPLE']
+        font_size: 8
+
+      # Back wall: 5 glass panels side by side
+      - type: glass_panel
+        anchor_point: [18.0, 17.5]
+        length: 5.0
+        thickness: 0.08
+        height: 2.5
+        orientation_angle: 0
+        label: 'back'
+
+      # Left wall
+      - type: glass_panel
+        anchor_point: [18.0, 13.5]
+        length: 4.0
+        thickness: 0.08
+        height: 2.5
+        orientation_angle: 90
+        label: 'left'
+
+      # Right wall (with door opening in middle — door placed separately)
+      - type: glass_panel
+        anchor_point: [23.0, 13.5]
+        length: 1.5
+        thickness: 0.08
+        height: 2.5
+        orientation_angle: 90
+        label: 'right-n'
+
+      - type: glass_panel
+        anchor_point: [23.0, 15.5]
+        length: 2.0
+        thickness: 0.08
+        height: 2.5
+        orientation_angle: 90
+        label: 'right-s'
+
+      # Front door
+      - type: glass_door
+        anchor_point: [23.0, 14.54]
+        doorway_width: 0.96
+        door_width: 0.86
+        thickness: 0.08
+        orientation_angle: 90
+        to_the_right: false
+        opening_outside: true
+        label: 'entry'
+
+      # Roof slope: covers the 5 × 4 m floor area
+      - type: glass_slope
+        anchor_point: [18.0, 13.5]
+        size: [5.0, 4.0]
+        height: 1.5
+        v_anchor: 2.5
+        orientation_angle: 0
+        label: 'roof'
+
+      # ── SolidGlassDoor examples ─────────────────────────────────────────────
+      - type: text_box
+        anchor_point: [1.0, 1.0]
+        lines: ['SOLID GLASS DOORS (SolidGlassDoor)']
+        font_size: 8
+
+      # Standard frameless glass door (thin 0.01 m panel)
+      - type: solid_glass_door
+        anchor_point: [1.0, 2.5]
+        doorway_width: 0.96
+        door_width: 0.86
+        thickness: 0.01
+        orientation_angle: 0
+        to_the_right: false
+        opening_outside: false
+        label: 'left'
+
+      # Opening outward
+      - type: solid_glass_door
+        anchor_point: [3.5, 2.5]
+        doorway_width: 0.96
+        door_width: 0.86
+        thickness: 0.01
+        orientation_angle: 0
+        to_the_right: true
+        opening_outside: true
+        label: 'right-out'
+
+      # ── AluFrame examples ───────────────────────────────────────────────────
+      - type: text_box
+        anchor_point: [8.0, 1.0]
+        lines: ['ALU FRAMES (AluFrame)']
+        font_size: 8
+
+      # Standard frame (no glass)
+      - type: alu_frame
+        anchor_point: [8.0, 2.0]
+        length: 3.0
+        thickness: 0.08
+        height: 2.5
+        orientation_angle: 0
+        label: '3m frame'
+
+      # Narrow tall frame
+      - type: alu_frame
+        anchor_point: [12.0, 2.0]
+        length: 1.0
+        thickness: 0.08
+        height: 3.0
+        orientation_angle: 0
+        label: '1×3m'
+
+      # Rotated frame
+      - type: alu_frame
+        anchor_point: [14.0, 2.0]
+        length: 2.5
+        thickness: 0.08
+        height: 2.0
+        orientation_angle: 30
+        label: '30°'

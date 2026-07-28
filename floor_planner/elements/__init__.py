@@ -29,6 +29,7 @@ from .foundation.group import Group
 from .landscaping import (Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall,
                            Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GenericSurface,
                            GardenHouse, Greenhouse,
+                           GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame,
                            RectPool, OvalPool, GableRoof, HippedRoof,
                            SingleSlopeRoof, HippedRoofOctantLeft, HippedRoofOctantRight,
                            HippedInternalOctantLeft, HippedInternalOctantRight)

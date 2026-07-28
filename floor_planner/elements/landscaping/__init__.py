@@ -9,6 +9,7 @@ from .hardscape import Fence, GardenPath, RetainingWall, Ground
 from .water import Fountain, Pond, RectPool, OvalPool
 from .structures import (Pergola, RaisedBed, Gazebo, Deck, GenericSurface, GardenHouse,
                           Greenhouse)
+from .glass_structures import GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame
 from ..foundation.roof import (GableRoof, HippedRoof, SingleSlopeRoof,
                                 HippedRoofOctantLeft, HippedRoofOctantRight,
                                 HippedInternalOctantLeft, HippedInternalOctantRight)
@@ -18,6 +19,7 @@ __all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D',
            'Ground', 'Fountain', 'Pond', 'RectPool', 'OvalPool',
            'Pergola', 'RaisedBed', 'Gazebo', 'Deck', 'GenericSurface',
            'GardenHouse', 'Greenhouse',
+           'GlassDoor', 'GlassPanel', 'GlassSlope', 'SolidGlassDoor', 'AluFrame',
            'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
            'HippedRoofOctantLeft', 'HippedRoofOctantRight',
            'HippedInternalOctantLeft', 'HippedInternalOctantRight']
