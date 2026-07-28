@@ -1,6 +1,6 @@
 """
 Glass structural elements: GlassDoor, GlassPanel, GlassSlope,
-SolidGlassDoor, AluFrame.
+SolidGlassDoor, AluFrame, Composite_GlassDoor.
 
 These model winter-garden / conservatory construction:
 - GlassDoor:      animated full-height glass door with aluminium frame
@@ -25,9 +25,11 @@ from matplotlib.patches import Arc, Rectangle, Polygon
 
 from ...utils import rotate_point, render_label_and_id
 from ..external_models import ExternalModelElement
+from ..element import ElementBase
 from ..vertical_levels import VertInfoLvl01, VertInfoRoof
 from ..external.window_door import WindowDoor
 from ..foundation.door import Door
+from ...options import generate_element_id
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -460,3 +462,142 @@ class AluFrame(GlassPanel):
             ),
             rotation=self.orientation_angle,
         )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Composite_GlassDoor
+# ──────────────────────────────────────────────────────────────────────────────
+
+class Composite_GlassDoor(ElementBase):
+    """
+    Composite glass door: an AluFrame (static outer frame) with a
+    SolidGlassDoor (animated glass leaf) embedded inside it.
+
+    ``hinges_point`` serves double duty:
+      - standard door meaning: relative hinge depth along the wall thickness
+        (0 = front face, 1 = back face), used by the door-swing animation;
+      - composite meaning: how deeply the glass panel sits inside the frame —
+        ``hinges_point × (thickness − glass_T − 2×margin) + margin`` gives the
+        panel's Z offset, so the glass never overlaps the frame bars.
+
+    A 0.005 m margin is added on every side to prevent z-fighting in 3D.
+
+    In 2D: AluFrame draws the silver perimeter bars; SolidGlassDoor draws the
+           door arc inside the opening.
+    In 3D: AluFrame provides the static aluminium box; SolidGlassDoor provides
+           the proximity-triggered animated glass panel, trimmed on all sides to
+           clear the frame bars.
+
+    YAML type: ``composite_glass_door``
+
+    YAML parameters:
+        anchor_point      – (x, y) bottom-left of the overall door frame
+        doorway_width     – total frame width in metres
+        door_width        – glass leaf clear-opening width in metres
+        thickness         – frame/wall depth in metres
+        height            – frame height in metres  (default 2.1 m)
+        orientation_angle – rotation in degrees  (default 0)
+        to_the_right      – leaf swings to the right when True
+        hinges_point      – hinge-depth fraction in wall (0=front, 1=back, default 0.95)
+        opening_outside   – leaf opens outward when True
+        color             – 2-D door-arc colour  (default 'black')
+        label             – optional label string
+        v_anchor          – 3D Y base of the frame  (default 0.02)
+    """
+
+    _MARGIN     = 0.005       # z-fighting / clearance margin (m) on every side
+    _GLASS_T    = 0.01        # glass panel thickness (m)
+    _BAR_H_FRAC = 0.03 / 2.1  # top/bottom bar height fraction from AluFrame base model
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            doorway_width: float,
+            door_width: float,
+            thickness: float,
+            height: float = 2.1,
+            orientation_angle: float = 0,
+            to_the_right: bool = False,
+            color: str = 'black',
+            hinges_point: float = 0.95,
+            opening_outside: bool = False,
+            label: str | None = None,
+            v_anchor: float | None = None,
+            **kwargs,
+    ):
+        super().__init__()
+
+        M  = self._MARGIN
+        GT = self._GLASS_T
+        BF = self._BAR_H_FRAC
+
+        frame_v = v_anchor if v_anchor is not None else 0.02   # VertInfoDoor default
+
+        # ── 1. AluFrame (outer static frame) ──────────────────────────────────
+        self.addToList(
+            AluFrame(
+                anchor_point=anchor_point,
+                length=doorway_width,
+                thickness=thickness,
+                height=height,
+                orientation_angle=orientation_angle,
+                label=label,
+                v_anchor=frame_v,
+            )
+        )
+
+        # ── 2. SolidGlassDoor (animated glass leaf inside the frame) ──────────
+        # Real-world bar widths:
+        #   X bars – match the standard door frame: (doorway_width − door_width)/2
+        #   Y bars – proportional from the AluFrame base model (0.03/2.1 of height)
+        bar_x = (doorway_width - door_width) / 2
+        bar_y = BF * height
+
+        # Glass leaf dimensions (inside opening, with M clearance on every side)
+        glass_total_w  = door_width - 2 * M    # Door.length  → 3-D box width
+        glass_door_w   = door_width - 4 * M    # Door.door_width → swing arc
+        glass_height   = height - 2 * bar_y - 2 * M
+        glass_v_anchor = frame_v + bar_y + M
+
+        # Depth offset inside wall: position glass so its hinge aligns exactly
+        # with the outer door's hinge (thickness × hinges_depth).
+        # hinges_depth mirrors Door2D's logic: 1−hinges_point when opening outside.
+        hinges_depth = (1.0 - hinges_point) if opening_outside else hinges_point
+        z_into_wall = hinges_depth * (thickness - GT)
+
+        # Glass anchor: (bar_x + M) along wall, z_into_wall into the wall
+        angle_rad    = math.radians(orientation_angle)
+        glass_anchor = rotate_point(
+            anchor_point,
+            bar_x + M,    # offset along wall direction
+            z_into_wall,  # offset perpendicular to wall (into wall)
+            angle_rad,
+        )
+
+        self.addToList(
+            SolidGlassDoor(
+                anchor_point=glass_anchor,
+                doorway_width=glass_total_w,
+                door_width=glass_door_w,
+                thickness=GT,
+                orientation_angle=orientation_angle,
+                to_the_right=to_the_right,
+                color=color,
+                hinges_point=hinges_point,
+                opening_outside=opening_outside,
+                label=None,           # label is shown on the frame
+                v_anchor=glass_v_anchor,
+                height=glass_height,
+                **kwargs,
+            )
+        )
+
+        self.id = generate_element_id(self.__class__.__name__, label)
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw frame and glass leaf."""
+        for element in self.getList():
+            element.draw(ax)
+
+    def get_id(self) -> str:
+        return self.id
