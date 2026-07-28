@@ -546,6 +546,8 @@ class Composite_GlassDoor(ElementBase):
             )
         )
 
+        # TODO: Fix it after AI, there is some gap
+        
         # ── 2. SolidGlassDoor (animated glass leaf inside the frame) ──────────
         # Real-world bar widths:
         #   X bars – match the standard door frame: (doorway_width − door_width)/2

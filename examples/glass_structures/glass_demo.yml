@@ -273,12 +273,12 @@ floor_plans:
         anchor_point: [1.0, 25.5]
         doorway_width: 0.96
         door_width: 0.86
-        thickness: 0.20
+        thickness: 0.08
         height: 2.1
         orientation_angle: 0
         to_the_right: false
         opening_outside: false
-        hinges_point: 0.95
+        hinges_point: 0.5
         label: 'left'
 
       # Opening to the right, outward
@@ -286,12 +286,12 @@ floor_plans:
         anchor_point: [3.5, 25.5]
         doorway_width: 0.96
         door_width: 0.86
-        thickness: 0.20
+        thickness: 0.08
         height: 2.1
         orientation_angle: 0
         to_the_right: true
-        opening_outside: true
-        hinges_point: 0.90
+        opening_outside: false
+        hinges_point: 0.50
         label: 'right-out'
 
       # Wide composite glass door, rotated 90°
@@ -299,10 +299,10 @@ floor_plans:
         anchor_point: [6.5, 25.0]
         doorway_width: 1.26
         door_width: 1.16
-        thickness: 0.20
+        thickness: 0.08
         height: 2.3
         orientation_angle: 90
         to_the_right: false
         opening_outside: false
-        hinges_point: 0.95
+        hinges_point: 0.0
         label: 'wide 90°'
