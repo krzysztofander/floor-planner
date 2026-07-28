@@ -68,7 +68,7 @@
         to_the_right: false
         hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "south balcony_door l inside"
+        label: "south sliding_door l inside"
         color: brown
       - type: model_sliding_balcony_door
         anchor_point: [door_spacing + (door_spacing+doorway_width)*1, 0]
@@ -79,7 +79,7 @@
         to_the_right: true
         hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "south balcony_door r inside"
+        label: "south sliding_door r inside"
         color: brown
       - type: model_sliding_balcony_door
         anchor_point: [door_spacing + (door_spacing+doorway_width)*2, 0]
@@ -90,7 +90,7 @@
         to_the_right: false
         hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "south balcony_door l outside"
+        label: "south sliding_door l outside"
         color: brown
       - type: model_sliding_balcony_door
         anchor_point: [door_spacing + (door_spacing+doorway_width)*3, 0]
@@ -101,7 +101,7 @@
         to_the_right: true
         hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "south balcony_door r outside"
+        label: "south sliding_door r outside"
         color: brown
       - type: model_window_single_any
         anchor_point: [door_spacing + (door_spacing+doorway_width)*4,0]
@@ -120,7 +120,7 @@
         to_the_right: true
         hinges_point: 1.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "north balcony_door r inside"
+        label: "north sliding_door r inside"
         color: brown
       - type: model_sliding_balcony_door
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*1, room_length]
@@ -131,7 +131,7 @@
         to_the_right: false
         hinges_point: 1.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "north balcony_door l inside"
+        label: "north sliding_door l inside"
         color: brown
       - type: model_sliding_balcony_door
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*2, room_length]
@@ -142,7 +142,7 @@
         to_the_right: true
         hinges_point: 1.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "north balcony_door r outside"
+        label: "north sliding_door r outside"
         color: brown
       - type: model_sliding_balcony_door
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*3, room_length]
@@ -153,7 +153,7 @@
         to_the_right: false
         hinges_point: 1.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "north balcony_door l outside"
+        label: "north sliding_door l outside"
         color: brown
       - type: window
         length: window_width
@@ -172,7 +172,7 @@
         to_the_right: true
         hinges_point: 1.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "west r balcony_door outside"
+        label: "west r sliding_door outside"
         color: black
       - type: model_sliding_balcony_door
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*1]
@@ -183,7 +183,7 @@
         to_the_right: false
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "west l balcony_door outside"
+        label: "west l sliding_door outside"
         color: black
       - type: model_sliding_balcony_door
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*2]
@@ -194,7 +194,7 @@
         to_the_right: true
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "west r balcony_door inside"
+        label: "west r sliding_door inside"
         color: black
       - type: model_sliding_balcony_door
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*3]
@@ -205,7 +205,7 @@
         to_the_right: false
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "west l balcony_door inside"
+        label: "west l sliding_door inside"
         color: black
       - type: window
         length: window_width
@@ -224,7 +224,7 @@
         to_the_right: false
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "east l balcony_door inside"
+        label: "east l sliding_door inside"
         color: black
       - type: model_sliding_balcony_door
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*1]
@@ -235,7 +235,7 @@
         to_the_right: true
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
-        label: "east r balcony_door inside"
+        label: "east r sliding_door inside"
         color: black
       - type: model_sliding_balcony_door
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*2]
@@ -246,7 +246,7 @@
         to_the_right: false
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "east l balcony_door outside"
+        label: "east l sliding_door outside"
         color: black
       - type: model_sliding_balcony_door
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*3]
@@ -257,7 +257,7 @@
         to_the_right: true
         hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
-        label: "east r balcony_door outside"
+        label: "east r sliding_door outside"
         color: black
       - type: window
         length: window_width
