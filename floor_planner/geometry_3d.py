@@ -774,6 +774,82 @@ class HippedInternalOctantGeometry3D(Generate3DMixin):
         return vertices, indices, face_groups
 
 
+class GableEndWallGeometry3D(Generate3DMixin):
+    """
+    3D geometry for a gable end wall — the triangular vertical panel that
+    fills the gap between the wall plate (v_anchor) and the gable ridge
+    (v_anchor + height) at one end of a gable roof.
+
+    Parametrized identically to GableRoofGeometry3D so it can be dropped in
+    with the same anchor_point / size / height / v_anchor / orientation_angle.
+
+    For x_axis_size >= z_axis_size (ridge along X):
+        Left  (_gable_end_right=False): triangle at local x = 0
+        Right (_gable_end_right=True) : triangle at local x = x_axis_size
+
+    For z_axis_size > x_axis_size (ridge along Z):
+        Left  (_gable_end_right=False): triangle at local z = 0
+        Right (_gable_end_right=True) : triangle at local z = z_axis_size
+
+    Two overlapping triangles with reversed winding make the panel
+    double-sided (visible from both inside and outside the building).
+
+    Face groups:
+        'wall'  – both triangles
+        'all'   – both triangles
+    """
+
+    _gable_end_right: bool = False
+
+    def generate_vertices_and_indices(
+        self,
+    ) -> tuple[list[tuple[float, float, float]],
+               list[tuple[int, int, int]],
+               dict[str, list[int]]]:
+
+        x   = self.x_axis_size
+        z   = self.z_axis_size
+        y0  = self.v_anchor
+        y1  = self.v_anchor + self.height
+        ax0, az0 = self.anchor_point
+        angle_rad = math.radians(self.orientation_angle)
+
+        def w(lx, lz):
+            return rotate_point((ax0, az0), lx, lz, angle_rad)
+
+        if x >= z:
+            # Ridge along X; gable ends at x=0 (left) and x=x (right)
+            px  = x if self._gable_end_right else 0.0
+            c0  = w(px, 0)        # eave corner at z=0
+            c1  = w(px, z)        # eave corner at z=z
+            ap  = w(px, z / 2)    # apex (ridge mid-point projected to this end)
+        else:
+            # Ridge along Z; gable ends at z=0 (left) and z=z (right)
+            pz  = z if self._gable_end_right else 0.0
+            c0  = w(0,      pz)   # eave corner at x=0
+            c1  = w(x,      pz)   # eave corner at x=x
+            ap  = w(x / 2,  pz)   # apex
+
+        vertices = [
+            (c0[0], y0, c0[1]),   # v0 – eave corner 1 (wall-plate level)
+            (c1[0], y0, c1[1]),   # v1 – eave corner 2 (wall-plate level)
+            (ap[0], y1, ap[1]),   # v2 – apex (ridge level)
+        ]
+
+        # Two triangles: opposite windings → double-sided panel
+        indices = [
+            (0, 1, 2),  # outward-facing winding
+            (0, 2, 1),  # inward-facing  winding
+        ]
+
+        face_groups = {
+            'wall': [0, 1],
+            'all':  [0, 1],
+        }
+
+        return vertices, indices, face_groups
+
+
 class GreenhouseGeometry3D(Generate3DMixin):
     """
     3D geometry for a greenhouse: four glass walls plus a gable glass roof.
@@ -1025,5 +1101,6 @@ __all__ = [
     'HippedRoofOctantGeometry3D',
     'HippedInternalOctantGeometry3D',
     'GreenhouseGeometry3D',
+    'GableEndWallGeometry3D',
     'is_3d_eligible',
 ]

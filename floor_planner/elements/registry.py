@@ -23,7 +23,9 @@ from .furniture import *
 from .landscaping import * 
 from .foundation.roof import (GableRoof, HippedRoof, SingleSlopeRoof,
                                HippedRoofOctantLeft, HippedRoofOctantRight,
-                               HippedInternalOctantLeft, HippedInternalOctantRight)
+                               HippedInternalOctantLeft, HippedInternalOctantRight,
+                               GableEndWallLeft, GableEndWallRight,
+                               GableEndGlassLeft, GableEndGlassRight)
 from .landscaping.structures import Greenhouse
 from .landscaping.glass_structures import GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame, Composite_GlassDoor
 
@@ -129,6 +131,10 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'hipped_roof_octant_right': HippedRoofOctantRight,
         'hipped_internal_octant_left': HippedInternalOctantLeft,
         'hipped_internal_octant_right': HippedInternalOctantRight,
+        'gable_end_wall_left': GableEndWallLeft,
+        'gable_end_wall_right': GableEndWallRight,
+        'gable_end_glass_left': GableEndGlassLeft,
+        'gable_end_glass_right': GableEndGlassRight,
         'greenhouse': Greenhouse,
         'glass_door': GlassDoor,
         'glass_panel': GlassPanel,

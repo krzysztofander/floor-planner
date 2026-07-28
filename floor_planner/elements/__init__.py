@@ -32,5 +32,7 @@ from .landscaping import (Tree, Shrub, Hedge, Lawn, Fence, GardenPath, Retaining
                            GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame, Composite_GlassDoor,
                            RectPool, OvalPool, GableRoof, HippedRoof,
                            SingleSlopeRoof, HippedRoofOctantLeft, HippedRoofOctantRight,
-                           HippedInternalOctantLeft, HippedInternalOctantRight)
+                           HippedInternalOctantLeft, HippedInternalOctantRight,
+                           GableEndWallLeft, GableEndWallRight,
+                           GableEndGlassLeft, GableEndGlassRight)
 from .registry import create_elements_registry

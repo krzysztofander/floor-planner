@@ -19,7 +19,7 @@ from ..element import Element
 from ..vertical_levels import VertInfoRoof
 from ...geometry_3d import (GableRoofGeometry3D, HippedRoofGeometry3D,
                              SingleSlopeRoofGeometry3D, HippedRoofOctantGeometry3D,
-                             HippedInternalOctantGeometry3D)
+                             HippedInternalOctantGeometry3D, GableEndWallGeometry3D)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -577,3 +577,98 @@ class HippedInternalOctantRight(_HippedInternalOctantBase):
     YAML type: ``hipped_internal_octant_right``
     """
     _octant_left = False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Gable end wall / glass elements  (3-D only, no 2-D drawing)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class _GableEndBase(VertInfoRoof, GableEndWallGeometry3D, Element):
+    """
+    Shared base for gable-end triangular panels (wall or glass).
+
+    These fill the vertical triangular gap between the top of the supporting
+    walls (v_anchor) and the gable ridge (v_anchor + height) at one end of a
+    gable roof.  They have **no 2-D floor-plan representation**; only 3-D
+    geometry is generated.
+
+    Use the **same** anchor_point / size / height / v_anchor /
+    orientation_angle values as the matching GableRoof element so the
+    triangles slot in exactly.
+
+    YAML parameters:
+        anchor_point      – bottom-left of the roof footprint (= GableRoof)
+        size              – (x_size, z_size) in metres          (= GableRoof)
+        height            – ridge height above v_anchor          (= GableRoof)
+        v_anchor          – 3D Y of the wall plate  (default 2.70 m, VertInfoRoof)
+        orientation_angle – rotation in degrees (default 0)
+        color             – unused in 2D; kept for API consistency
+        label             – optional label string
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            size: tuple[float, float],
+            height: float | None = None,
+            v_anchor: float | None = None,
+            orientation_angle: float = 0,
+            color: str = '#D3D3D3',
+            label: str | None = None,
+            **kwargs,
+    ):
+        super().__init__(
+            anchor_point=anchor_point,
+            color=color,
+            label=label,
+            v_anchor=v_anchor,
+            height=height if height is not None else self._default_height(),
+            **kwargs,
+        )
+        self.x_axis_size       = size[0]
+        self.z_axis_size       = size[1]
+        self.orientation_angle = orientation_angle
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """No 2-D drawing — gable end panels are 3-D only."""
+        pass
+
+
+class GableEndWallLeft(_GableEndBase):
+    """
+    Left gable end wall: opaque triangular vertical panel at the left end of
+    a gable roof (x = 0 when ridge runs along X, z = 0 when along Z).
+
+    Use the same parameters as the matching GableRoof to ensure a perfect fit.
+
+    YAML type: ``gable_end_wall_left``
+    """
+    _gable_end_right = False
+
+
+class GableEndWallRight(_GableEndBase):
+    """
+    Right gable end wall: opaque triangular panel at the right end.
+
+    YAML type: ``gable_end_wall_right``
+    """
+    _gable_end_right = True
+
+
+class GableEndGlassLeft(_GableEndBase):
+    """
+    Left gable end glass panel: transparent triangular panel at the left end
+    of a gable roof — for glazed gable ends or winter gardens.
+
+    YAML type: ``gable_end_glass_left``
+    """
+    _gable_end_right = False
+
+
+class GableEndGlassRight(_GableEndBase):
+    """
+    Right gable end glass panel: transparent triangular panel at the right end.
+
+    YAML type: ``gable_end_glass_right``
+    """
+    _gable_end_right = True

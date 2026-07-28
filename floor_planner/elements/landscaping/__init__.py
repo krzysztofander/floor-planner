@@ -12,7 +12,9 @@ from .structures import (Pergola, RaisedBed, Gazebo, Deck, GenericSurface, Garde
 from .glass_structures import GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame, Composite_GlassDoor
 from ..foundation.roof import (GableRoof, HippedRoof, SingleSlopeRoof,
                                 HippedRoofOctantLeft, HippedRoofOctantRight,
-                                HippedInternalOctantLeft, HippedInternalOctantRight)
+                                HippedInternalOctantLeft, HippedInternalOctantRight,
+                                GableEndWallLeft, GableEndWallRight,
+                                GableEndGlassLeft, GableEndGlassRight)
 
 __all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D',
            'VegetationElement', 'Fence', 'GardenPath', 'RetainingWall',
@@ -22,4 +24,6 @@ __all__ = ['Tree', 'Shrub', 'Hedge', 'Lawn', 'CircularVegetation2D',
            'GlassDoor', 'GlassPanel', 'GlassSlope', 'SolidGlassDoor', 'AluFrame', 'Composite_GlassDoor',
            'GableRoof', 'HippedRoof', 'SingleSlopeRoof',
            'HippedRoofOctantLeft', 'HippedRoofOctantRight',
-           'HippedInternalOctantLeft', 'HippedInternalOctantRight']
+           'HippedInternalOctantLeft', 'HippedInternalOctantRight',
+           'GableEndWallLeft', 'GableEndWallRight',
+           'GableEndGlassLeft', 'GableEndGlassRight']

@@ -6,7 +6,7 @@ project:
 
 default_layout:
   bottom_left_corner: [0, 0]
-  top_right_corner: [65, 40]
+  top_right_corner: [65, 55]
   scale_numerator: 1
   scale_denominator: 100
   grid_major_step: 5
@@ -409,4 +409,90 @@ floor_plans:
         orientation_angle: 270
         color: '#1A6A4A'
         label: 'L270'
+
+      # ── Gable end walls and glass (3-D only, invisible in 2D) ─────────────────
+      # A 10×6 m gable roof at v_anchor=2.7, height=3.0.
+      # The left and right gable end walls fill the triangular gap.
+      # Both solid (wall) and transparent (glass) variants are shown.
+
+      - type: text_box
+        anchor_point: [1, 43]
+        lines: ['GABLE END WALLS + GLASS (3D only)']
+        font_size: 9
+
+      # ── Solid wall variant (left + right) ───────────────────────────────────
+      - type: gable_roof
+        anchor_point: [1, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#8B4513'
+        label: 'Gable + walls'
+
+      - type: gable_end_wall_left
+        anchor_point: [1, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+
+      - type: gable_end_wall_right
+        anchor_point: [1, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+
+      # ── Glass variant (left + right) ────────────────────────────────────────
+      - type: gable_roof
+        anchor_point: [15, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#4A6A8B'
+        label: 'Gable + glass ends'
+
+      - type: gable_end_glass_left
+        anchor_point: [15, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+
+      - type: gable_end_glass_right
+        anchor_point: [15, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+
+      # ── Ridge along Z (x < z) — rotated geometry ───────────────────────────
+      - type: gable_roof
+        anchor_point: [30, 44]
+        size: [6, 10]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#8B4513'
+        label: 'z>x + walls'
+
+      - type: gable_end_wall_left
+        anchor_point: [30, 44]
+        size: [6, 10]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+
+      - type: gable_end_wall_right
+        anchor_point: [30, 44]
+        size: [6, 10]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
 
