@@ -1628,6 +1628,33 @@ class GLTFExporter:
         
         return texcoords
     
+    def _generate_local_geometry(self, element: Element):
+        """
+        Generate element geometry in local space for animated procedural elements.
+
+        Temporarily sets anchor_point=(0,0), orientation_angle=0 and v_anchor=0
+        so the returned vertices are centred at the origin.  The placement matrix
+        in the parent glTF node handles the world-space position.
+
+        Args:
+            element: Element with generate_vertices_and_indices()
+
+        Returns:
+            (vertices, indices, face_groups) in local space
+        """
+        orig_anchor        = element.anchor_point
+        orig_angle         = element.orientation_angle
+        orig_v_anchor      = element.v_anchor
+        try:
+            element.anchor_point      = (0.0, 0.0)
+            element.orientation_angle = 0
+            element.v_anchor          = 0.0
+            return element.generate_vertices_and_indices()
+        finally:
+            element.anchor_point      = orig_anchor
+            element.orientation_angle = orig_angle
+            element.v_anchor          = orig_v_anchor
+
     def _add_procedural_element(self, element: Element) -> int:
         """
         Add element with procedurally generated 3D geometry.
@@ -1670,8 +1697,14 @@ class GLTFExporter:
                 # Standard wall geometry (no openings)
                 vertices, indices, face_groups = element.generate_vertices_and_indices()
         else:
-            # Standard geometry for non-wall elements
-            vertices, indices, face_groups = element.generate_vertices_and_indices()
+            # For animated procedural elements generate geometry in local space
+            # (anchor_point = origin, orientation_angle = 0, v_anchor = 0) so
+            # the placement matrix can position/rotate the mesh at runtime.
+            if getattr(element, 'animation', None) is not None:
+                vertices, indices, face_groups = self._generate_local_geometry(element)
+            else:
+                # Standard geometry for non-wall elements
+                vertices, indices, face_groups = element.generate_vertices_and_indices()
         
         # Check if this is simple box geometry (8 vertices) or complex mesh
         is_simple_box = (len(vertices) == 8)
@@ -1761,7 +1794,76 @@ class GLTFExporter:
         
         mesh_index = len(self.meshes)
         self.meshes.append(gltf_mesh)
-        
+
+        # ── Animated procedural element ─────────────────────────────────────
+        # If the element carries animation metadata (e.g. Door with door-swing),
+        # emit a two-node hierarchy:
+        #   Parent – Placement matrix only (static world position)
+        #   Child  – TRS decomposed from (SecAnchor × SecNorm) + mesh + extras.animation
+        #
+        # The geometry was generated in local space (anchor=(0,0), angle=0,
+        # v_anchor=0) so the placement matrix can move it to world position.
+        anim_data = getattr(element, 'animation', None)
+
+        if anim_data is not None:
+            from floor_planner.transform import (
+                build_normalization_matrix, create_placement_matrix,
+                compose_transforms, matrix_to_trs
+            )
+
+            # Placement matrix  (anchor_point, orientation_angle, v_anchor)
+            placement_matrix = create_placement_matrix(
+                anchor_point=element.anchor_point,
+                orientation_angle=element.orientation_angle,
+                v_anchor=element.v_anchor,
+            )
+
+            # Secondary normalization (open-angle transform)
+            sec_norm_data = getattr(element, 'secondary_normalization', None)
+            sec_norm_matrix = (
+                build_normalization_matrix(sec_norm_data)
+                if sec_norm_data is not None
+                else np.eye(4)
+            )
+
+            # Secondary anchor offset
+            sec_anchor_data = getattr(element, 'secondary_anchor_offset', None)
+            sec_anchor_matrix = np.eye(4)
+            if sec_anchor_data is not None:
+                sec_anchor_matrix[0, 3] = -sec_anchor_data[0]
+                sec_anchor_matrix[1, 3] = -sec_anchor_data[1]
+                sec_anchor_matrix[2, 3] = -sec_anchor_data[2]
+
+            child_matrix = sec_anchor_matrix @ sec_norm_matrix
+            translation, rotation_quat, scale = matrix_to_trs(child_matrix)
+
+            child_idx = len(self.nodes) + 1  # will be appended right after parent
+
+            parent_node = {
+                "name":     f"{element_type}_{element.get_id()}_placement",
+                "matrix":   matrix_to_json(placement_matrix),
+                "children": [child_idx],
+                "extras":   {
+                    "element_type": element_type,
+                    "procedural":   True,
+                },
+            }
+            child_node = {
+                "name":        f"{element_type}_{element.get_id()}_anim",
+                "translation": translation.tolist(),
+                "rotation":    rotation_quat.tolist(),
+                "scale":       scale.tolist(),
+                "mesh":        mesh_index,
+                "extras":      {"animation": anim_data},
+            }
+
+            parent_idx = len(self.nodes)
+            self.nodes.append(parent_node)
+            self.nodes.append(child_node)
+            self.root_node_indices.append(parent_idx)
+            return parent_idx
+
+        # ── Static procedural element (original behaviour) ───────────────────
         # Create node
         node = {
             "name": f"{element_type}_{element.get_id()}",
