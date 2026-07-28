@@ -231,8 +231,40 @@ SPECIES_DB: dict[str, dict] = {
         "bloom_season_end": "15.06",
         "bloom_color": "white",
     },
-}
-
+    # ---- Berries ----
+    "Porz. czerwona": {
+        "height": 1.2,
+        "diameter": 1.0,
+        "color": "#6B9E4E",
+        "bloom_season_start": "15.04",
+        "bloom_season_end": "30.04",
+        "bloom_color":  "#EBD1DA",
+    },
+    "Porz. biała": {
+        "height": 1.2,
+        "diameter": 1.0,
+        "color": "#7DAD61",
+        "bloom_season_start": "15.04",
+        "bloom_season_end": "30.04",
+        "bloom_color": "white",
+    },
+    "Porz. czarna": {
+        "height": 1.2,
+        "diameter": 1.1,
+        "color": "#598440",
+        "bloom_season_start": "15.04",
+        "bloom_season_end": "30.04",
+        "bloom_color": "white",
+    },
+    "Borówka": {
+        "height": 1.0,
+        "diameter": 1.0,
+        "color": "#6B8D57",
+        "bloom_season_start": "15.04",
+        "bloom_season_end": "30.04",
+        "bloom_color": "#F7F1F3",
+    },
+}  # SPECIES_DB
 # ---------------------------------------------------------------------------
 # Lookup helpers
 # ---------------------------------------------------------------------------
