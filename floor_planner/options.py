@@ -4,7 +4,6 @@ Configuration options for floor plan elements.
 Author: Krzysztof Bartczak
 """
 
-
 # Global configuration for element-specific options
 # Structure: {element_type: {option_name: value}}
 _element_options = {}
@@ -15,7 +14,7 @@ _id_counters = {}
 # Canonical fallback families: any element type in a set falls back to the
 # canonical key if no exact match is found in _element_options.
 _DOOR_TYPES: frozenset[str] = frozenset({
-    'Door', 'BalconyDoor', 'WindowDoor', 'SolidDoor1', 'SolidDoor2', 'WindowDoorDouble',
+    'Door', 'BalconyDoor', 'WindowDoor', 'SolidDoor1', 'SolidDoor2', 'WindowDoorDouble', 'SlidingBalconyDoor'
 })
 _WINDOW_TYPES: frozenset[str] = frozenset({
     'Window', 'Window140x120', 'Window90x120',

@@ -19,7 +19,7 @@ from ..vertical_levels import VertInfoDoor
 from floor_planner.motion_3d import AnimationMetadata
 
 
-class Door3D:
+class Door3DHinged:
     """
     Helper that computes the 3D wing-animation normalization and offset for a
     door element.  Shared by BalconyDoor (external-model path) and Door /
@@ -82,7 +82,10 @@ class Door3D:
     def getSecondaryAnchorOffset(self):  return self.secondary_anchor_offset
     def getPreAnimationTRS(self):  return {'pre_translation': self.pre_translation,  'pre_rotation': self.pre_rotation,  'pre_scale': self.pre_scale}
     def getPostAnimationTRS(self): return {'post_translation': self.post_translation, 'post_rotation': self.post_rotation, 'post_scale': self.post_scale}
-    def getOpeningAngle(self):     return self.openingMaxAngle
+
+    def getTranslation(self): return [0,0,0]
+    def getRotation(self): return [0, self.openingMaxAngle, 0]
+    def getScale(self): return [1,1,1]
 
     def calcNormalisationAndOffset(self):
         WW     = self.wing_width_on_model
@@ -141,7 +144,7 @@ class Door3D:
         self.post_scale       = [1, 1, 1]
 
 
-class Door2D():
+class Door2DHinged():
     """Helper for drawing a door, used both for programmatic doors and models """
     
     door_schematic_line_thickness = 0.04
@@ -371,174 +374,6 @@ class Door2D():
         arc.set_zorder(z_orderm)
         ax.add_patch(arc)
 
-class Door(VertInfoDoor, RectangularElement):
-    door_schematic_line_thickness = 0.04
-    """Single door."""
-
-    def __init__(
-            self,
-            anchor_point: tuple[float, float],
-            doorway_width: float,
-            door_width: float,
-            thickness: float,
-            orientation_angle: float = 0,
-            to_the_right: bool = False,
-            color: str = 'black',
-            hinges_point: float = 0.95,
-            opening_outside: bool = False,
-            label: str | None = None,
-            **kwargs
-    ):
-        """
-        Initialize an instance.
-
-        :param anchor_point:
-            coordinates (in meters) of anchor point; here, it is the door frame corner
-            that is on the same side with hinges and is on the side where the door opens
-            (given `to_the_right` is set to `False`, else it is on the opposite side)
-        :param doorway_width:
-            width of the doorway (in meters), i.e. width of the door itself
-            plus the width of both sides of the door frame
-        :param door_width:
-            width of the door itself (in meters)
-        :param thickness:
-            thickness of the door (in meters)
-        :param orientation_angle:
-            angle (in degrees) that specifies orientation of the doorway;
-            it is measured between X-axis and the doorway in positive direction (counterclockwise);
-            initial doorway is rotated around anchor point to get the desired orientation
-        :param to_the_right:
-            binary indicator whether the door opens to the right if someone looks at it
-            from the hinges point along the doorway
-        :param color:
-            color to use for drawing the window
-        :param hinges_point:
-            relative position of the hinges along the doorway (0.0 = start, 1.0 = end, 0.5 = middle)
-        :param label:
-            optional label for the element
-        :param kwargs:
-            additional parameters (e.g., texture_scale, v_anchor, height, id)
-        :return:
-            freshly created instance of `Door` class
-        """
-        self.door2d = Door2D(anchor_point, doorway_width, door_width, thickness,
-                        orientation_angle, to_the_right, hinges_point,
-                        opening_outside)
-
-        #RectangularElement:
-        super().__init__(
-            anchor_point=anchor_point,
-            orientation_angle=orientation_angle,
-            length=doorway_width,
-            thickness=thickness,
-            color=color,
-            label=label,
-            **kwargs
-        )
-
-        # ── 3-D door-swing animation ─────────────────────────────────────────
-        # Reuse Door3D with procedural parameters so the same class drives
-        # both external-model and procedural doors.
-        #
-        # model_door_width = doorway_width  → stretch = 1 (geometry is already
-        #                                     at actual scale, no mesh distortion)
-        # wing_width_on_model = T × H       → correct Z pre-translation so the
-        #                                     hinge sits at origin before rotation
-        # model_depth = thickness            → fixes z_shift = W+(T-depth)×H
-        #                                     = T×H (not T×H×(2-H))
-        #
-        # The X hinge position (pre_translation[0]) defaults to 0 in Door3D
-        # (external models have their hinge at x=0).  For procedural geometry
-        # the hinge is inside the frame bar, so we override it afterwards.
-
-        hinges_depth = self.door2d.getHingesDepth()
-        door3d = Door3D(
-            doorway_width=doorway_width,
-            door_width=door_width,
-            thickness=thickness,
-            opening_outside=opening_outside,
-            to_the_right=to_the_right,
-            hinges_depth=hinges_depth,
-            model_door_width=doorway_width,                 # stretch = 1
-            wing_width_on_model=thickness, 
-            model_depth=thickness,                          # full wall depth
-        )
-
-        if True:
-
-            door3d.calcNormalisationAndOffset()
-
-            # Correct the X pivot: Door3D uses x=0 (left edge of the OBJ mesh), but
-            # procedural geometry has the hinge inside the left frame bar.
-            hinge_x = (self.door2d.frame_width_left + self.door2d.door_width
-                    if to_the_right else self.door2d.frame_width_left)
-            pre_trs  = door3d.getPreAnimationTRS()
-            post_trs = door3d.getPostAnimationTRS()
-            #pre_trs['pre_translation'][0]   = -self.door2d.frame_width_left
-            #post_trs['post_translation'][0] =  self.door2d.frame_width_left
-
-            anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
-            anim_meta.addPreTRS(
-                translation=pre_trs['pre_translation'],
-                rotation=pre_trs['pre_rotation'],
-                scale=pre_trs['pre_scale'],
-            )
-            anim_meta.addTRS(
-                translation=[0, 0, 0],
-                rotation=[0, door3d.getOpeningAngle(), 0],
-                scale=[1, 1, 1],
-            )
-            anim_meta.addPostTRS(
-                translation=post_trs['post_translation'],
-                rotation=post_trs['post_rotation'],
-                scale=post_trs['post_scale'],
-            )
-            anim_meta.addActivation(
-                point=(doorway_width / 2, 1.2, -0.5 if opening_outside else 0.5),
-                distance=(2.0, 1),
-            )
-            self.animation = anim_meta.getAnimation()
-        else:
-            self.door3d.calcNormalisationAndOffset()  
-            if False: # no animation
-                self.secondary_normalization = self.door3d.getSecondaryNormalization()
-                self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
-            else:
-                # Movable part desciptor as metadata under the 'animation' key in the child node 
-                anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
-            
-                anim_meta.addPreTRS(translation=self.door3d.getPreAnimationTRS()['pre_translation'],
-                                    rotation=self.door3d.getPreAnimationTRS()['pre_rotation'],
-                                    scale=self.door3d.getPreAnimationTRS()['pre_scale'])    
-                anim_meta.addTRS(translation=[0,0,0], rotation=[0, self.door3d.getOpeningAngle(), 0], scale=[1,1,1])
-                anim_meta.addPostTRS(translation=self.door3d.getPostAnimationTRS()['post_translation'],
-                                    rotation=self.door3d.getPostAnimationTRS()['post_rotation'],
-                                    scale=self.door3d.getPostAnimationTRS()['post_scale'])
-                anim_meta.addActivation(point=(doorway_width/2, 1.2 ,-0.5 if self.door3d.opening_outside else 0.5),
-                                        distance=(2.0, 1)
-                                        )  
-                self.animation = anim_meta.getAnimation()
-
-    def get_to_the_right(self) -> bool:
-        """Return whether the door opens to the right."""
-        return self.door2d.to_the_right
-    def get_doorway_width(self) -> float:
-        """Return the doorway width."""
-        return self.door2d.doorway_width
-    def get_door_width(self) -> float:
-        """Return the door width."""
-        return self.door2d.door_width
-
-
-    def draw(self, ax: matplotlib.axes.Axes) -> None:
-        """Draw the door """
-        draw_color = self.get_draw_color()
-        if draw_color is None:
-            return
-        z_order = self.get_zorder()
-        self.door2d.draw2D(draw_color, z_order, ax)
-        self.door2d.render_door_label_and_id(self, self.__class__.__name__, ax)
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Sliding door helpers
@@ -754,8 +589,13 @@ class SlidingDoor3D:
                 'post_rotation':    self.post_rotation,
                 'post_scale':       self.post_scale}
     def getOpenTranslation(self) -> list:
-        """Return the slide vector [tx, 0, 0] for the open position."""
-        return self.open_translation
+         """Return the slide vector [tx, 0, 0] for the open position."""
+         return self.open_translation
+
+    def getTranslation(self): return self.open_translation
+    def getRotation(self): return [0, 0, 0]
+    def getScale(self): return [1,1,1]
+
 
     def calcNormalisationAndOffset(self):
         WW    = self.wing_width_on_model
@@ -789,5 +629,279 @@ class SlidingDoor3D:
         self.post_rotation    = [0, 0, 0]
         self.post_scale       = [1, 1, 1]
 
+class Door2D():
+    """Helper for drawing a door, used both for programmatic doors and models """
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            doorway_width: float,
+            door_width: float,
+            thickness: float,
+            door_type: str, 
+            orientation_angle: float = 0,
+            to_the_right: bool = False,
+            hinges_point: float = 0.95,
+            opening_outside: bool = False,
+            door_orientation_in_doorway: float = 0.5
+     ):
+        if door_type == 'hinged':
+            self.door2D = Door2DHinged(
+                anchor_point,doorway_width,door_width,thickness,
+                orientation_angle,to_the_right,hinges_point,
+                opening_outside,door_orientation_in_doorway)
+        elif door_type == 'sliding':
+            self.door2D = SlidingDoor2D(
+                anchor_point, doorway_width, door_width, thickness,
+                orientation_angle, to_the_right, hinges_point,
+                opening_outside, door_orientation_in_doorway)
+        else:
+            raise ValueError("need type")
+
+    def render_door_label_and_id(self, parent, element_type, ax: matplotlib.axes.Axes) -> None:
+        self.door2D.render_door_label_and_id(parent, element_type, ax)
+
+    def draw2D(self, draw_color, z_order, ax: matplotlib.axes.Axes) -> None:
+        self.door2D.draw2D(draw_color, z_order, ax)
+
+class Door3D:
+    """ Helper that computes the 3D animation normalization and offset for a door element."""
+    def __init__(
+            self,
+            doorway_width: float,
+            door_width: float,
+            thickness: float,
+            door_type: str, 
+            opening_outside: bool = False,
+            to_the_right: bool = False,
+            hinges_depth: float = 0.95,
+            model_door_width: float = 0.9,
+            wing_width_on_model: float = 0.12,
+            model_depth: float | None = None,
+    ):
+        self.secondary_normalization  = {'scale': [1,1,1], 'rotation': [0,0,0], 'translation': [0,0,0]}
+        self.secondary_anchor_offset  = [0, 0, 0]
+        if door_type == 'hinged':
+            self.door3D = Door3DHinged(
+                doorway_width=doorway_width,
+                door_width=door_width,
+                thickness=thickness,
+                opening_outside=opening_outside,
+                to_the_right=to_the_right,
+                hinges_depth= hinges_depth,
+                model_door_width = model_door_width,
+                wing_width_on_model = wing_width_on_model,
+                model_depth=model_depth)        
+        elif door_type == 'sliding':
+            self.door3D = SlidingDoor3D(
+                doorway_width=doorway_width,
+                door_width=door_width,
+                thickness=thickness,
+                opening_outside=opening_outside,
+                to_the_right=to_the_right,
+                hinges_depth= hinges_depth,
+                model_door_width = model_door_width,
+                wing_width_on_model = wing_width_on_model,
+                model_depth=model_depth) 
+        elif door_type == 'fixture':
+            self.door3D = None;
+        else:
+            raise ValueError("need type")
+
+    def getSecondaryNormalization(self): return self.secondary_normalization
+    def getSecondaryAnchorOffset(self):  return self.secondary_anchor_offset
+    def getAnimation(self):
+        if self.door3D:
+            self.door3D.calcNormalisationAndOffset()
+            anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
+            anim_meta.addPreTRS(
+                translation=self.door3D.getPreAnimationTRS()['pre_translation'],
+                rotation=self.door3D.getPreAnimationTRS()['pre_rotation'],
+                scale=self.door3D.getPreAnimationTRS()['pre_scale'],
+            )
+            anim_meta.addTRS(
+                translation=self.door3D.getTranslation(),
+                rotation=self.door3D.getRotation(),
+                scale=self.door3D.getScale(),
+            )
+            anim_meta.addPostTRS(
+                translation=self.door3D.getPostAnimationTRS()['post_translation'],
+                rotation=self.door3D.getPostAnimationTRS()['post_rotation'],
+                scale=self.door3D.getPostAnimationTRS()['post_scale'],
+            )
+            anim_meta.addActivation(
+                point=(self.door3D.doorway_width / 2, 1.2, -0.5 if self.door3D.opening_outside else 0.5),
+                distance=(2.0, 1),
+            )
+            return anim_meta.getAnimation()
+        else:
+            return None
+
+class Door(VertInfoDoor, RectangularElement):
+    door_schematic_line_thickness = 0.04
+    """Single door."""
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            doorway_width: float,
+            door_width: float,
+            thickness: float,
+            orientation_angle: float = 0,
+            to_the_right: bool = False,
+            color: str = 'black',
+            hinges_point: float = 0.95,
+            opening_outside: bool = False,
+            label: str | None = None,
+            **kwargs
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates (in meters) of anchor point; here, it is the door frame corner
+            that is on the same side with hinges and is on the side where the door opens
+            (given `to_the_right` is set to `False`, else it is on the opposite side)
+        :param doorway_width:
+            width of the doorway (in meters), i.e. width of the door itself
+            plus the width of both sides of the door frame
+        :param door_width:
+            width of the door itself (in meters)
+        :param thickness:
+            thickness of the door (in meters)
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the doorway;
+            it is measured between X-axis and the doorway in positive direction (counterclockwise);
+            initial doorway is rotated around anchor point to get the desired orientation
+        :param to_the_right:
+            binary indicator whether the door opens to the right if someone looks at it
+            from the hinges point along the doorway
+        :param color:
+            color to use for drawing the window
+        :param hinges_point:
+            relative position of the hinges along the doorway (0.0 = start, 1.0 = end, 0.5 = middle)
+        :param label:
+            optional label for the element
+        :param kwargs:
+            additional parameters (e.g., texture_scale, v_anchor, height, id)
+        :return:
+            freshly created instance of `Door` class
+        """
+        self.door2d = Door2D(anchor_point, doorway_width, door_width, thickness,
+                        orientation_angle, to_the_right, hinges_point,
+                        opening_outside)
+
+        #RectangularElement:
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=doorway_width,
+            thickness=thickness,
+            color=color,
+            label=label,
+            **kwargs
+        )
+
+        # ── 3-D door-swing animation ─────────────────────────────────────────
+        # Reuse Door3D with procedural parameters so the same class drives
+        # both external-model and procedural doors.
+        #
+        # model_door_width = doorway_width  → stretch = 1 (geometry is already
+        #                                     at actual scale, no mesh distortion)
+        # wing_width_on_model = T × H       → correct Z pre-translation so the
+        #                                     hinge sits at origin before rotation
+        # model_depth = thickness            → fixes z_shift = W+(T-depth)×H
+        #                                     = T×H (not T×H×(2-H))
+        #
+        # The X hinge position (pre_translation[0]) defaults to 0 in Door3D
+        # (external models have their hinge at x=0).  For procedural geometry
+        # the hinge is inside the frame bar, so we override it afterwards.
+
+        hinges_depth = self.door2d.getHingesDepth()
+        door3d = Door3D(
+            doorway_width=doorway_width,
+            door_width=door_width,
+            thickness=thickness,
+            opening_outside=opening_outside,
+            to_the_right=to_the_right,
+            hinges_depth=hinges_depth,
+            model_door_width=doorway_width,                 # stretch = 1
+            wing_width_on_model=thickness, 
+            model_depth=thickness,                          # full wall depth
+        )
+
+        if True:
+
+            door3d.calcNormalisationAndOffset()
+
+            # Correct the X pivot: Door3D uses x=0 (left edge of the OBJ mesh), but
+            # procedural geometry has the hinge inside the left frame bar.
+            hinge_x = (self.door2d.frame_width_left + self.door2d.door_width
+                    if to_the_right else self.door2d.frame_width_left)
+            pre_trs  = door3d.getPreAnimationTRS()
+            post_trs = door3d.getPostAnimationTRS()
+            #pre_trs['pre_translation'][0]   = -self.door2d.frame_width_left
+            #post_trs['post_translation'][0] =  self.door2d.frame_width_left
+
+            anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
+            anim_meta.addPreTRS(
+                translation=pre_trs['pre_translation'],
+                rotation=pre_trs['pre_rotation'],
+                scale=pre_trs['pre_scale'],
+            )
+            anim_meta.addTRS(
+                translation=[0, 0, 0],
+                rotation=[0, door3d.getOpeningAngle(), 0],
+                scale=[1, 1, 1],
+            )
+            anim_meta.addPostTRS(
+                translation=post_trs['post_translation'],
+                rotation=post_trs['post_rotation'],
+                scale=post_trs['post_scale'],
+            )
+            anim_meta.addActivation(
+                point=(doorway_width / 2, 1.2, -0.5 if opening_outside else 0.5),
+                distance=(2.0, 1),
+            )
+            self.animation = anim_meta.getAnimation()
+        else:
+            self.door3d.calcNormalisationAndOffset()  
+            if False: # no animation
+                self.secondary_normalization = self.door3d.getSecondaryNormalization()
+                self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
+            else:
+                # Movable part desciptor as metadata under the 'animation' key in the child node 
+                anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
+            
+                anim_meta.addPreTRS(translation=self.door3d.getPreAnimationTRS()['pre_translation'],
+                                    rotation=self.door3d.getPreAnimationTRS()['pre_rotation'],
+                                    scale=self.door3d.getPreAnimationTRS()['pre_scale'])    
+                anim_meta.addTRS(translation=[0,0,0], rotation=[0, self.door3d.getOpeningAngle(), 0], scale=[1,1,1])
+                anim_meta.addPostTRS(translation=self.door3d.getPostAnimationTRS()['post_translation'],
+                                    rotation=self.door3d.getPostAnimationTRS()['post_rotation'],
+                                    scale=self.door3d.getPostAnimationTRS()['post_scale'])
+                anim_meta.addActivation(point=(doorway_width/2, 1.2 ,-0.5 if self.door3d.opening_outside else 0.5),
+                                        distance=(2.0, 1)
+                                        )  
+                self.animation = anim_meta.getAnimation()
+
+    def get_to_the_right(self) -> bool:
+        """Return whether the door opens to the right."""
+        return self.door2d.to_the_right
+    def get_doorway_width(self) -> float:
+        """Return the doorway width."""
+        return self.door2d.doorway_width
+    def get_door_width(self) -> float:
+        """Return the door width."""
+        return self.door2d.door_width
+
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the door """
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+        z_order = self.get_zorder()
+        self.door2d.draw2D(draw_color, z_order, ax)
+        self.door2d.render_door_label_and_id(self, self.__class__.__name__, ax)
 
 

@@ -7,22 +7,15 @@ a lower solid-wood wing panel, and an upper glass panel.
 
 Author: Krzysztof Bartczak
 """
-
-import math
-
 import matplotlib.axes
-from matplotlib.patches import Arc, Rectangle
 from matplotlib.pylab import cos
 
 from ...constants import RIGHT_ANGLE_IN_DEGREES
 from ...utils import rotate_point
 from ..external_models import ExternalModelElement
-from ..symbols.info import DimensionArrow
 from ...options import get_element_option
 from ..vertical_levels import VertInfoDoor
 from ..foundation.door import Door2D, Door3D
-from floor_planner.motion_3d import AnimationMetadata
-
 class BalconyDoor(VertInfoDoor, ExternalModelElement):
     """
     Balcony door element.
@@ -76,7 +69,7 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             **kwargs
         )
 
-        self.door2d = Door2D(anchor_point,doorway_width,door_width,thickness,
+        self.door2d = Door2D(anchor_point,doorway_width,door_width,thickness, 'hinged' ,
                 orientation_angle,to_the_right,hinges_point,
                 opening_outside,door_orientation_in_doorway)
 
@@ -84,37 +77,17 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             doorway_width=doorway_width,
             door_width=door_width,
             thickness=thickness,
+            door_type='hinged',
             opening_outside=opening_outside,
             to_the_right=to_the_right,
-            hinges_depth= self.door2d.getHingesDepth()
+            hinges_depth= 1 - hinges_point  if opening_outside else hinges_point
         )
-
 
         # length and thickness  used by the parent Element / anchor helpers
         self.length = doorway_width
         self.thickness = thickness
 
-
-        if True: # Krzysztof: my way of opening door on 3D:
-            self.door3d.calcNormalisationAndOffset()  
-            if False: # no animation
-                self.secondary_normalization = self.door3d.getSecondaryNormalization()
-                self.secondary_anchor_offset = self.door3d.getSecondaryAnchorOffset()
-            else:
-                # Movable part desciptor as metadata under the 'animation' key in the child node 
-                anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
-            
-                anim_meta.addPreTRS(translation=self.door3d.getPreAnimationTRS()['pre_translation'],
-                                    rotation=self.door3d.getPreAnimationTRS()['pre_rotation'],
-                                    scale=self.door3d.getPreAnimationTRS()['pre_scale'])    
-                anim_meta.addTRS(translation=[0,0,0], rotation=[0, self.door3d.getOpeningAngle(), 0], scale=[1,1,1])
-                anim_meta.addPostTRS(translation=self.door3d.getPostAnimationTRS()['post_translation'],
-                                    rotation=self.door3d.getPostAnimationTRS()['post_rotation'],
-                                    scale=self.door3d.getPostAnimationTRS()['post_scale'])
-                anim_meta.addActivation(point=(doorway_width/2, 1.2 ,-0.5 if self.door3d.opening_outside else 0.5),
-                                        distance=(2.0, 1)
-                                        )  
-                self.animation = anim_meta.getAnimation()
+        self.animation = self.door3d.getAnimation()
 
     # ------------------------------------------------------------------
     # ExternalModelElement hooks

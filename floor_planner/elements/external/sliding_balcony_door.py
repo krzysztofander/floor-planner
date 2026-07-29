@@ -17,7 +17,7 @@ import matplotlib.axes
 from ...utils import rotate_point
 from ..external_models import ExternalModelElement
 from ..vertical_levels import VertInfoDoor
-from ..foundation.door import Door2D, SlidingDoor2D, SlidingDoor3D
+from ..foundation.door import Door2D,  Door3D
 from floor_planner.motion_3d import AnimationMetadata
 
 
@@ -76,19 +76,20 @@ class SlidingBalconyDoor(VertInfoDoor, ExternalModelElement):
             **kwargs,
         )
 
-        self.door2d = SlidingDoor2D(
-            anchor_point, doorway_width, door_width, thickness,
+        self.door2d = Door2D(
+            anchor_point, doorway_width, door_width, thickness, 'sliding',
             orientation_angle, to_the_right, hinges_point,
             opening_outside, door_orientation_in_doorway,
         )
 
-        self.sliding3d = SlidingDoor3D(
+        self.door3d = Door3D(
             doorway_width=doorway_width,
             door_width=door_width,
             thickness=thickness,
+            door_type='sliding',
             opening_outside=opening_outside,
             to_the_right=to_the_right,
-            hinges_depth=self.door2d.getHingesDepth(),
+            hinges_depth=(1 - hinges_point) if opening_outside else hinges_point,
             # External model constants (same as balcony_door model)
             model_door_width=0.9,
             wing_width_on_model=0.12,
@@ -97,35 +98,7 @@ class SlidingBalconyDoor(VertInfoDoor, ExternalModelElement):
 
         self.length    = doorway_width
         self.thickness = thickness
-
-        self.sliding3d.calcNormalisationAndOffset()
-		
-		# With no animation: 
-        #self.secondary_normalization = self.sliding3d.getSecondaryNormalization()
-        #self.secondary_anchor_offset = self.sliding3d.getSecondaryAnchorOffset()
-
-        anim_meta = AnimationMetadata(AnimationMetadata.TriggerType.PROXIMITY)
-        anim_meta.addPreTRS(
-            translation=self.sliding3d.getPreAnimationTRS()['pre_translation'],
-            rotation=self.sliding3d.getPreAnimationTRS()['pre_rotation'],
-            scale=self.sliding3d.getPreAnimationTRS()['pre_scale'],
-        )
-        anim_meta.addTRS(
-            translation=self.sliding3d.getOpenTranslation(),
-            rotation=[0, 0, 0],
-            scale=[1, 1, 1],
-        )
-        anim_meta.addPostTRS(
-            translation=self.sliding3d.getPostAnimationTRS()['post_translation'],
-            rotation=self.sliding3d.getPostAnimationTRS()['post_rotation'],
-            scale=self.sliding3d.getPostAnimationTRS()['post_scale'],
-        )
-        anim_meta.addActivation(
-            point=(doorway_width / 2, 1.2, -0.5 if opening_outside else 0.5),
-            distance=(2.0, 1),
-        )
-        self.animation = anim_meta.getAnimation()
-
+        self.animation = self.door3d.getAnimation()
     # ------------------------------------------------------------------
     # ExternalModelElement hooks
     # ------------------------------------------------------------------
