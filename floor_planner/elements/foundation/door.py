@@ -602,8 +602,8 @@ class SlidingDoor3D:
         depth = self.model_depth
         stretch = self.doorway_width / self.model_door_width
 
-        # Z depth of panel in wall (same formula as Door3D left-inside)
-        z_shift = WW + (self.thickness - depth) * self.hinges_depth
+        # Z depth of panel in wall. Different formula as  wanting to move door outside of frame
+        z_shift = WW + (self.thickness) * self.hinges_depth
 
         # Static closed position (identical to Door3D left-inside convention)
         self.secondary_normalization = {
@@ -768,6 +768,7 @@ class Door(VertInfoDoor, RectangularElement):
             hinges_point: float = 0.95,
             opening_outside: bool = False,
             label: str | None = None,
+            door_type: str='hinged',
             **kwargs
     ):
         """
@@ -803,7 +804,7 @@ class Door(VertInfoDoor, RectangularElement):
             freshly created instance of `Door` class
         """
         self.door2d = Door2D(anchor_point, doorway_width, door_width, thickness,
-                        'hinged', orientation_angle, to_the_right, hinges_point,
+                        door_type, orientation_angle, to_the_right, hinges_point,
                         opening_outside)
 
         #RectangularElement:
@@ -837,7 +838,7 @@ class Door(VertInfoDoor, RectangularElement):
             doorway_width=doorway_width,
             door_width=door_width,
             thickness=thickness,
-            door_type='hinged',
+            door_type=door_type,
             opening_outside=opening_outside,
             to_the_right=to_the_right,
             hinges_depth=hinges_depth,
