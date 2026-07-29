@@ -59,7 +59,8 @@
         height: 3.0
 
     # Doors and south wall
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [door_spacing, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -70,7 +71,8 @@
         opening_outside: false
         label: "south sliding_door l inside"
         color: brown
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [door_spacing + (door_spacing+doorway_width)*1, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -81,7 +83,8 @@
         opening_outside: false
         label: "south sliding_door r inside"
         color: brown
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [door_spacing + (door_spacing+doorway_width)*2, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -92,7 +95,8 @@
         opening_outside: true
         label: "south sliding_door l outside"
         color: brown
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [door_spacing + (door_spacing+doorway_width)*3, 0]
         doorway_width: doorway_width
         door_width: door_width
@@ -111,7 +115,8 @@
         orientation_angle: 0
         label: "South window"
     # Doors and windows north wall
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [doorway_width + door_spacing, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -122,7 +127,8 @@
         opening_outside: false
         label: "north sliding_door r inside"
         color: brown
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*1, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -133,7 +139,8 @@
         opening_outside: false
         label: "north sliding_door l inside"
         color: brown
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*2, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -144,7 +151,8 @@
         opening_outside: true
         label: "north sliding_door r outside"
         color: brown
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [doorway_width + door_spacing + (door_spacing+doorway_width)*3, room_length]
         doorway_width: doorway_width
         door_width: door_width
@@ -163,7 +171,8 @@
         orientation_angle: 180
         label: "north window"
     # Doors and windows west wall
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [0, door_spacing + doorway_width]
         doorway_width: doorway_width
         door_width: door_width
@@ -174,7 +183,8 @@
         opening_outside: true
         label: "west r sliding_door outside"
         color: black
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*1]
         doorway_width: doorway_width
         door_width: door_width
@@ -185,7 +195,8 @@
         opening_outside: true
         label: "west l sliding_door outside"
         color: black
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*2]
         doorway_width: doorway_width
         door_width: door_width
@@ -196,7 +207,8 @@
         opening_outside: false
         label: "west r sliding_door inside"
         color: black
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [0, door_spacing + doorway_width +  (door_spacing+doorway_width)*3]
         doorway_width: doorway_width
         door_width: door_width
@@ -215,7 +227,8 @@
         orientation_angle: 270
         label: "west window"
     # Doors and windows east wall
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [room_width , door_spacing ]
         doorway_width: doorway_width
         door_width: door_width
@@ -226,7 +239,8 @@
         opening_outside: false
         label: "east l sliding_door inside"
         color: black
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*1]
         doorway_width: doorway_width
         door_width: door_width
@@ -237,7 +251,8 @@
         opening_outside: false
         label: "east r sliding_door inside"
         color: black
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*2]
         doorway_width: doorway_width
         door_width: door_width
@@ -248,7 +263,8 @@
         opening_outside: true
         label: "east l sliding_door outside"
         color: black
-      - type: model_sliding_balcony_door
+      - type: model_balcony_door
+        door_type: sliding
         anchor_point: [room_width , door_spacing + (door_spacing+doorway_width)*3]
         doorway_width: doorway_width
         door_width: door_width

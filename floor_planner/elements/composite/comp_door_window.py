@@ -48,6 +48,7 @@ class Composite_WindowDoorDouble(ElementBase):
                 hinges_point=hinges_point,
                 opening_outside=opening_outside,
                 door_orientation_in_doorway = 1,
+                door_type='hinged',
                 label=label,
                 **kwargs)
         )
@@ -64,6 +65,7 @@ class Composite_WindowDoorDouble(ElementBase):
                     hinges_point=hinges_point,
                     opening_outside=opening_outside,
                     door_orientation_in_doorway = 0,
+                    door_type='hinged',
                     label=label,
                     **kwargs)
             )

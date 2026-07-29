@@ -37,6 +37,7 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
         to_the_right     – door swings to the right when False (default)
         hinges_point     – relative hinge position along thickness (0–1)
         opening_outside  – door opens outward when True
+        door_type        – 'hinged' (default) or 'sliding'
         color            – 2-D drawing colour (default 'black')
         label            – optional text label
     """
@@ -56,6 +57,7 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             color: str = 'black',
             hinges_point: float = 0.95,
             opening_outside: bool = False,
+            door_type: str = 'hinged',
             label: str | None = None,
             **kwargs
     ):
@@ -69,18 +71,18 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             **kwargs
         )
 
-        self.door2d = Door2D(anchor_point,doorway_width,door_width,thickness, 'hinged' ,
-                orientation_angle,to_the_right,hinges_point,
-                opening_outside,door_orientation_in_doorway)
+        self.door2d = Door2D(anchor_point, doorway_width, door_width, thickness, door_type,
+                orientation_angle, to_the_right, hinges_point,
+                opening_outside, door_orientation_in_doorway)
 
         self.door3d = Door3D(
             doorway_width=doorway_width,
             door_width=door_width,
             thickness=thickness,
-            door_type='hinged',
+            door_type=door_type,
             opening_outside=opening_outside,
             to_the_right=to_the_right,
-            hinges_depth= 1 - hinges_point  if opening_outside else hinges_point
+            hinges_depth=self.door2d.getHingesDepth()
         )
 
         # length and thickness  used by the parent Element / anchor helpers
@@ -101,15 +103,15 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
 
     def get_to_the_right(self) -> bool:
         """Return whether the door opens to the right."""
-        return self.door2d.to_the_right
+        return self.door2d.get_to_the_right()
    
     def get_doorway_width(self) -> float:
         """Return the doorway width."""
-        return self.door2d.doorway_width
+        return self.door2d.get_doorway_width()
    
     def get_door_width(self) -> float:
         """Return the door width."""
-        return self.door2d.door_width
+        return self.door2d.get_door_width()
 
 
     # ------------------------------------------------------------------

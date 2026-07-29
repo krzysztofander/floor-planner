@@ -42,7 +42,6 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'dimension_arrow': DimensionArrow,
         'door': Door,
         'model_balcony_door': BalconyDoor,
-        'model_sliding_balcony_door': SlidingBalconyDoor,
         'model_window_door': WindowDoor,
         'model_solid_door_1': SolidDoor1,
         'model_solid_door_2': SolidDoor2,

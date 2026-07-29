@@ -5,7 +5,6 @@ Author: Krzysztof Bartczak
 """
 
 from .balcony_door import BalconyDoor
-from .sliding_balcony_door import SlidingBalconyDoor
 from .blender_furniture import (
     Armchair, Chair20, ChaiseLongue1, Desk1,
     Sofa22, Sofa23, Stool7, Table01, Well
@@ -21,7 +20,6 @@ from .trees import LeafyTree, LeafyShrub1
 __all__ = [
     # doors
     'BalconyDoor',
-    'SlidingBalconyDoor',
     'WindowDoor',
     'SolidDoor1',
     'SolidDoor2',
