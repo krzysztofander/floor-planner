@@ -67,7 +67,7 @@
         thickness: wall_s_thickness
         orientation_angle: 0
         to_the_right: false
-        hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
+        hinges_point: 0 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
         label: "south sliding_door l inside"
         color: brown
@@ -79,7 +79,7 @@
         thickness: wall_s_thickness
         orientation_angle: 0
         to_the_right: true
-        hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
+        hinges_point: 1 #  How far hinges are related to swing of balcony_door.
         opening_outside: false
         label: "south sliding_door r inside"
         color: brown
@@ -91,7 +91,7 @@
         thickness: wall_s_thickness
         orientation_angle: 0
         to_the_right: false
-        hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
+        hinges_point: 0 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
         label: "south sliding_door l outside"
         color: brown
@@ -103,7 +103,7 @@
         thickness: wall_s_thickness
         orientation_angle: 0
         to_the_right: true
-        hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
+        hinges_point: 1 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
         label: "south sliding_door r outside"
         color: brown
@@ -191,7 +191,7 @@
         thickness: wall_w_thickness
         orientation_angle: 270
         to_the_right: false
-        hinges_point: 0.95 #  How far hinges are related to swing of balcony_door.
+        hinges_point: -0.4 #  How far hinges are related to swing of balcony_door.
         opening_outside: true
         label: "west l sliding_door outside"
         color: black

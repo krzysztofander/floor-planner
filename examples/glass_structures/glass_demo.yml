@@ -227,6 +227,7 @@ floor_plans:
         orientation_angle: 0
         to_the_right: true
         opening_outside: true
+        door_type: 'sliding'
         label: 'right-out'
 
       # ── AluFrame examples ───────────────────────────────────────────────────
