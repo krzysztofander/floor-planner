@@ -47,6 +47,16 @@ SPECIES_DB: dict[str, dict] = {
         "bloom_season_end": "15.07",
         "bloom_color": "#FFFACD",
     },
+    "Glediczja": {
+        "height": 80.0,
+        "diameter": 6.0,
+        "color": "#5B8C3E",
+        "trunk_diameter": 0.7,
+        "trunk_color": "#8B6914",
+        "bloom_season_start": "15.06",
+        "bloom_season_end": "15.07",
+        "bloom_color": "#FFFACD",
+    },
     "Katalpa": {
         "height": 12.0,
         "diameter": 8.0,
@@ -176,8 +186,8 @@ SPECIES_DB: dict[str, dict] = {
         "bloom_color": "#EEE8F0",
     },
     "Lilak": {
-        "height": 2.2,
-        "diameter": 1.8,
+        "height": 2.5,
+        "diameter": 2.2,
         "color": "#7B9E5A",
         "bloom_season_start": "01.05",
         "bloom_season_end": "31.05",
