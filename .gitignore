@@ -207,7 +207,7 @@ camera.json
 examples/**/*.md
 
 # VS code files
-.vscode/
+# .vscode/
 *.code-workspace
 
 temp/*

@@ -1,0 +1,10 @@
+{
+    "python.REPL.enableREPLSmartSend": false,
+    "files.watcherExclude": {
+        "**/.venv/**": true,
+        "**/venv/**": true,
+        "**/__pycache__/**": true,
+        "**/.pytest_cache/**": true,
+        "**/node_modules/**": true
+    }
+}
