@@ -63,13 +63,12 @@ class _RoofBase(Element):
             label=label,
             v_anchor=v_anchor,
             height=height if height is not None else self._default_height(),
-            texture_scale=0.3,
+            texture_scale=3,
             **kwargs,
         )
         self.x_axis_size = size[0]
         self.z_axis_size = size[1]
         self.orientation_angle = orientation_angle
-        self.texture_scale = 0.3  # Default texture scale for roof (0.3m tiles)
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw roof footprint as an unfilled dashed rectangle."""
