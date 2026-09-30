@@ -182,7 +182,7 @@ class FloorPlan:
         """
         x, y = anchor_point
         line_height = 0.3 * fontsize /11 # Spacing between lines
-        row_width = fontsize/5
+        row_width = fontsize/4
         current_y = y
         room_list_y = y
         font_size = fontsize
@@ -231,14 +231,20 @@ class FloorPlan:
                 
                 # List each room
                 for room in labeled_rooms:
-                    print (f"Room: {room.label}, {room.purpose}" )
-                    area_text = f"  • {room.label}: {room.inner_area:.2f} m²"
+                    #print (f"Room: {room.label}, {room.purpose}" )
                     self.ax.text(
-                        x, current_y, area_text,
+                        x, current_y, f"  • {room.label}:",
                         fontsize=font_size,
                         verticalalignment='top',
                         horizontalalignment='left'
                     )
+                    self.ax.text(
+                        x + row_width*0.9, current_y, f"{room.inner_area:.2f}m²",
+                        fontsize=font_size,
+                        verticalalignment='top',
+                        horizontalalignment='right'
+                    )
+
                     current_y -= line_height
                 
                 # Add spacing before total
