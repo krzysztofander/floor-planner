@@ -7,6 +7,7 @@ Author: Nikolay Lysenko
 
 from pathlib import Path
 from typing import Optional
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -181,7 +182,9 @@ class FloorPlan:
         """
         x, y = anchor_point
         line_height = 0.3 * fontsize /11 # Spacing between lines
+        row_width = fontsize/5
         current_y = y
+        room_list_y = y
         font_size = fontsize
         
         # Draw notes first
@@ -198,50 +201,62 @@ class FloorPlan:
             
             # Add extra spacing after notes
             current_y -= line_height * 0.5
+            room_list_y = current_y
         
         # Get all Room elements
         rooms = [elem for elem in self.elements if isinstance(elem, Room)]
         
         # Filter rooms that have labels
-        labeled_rooms = [room for room in rooms if room.label]
-        
-        # Draw room areas
-        if areas and labeled_rooms:
-            # Header
-            self.ax.text(
-                x, current_y, "Room Areas:",
-                fontsize=font_size + 1,
-                verticalalignment='top',
-                horizontalalignment='left',
-                weight='bold'
-            )
-            current_y -= line_height
-            
-            # List each room
-            for room in labeled_rooms:
-                area_text = f"  • {room.label}: {room.inner_area:.2f} m²"
+        all_labeled_rooms = [room for room in rooms if room.label]
+
+        # Grouped iteration over labeled rooms, the grouping element is room's purpose
+        purposed_room_group = defaultdict(set)
+        for lroom in all_labeled_rooms:
+            purposed_room_group[lroom.purpose].add(lroom)
+
+        for purpose, labeled_rooms in purposed_room_group.items():
+            title = f"{purpose if purpose is not None else 'Other'} room areas:"
+            current_y = room_list_y
+            # Draw room areas
+            if areas and labeled_rooms:
+                # Header
                 self.ax.text(
-                    x, current_y, area_text,
-                    fontsize=font_size,
+                    x, current_y, title,
+                    fontsize=font_size + 1,
                     verticalalignment='top',
-                    horizontalalignment='left'
+                    horizontalalignment='left',
+                    weight='bold'
                 )
                 current_y -= line_height
+                
+                # List each room
+                for room in labeled_rooms:
+                    print (f"Room: {room.label}, {room.purpose}" )
+                    area_text = f"  • {room.label}: {room.inner_area:.2f} m²"
+                    self.ax.text(
+                        x, current_y, area_text,
+                        fontsize=font_size,
+                        verticalalignment='top',
+                        horizontalalignment='left'
+                    )
+                    current_y -= line_height
+                
+                # Add spacing before total
+                current_y -= line_height * 0.3
             
-            # Add spacing before total
-            current_y -= line_height * 0.3
-        
-        # Draw total area
-        if total_area and labeled_rooms:
-            total = sum(room.inner_area for room in labeled_rooms)
-            total_text = f"Total Area: {total:.2f} m²"
-            self.ax.text(
-                x, current_y, total_text,
-                fontsize=font_size + 1,
-                verticalalignment='top',
-                horizontalalignment='left',
-                weight='bold'
-            )
+            # Draw total area
+            if total_area and labeled_rooms:
+                total = sum(room.inner_area for room in labeled_rooms)
+                total_text = f"Total Area: {total:.2f} m²"
+                self.ax.text(
+                    x, current_y, total_text,
+                    fontsize=font_size + 1,
+                    verticalalignment='top',
+                    horizontalalignment='left',
+                    weight='bold'
+                )
+            # increase x so next group is next row
+            x += row_width
     
     def export_to_gltf(
             self,
