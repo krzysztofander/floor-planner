@@ -62,7 +62,6 @@ class Room(Group):
         self.walls = walls
         self.other_elements = other_elements or []
         self.purpose = purpose
-        print (f"S: {self.label}, {self.purpose}" )
 
         # Mark walls as room walls
         for wall in walls:

@@ -24,8 +24,9 @@ from ...utils import rotate_point, render_label_and_id, text_readability_rotatio
 from ..external_models import ExternalModelElement
 from ..vertical_levels import VertInfoWindows
 from ...options import get_element_option
+from ...options import generate_element_id
 from ..foundation.windows import Window2D
-
+from ..element import ElementBase
 
 class _FixedWindow(VertInfoWindows, ExternalModelElement):
     """
@@ -132,6 +133,65 @@ class WindowSingleAny(_FixedWindow):
 
     def _default_height(self) -> float:
         return 1.20
+
+class Composite_WindowDouble(ElementBase):
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            overall_thickness: float,
+            single_line_thickness: float = -1,
+            length: float = 1.4,
+            height: float = 1.2,
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None,
+            **kwargs
+    ):
+        super().__init__()
+
+        middle_bar_spacing = 0.00  # Space between the two wings in the 3D model (metres)
+        calc_single_w_length = length/2
+        calc_overall_width = (length - middle_bar_spacing)/2
+
+        rotated_anchor_l = rotate_point( anchor_point, 0,0, math.radians(orientation_angle))
+        rotated_anchor_r = rotate_point(rotated_anchor_l, calc_overall_width + middle_bar_spacing, 0, math.radians(orientation_angle))
+        
+  
+        self.addToList(
+            WindowSingleAny(
+                anchor_point = rotated_anchor_l,
+                overall_thickness = overall_thickness,
+                single_line_thickness = single_line_thickness,
+                length =  calc_single_w_length,
+                height = height,
+                orientation_angle = orientation_angle,
+                color = color,
+                label=label,
+                **kwargs)
+        )
+        self.addToList(
+                WindowSingleAny(
+                anchor_point=  rotated_anchor_r,
+                overall_thickness = overall_thickness,
+                single_line_thickness = single_line_thickness,
+                length =  calc_single_w_length,
+                height = height,
+                orientation_angle = orientation_angle,
+                color = color,
+                label=label,
+                **kwargs)
+        )
+        # Generate unique ID based on class name and label, or use provided ID
+        self.id = generate_element_id(self.__class__.__name__, label)
+ 
+    
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        for element in self.getList():
+            element.draw(ax)
+    
+    def get_id(self) -> str:
+        """Get the element ID."""
+        return self.id
 
 class Window140x120(_FixedWindow):
     """Single-pane window, 1.40 m wide × 1.20 m tall."""

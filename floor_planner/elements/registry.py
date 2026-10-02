@@ -49,6 +49,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'composite_model_window_door_double': Composite_WindowDoorDouble,
         'model_window_140x120': Window140x120,
         'model_window_single_any': WindowSingleAny,
+        'composite_model_window_double' : Composite_WindowDouble,
         'model_window_90x120': Window90x120,
         'model_window_double_160x120': WindowDouble160x120,
         'model_window_double_160x140': WindowDouble160x140,

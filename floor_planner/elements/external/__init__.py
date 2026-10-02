@@ -9,7 +9,8 @@ from .blender_furniture import (
     Armchair, Chair20, ChaiseLongue1, Desk1,
     Sofa22, Sofa23, Stool7, Table01, Well
 )
-from .fixed_windows import Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140, WindowSingleAny
+from .fixed_windows import (Window140x120, Window90x120, WindowDouble160x120, WindowDouble160x140,
+     WindowSingleAny, Composite_WindowDouble)
 from .master_bed import MasterBed
 from .sofa_model import SofaModel
 from .window_door import WindowDoor, SolidDoor1, SolidDoor2, WindowDoorDouble
@@ -30,6 +31,7 @@ __all__ = [
     'WindowDouble160x120',
     'WindowDouble160x140',
     'WindowSingleAny',
+    'Composite_WindowDouble',
     # furniture
     'Armchair',
     'Chair20',
