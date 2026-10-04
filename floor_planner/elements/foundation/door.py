@@ -305,7 +305,7 @@ class Door2DHinged():
         whole_in_a_wall.set_zorder(z_orderm)
         ax.add_patch(whole_in_a_wall)
         # Draw a part of frame opposite to the hinges.
-        shift = self.frame_width_right + self.door_width
+        shift = self.frame_width_left + self.door_width
         frame_without_hinges_anchor_point = (
             self.anchor_point[0] + math.cos(orientation_angle_in_rad) * shift,
             self.anchor_point[1] + math.sin(orientation_angle_in_rad) * shift
