@@ -28,6 +28,7 @@ class FishTank(VertInfoLvl03, RectangularElement):
             orientation_angle: float = 0,
             length: float = 0.6,
             thickness: float = 0.3,
+            v_anchor: float = 0.6,
             color: str = 'blue',
             label: str | None = None
     ):
@@ -53,19 +54,13 @@ class FishTank(VertInfoLvl03, RectangularElement):
             freshly created instance of `FishTank` class
         """
         super().__init__(
-
             anchor_point=anchor_point,
-
             orientation_angle=orientation_angle,
-
             length=length,
-
             thickness=thickness,
-
+            v_anchor=v_anchor,
             color=color,
-
             label=label
-
         )
         self.alpha_mode = "BLEND"  # Fish tank glass uses alpha blending
 
