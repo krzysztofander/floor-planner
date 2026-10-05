@@ -264,7 +264,6 @@ def renderDim(ax: matplotlib.axes.Axes,
     text_anchor_point += shift_vector
     text_anchor_x = text_anchor_point[0][0].item()
     text_anchor_y = text_anchor_point[0][1].item()
-    text = str(round(length,3))
     if bgcolor is not None:
         bboxdict = dict(facecolor = bgcolor, alpha = 0.6, edgecolor="none", boxstyle="round")
     else:
@@ -279,6 +278,7 @@ def renderDim2pts(ax: matplotlib.axes.Axes,
               anchor_point1: tuple[float, float],
               anchor_point2: tuple[float, float],
               text: str,
+              append_len: bool,
               font_size: float,
               text_elevation: float,
               color: str,
@@ -290,6 +290,8 @@ def renderDim2pts(ax: matplotlib.axes.Axes,
     angle = np.arctan2(dy, dx)
     angle_deg = np.degrees(angle)
     length = np.linalg.norm(p2 - p1)
+    if append_len:
+        text = f"{text} ({length})" 
 
     renderDim(ax,anchor_point1,text,length,angle_deg, font_size, text_elevation, color, bgcolor)
 
