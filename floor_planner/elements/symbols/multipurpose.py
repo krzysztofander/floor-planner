@@ -9,7 +9,8 @@ import matplotlib.axes
 from matplotlib import patches
 
 from ..element import Element
-
+from ...utils import renderDim2pts
+from ...options import get_label_color
 
 class Line(Element):
     """Line (solid, dashed, or dotted)"""
@@ -46,6 +47,7 @@ class Line(Element):
         self.second_point = second_point
         self.width = width
         self.style = self.style_to_matplotlib_code[style]
+        self.font_size = 10 # fixed for now
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw line."""
@@ -56,7 +58,15 @@ class Line(Element):
             ls=self.style,
             color=self.color
         )
-
+        # Render label if present and color is configured
+        if self.label is not None:
+            label_color = get_label_color('Line')
+            if label_color is not None:
+                renderDim2pts(ax,self.first_point, self.second_point, self.label,
+                              self.font_size, self.font_size * 0.0125, label_color, label_color)
+                              
+                              
+        
 
 class Polygon(Element):
     """Polygon. In particular, it can be used for wall corners or acute or obtuse angles."""

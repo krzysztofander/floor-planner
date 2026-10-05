@@ -13,6 +13,7 @@ from matplotlib.patches import Polygon
 
 from ..element import Element
 from ..vertical_levels import VertInfoAnnotations
+from ...utils import renderDim
 
 
 class DimensionArrow(VertInfoAnnotations, Element):
@@ -142,16 +143,19 @@ class DimensionArrow(VertInfoAnnotations, Element):
             self.length / 2,
             (self.font_size * 0.0125 if self.annotate_above else -self.font_size * 0.0125)
         ]
-        text_anchor_point = np.dot(rotation_matrix, np.array([initial_text_center]).T).T
-        text_anchor_point += shift_vector
-        text_anchor_x = text_anchor_point[0][0].item()
-        text_anchor_y = text_anchor_point[0][1].item()
+
+        text_elevation = (self.font_size * 0.0125 if self.annotate_above else -self.font_size * 0.0125)
+
         text = str(round(self.length,3))
-        ax.text(
-            text_anchor_x, text_anchor_y, text,
-            verticalalignment='center', horizontalalignment='center',
-            rotation=self.orientation_angle, color=self.color, fontsize=self.font_size
-        )
+        renderDim(ax,
+                self.anchor_point,
+                text,
+                self.length,
+                self.orientation_angle,
+                self.font_size,
+                text_elevation,
+                self.color)
+                  
 
 
 class TextBox(VertInfoAnnotations, Element):

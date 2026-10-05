@@ -8,6 +8,7 @@ import math
 from functools import lru_cache
 
 import matplotlib.axes
+import numpy as np
 
 from .options import get_label_color, get_id_color
 
@@ -237,6 +238,60 @@ def render_text_as_label_and_id(
     id_color = get_id_color(element_type)
     if id_color is not None:
         _render_text(ax, position, element.get_id(), rotation, id_color, centered=centered)
+
+def renderDim(ax: matplotlib.axes.Axes,
+              anchor_point: tuple[float, float],
+              text: str,
+              length: float,
+              orientation_angle: float,
+              font_size: float,
+              text_elevation: float,
+              color: str,
+              bgcolor: str | None = None
+              ):
+    shift_vector = np.array([[anchor_point[0], anchor_point[1]]])
+    rotation_angle_radians = math.radians(orientation_angle)
+    rotation_matrix = np.array([
+            [math.cos(rotation_angle_radians), -math.sin(rotation_angle_radians)],
+            [math.sin(rotation_angle_radians), math.cos(rotation_angle_radians)],
+        ])
+    initial_text_center = [
+            length / 2,
+            text_elevation
+        ]
+    
+    text_anchor_point = np.dot(rotation_matrix, np.array([initial_text_center]).T).T
+    text_anchor_point += shift_vector
+    text_anchor_x = text_anchor_point[0][0].item()
+    text_anchor_y = text_anchor_point[0][1].item()
+    text = str(round(length,3))
+    if bgcolor is not None:
+        bboxdict = dict(facecolor = bgcolor, alpha = 0.6, edgecolor="none", boxstyle="round")
+    else:
+        bboxdict = None
+    ax.text(
+            text_anchor_x, text_anchor_y, text,
+            verticalalignment='center', horizontalalignment='center',
+            rotation=orientation_angle, color=color, fontsize=font_size, bbox=bboxdict
+        )
+
+def renderDim2pts(ax: matplotlib.axes.Axes,
+              anchor_point1: tuple[float, float],
+              anchor_point2: tuple[float, float],
+              text: str,
+              font_size: float,
+              text_elevation: float,
+              color: str,
+              bgcolor: str | None):
+
+    p1 = np.array(anchor_point1)
+    p2 = np.array(anchor_point2)
+    dx, dy = p2 - p1
+    angle = np.arctan2(dy, dx)
+    angle_deg = np.degrees(angle)
+    length = np.linalg.norm(p2 - p1)
+
+    renderDim(ax,anchor_point1,text,length,angle_deg, font_size, text_elevation, color, bgcolor)
 
 def WarnMsg(msg: str) -> None:
     """Print warning message."""
