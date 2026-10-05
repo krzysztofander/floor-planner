@@ -10,7 +10,7 @@ from .foundation.windows import Window
 from .foundation.surfaces import Floor, Ceiling
 from .external import *
 from .foundation.door import Door
-from .symbols.electricity import ElectricalCable, PowerOutlet
+from .symbols.electricity import ElectricalCable, PowerOutlet, GroundCable
 from .element import ElementBase
 
 from .symbols.info import DimensionArrow, TextBox
@@ -72,6 +72,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'line': Line,
         'polygon': Polygon,
         'power_outlet': PowerOutlet,
+        'ground_cable': GroundCable,
         'group': Group,
         'room': Room,
         'floor': Floor,

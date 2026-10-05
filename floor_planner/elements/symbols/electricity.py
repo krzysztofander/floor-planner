@@ -13,6 +13,7 @@ from matplotlib.patches import Arc, Circle
 from ...constants import RIGHT_ANGLE_IN_DEGREES
 from ..element import Element
 from ..vertical_levels import VertInfoOutlets
+from .multipurpose import Line
 
 
 class PowerOutlet(VertInfoOutlets, Element):
@@ -244,3 +245,46 @@ class ElectricalCable(Element):
             )
             arc.set_zorder(self.get_zorder())
             ax.add_patch(arc)
+
+class GroundCable(Line):
+    """Ground electrical cable"""
+
+    def __init__(
+            self,
+            first_point: tuple[float, float],
+            second_point: tuple[float, float],
+            width: float = 0.5,
+            style: str = 'solid',
+            color: str = 'red',
+            label: str | None = None
+    ):
+        """
+        Initialize an instance.
+
+        :param first_point:
+            coordinates of the first end (in meters)
+        :param second_point:
+            coordinates of the second end (in meters)
+        :param width:
+            width of the line for `matplotlib`
+        :param style:
+            type of line ('solid', 'dashed', 'dotted', or 'dash_dot')
+        :param color:
+            color to use for drawing the line
+        :param label:
+            optional label for the element
+        """
+        self.append_len = False
+
+        if label is not None:
+            self.append_len = True
+
+        super().__init__(
+            first_point,
+            second_point,
+            width,
+            style,
+            color,
+            label,
+            self.append_len)
+     

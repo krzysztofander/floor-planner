@@ -24,7 +24,8 @@ class Line(Element):
             width: float = 0.5,
             style: str = 'solid',
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            append_len: bool = False
     ):
         """
         Initialize an instance.
@@ -41,6 +42,8 @@ class Line(Element):
             color to use for drawing the line
         :param label:
             optional label for the element
+        :param append_len
+            adds length to label
         """
         super().__init__(label=label, color=color, anchor_point=first_point)
         self.first_point = first_point
@@ -48,6 +51,7 @@ class Line(Element):
         self.width = width
         self.style = self.style_to_matplotlib_code[style]
         self.font_size = 10 # fixed for now
+        self.append_len =append_len
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw line."""
@@ -60,10 +64,10 @@ class Line(Element):
         )
         # Render label if present and color is configured
         if self.label is not None:
-            label_color = get_label_color('Line')
+            label_color = get_label_color(type(self).__name__)
             if label_color is not None:
-                renderDim2pts(ax,self.first_point, self.second_point, self.label,
-                              self.font_size, self.font_size * 0.0125, label_color, label_color)
+                renderDim2pts(ax,self.first_point, self.second_point, self.label, self.append_len,
+                              self.font_size, self.font_size * 0.0125, label_color,  'white')
                               
                               
         
