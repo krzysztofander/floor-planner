@@ -253,10 +253,11 @@ class GroundCable(Line):
             self,
             first_point: tuple[float, float],
             second_point: tuple[float, float],
-            width: float = 0.5,
+            width: float = 1.0,
             style: str = 'solid',
             color: str = 'red',
-            label: str | None = None
+            label: str | None = None,
+            print_len: bool | None = None
     ):
         """
         Initialize an instance.
@@ -276,7 +277,7 @@ class GroundCable(Line):
         """
         self.append_len = False
 
-        if label is not None:
+        if label is not None and print_len is True:
             self.append_len = True
 
         super().__init__(
