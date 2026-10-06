@@ -255,8 +255,9 @@ def renderDim(ax: matplotlib.axes.Axes,
             [math.cos(rotation_angle_radians), -math.sin(rotation_angle_radians)],
             [math.sin(rotation_angle_radians), math.cos(rotation_angle_radians)],
         ])
+    whitespace_shift = (len(text) - len(text.lstrip(' ')) ) * font_size * 0.1
     initial_text_center = [
-            length / 2,
+            length / 2 + whitespace_shift,
             text_elevation
         ]
     
@@ -269,7 +270,7 @@ def renderDim(ax: matplotlib.axes.Axes,
     else:
         bboxdict = None
     ax.text(
-            text_anchor_x, text_anchor_y, text,
+            text_anchor_x, text_anchor_y, text.lstrip(' '),
             verticalalignment='center', horizontalalignment='center',
             rotation=orientation_angle, color=color, fontsize=font_size, bbox=bboxdict
         )
@@ -291,7 +292,8 @@ def renderDim2pts(ax: matplotlib.axes.Axes,
     angle_deg = np.degrees(angle)
     length = np.linalg.norm(p2 - p1)
     if append_len:
-        text = f"{text} ({length})" 
+        rlen = str(math.ceil(length *10)/10)
+        text = f"{text} ({rlen})" if len(text) > 0 else f"({rlen})"
 
     renderDim(ax,anchor_point1,text,length,angle_deg, font_size, text_elevation, color, bgcolor)
 
