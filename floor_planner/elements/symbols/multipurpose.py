@@ -51,7 +51,8 @@ class Line(Element):
         self.width = width
         self.style = self.style_to_matplotlib_code[style]
         self.font_size = 10 # fixed for now
-        self.append_len =append_len
+        self.append_len = append_len
+        self.text_elevation = self.font_size * 0.015   
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw line."""
@@ -67,7 +68,7 @@ class Line(Element):
             label_color = get_label_color(type(self).__name__)
             if label_color is not None:
                 renderDim2pts(ax,self.first_point, self.second_point, self.label, self.append_len,
-                              self.font_size, self.font_size * 0.0125, label_color,  'white')
+                              self.font_size, self.text_elevation, label_color,  'white')
                               
                               
         
