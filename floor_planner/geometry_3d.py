@@ -470,14 +470,15 @@ class GableRoofGeometry3D(Generate3DMixin):
         y0 = self.v_anchor
         y1 = self.v_anchor + self.height
         ax0, az0 = self.anchor_point
-        angle_rad = math.radians(self.orientation_angle)
+        angle_rad = math.radians(self.orientation_angle if self.orientation_angle  else 0)
         ext_a = getattr(self, 'extension_a', 0) or 0
         ext_b = getattr(self, 'extension_b', 0) or 0
 
         def w(lx, lz):
             return rotate_point((ax0, az0), lx, lz, angle_rad)
 
-        if x >= z:
+        if (self.orientation_angle is not None) or x >= z:
+            # If orientation_angle is specified always assume to draw as if the ridge was along X, no automation
             # Ridge along X; slopes rise from z=0 and z=z toward z=z/2
             slope_rate = self.height / (z / 2)  # height-drop per metre of horizontal extension
 

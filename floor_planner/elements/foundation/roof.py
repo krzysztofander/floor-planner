@@ -52,7 +52,7 @@ class _RoofBase(Element):
             size: tuple[float, float],
             height: float | None = None,
             v_anchor: float | None = None,
-            orientation_angle: float = 0,
+            orientation_angle: float | None = None,
             color: str = '#8B4513',
             label: str | None = None,
             **kwargs,
@@ -80,7 +80,7 @@ class _RoofBase(Element):
             self.anchor_point,
             width=self.x_axis_size,
             height=self.z_axis_size,
-            angle=self.orientation_angle,
+            angle=self.orientation_angle if self.orientation_angle  else 0,
             facecolor='none',
             edgecolor=draw_color,
             linewidth=1.5,
@@ -94,14 +94,14 @@ class _RoofBase(Element):
                 self.anchor_point,
                 self.x_axis_size / 2,
                 self.z_axis_size / 2,
-                math.radians(self.orientation_angle),
+                math.radians(self.orientation_angle if self.orientation_angle  else 0),
             )
             render_label_and_id(
                 ax=ax,
                 element=self,
                 element_type=self.__class__.__name__,
                 position=center,
-                rotation=self.orientation_angle,
+                rotation=self.orientation_angle if self.orientation_angle  else 0
             )
 
 
@@ -142,7 +142,7 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             size: tuple[float, float],
             height: float | None = None,
             v_anchor: float | None = None,
-            orientation_angle: float = 0,
+            orientation_angle: float | None = None,
             color: str = '#8B4513',
             label: str | None = None,
             extension_a: float = 0,
@@ -174,13 +174,14 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
 
         x = self.x_axis_size
         z = self.z_axis_size
-        angle_rad = math.radians(self.orientation_angle)
+        angle_rad = math.radians(self.orientation_angle if self.orientation_angle  else 0)
 
         def w(lx, lz):
             return rotate_point(self.anchor_point, lx, lz, angle_rad)
 
-        if x >= z:
+        if (self.orientation_angle is not None) or x >= z:
             # Ridge along X; extensions in the z direction
+            # If orientation_angle is specified always assume to draw as if the ridge was along X, no automation
             if self.extension_a > 0:
                 p0 = w(0, -self.extension_a)
                 p1 = w(x, -self.extension_a)
