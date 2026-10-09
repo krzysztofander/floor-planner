@@ -44,6 +44,17 @@ class _RoofBase(Element):
         orientation_angle – rotation in degrees  (default 0)
         color             – outline colour in 2D  (default '#8B4513')
         label             – optional label string
+        draw_edge_a       – draw the footprint edge perpendicular to the ridge
+                            at local 0 (default True)
+        draw_edge_b       – draw the footprint edge perpendicular to the ridge
+                            at the far end (default True)
+        draw_x_axis_edge  – draw the footprint edge parallel to the local X axis
+                            at z = z_axis_size (default True).  Only honoured when
+                            the ridge runs along X; this is the high-eave edge
+                            (ridge) of a single-slope roof.
+
+    The two footprint edges parallel to the ridge at the other positions are
+    always drawn.
     """
 
     def __init__(
@@ -57,6 +68,7 @@ class _RoofBase(Element):
             label: str | None = None,
             draw_edge_a: bool = True,
             draw_edge_b: bool = True,
+            draw_x_axis_edge: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -73,6 +85,7 @@ class _RoofBase(Element):
         self.orientation_angle = orientation_angle
         self.draw_edge_a = draw_edge_a
         self.draw_edge_b = draw_edge_b
+        self.draw_x_axis_edge = draw_x_axis_edge
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """
@@ -98,7 +111,7 @@ class _RoofBase(Element):
             # Ridge along X: parallel edges at lz=0 / lz=z, perpendicular at lx=0 / lx=x
             edges = [
                 ((0, 0), (x, 0), True),
-                ((0, z), (x, z), True),
+                ((0, z), (x, z), self.draw_x_axis_edge),
                 ((0, 0), (0, z), self.draw_edge_a),
                 ((x, 0), (x, z), self.draw_edge_b),
             ]
@@ -165,6 +178,7 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
 
         The extension value is the 2D horizontal distance; the slope plane simply
         grows outward — its ridge line stays in place.
+        draw_ridge   – draw the ridge line in 2D (default True)
     """
 
     def __init__(
@@ -181,6 +195,7 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             roof_thickness: float = 0.4,
             draw_edge_a: bool = True,
             draw_edge_b: bool = True,
+            draw_ridge: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -193,8 +208,10 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             label=label,
             draw_edge_a=draw_edge_a,
             draw_edge_b=draw_edge_b,
+            draw_x_axis_edge=True,  # outline edge at lz=z must always be drawn; the ridge is drawn separately below
             **kwargs,
         )
+        self.draw_ridge = draw_ridge
         self.extension_a = extension_a or 0
         self.extension_b = extension_b or 0
         self.roof_thickness = roof_thickness or 0.4
@@ -215,12 +232,13 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             return rotate_point(self.anchor_point, lx, lz, angle_rad)
 
         # Ridge line, same style as the base footprint edges
-        if (self.orientation_angle is not None) or x >= z:
-            r0, r1 = w(0, z / 2), w(x, z / 2)
-        else:
-            r0, r1 = w(x / 2, 0), w(x / 2, z)
-        ax.plot([r0[0], r1[0]], [r0[1], r1[1]],
-                color=draw_color, linewidth=1.5, linestyle='--', zorder=self.get_zorder())
+        if self.draw_ridge:
+            if (self.orientation_angle is not None) or x >= z:
+                r0, r1 = w(0, z / 2), w(x, z / 2)
+            else:
+                r0, r1 = w(x / 2, 0), w(x / 2, z)
+            ax.plot([r0[0], r1[0]], [r0[1], r1[1]],
+                    color=draw_color, linewidth=1.5, linestyle='--', zorder=self.get_zorder())
 
         if (self.orientation_angle is not None) or x >= z:
             # Ridge along X; extensions in the z direction
@@ -308,6 +326,7 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
     Extra YAML parameters beyond _RoofBase:
         extension   – extend the low-eave edge outward in the plan-z direction
                       (horizontal distance in metres, default 0)
+        draw_ridge  – draw the high-eave edge (ridge) in 2D (default True)
     """
 
     def __init__(
@@ -323,6 +342,7 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             roof_thickness: float = 0.4,
             draw_edge_a: bool = True,
             draw_edge_b: bool = True,
+            draw_ridge: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -335,6 +355,7 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             label=label,
             draw_edge_a=draw_edge_a,
             draw_edge_b=draw_edge_b,
+            draw_x_axis_edge=draw_ridge,
             **kwargs,
         )
         self.extension = extension or 0
@@ -540,7 +561,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         draw_long_edge    – draw the hypotenuse (valley → corner) in 2D (default True)
         draw_short_edge   – draw the leg along the pointing direction
                             (valley → midpoint) in 2D (default False).
-                            The ridge line (midpoint → corner) is always drawn.
+        draw_ridge        – draw the ridge line (midpoint → corner) in 2D (default True)
     """
 
     def __init__(
@@ -556,6 +577,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
             roof_thickness: float = 0.4,
             draw_long_edge: bool = True,
             draw_short_edge: bool = False,
+            draw_ridge: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -570,6 +592,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         )
         self.extension = extension or 0
         self.roof_thickness = roof_thickness or 0.4
+        self.draw_ridge = draw_ridge
         self.draw_long_edge = draw_long_edge
         self.draw_short_edge = draw_short_edge
 
@@ -591,7 +614,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         corner = w(-x if self._octant_left else x,      z)   # eave corner
 
         edges = [
-            (mid, corner, True),                    # ridge line
+            (mid, corner, self.draw_ridge),         # ridge line
             (tip, corner, self.draw_long_edge),     # hypotenuse
             (tip, mid, self.draw_short_edge),       # leg along pointing direction
         ]
