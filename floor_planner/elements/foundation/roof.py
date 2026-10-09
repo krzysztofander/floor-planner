@@ -529,6 +529,10 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         label             – optional label string
         extension         – extend the HIGH eave edge outward (horizontal metres, default 0)
         roof_thickness    – inner surface offset for 3D export (default 0.4)
+        draw_long_edge    – draw the hypotenuse (valley → corner) in 2D (default True)
+        draw_short_edge   – draw the leg along the pointing direction
+                            (valley → midpoint) in 2D (default False).
+                            The ridge line (midpoint → corner) is always drawn.
     """
 
     def __init__(
@@ -542,6 +546,8 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
             label: str | None = None,
             extension: float = 0,
             roof_thickness: float = 0.4,
+            draw_long_edge: bool = True,
+            draw_short_edge: bool = False,
             **kwargs,
     ):
         super().__init__(
@@ -556,6 +562,8 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         )
         self.extension = extension or 0
         self.roof_thickness = roof_thickness or 0.4
+        self.draw_long_edge = draw_long_edge
+        self.draw_short_edge = draw_short_edge
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw the right-triangle footprint with its valley at anchor_point."""
@@ -574,16 +582,16 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         mid    = w(0,                                   z)   # eave midpoint
         corner = w(-x if self._octant_left else x,      z)   # eave corner
 
-        triangle = Polygon(
-            [tip, mid, corner],
-            closed=True,
-            facecolor='none',
-            edgecolor=draw_color,
-            linewidth=1.5,
-            linestyle='-.',
-        )
-        triangle.set_zorder(self.get_zorder())
-        ax.add_patch(triangle)
+        edges = [
+            (mid, corner, True),                    # ridge line
+            (tip, corner, self.draw_long_edge),     # hypotenuse
+            (tip, mid, self.draw_short_edge),       # leg along pointing direction
+        ]
+        for p0, p1, enabled in edges:
+            if enabled:
+                ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                        color=draw_color, linewidth=1.5, linestyle='-.',
+                        zorder=self.get_zorder())
 
         if self.extension > 0:
             z_ext = z + self.extension
