@@ -55,6 +55,8 @@ class _RoofBase(Element):
             orientation_angle: float | None = None,
             color: str = '#8B4513',
             label: str | None = None,
+            draw_edge_a: bool = True,
+            draw_edge_b: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -69,25 +71,54 @@ class _RoofBase(Element):
         self.x_axis_size = size[0]
         self.z_axis_size = size[1]
         self.orientation_angle = orientation_angle
+        self.draw_edge_a = draw_edge_a
+        self.draw_edge_b = draw_edge_b
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
-        """Draw roof footprint as an unfilled dashed rectangle."""
+        """
+        Draw roof footprint as dashed lines.
+
+        The two edges parallel to the ridge are always drawn; the edges
+        perpendicular to the ridge are drawn conditionally: ``draw_edge_a`` for
+        the one at local 0, ``draw_edge_b`` for the one at the far end.
+        """
         draw_color = self.get_draw_color()
         if draw_color is None:
             return
 
-        outline = Rectangle(
-            self.anchor_point,
-            width=self.x_axis_size,
-            height=self.z_axis_size,
-            angle=self.orientation_angle if self.orientation_angle  else 0,
-            facecolor='none',
-            edgecolor=draw_color,
-            linewidth=1.5,
-            linestyle='--',
-        )
-        outline.set_zorder(self.get_zorder())
-        ax.add_patch(outline)
+        x = self.x_axis_size
+        z = self.z_axis_size
+        angle_rad = math.radians(self.orientation_angle if self.orientation_angle else 0)
+
+        def w(lx, lz):
+            return rotate_point(self.anchor_point, lx, lz, angle_rad)
+
+        # Same ridge-direction rule as GableRoof.draw
+        if (self.orientation_angle is not None) or x >= z:
+            # Ridge along X: parallel edges at lz=0 / lz=z, perpendicular at lx=0 / lx=x
+            edges = [
+                ((0, 0), (x, 0), True),
+                ((0, z), (x, z), True),
+                ((0, 0), (0, z), self.draw_edge_a),
+                ((x, 0), (x, z), self.draw_edge_b),
+            ]
+        else:
+            # Ridge along Z: parallel edges at lx=0 / lx=x, perpendicular at lz=0 / lz=z
+            edges = [
+                ((0, 0), (0, z), True),
+                ((x, 0), (x, z), True),
+                ((0, 0), (x, 0), self.draw_edge_a),
+                ((0, z), (x, z), self.draw_edge_b),
+            ]
+
+        for start, end, enabled in edges:
+            if not enabled:
+                continue
+            p0 = w(*start)
+            p1 = w(*end)
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
+                    color=draw_color, linewidth=1.5, linestyle='--',
+                    zorder=self.get_zorder())
 
         if self.label:
             center = rotate_point(
@@ -148,6 +179,8 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             extension_a: float = 0,
             extension_b: float = 0,
             roof_thickness: float = 0.4,
+            draw_edge_a: bool = True,
+            draw_edge_b: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -158,6 +191,8 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            draw_edge_a=draw_edge_a,
+            draw_edge_b=draw_edge_b,
             **kwargs,
         )
         self.extension_a = extension_a or 0
@@ -278,6 +313,8 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             label: str | None = None,
             extension: float = 0,
             roof_thickness: float = 0.4,
+            draw_edge_a: bool = True,
+            draw_edge_b: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -288,6 +325,8 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            draw_edge_a=draw_edge_a,
+            draw_edge_b=draw_edge_b,
             **kwargs,
         )
         self.extension = extension or 0
