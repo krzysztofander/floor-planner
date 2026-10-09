@@ -214,6 +214,14 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
         def w(lx, lz):
             return rotate_point(self.anchor_point, lx, lz, angle_rad)
 
+        # Ridge line, same style as the base footprint edges
+        if (self.orientation_angle is not None) or x >= z:
+            r0, r1 = w(0, z / 2), w(x, z / 2)
+        else:
+            r0, r1 = w(x / 2, 0), w(x / 2, z)
+        ax.plot([r0[0], r1[0]], [r0[1], r1[1]],
+                color=draw_color, linewidth=1.5, linestyle='--', zorder=self.get_zorder())
+
         if (self.orientation_angle is not None) or x >= z:
             # Ridge along X; extensions in the z direction
             # If orientation_angle is specified always assume to draw as if the ridge was along X, no automation
