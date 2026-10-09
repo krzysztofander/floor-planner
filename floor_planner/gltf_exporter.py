@@ -1706,8 +1706,11 @@ class GLTFExporter:
                 # Standard geometry for non-wall elements
                 vertices, indices, face_groups = element.generate_vertices_and_indices()
         
-        # Check if this is simple box geometry (8 vertices) or complex mesh
-        is_simple_box = (len(vertices) == 8)
+        # Check if this is simple box geometry (8 vertices, 12 triangles with the
+        # box face groups) or complex mesh.  A vertex count alone is not enough:
+        # e.g. a single-slope roof shell also has exactly 8 vertices.
+        is_simple_box = (len(vertices) == 8 and len(indices) == 12
+                         and 'top' in face_groups and 'bottom' in face_groups)
         
         if is_simple_box:
             # Generate proper per-face UV mapping (expands 8 vertices to 24)

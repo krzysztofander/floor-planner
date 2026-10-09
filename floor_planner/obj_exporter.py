@@ -502,7 +502,8 @@ class OBJExporter:
         vertex_count = len(vertices)
         
         # For simple 8-vertex boxes (furniture, doors, windows, simple walls)
-        if vertex_count == 8:
+        if (vertex_count == 8 and len(indices) == 12
+                and 'top' in face_groups and 'bottom' in face_groups):
             return self._generate_box_texcoords(element, vertices)
         
         # For complex geometry (walls with openings), use per-face planar mapping
