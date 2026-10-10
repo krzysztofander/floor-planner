@@ -18,6 +18,8 @@ from .foundation.windows import  Window
 from .external import *
 from .foundation.door import Door
 from .symbols.electricity import ElectricalCable, PowerOutlet, GroundCable
+from .devices import *
+from .furniture import *
 from .element import ElementBase, Element, RectangularElement, SurfaceElement, CircularElement
 from .external_models import ExternalModelElement
 

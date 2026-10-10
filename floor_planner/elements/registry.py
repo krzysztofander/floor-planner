@@ -21,6 +21,7 @@ from .foundation.group import Group
 from .composite import *
 from .furniture import *
 from .landscaping import * 
+from .devices import *
 from .foundation.roof import (GableRoof, HippedRoof, SingleSlopeRoof,
                                HippedRoofOctantLeft, HippedRoofOctantRight,
                                HippedInternalOctantLeft, HippedInternalOctantRight,
@@ -85,6 +86,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'window': Window,
         'circle': Circle,
         'generic_storage': GenericStorage,
+        'generic_tank' : GenericTank,
         'storage60': Storage60,
         'storage40': Storage40,
         'tabletop': Tabletop,
