@@ -13,7 +13,7 @@ from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
 from ..element import RectangularElement
-from ..vertical_levels import VertInfoLvl03
+from ..vertical_levels import VertInfoLvl03, VertInfoLvl04
 
 
 class Dishwasher(VertInfoLvl03, RectangularElement):
@@ -1009,6 +1009,101 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             ax,
             self,
             'Double Sink',
+            self.anchor_point,
+            self.orientation_angle,
+            label_prefix="",
+            id_prefix=""
+        )
+
+
+class TV(VertInfoLvl04, RectangularElement):
+    """
+    Flat TV set (16:9 screen)
+
+    Length and height are derived from the screen diagonal given in inches.
+    """
+
+    INCH_TO_METER = 0.0254
+    ASPECT_WIDTH = 16
+    ASPECT_HEIGHT = 9
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            diagonal: float,
+            thickness: float = 0.2,
+            orientation_angle: float = 0,
+            color: str = 'black',
+            label: str | None = None,
+            v_anchor: float = 0.80
+    ):
+        """
+        Initialize an instance.
+
+        :param anchor_point:
+            coordinates of anchor point (in meters);
+            bottom left point is anchor point if `orientation_angle == 0`
+        :param diagonal:
+            screen diagonal (in inches); aspect ratio 16:9 is assumed
+        :param thickness:
+            thickness of the TV (in meters)
+        :param orientation_angle:
+            angle (in degrees) that specifies orientation of the TV;
+            it is measured between X-axis and the TV in positive direction (counterclockwise);
+            initial TV is rotated around anchor point to get the desired orientation
+        :param color:
+            color to use for drawing the TV
+        :param label:
+            optional label for the element
+        :param v_anchor:
+            vertical anchor point in meters (height above floor/ground)
+        :return:
+            freshly created instance of `TV` class
+        """
+        self.diagonal = diagonal
+        diagonal_m = diagonal * self.INCH_TO_METER
+        norm = math.hypot(self.ASPECT_WIDTH, self.ASPECT_HEIGHT)
+        length = diagonal_m * self.ASPECT_WIDTH / norm
+        height = diagonal_m * self.ASPECT_HEIGHT / norm
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=color,
+            label=label,
+            height=height,
+            v_anchor=v_anchor
+        )
+
+    def _default_height(self) -> float:
+        """Return default height for TV (from the 16:9 diagonal)."""
+        diagonal_m = self.diagonal * self.INCH_TO_METER
+        return diagonal_m * self.ASPECT_HEIGHT / math.hypot(self.ASPECT_WIDTH, self.ASPECT_HEIGHT)
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw TV."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        patch = Rectangle(
+            self.anchor_point,
+            self.length,
+            self.thickness,
+            angle=self.orientation_angle,
+            facecolor=draw_color,
+            fill=True,
+            edgecolor=draw_color,
+            linewidth=1.5
+        )
+        patch.set_zorder(self.get_zorder())
+        ax.add_patch(patch)
+
+        render_label_and_id(
+            ax,
+            self,
+            'TV',
             self.anchor_point,
             self.orientation_angle,
             label_prefix="",

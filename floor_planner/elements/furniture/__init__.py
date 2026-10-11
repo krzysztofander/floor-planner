@@ -4,7 +4,7 @@ Furniture elements for floor plans.
 Author: Krzysztof Bartczak
 """
 
-from .appliances import Dishwasher, Dryer, Freezer, Fridge, Stovetop, WashingMachine, SingleSink, DoubleSink
+from .appliances import Dishwasher, Dryer, Freezer, Fridge, Stovetop, WashingMachine, SingleSink, DoubleSink, TV
 from .bathroom import Bathtub, Basin, Shower, Toilet
 from .bed import DoubleBed, MultiBed, SingleBed
 from .decorations import FishTank
@@ -22,6 +22,7 @@ __all__ = [
     'WashingMachine',
     'SingleSink',
     'DoubleSink',
+    'TV',
     # bathroom
     'Bathtub',
     'Basin',

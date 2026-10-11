@@ -100,6 +100,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'stovetop': Stovetop,
         'single_sink': SingleSink,
         'double_sink': DoubleSink,
+        'tv': TV,
         'shower': Shower,
         'bathtub': Bathtub,
         'basin': Basin,
