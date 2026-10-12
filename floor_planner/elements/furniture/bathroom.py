@@ -158,6 +158,7 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             orientation_angle: float = 0,
             length: float = 1.7,
             thickness: float = 0.8,
+            height: float = 0.6,
             color: str = 'black',
             label: str | None = None
     ):
@@ -177,24 +178,14 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             freshly created instance of `Bathtub` class
         """
         super().__init__(
-
             anchor_point=anchor_point,
-
             orientation_angle=orientation_angle,
-
             length=length,
-
             thickness=thickness,
-
             color=color,
-
-            label=label
-
+            label=label,
+            height = height
         )
-
-    def _default_height(self) -> float:
-        """Return default height for bathtub."""
-        return 0.6
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw bathtub."""
@@ -261,8 +252,10 @@ class Basin(VertInfoLvl03, RectangularElement):
             self,
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
+            height: float = 0.85,
             color: str = 'black',
             label: str | None = None
+            
     ):
         """
         Initialize an instance.
@@ -284,13 +277,10 @@ class Basin(VertInfoLvl03, RectangularElement):
             orientation_angle=orientation_angle,
             length=0.6,
             thickness=0.5,
+            height=height,
             color=color,
             label=label
         )  # Basin width  # Basin depth
-
-    def _default_height(self) -> float:
-        """Return default height for basin."""
-        return 0.85
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw basin."""
