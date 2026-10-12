@@ -1092,10 +1092,10 @@ class TV(VertInfoLvl04, RectangularElement):
             self.length,
             self.thickness,
             angle=self.orientation_angle,
-            facecolor=draw_color,
             fill=True,
             edgecolor=draw_color,
-            linewidth=1.5
+            facecolor="#A2A2A2",
+            linewidth=1
         )
         patch.set_zorder(self.get_zorder())
         ax.add_patch(patch)
