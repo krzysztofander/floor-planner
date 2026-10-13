@@ -246,11 +246,13 @@ class Group(Element):
                 for coord_key in ('anchor_point', 'first_point', 'second_point'):
                     if coord_key in element_def:
                         rx, ry = element_def[coord_key]
-                        element_def[coord_key] = (
-                            rx + anchor_point[0],
-                            ry + anchor_point[1],
-                        )
-
+                        try:
+                            element_def[coord_key] = (
+                                rx + anchor_point[0],
+                                ry + anchor_point[1],
+                            )
+                        except:
+                            raise ValueError(f"Issue with combining variables, the problem seems to be '{rx}' or '{ry}'")
                 # Default wall color to the container color
                 if element_type in ('wall', 'wallnd') and 'color' not in element_def:
                     element_def['color'] = color
