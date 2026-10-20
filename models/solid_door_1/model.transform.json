@@ -2,8 +2,8 @@
   "model_file": "model.obj",
   "model_format": "obj",
   "format_version": "1.0",
-  "element_type": "window_door",
-  "registry_key": "window_door",
+  "element_type": "solid_door_1",
+  "registry_key": "solid_door_1",
   "units": "meters",
   "up_axis": "Y",
   "normalization": {
