@@ -19,14 +19,14 @@ When `texture_scale` is set, textures repeat based on physical dimensions:
 - A 1.8m window with 0.2m tiles repeats 9 times (1.8 ÷ 0.2 = 9)
 - UV coordinates scale accordingly (0.0 to 9.0 for 9 repeats)
 
-**Note**: Windows use tiled textures by default (`texture_scale: 0.2`). To override this for a specific window, explicitly set `texture_scale: null` (stretch) or a different value.
+**Note**: Windows always use tiled textures (`texture_scale: 0.2`); this cannot be changed in YAML.
 
 ### Element Defaults
 
 | Element (YAML type) | Default texture_scale | Settable in YAML |
 |---------------------|-----------------------|------------------|
-| `window` | 0.2 | yes |
-| `wall`, `wallnd`, `door`, `floor`, `ceiling`, `generic_storage`, `storage40`, `storage60` | None (stretch) | yes |
+| `window` | 0.2 | no (fixed) |
+| `wall`, `wallnd`, `door`, `floor`, `ceiling` | None (stretch) | yes |
 | `ground` | 0.5 | no (fixed) |
 | `deck` | 0.6 | no (fixed) |
 | `surface` | 1.0 | no (fixed) |
@@ -45,23 +45,14 @@ Add `texture_scale` to an element that accepts it (see table above):
 
 ```yaml
 elements:
-  # Window with default tiling (0.2m tiles - automatic for windows)
+  # Window (always 0.2m tiles)
   - type: window
     anchor_point: [2.0, 3.5]
     length: 1.8
     overall_thickness: 0.15
     orientation_angle: 0
     color: lightblue
-    # No texture_scale needed - windows default to 0.2m tiles
-
-  # Window with custom tiling (larger tiles)
-  - type: window
-    anchor_point: [5.0, 3.5]
-    length: 2.4
-    overall_thickness: 0.15
-    orientation_angle: 0
-    color: lightblue
-    texture_scale: 0.5  # Override default: 0.5m tiles instead of 0.2m
+    # No texture_scale - windows always use 0.2m tiles
 
   # Wall with brick texture (0.5m bricks)
   - type: wall
@@ -151,13 +142,12 @@ floor_plans:
         color: white
         texture_scale: 0.3  # 30cm tiles
       
-      # Window with glass grid pattern
+      # Window with glass grid pattern (always 0.2m panes)
       # (embedding it in the wall above would make that wall ignore texture_scale)
       - type: window
         anchor_point: [2.0, 2.5]
         length: 2.4
         overall_thickness: 0.3
-        texture_scale: 0.2  # 20cm glass panes
 ```
 
 ### 2. Generate 3D Export
@@ -213,7 +203,6 @@ Different box faces use appropriate dimensions:
 ## Examples
 
 See the example configurations:
-- `examples/3d_visualization/tiling_demo.yml` - Side-by-side comparison
 - `examples/3d_visualization/furnished_room.yml` - Furnished room with default textures
 
 ## Related Documentation

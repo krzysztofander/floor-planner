@@ -651,7 +651,6 @@ Storage box.
 - `label`: str | None = None - optional label for the element
 - `height`: float | None = None - height of the storage box (in meters); if None, defaults to 2.0
 - `v_anchor`: float | None = None - vertical anchor (in meters above floor); if None, uses the default level (0.04)
-- `texture_scale`: float | None = None - texture tiling scale in meters; if set, texture repeats every N meters
 
 ### Storage60
 Storage box with thickness of 60 cm.
@@ -666,7 +665,6 @@ Storage box with thickness of 60 cm.
 - `label`: str | None = None - optional label for the element
 - `height`: float | None = None - height of the storage box (in meters); if None, defaults to 2.0
 - `v_anchor`: float | None = None - vertical anchor (in meters above floor); if None, uses the default level (0.04)
-- `texture_scale`: float | None = None - texture tiling scale in meters
 
 **Note:** Thickness is fixed at 0.6 meters.
 
@@ -683,7 +681,6 @@ Storage box with thickness of 40 cm.
 - `label`: str | None = None - optional label for the element
 - `height`: float | None = None - height of the storage box (in meters); if None, defaults to 2.0
 - `v_anchor`: float | None = None - vertical anchor (in meters above floor); if None, uses the default level (0.04)
-- `texture_scale`: float | None = None - texture tiling scale in meters
 
 **Note:** Thickness is fixed at 0.4 meters.
 
@@ -1139,7 +1136,7 @@ Trees and shrubs drawn in 2D like circular vegetation (`anchor_point` is the cen
 - `species`: str | None = None - species name used to fill the unset values
 - `bloom_season_start` / `bloom_season_end`: str | None = None - bloom period
 - `bloom_color`: str | None = None - bloom color
-- `label`, `texture_scale`, `id`, `v_anchor`, `models_dir` - as in the common parameters
+- `label`, `id`, `v_anchor`, `models_dir` - as in the common parameters
 
 ### LeafyShrub1
 **YAML type:** `model_leafy_shrub_1` (model: 2 × 2 × 5 m)
@@ -1463,19 +1460,19 @@ The 3D model is exported only when `project.visualisation_dir` is set: one glTF 
 
 | Element | texture_scale | Overridable |
 |---------|---------------|-------------|
-| `window` | 0.2 | yes |
+| `window` | 0.2 | no |
 | `ground` | 0.5 | no |
 | `deck` | 0.6 | no |
 | `surface` | 1.0 | no |
 | `garden_path` | 1.5 | no |
 | roofs | 3.0 | no |
 
-`texture_scale` can be set only on elements whose constructor accepts it: `wall`, `wallnd`, `window`, `door` (via kwargs), `floor`, `ceiling`, `generic_storage`, `storage40`, `storage60` and external `model_*` elements (which keep their model's own UVs, so it has no effect there).
+`texture_scale` can be set only on elements whose constructor accepts it: `wall`, `wallnd`, `door` (via kwargs), `floor`, `ceiling` and external `model_*` elements (which keep their model's own UVs, so it has no effect there).
 
 **YAML Example:**
 ```yaml
 elements:
-  # Window with default tiling (0.2m tiles - automatic)
+  # Window with fixed tiling (0.2m tiles)
   - type: window
     anchor_point: [0, 3.5]
     orientation_angle: 0

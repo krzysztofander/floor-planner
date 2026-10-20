@@ -139,8 +139,7 @@ class Window(VertInfoWindows, RectangularElement):
         :param label:
             optional label for the element
         :param kwargs:
-            additional parameters (e.g., texture_scale, v_anchor, height, id);
-            texture_scale defaults to 0.2 (0.2m x 0.2m tiles) for windows if not specified
+            additional parameters (e.g., v_anchor, height, id)
         :return:
             freshly created instance of `Window` class
         """
@@ -152,9 +151,8 @@ class Window(VertInfoWindows, RectangularElement):
         self.overall_thickness = overall_thickness
         self.alpha_mode = "BLEND"  # Windows use alpha blending for transparency
 
-        # Set default texture_scale for windows to 0.2 (0.2m x 0.2m tiles)
-        if 'texture_scale' not in kwargs:
-            kwargs['texture_scale'] = 0.2
+        # Windows always use 0.2m x 0.2m texture tiles; a texture_scale passed via kwargs is dropped
+        kwargs.pop('texture_scale', None)
 
         super().__init__(
             anchor_point=anchor_point,
@@ -163,6 +161,7 @@ class Window(VertInfoWindows, RectangularElement):
             thickness=overall_thickness,
             color=color,
             label=label,
+            texture_scale=0.2,
             **kwargs
         )
 
