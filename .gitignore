@@ -183,11 +183,36 @@ nohup.out
 configs/
 
 # Generated images
-*.png
+
+# Genrated 3d assets
+
+examples/**/*.png
+examples/**/*.jpg
+examples/**/*.jpeg
+examples/**/*.obj
+examples/**/*.mtl
+examples/**/*.bin
+
+tests/**/*.png
+tests/**/*.jpg
+tests/**/*.jpeg
+tests/**/*.obj
+tests/**/*.mtl
+tests/**/*.bin
+tests/**/*.sh
+tests/**/*.md
+camera.json
 
 # Generated md files
 examples/**/*.md
 
 # VS code files
-.vscode/
+# .vscode/
 *.code-workspace
+
+temp/*
+*.bin
+*.gltf
+models/models_3rd_party/
+models/local/
+

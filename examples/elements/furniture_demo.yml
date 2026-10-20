@@ -1,0 +1,439 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+default_options:
+  Wall:
+    label_color: gray
+    dimensions: false
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [10, 12]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1.0
+  grid_minor_step: 0.5
+reusable_elements:
+  beds_elements:
+    # Title
+    - type: text_box
+      anchor_point: [0.5, 5.5]
+      lines:
+        - "Beds - Rotation Test"
+        - "Each row shows: 0°, 90°, 180°, 270°"
+      transparency: 0.0
+      
+    # Row 1: Double Bed
+    - type: text_box
+      anchor_point: [0.2, 4.5]
+      lines:
+        - "Double Bed"
+      transparency: 0.0
+    - type: double_bed
+      anchor_point: [1.5, 4.0]
+      orientation_angle: 0
+      color: blue
+      label: "0°"
+    - type: double_bed
+      anchor_point: [3.5, 4.0]
+      orientation_angle: 90
+      color: blue
+      label: "90°"
+    - type: double_bed
+      anchor_point: [5.5, 4.0]
+      orientation_angle: 180
+      color: blue
+      label: "180°"
+    - type: double_bed
+      anchor_point: [7.5, 4.0]
+      orientation_angle: 270
+      color: blue
+      label: "270°"
+      
+    # Row 2: Single Bed
+    - type: text_box
+      anchor_point: [0.2, 2.0]
+      lines:
+        - "Single Bed"
+      transparency: 0.0
+    - type: single_bed
+      anchor_point: [1.5, 1.5]
+      orientation_angle: 0
+      color: lightblue
+      label: "0°"
+    - type: single_bed
+      anchor_point: [3.5, 1.5]
+      orientation_angle: 90
+      color: lightblue
+      label: "90°"
+    - type: single_bed
+      anchor_point: [5.5, 1.5]
+      orientation_angle: 180
+      color: lightblue
+      label: "180°"
+    - type: single_bed
+      anchor_point: [7.5, 1.5]
+      orientation_angle: 270
+      color: lightblue
+      label: "270°"
+  
+  kitchen_laundry_elements:
+    # Title
+    - type: text_box
+      anchor_point: [0.5, 11.5]
+      lines:
+        - "Kitchen & Laundry Appliances - Rotation Test"
+        - "Each row shows: 0°, 90°, 180°, 270°"
+      transparency: 0.0
+      
+    # Row 1: Fridge
+    - type: text_box
+      anchor_point: [0.2, 10.8]
+      lines:
+        - "Fridge"
+      transparency: 0.0
+    - type: fridge
+      anchor_point: [1.5, 10.3]
+      orientation_angle: 0
+      color: darkgreen
+      label: "0°"
+    - type: fridge
+      anchor_point: [3.5, 10.3]
+      orientation_angle: 90
+      color: darkgreen
+      label: "90°"
+    - type: fridge
+      anchor_point: [5.5, 10.3]
+      orientation_angle: 180
+      color: darkgreen
+      label: "180°"
+    - type: fridge
+      anchor_point: [7.5, 10.3]
+      orientation_angle: 270
+      color: darkgreen
+      label: "270°"
+      
+    # Row 2: Freezer
+    - type: text_box
+      anchor_point: [0.2, 9.5]
+      lines:
+        - "Freezer"
+      transparency: 0.0
+    - type: freezer
+      anchor_point: [1.5, 9.0]
+      orientation_angle: 0
+      color: lightgreen
+      label: "0°"
+    - type: freezer
+      anchor_point: [3.5, 9.0]
+      orientation_angle: 90
+      color: lightgreen
+      label: "90°"
+    - type: freezer
+      anchor_point: [5.5, 9.0]
+      orientation_angle: 180
+      color: lightgreen
+      label: "180°"
+    - type: freezer
+      anchor_point: [7.5, 9.0]
+      orientation_angle: 270
+      color: lightgreen
+      label: "270°"
+      
+    # Row 3: Dishwasher
+    - type: text_box
+      anchor_point: [0.2, 8.2]
+      lines:
+        - "Dishwasher"
+      transparency: 0.0
+    - type: dishwasher
+      anchor_point: [1.5, 7.7]
+      orientation_angle: 0
+      color: brown
+      label: "0°"
+    - type: dishwasher
+      anchor_point: [3.5, 7.7]
+      orientation_angle: 90
+      color: brown
+      label: "90°"
+    - type: dishwasher
+      anchor_point: [5.5, 7.7]
+      orientation_angle: 180
+      color: brown
+      label: "180°"
+    - type: dishwasher
+      anchor_point: [7.5, 7.7]
+      orientation_angle: 270
+      color: brown
+      label: "270°"
+      
+    # Row 4: Stovetop
+    - type: text_box
+      anchor_point: [0.2, 6.9]
+      lines:
+        - "Stovetop"
+      transparency: 0.0
+    - type: stovetop
+      anchor_point: [1.5, 6.4]
+      orientation_angle: 0
+      color: red
+      label: "0°"
+    - type: stovetop
+      anchor_point: [3.5, 6.4]
+      orientation_angle: 90
+      color: red
+      label: "90°"
+    - type: stovetop
+      anchor_point: [5.5, 6.4]
+      orientation_angle: 180
+      color: red
+      label: "180°"
+    - type: stovetop
+      anchor_point: [7.5, 6.4]
+      orientation_angle: 270
+      color: red
+      label: "270°"
+      
+    # Row 5: Single Sink
+    - type: text_box
+      anchor_point: [0.2, 5.6]
+      lines:
+        - "Single Sink"
+      transparency: 0.0
+    - type: single_sink
+      anchor_point: [1.5, 5.1]
+      orientation_angle: 0
+      color: darkblue
+      label: "0°"
+    - type: single_sink
+      anchor_point: [3.5, 5.1]
+      orientation_angle: 90
+      color: darkblue
+      label: "90°"
+    - type: single_sink
+      anchor_point: [5.5, 5.1]
+      orientation_angle: 180
+      color: darkblue
+      label: "180°"
+    - type: single_sink
+      anchor_point: [7.5, 5.1]
+      orientation_angle: 270
+      color: darkblue
+      label: "270°"
+      
+    # Row 6: Double Sink
+    - type: text_box
+      anchor_point: [0.2, 4.3]
+      lines:
+        - "Double Sink"
+      transparency: 0.0
+    - type: double_sink
+      anchor_point: [1.5, 3.8]
+      orientation_angle: 0
+      color: navy
+      label: "0°"
+    - type: double_sink
+      anchor_point: [3.5, 3.8]
+      orientation_angle: 90
+      color: navy
+      label: "90°"
+    - type: double_sink
+      anchor_point: [5.5, 3.8]
+      orientation_angle: 180
+      color: navy
+      label: "180°"
+    - type: double_sink
+      anchor_point: [7.5, 3.8]
+      orientation_angle: 270
+      color: navy
+      label: "270°"
+      
+    # Row 7: Washing Machine
+    - type: text_box
+      anchor_point: [0.2, 3.0]
+      lines:
+        - "Washing Machine"
+      transparency: 0.0
+    - type: washing_machine
+      anchor_point: [1.5, 2.5]
+      orientation_angle: 0
+      color: purple
+      label: "0°"
+    - type: washing_machine
+      anchor_point: [3.5, 2.5]
+      orientation_angle: 90
+      color: purple
+      label: "90°"
+    - type: washing_machine
+      anchor_point: [5.5, 2.5]
+      orientation_angle: 180
+      color: purple
+      label: "180°"
+    - type: washing_machine
+      anchor_point: [7.5, 2.5]
+      orientation_angle: 270
+      color: purple
+      label: "270°"
+      
+    # Row 8: Dryer
+    - type: text_box
+      anchor_point: [0.2, 1.7]
+      lines:
+        - "Dryer"
+      transparency: 0.0
+    - type: dryer
+      anchor_point: [1.5, 1.2]
+      orientation_angle: 0
+      color: violet
+      label: "0°"
+    - type: dryer
+      anchor_point: [3.5, 1.2]
+      orientation_angle: 90
+      color: violet
+      label: "90°"
+    - type: dryer
+      anchor_point: [5.5, 1.2]
+      orientation_angle: 180
+      color: violet
+      label: "180°"
+    - type: dryer
+      anchor_point: [7.5, 1.2]
+      orientation_angle: 270
+      color: violet
+      label: "270°"
+  
+  bathroom_elements:
+    # Title
+    - type: text_box
+      anchor_point: [0.5, 6.5]
+      lines:
+        - "Bathroom Fixtures - Rotation Test"
+        - "Each row shows: 0°, 90°, 180°, 270°"
+      transparency: 0.0
+      
+    # Row 1: Shower
+    - type: text_box
+      anchor_point: [0.2, 5.8]
+      lines:
+        - "Shower"
+      transparency: 0.0
+    - type: shower
+      anchor_point: [1.5, 5.3]
+      orientation_angle: 0
+      color: teal
+      label: "0°"
+    - type: shower
+      anchor_point: [3.5, 5.3]
+      orientation_angle: 90
+      color: teal
+      label: "90°"
+    - type: shower
+      anchor_point: [5.5, 5.3]
+      orientation_angle: 180
+      color: teal
+      label: "180°"
+    - type: shower
+      anchor_point: [7.5, 5.3]
+      orientation_angle: 270
+      color: teal
+      label: "270°"
+      
+    # Row 2: Bathtub
+    - type: text_box
+      anchor_point: [0.2, 4.0]
+      lines:
+        - "Bathtub"
+      transparency: 0.0
+    - type: bathtub
+      anchor_point: [1.5, 3.5]
+      orientation_angle: 0
+      color: cyan
+      label: "0°"
+    - type: bathtub
+      anchor_point: [3.5, 3.5]
+      orientation_angle: 90
+      color: cyan
+      label: "90°"
+    - type: bathtub
+      anchor_point: [5.5, 3.5]
+      orientation_angle: 180
+      color: cyan
+      label: "180°"
+    - type: bathtub
+      anchor_point: [7.5, 3.5]
+      orientation_angle: 270
+      color: cyan
+      label: "270°"
+      
+    # Row 3: Basin
+    - type: text_box
+      anchor_point: [0.2, 2.5]
+      lines:
+        - "Basin"
+      transparency: 0.0
+    - type: basin
+      anchor_point: [1.5, 2.0]
+      orientation_angle: 0
+      color: turquoise
+      label: "0°"
+    - type: basin
+      anchor_point: [3.5, 2.0]
+      orientation_angle: 90
+      color: turquoise
+      label: "90°"
+    - type: basin
+      anchor_point: [5.5, 2.0]
+      orientation_angle: 180
+      color: turquoise
+      label: "180°"
+    - type: basin
+      anchor_point: [7.5, 2.0]
+      orientation_angle: 270
+      color: turquoise
+      label: "270°"
+      
+    # Row 4: Toilet
+    - type: text_box
+      anchor_point: [0.2, 1.2]
+      lines:
+        - "Toilet"
+      transparency: 0.0
+    - type: toilet
+      anchor_point: [1.5, 0.7]
+      orientation_angle: 0
+      color: darkmagenta
+      label: "0°"
+    - type: toilet
+      anchor_point: [3.5, 0.7]
+      orientation_angle: 90
+      color: darkmagenta
+      label: "90°"
+    - type: toilet
+      anchor_point: [5.5, 0.7]
+      orientation_angle: 180
+      color: darkmagenta
+      label: "180°"
+    - type: toilet
+      anchor_point: [7.5, 0.7]
+      orientation_angle: 270
+      color: darkmagenta
+      label: "270°"
+
+floor_plans:
+  - title:
+      text: "Beds_Rotation_Test"
+      font_size: 18
+    inherited_elements:
+      - beds_elements
+      
+  - title:
+      text: "Kitchen & Laundry Appliances - Rotation Test"
+      font_size: 18
+    inherited_elements:
+      - kitchen_laundry_elements
+      
+  - title:
+      text: "Bathroom Fixtures - Rotation Test"
+      font_size: 18
+    inherited_elements:
+      - bathroom_elements

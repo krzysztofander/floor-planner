@@ -1,0 +1,131 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "output"
+
+default_options:
+  Door:
+    label_color: green
+    dimensions: true
+  Wall:
+    show_invisible: false
+  Window:
+    label_color: blue
+
+default_layout:
+  bottom_left_corner: [-1, -1]
+  top_right_corner: [18, 7]
+  scale_numerator: 1
+  scale_denominator: 40
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+vars:
+  wall_thickness: 0.15
+
+# ----------------------------------------------------------------
+# group_templates: define reusable group shapes.
+# These are NOT instantiated here — they are blueprints.
+# A group instance can reference a template with from_template,
+# then override any vars or add more elements on top.
+# ----------------------------------------------------------------
+group_templates:
+
+  # A simple room-shape (4 walls + 1 window + 1 door) expressed
+  # as a group template.  Variable defaults can be overridden per
+  # instance.  No room_edge is needed — it's a plain group.
+  basic_room_shape:
+    vars:
+      room_w: 4           # width  (horizontal, X-direction)
+      room_h: 3           # height (vertical,   Y-direction)
+      wall_t: 0.15        # wall thickness (can be overridden)
+      window_w: 1.2
+      door_w: 0.9
+      doorway_w: 1.0
+    elements:
+      # south wall
+      - type: wall
+        anchor_point: [0, 0]
+        length: room_w
+        thickness: wall_t
+        orientation_angle: 0
+        color: black
+      # east wall
+      - type: wall
+        anchor_point: [room_w, 0]
+        length: room_h
+        thickness: wall_t
+        orientation_angle: 90
+        color: black
+      # north wall
+      - type: wall
+        anchor_point: [room_w, room_h]
+        length: room_w
+        thickness: wall_t
+        orientation_angle: 180
+        color: black
+      # west wall
+      - type: wall
+        anchor_point: [0, room_h]
+        length: room_h
+        thickness: wall_t
+        orientation_angle: 270
+        color: black
+      # window on east wall
+      - type: window
+        anchor_point: [room_w, 0.6]
+        length: window_w
+        overall_thickness: wall_t
+        orientation_angle: 90
+        label: "window"
+      # door on west wall
+      - type: door
+        anchor_point: [0, doorway_w + 0.4]
+        doorway_width: doorway_w
+        door_width: door_w
+        thickness: wall_t
+        orientation_angle: 270
+        to_the_right: true
+        hinges_point: 0.95
+        opening_outside: false
+        label: "door"
+        color: black
+
+floor_plans:
+  - title:
+      text: "group_template_demo"
+      font_size: 18
+
+    elements:
+      # Instance 1: use default template dimensions (4 x 3)
+      - type: group
+        from_template: basic_room_shape
+        label: "room A (defaults)"
+        anchor_point: [0, 0]
+
+      # Instance 2: override width and height — a wider, taller room
+      - type: group
+        from_template: basic_room_shape
+        label: "room B (wide)"
+        anchor_point: [5.5, 0]
+        vars:
+          room_w: 6
+          room_h: 5
+          wall_t: 0.2       # thicker walls
+
+      # Instance 3: same template, but add an extra text_box element on top
+      - type: group
+        from_template: basic_room_shape
+        label: "room C (extra element)"
+        anchor_point: [13, 0]
+        vars:
+          room_w: 3
+          room_h: 4
+        elements:
+          # This element is APPENDED after the template's elements
+          - type: text_box
+            anchor_point: [0.5, 0.5]
+            lines: ["extra note"]
+            font_size: 8
+            color: gray
+            edgecolor: none

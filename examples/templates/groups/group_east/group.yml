@@ -1,0 +1,88 @@
+  - type: group
+    label: "east group"
+    vars:
+      door_placement_from_bottom: 0.5         #measured from external bottom (south) wall edge
+      window_placement_from_bottom: 0.3     #measured from external bottom (south) wall edge
+      doorway_width: 1
+      door_width: 0.9
+      window_width: 1.4
+
+      anchor_x: x_placement
+      anchor_y: y_placement
+      room_length: room_horizontal_length
+      room_width: room_vertical_width
+      wall_n_thickness: wall_thickness
+      wall_e_thickness: wall_thickness*2
+      wall_s_thickness: wall_thickness
+      wall_w_thickness: wall_thickness*1.5
+
+    anchor_point: [anchor_x, anchor_y]
+
+    elements:
+    # Walls — no room_edge required; a group accepts any elements freely
+      - type: wall
+        anchor_point: [0, 0]
+        length: room_width
+        thickness: wall_s_thickness
+        color: black
+        orientation_angle: 0
+      - type: wall
+        anchor_point: [room_width, 0]
+        length: room_length
+        thickness: wall_e_thickness
+        orientation_angle: 90
+        color: black
+      - type: wall
+        anchor_point: [room_width, room_length]
+        length: room_width
+        thickness: wall_n_thickness
+        orientation_angle: 180
+        color: black
+      - type: wall
+        anchor_point: [0, room_length]
+        length: room_length
+        thickness: wall_w_thickness
+        color: black
+        orientation_angle: 270
+
+    # Doors and windows
+      - type: window
+        length: window_width
+        anchor_point: [room_width, window_placement_from_bottom]
+        overall_thickness: wall_e_thickness
+        orientation_angle: 90
+        label: "Window"
+
+      - type: door
+        anchor_point: [0, door_placement_from_bottom + doorway_width]
+        doorway_width: doorway_width
+        door_width: door_width
+        thickness: wall_w_thickness
+        orientation_angle: 270
+        to_the_right: true
+        hinges_point: 0.95
+        opening_outside: false
+        label: "right door"
+        color: black
+
+    # Nested group: a small furniture arrangement in the north-east corner.
+    # Demonstrates that groups can contain other groups recursively.
+      - type: group
+        label: "furniture corner"
+        anchor_point: [room_width - wall_e_thickness - 1.5, room_length - wall_n_thickness - 1.2]
+        vars:
+          desk_width: 1.2
+          desk_depth: 0.6
+        elements:
+          - type: text_box
+            anchor_point: [0, 0]
+            lines: ["desk area"]
+            font_size: 8
+            color: gray
+            edgecolor: none
+          - type: desk
+            anchor_point: [0.1, 0.2]
+            orientation_angle: 0
+            color: brown
+            label: "0°"
+

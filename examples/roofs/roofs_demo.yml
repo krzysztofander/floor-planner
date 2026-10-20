@@ -1,0 +1,498 @@
+project:
+  dpi: 300
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "3d"
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [65, 55]
+  scale_numerator: 1
+  scale_denominator: 100
+  grid_major_step: 5
+  grid_minor_step: 1
+
+default_options:
+  Roof:
+    label_color: 'black'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Demo: roof elements
+# ─────────────────────────────────────────────────────────────────────────────
+
+floor_plans:
+  - title:
+      text: 'Roofs_Demo'
+      font_size: 18
+    elements:
+
+      # ── section labels ────────────────────────────────────────────────────
+      - type: text_box
+        anchor_point: [1, 37]
+        lines: ['GABLE ROOFS']
+        font_size: 9
+
+      - type: text_box
+        anchor_point: [14, 37]
+        lines: ['HIPPED ROOF']
+        font_size: 9
+
+      - type: text_box
+        anchor_point: [26, 37]
+        lines: ['SINGLE SLOPE ROOFS']
+        font_size: 9
+
+      - type: text_box
+        anchor_point: [38, 37]
+        lines: ['HIPPED OCTANTS']
+        font_size: 9
+
+      - type: text_box
+        anchor_point: [52, 37]
+        lines: ['INTERNAL OCTANTS (VALLEY)']
+        font_size: 9
+
+      # ── 1. Plain gable roof ───────────────────────────────────────────────
+      - type: gable_roof
+        anchor_point: [1, 30]
+        size: [10, 6]
+        height: 3.0
+        orientation_angle: 0
+        color: '#8B4513'
+        label: 'Gable plain'
+
+      # ── 2. Gable with extension_a and extension_b ─────────────────────────
+      - type: gable_roof
+        anchor_point: [1, 20]
+        size: [10, 6]
+        height: 3.0
+        extension_a: 0.8
+        extension_b: 0.8
+        orientation_angle: 0
+        color: '#A0522D'
+        label: 'Gable ext a+b'
+
+      # ── 3. Gable with only extension_a ────────────────────────────────────
+      - type: gable_roof
+        anchor_point: [1, 10]
+        size: [10, 6]
+        height: 3.0
+        extension_a: 1.0
+        extension_b: 0
+        orientation_angle: 0
+        color: '#C0622D'
+        label: 'Gable ext a only'
+
+      # ── 4. Hipped roof for reference ──────────────────────────────────────
+      - type: hipped_roof
+        anchor_point: [14, 10]
+        size: [10, 8]
+        height: 3.5
+        orientation_angle: 0
+        color: '#556B2F'
+        label: 'Hipped roof'
+
+      # ── 5. Single-slope roof (low at z=0, high at z=z_size) ──────────────
+      - type: single_slope_roof
+        anchor_point: [26, 30]
+        size: [8, 6]
+        height: 2.5
+        orientation_angle: 0
+        color: '#2E4A7A'
+        label: 'Single slope'
+
+      # ── 6. Single-slope with low-eave extension ───────────────────────────
+      - type: single_slope_roof
+        anchor_point: [26, 20]
+        size: [8, 6]
+        height: 2.5
+        extension: 0.8
+        orientation_angle: 0
+        color: '#3A5A8A'
+        label: 'Single slope + ext'
+
+      # ── 7. Single-slope with larger extension ─────────────────────────────
+      - type: single_slope_roof
+        anchor_point: [26, 10]
+        size: [8, 6]
+        height: 2.5
+        extension: 1.5
+        orientation_angle: 0
+        color: '#4A6A9A'
+        label: 'Single slope ext 1.5'
+
+      # ── 8. Perfect pyramid from 8 true octants ───────────────────────────
+      # Apex at (42, 10). Square base 8×8 m → half-span d = 4.
+      # 4 right + 4 left octants at 0°/90°/180°/270°, all same height.
+      # Right at angle θ covers 45° sector clockwise from the pointing direction.
+      # Left  at angle θ covers 45° sector counter-clockwise from it.
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 10]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 0
+        color: '#8B0000'
+        label: 'R0'
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 10]
+        size: [5, 5]
+        height: 3.0
+        orientation_angle: 0
+        color: '#8B0000'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 10]
+        size: [5, 5]
+        height: 3.0
+        orientation_angle: 90
+        color: '#8B0000'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 10]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 90
+        color: '#8B0000'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 10]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 180
+        color: '#8B0000'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 10]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 180
+        color: '#8B0000'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 10]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 270
+        color: '#8B0000'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 10]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 270
+        color: '#8B0000'
+        label: 'Equal pyramid'
+
+      # ── 9. Same 8 octants but each with a different height ────────────────
+      # Each apex is at the same plan point but at different heights, so the
+      # seams between octants are visible in 3D.
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 2.0
+        orientation_angle: 0
+        color: '#8B4500'
+        label: 'h=2'
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 2.2
+        orientation_angle: 0
+        color: '#8B4500'
+        label: 'h=3.5'
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 3.0
+        orientation_angle: 90
+        color: '#8B4500'
+        label: 'h=4'
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 3.2
+        orientation_angle: 90
+        color: '#8B4500'
+        label: 'h=3'
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 4.0
+        orientation_angle: 180
+        color: '#8B4500'
+        label: 'h=2.5'
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 4.2
+        orientation_angle: 180
+        color: '#8B4500'
+        label: 'h=1.5'
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 5.0
+        orientation_angle: 270
+        color: '#8B4500'
+        label: 'h=1'
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 28]
+        size: [4, 4]
+        height: 5.2
+        orientation_angle: 270
+        color: '#8B4500'
+        label: 'Varying heights'
+
+      # ── 10. Pyramid with uniform eave extension ───────────────────────────
+      # Same 8-octant pyramid but every octant has extension=0.8 so the eave
+      # overhang is visible as dotted lines beyond the original triangle base.
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 0
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.8
+        orientation_angle: 0
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.8
+        orientation_angle: 90
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 1.8
+        orientation_angle: 90
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 1.8
+        orientation_angle: 180
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 180
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_right
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 270
+        color: '#6A006A'
+        label: ''
+
+      - type: hipped_roof_octant_left
+        anchor_point: [42, 19]
+        size: [3, 3]
+        height: 2.5
+        extension: 0.0
+        orientation_angle: 270
+        color: '#6A006A'
+        label: 'Octant + ext'
+
+      # ── 11. Patio roof — inverted pyramid from 8 internal octants ─────────
+      # A drain-to-centre patio cover: anchor_point at the central valley (low),
+      # slopes rise outward to the eaves.  All 8 octants share the same centre.
+      # Patio footprint 10×10 m, half-span d=5.  Valley at (58, 20).
+
+      - type: text_box
+        anchor_point: [52, 35]
+        lines: ['Patio (inverted pyramid)']
+        font_size: 7
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 3.5
+        orientation_angle: 0
+        color: '#1A6A4A'
+        label: 'R0'
+        extension: 0.6
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 0
+        color: '#1A6A4A'
+        label: 'L0'
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 90
+        color: '#1A6A4A'
+        label: 'R90'
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 90
+        color: '#1A6A4A'
+        label: 'L90'
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 180
+        color: '#1A6A4A'
+        label: 'R180'
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 180
+        color: '#1A6A4A'
+        label: 'L180'
+
+      - type: hipped_internal_octant_right
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 270
+        color: '#1A6A4A'
+        label: 'R270'
+
+      - type: hipped_internal_octant_left
+        anchor_point: [58, 20]
+        size: [5, 5]
+        height: 2.5
+        orientation_angle: 270
+        color: '#1A6A4A'
+        label: 'L270'
+
+      # ── Gable end walls and glass (3-D only, invisible in 2D) ─────────────────
+      # A 10×6 m gable roof at v_anchor=2.7, height=3.0.
+      # The left and right gable end walls fill the triangular gap.
+      # Both solid (wall) and transparent (glass) variants are shown.
+
+      - type: text_box
+        anchor_point: [1, 43]
+        lines: ['GABLE END WALLS + GLASS (3D only)']
+        font_size: 9
+
+      # ── Solid wall variant (left + right) ───────────────────────────────────
+      - type: gable_roof
+        anchor_point: [1, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#8B4513'
+        label: 'Gable + walls'
+
+      - type: gable_end_wall_left
+        anchor_point: [1, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+
+      - type: gable_end_wall_right
+        anchor_point: [1, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+
+      # ── Glass variant (left + right) ────────────────────────────────────────
+      - type: gable_roof
+        anchor_point: [15, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#4A6A8B'
+        label: 'Gable + glass ends'
+
+      - type: gable_end_glass_left
+        anchor_point: [15, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+
+      - type: gable_end_glass_right
+        anchor_point: [15, 44]
+        size: [10, 6]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+
+      # ── Ridge along Z (x < z) — rotated geometry ───────────────────────────
+      - type: gable_roof
+        anchor_point: [30, 44]
+        size: [6, 10]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#8B4513'
+        label: 'z>x + walls'
+
+      - type: gable_end_wall_left
+        anchor_point: [30, 44]
+        size: [6, 10]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+
+      - type: gable_end_wall_right
+        anchor_point: [30, 44]
+        size: [6, 10]
+        height: 3.0
+        v_anchor: 2.7
+        orientation_angle: 0
+        color: '#D0CCC8'
+

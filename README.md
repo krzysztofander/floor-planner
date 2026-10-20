@@ -6,13 +6,16 @@ This is a drawing tool that produces floor plans. It is controlled through YAML 
 
 This is a fork of [renovation](https://github.com/Nikolay-Lysenko/renovation)
 by Nikolay Lysenko, with additional features added by Krzysztof Bartczak:
-- Constants and arithmetic expressions
+- Arithmetic expressions and variables in configs
 - Room variables
 - External YAML file support
 - Floor plan reports
 - Enhanced room options
+- Groups and group templates
+- Many new element categories (furniture, landscaping, roofs, glass structures, ...)
+- 3D export to glTF, including external (pre-made) 3D models
 
-The below figure demonstrates available elements.
+The below figure demonstrates some of available elements.
 
 ![elements.png](https://github.com/krzysztofander/floor-planner/blob/master/examples/images/elements.png)
 
@@ -53,7 +56,7 @@ In this section it is possible to configure:
 * Adding automatic dimensions to walls.
 * Color of element's identifiers. Identifiers are not printed if their color is not specified.
 
-The section named `constants` can be used to define variables that can be later used in definitions of elements.
+The section named `vars` can be used to define variables that can be later used in definitions of elements. Variables can be simple numeric values or arithmetic expressions referencing other variables.
 
 The section named `reusable_elements` is designed to store arbitrary collections of elements that can be used by individual floor plans. Demo example uses it to define walls, windows, and doors.
 Reusable elements can be loaded from separate YAML files. Please see the `examples`.
@@ -68,13 +71,178 @@ Finally, settings of individual floor plans are listed. These settings might inc
 
 ## Rooms
 This fork adds a concept of rooms as an additional level of hierarchy.
-Rooms have own `constants` and additionally `variables` where previously defined constants and variables can be used in arithmetic expressions.
-Elements defined withing a room are anchored to the room anchor point. This give flexibility in moving or drawing a whole room as there is no longer need to pre-calculate anchor points of individual elements.
+Rooms have their own `vars` section where variables can be defined as simple values or arithmetic expressions referencing global vars or previously defined room vars.
+Elements defined within a room are anchored to the room anchor point. This gives flexibility in moving or drawing a whole room as there is no longer need to pre-calculate anchor points of individual elements.
 It is recommended to work with rooms instead of individual elements.
 *Easiest start is to copy room and main project file from `examples/templates/rooms`*
 
+## Groups
+A `group` is a lightweight container: like a room, it has its own `anchor_point` and `vars`, but it does not require walls. Groups can be nested, and a group may contain rooms. Rooms are now implemented as a special case of a group.
+
+Reusable blueprints can be defined in the top-level `group_templates` section and instantiated with `from_template`. An instance can override template `vars`, and its own `elements` are appended to those from the template:
+```yaml
+- type: group
+  from_template: bedroom
+  anchor_point: [4, 0]
+  vars:
+    w: 4   # wider variant
+```
+See `examples/templates/groups` and the *Groups* section of `docs/element-parameters-reference.md`.
+
+## Element Categories
+Elements are grouped in `floor_planner/elements/`:
+- **Foundation** - walls, windows, doors (hinged and sliding), rooms, groups, floors, ceilings, generic surfaces, roofs
+-- Roofs include gable, hipped (with octants) and single-slope roofs, plus gable end walls. See `examples/roofs`
+-- Glass structures include a greenhouse, glass panels, slopes and doors. See `examples/glass_structures`.
+- **Symbols** - electricity (outlets, cables, ground cables), info (dimension arrows, text boxes), basic shapes
+- **Lighting** - ceiling and wall lamps, LED strips, switches
+- **Furniture** - storage, beds, kitchen appliances, bathroom fixtures, tables, chairs, sofas, TV, decorations
+- **Devices** - generic tanks
+- **Landscaping** - vegetation, hardscape, water features, garden structures, glass structures
+- **Composite** - elements built from other elements, e.g. double window-doors or glass doors in an aluminium frame
+- **External** - elements rendered in 3D from pre-made models (windows, doors, furniture, trees)
+
+
+## Landscaping Elements
+This fork includes comprehensive landscaping elements for creating site plans and garden designs:
+
+### Vegetation
+- **Trees** - with canopy, trunk, species, bloom seasons, and height labels
+- **Shrubs** - circular bushes with optional bloom patterns
+- **Hedges** - linear hedges with rotation, species, and bloom overlays
+- **Lawns**
+- **Species database** - default sizes and bloom seasons by species name
+
+### Hardscaping
+- **Fences** - multiple styles (solid, picket, chain-link, rail)
+- **Garden Paths** - various materials (gravel, stone, paving, wood, mulch)
+- **Retaining Walls** - stone course patterns
+- **Ground** - base terrain surface
+
+### Water Features
+- **Fountains** - tiered, spray, and simple styles
+- **Ponds** - multiple shapes (oval, kidney, rectangular, irregular)
+- **Pools** - rectangular and oval
+
+### Garden Structures
+- **Pergolas** - posts and beam outlines
+- **Raised Beds** - for vegetable gardens
+- **Gazebos** - octagonal structures
+- **Decks** - wooden plank patterns
+- **Garden Houses** - sheds with doors and roofs
+
+All landscaping elements support:
+- Rotation via `orientation_angle` parameter
+- Custom colors and labels
+- Integration with floor plans and site layouts
+
+See `examples/landscaping/` for demonstrations of each element type and `docs/landscaping-guide.md` for their parameters.
+
+## 3D Visualization
+
+This fork includes 3D export capabilities to generate glTF 2.0 scenes with textures (the older OBJ/MTL exporter is still in the code but disabled):
+
+### Features
+- **Automatic 3D geometry generation** - 2D floor plan elements are automatically extruded to 3D
+- **External models** - selected elements (windows, doors, furniture, trees) use pre-made OBJ or GLB models instead of procedural geometry
+- **Animations** - doors can be exported with opening animations
+- **Phong material properties** - Ka (ambient), Kd (diffuse), Ks (specular), Ns (shininess) for realistic materials
+- **Texture support** - PNG (with alpha channel) and JPG textures with automatic fallback
+- **Texture tiling** - Control texture repeat with `texture_scale` parameter
+- **Wall opening detection** - Doors and windows automatically create cutouts in walls for realistic visualization
+- **Multi-texture elements** - Different textures for different faces (e.g., door vs door frame)
+
+### Wall Opening Detection
+When doors or windows are positioned in walls, the system automatically:
+1. Detects spatial overlap using orientation and position checks
+2. Generates subdivided wall geometry with rectangular cutouts
+3. Preserves proper face normals and winding order
+4. Creates realistic openings without manual mesh editing
+
+### Usage
+Enable 3D export in your YAML config:
+```yaml
+project:
+  visualisation_dir: "visualisation_3d"  # Output directory for glTF files
+```
+
+Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` on individual elements to control vertical positioning within a floor plan.
+
+Use the floor plan-level `v_anchor` to stack multiple floors vertically in the exported 3D scene:
+```yaml
+floor_plans:
+  - title: parter
+    v_anchor: 0.0   # ground floor (default)
+    ...
+  - title: pietro
+    v_anchor: 3.0   # first floor, 3 m up
+    ...
+```
+
+See `docs/element-parameters-reference.md` — *Floor Plan v_anchor (3D Elevation)* for details.
+
+### Texture and Material System
+The 3D export uses a registry-based texture/material system:
+
+**Key Principle:** Element types from the registry determine folder and file names exactly.
+
+**Directory Structure:**
+```
+textures/
+├── fallback/          # System default textures
+│   ├── double_bed/
+│   │   ├── double_bed.jpg
+│   │   └── double_bed.mtl
+│   ├── generic_storage/
+│   │   ├── generic_storage.jpg
+│   │   └── generic_storage.mtl
+│   └── door/
+│       ├── door.jpg
+│       ├── door_frame.jpg      # Supplemental texture
+│       └── door.mtl
+└── defaults/          # User custom textures (optional overrides)
+    └── ...
+```
+
+**Naming Convention:**
+- Registry key (WITH underscores) = folder name = base texture name
+- Example: `'generic_storage'` → `generic_storage/` → `generic_storage.jpg`
+- Multi-texture elements use: `<element_type>_<descriptor>.jpg` (e.g., `door_frame.jpg`)
+
+**Material Files (.mtl):**
+Each texture has a corresponding `.mtl` file defining material properties:
+```mtl
+newmtl generic_storage
+Ka 0.500000 0.300000 0.200000    # Ambient color
+Kd 0.580000 0.380000 0.230000    # Diffuse color
+Ks 1.200000 1.200000 1.200000    # Specular color
+Ns 250.0                         # Shininess
+map_Kd generic_storage.jpg       # Texture reference
+```
+
+**Custom Textures:**
+Place custom textures in `textures/defaults/<element_type>/` to override system defaults.
+
+See:
+- `docs/NAMING_CONVENTION.md` - Complete naming convention specification
+- `scripts/validate_texture_material_structure.py` - Validation tool
+
+### External Models
+External models live in `models/<registry_key>/` (`model.glb` or `model.obj` + `model.mtl`, plus `model.transform.json`). Models are looked up in this order:
+1. `models/`
+2. `models/local/` - private models
+3. `models/models_3rd_party/` - third-party models kept outside this repository
+4. `models/stubs/` - 1x1x1 m cube placeholders used when the real model is not available
+
+See `models/README.md` for details.
+
+See:
+- `examples/3d_visualization/` - Demos of 3D export with textures and wall openings
+- `docs/features/wall-opening-detection.md` - Detailed documentation of wall opening feature
+- `docs/texture-tiling-guide.md` - Guide to texture tiling and `texture_scale` parameter
+
 ## Capabilities
 There are no build in limitations. With this module it is possible to draw a complex plans like below.
-Use of rooms in separate YAML files, constants and variables helps in offsetting one peace to another and lets to simulate 'what if' in case one wonder if moving or making a wall or door in given place make sense.
+Use of rooms in separate YAML files and variables helps in offsetting one piece to another and lets to simulate 'what if' in case one wonder if moving or making a wall or door in given place make sense.
 
 ![dom.png](https://github.com/krzysztofander/floor-planner/blob/master/examples/images/dom.png)

@@ -1,0 +1,7 @@
+# Auto-generated material for wall_lamp
+newmtl wall_lamp
+Ka 0.900000 0.900000 0.800000
+Kd 0.950000 0.950000 0.850000
+Ks 0.700000 0.700000 0.700000
+Ns 120.0
+map_Kd wall_lamp.jpg

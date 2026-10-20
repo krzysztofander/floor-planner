@@ -1,0 +1,176 @@
+project:
+  dpi: 300
+  pdf_file: null
+  png_dir: "."
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [25, 20]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: null
+  grid_minor_step: null
+
+default_options:
+  label_color: 'black'
+  dimensions: false
+  id_color: 'gray'
+
+reusable_elements:
+  hardscape_elements:
+    # Fences with different styles
+    - type: fence
+      anchor_point: [2.0, 2.0]
+      length: 5.0
+      style: 'solid'
+      height: 1.8
+      thickness: 0.15
+      color: '#8B4513'
+      orientation_angle: 0
+      label: 'Solid Fence'
+    
+    - type: fence
+      anchor_point: [2.0, 5.0]
+      length: 5.0
+      style: 'picket'
+      height: 1.2
+      thickness: 0.15
+      color: '#D2691E'
+      orientation_angle: 0
+      label: 'Picket Fence'
+    
+    - type: fence
+      anchor_point: [2.0, 8.0]
+      length: 5.0
+      style: 'chain-link'
+      height: 1.5
+      thickness: 0.15
+      color: '#C0C0C0'
+      orientation_angle: 0
+      label: 'Chain-Link'
+    
+    - type: fence
+      anchor_point: [2.0, 11.0]
+      length: 5.0
+      style: 'rail'
+      height: 1.0
+      thickness: 0.15
+      color: '#8B4513'
+      orientation_angle: 0
+      label: 'Rail Fence'
+    
+    # Garden paths with different materials
+    - type: garden_path
+      anchor_point: [10.0, 2.0]
+      size: [6.0, 1.2]
+      material: 'gravel'
+      color: '#D3D3D3'
+      orientation_angle: 0
+      label: 'Gravel Path'
+    
+    - type: garden_path
+      anchor_point: [10.0, 5.0]
+      size: [6.0, 1.2]
+      material: 'stone'
+      color: '#A9A9A9'
+      orientation_angle: 0
+      label: 'Stone Path'
+    
+    - type: garden_path
+      anchor_point: [10.0, 8.0]
+      size: [6.0, 1.2]
+      material: 'paving'
+      color: '#B0B0B0'
+      orientation_angle: 0
+      label: 'Paving'
+    
+    - type: garden_path
+      anchor_point: [10.0, 11.0]
+      size: [6.0, 1.2]
+      material: 'wood'
+      color: '#8B7355'
+      orientation_angle: 0
+      label: 'Wood Deck'
+    
+    - type: garden_path
+      anchor_point: [10.0, 14.0]
+      size: [6.0, 1.2]
+      material: 'mulch'
+      color: '#654321'
+      orientation_angle: 0
+      label: 'Mulch Path'
+    
+    # Retaining walls
+    - type: retaining_wall
+      anchor_point: [19.0, 2.0]
+      length: 4.0
+      height: 1.5
+      thickness: 0.4
+      color: '#696969'
+      orientation_angle: 0
+      label: 'Retaining Wall'
+    
+    - type: retaining_wall
+      anchor_point: [19.0, 6.0]
+      length: 3.0
+      height: 2.0
+      thickness: 0.5
+      color: '#A9A9A9'
+      orientation_angle: 45
+      label: 'Angled Wall'
+    
+    - type: retaining_wall
+      anchor_point: [19.0, 10.0]
+      length: 5.0
+      height: 1.0
+      thickness: 0.3
+      color: '#808080'
+      orientation_angle: 90
+      label: 'Garden Terrace'
+
+floor_plans:
+  - title:
+      text: 'Hardscape_Elements_Demo'
+      font_size: 18
+    inherited_elements:
+      - hardscape_elements
+    options:
+      Fence:
+        label_color: green
+      GardenPath:
+        label_color: green
+      RetainingWall:
+        label_color: green
+    elements:
+      # Section headers
+      - type: text_box
+        anchor_point: [2.0, 0.5]
+        lines:
+          - 'FENCES'
+        font_size: 12
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [10.0, 0.5]
+        lines:
+          - 'GARDEN PATHS'
+        font_size: 12
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [19.0, 0.5]
+        lines:
+          - 'RETAINING WALLS'
+        font_size: 12
+        transparency: 0.0
+      
+      # Overview description
+      - type: text_box
+        anchor_point: [2.0, 16.5]
+        lines:
+          - 'Hardscaping Elements Overview:'
+          - 'Left: 4 fence styles (solid, picket, chain-link, rail)'
+          - 'Middle: 5 path materials (gravel, stone, paving, wood, mulch)'
+          - 'Right: 3 retaining walls with different orientations'
+        font_size: 10
+        transparency: 0.0

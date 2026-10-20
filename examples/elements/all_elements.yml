@@ -241,9 +241,18 @@ reusable_elements:
         - "one-key pass-through,"
         - "two-key pass-through):"
       transparency: 0.0
+    # External GLB model: Well
+    - type: model_well
+      anchor_point: [6.5, 0.5]
+      orientation_angle: 0
+    - type: text_box
+      anchor_point: [5.0, 0.5]
+      lines:
+        - "Well (GLB):"
+      transparency: 0.0
 floor_plans:
   - title:
-      text: "Individual elements"
+      text: "Individual_elements"
       font_size: 18
     inherited_elements:
       - walls_windows_doors

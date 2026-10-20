@@ -1,0 +1,32 @@
+# ─── STRUCTURAL ──────────────────────────────────────────────────────────────
+# Row anchor y=57.  Elements extend ~0.2 m upward.
+
+- type: text_box
+  anchor_point: [17.5, 59.0]
+  lines:
+    - "STRUCTURAL  (wallnd · wall · window)"
+  transparency: 0.0
+
+# WallND
+- type: wallnd
+  anchor_point: [2.5, 57.0]
+  length: 1.6
+  thickness: 0.2
+  orientation_angle: 0
+  label: "wallnd"
+
+# Wall (with auto-dimension)
+- type: wall
+  anchor_point: [8.5, 57.0]
+  length: 1.6
+  thickness: 0.2
+  orientation_angle: 0
+  label: "wall"
+
+# Window (standalone symbol)
+- type: window
+  anchor_point: [14.5, 57.0]
+  length: 1.2
+  overall_thickness: 0.2
+  orientation_angle: 0
+  label: "window"

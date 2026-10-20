@@ -1,0 +1,85 @@
+# ─── BLENDER-SOURCED FURNITURE ───────────────────────────────────────────────
+#
+# All elements exported from Blender .blend files (OBJ format, Y-up).
+# Dimensions are fixed from the 3D model geometry.
+# Anchor = bottom-left-front corner at orientation_angle=0.
+#
+# ROW 1  y=66  — SEATING: sofa_22 · sofa_23 · armchair · chaise_longue_1
+# ROW 2  y=61  — TABLES & CHAIRS: table_01 · desk_1 · chair_20 · stool_7
+
+# ── Section headers ──────────────────────────────────────────────────────────
+
+- type: text_box
+  anchor_point: [17.5, 74.0]
+  lines:
+    - "BLENDER-SOURCED FURNITURE"
+  transparency: 0.0
+
+- type: text_box
+  anchor_point: [17.5, 72.0]
+  lines:
+    - "SEATING  (sofa_22 · sofa_23 · armchair · chaise_longue_1)"
+  transparency: 0.0
+
+- type: text_box
+  anchor_point: [17.5, 67.5]
+  lines:
+    - "TABLES & CHAIRS  (table_01 · desk_1 · chair_20 · stool_7)"
+  transparency: 0.0
+
+# ═════════════════════════════════════════════════════════
+# ROW 1  y=69  — Seating
+# ═════════════════════════════════════════════════════════
+
+# sofa_22  2.835 × 0.904 m  (long axis in X, backrest at far-Y)
+- type: model_sofa_22
+  anchor_point: [2.0, 69.0]
+  orientation_angle: 0
+  label: "sofa_22"
+
+# sofa_23  2.003 × 0.903 m
+- type: model_sofa_23
+  anchor_point: [5.5, 69.0]
+  orientation_angle: 0
+  label: "sofa_23"
+
+# armchair  0.776 × 0.825 m
+- type: model_armchair
+  anchor_point: [9.0, 69.0]
+  orientation_angle: 0
+  label: "armchair"
+
+# Krzysztof: disabled as it is very large mesh
+# chaise_longue_1  0.783 × 1.649 m  (long axis in Y)
+#- type: model_chaise_longue_1
+#  anchor_point: [11.0, 69.0]
+#  orientation_angle: 0
+#  label: "chaise longue"
+
+# ═════════════════════════════════════════════════════════
+# ROW 2  y=61  — Tables & Chairs
+# ═════════════════════════════════════════════════════════
+
+# table_01  4.123 × 1.671 m  (long axis in X)
+- type: model_table_01
+  anchor_point: [2.0, 63.0]
+  orientation_angle: 0
+  label: "table_01"
+
+# desk_1  2.059 × 0.971 m  (long axis in X)
+- type: model_desk_1
+  anchor_point: [7.5, 63.0]
+  orientation_angle: 0
+  label: "desk_1"
+
+# chair_20  0.661 × 0.687 m  (high-back chair)
+- type: model_chair_20
+  anchor_point: [11.0, 63.0]
+  orientation_angle: 0
+  label: "chair_20"
+
+# stool_7  0.297 × 0.297 m  (bar stool)
+- type: model_stool_7
+  anchor_point: [12.5, 63.0]
+  orientation_angle: 0
+  label: "stool_7"

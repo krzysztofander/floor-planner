@@ -1,0 +1,19 @@
+{
+    "python.REPL.enableREPLSmartSend": false,
+    "files.watcherExclude": {
+        "**/.venv/**": true,
+        "**/venv/**": true,
+        "**/__pycache__/**": true,
+        "**/.pytest_cache/**": true,
+        "**/node_modules/**": true
+    },
+    "workbench.colorCustomizations": {
+        "window.titleBarStyle": "custom",
+        "activityBar.background": "#082803",
+        "titleBar.activeBackground":  "#0b3e1f",
+        "titleBar.activeForeground": "#FFFFFF",
+        
+        "titleBar.inactiveBackground": "#03210f",
+        "titleBar.inactiveForeground": "#FFFFFF"
+    }
+}

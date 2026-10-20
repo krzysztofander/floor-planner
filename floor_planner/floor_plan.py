@@ -5,16 +5,15 @@ Author: Nikolay Lysenko
 """
 
 
+from pathlib import Path
 from typing import Optional
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from .constants import METERS_PER_INCH
-from .elements import Element, Room
-from .elements.registry import element_sorter_by_type
-
-
+from .elements import ElementBase, Room
 
 class FloorPlan:
     """Floor plan."""
@@ -102,7 +101,8 @@ class FloorPlan:
         self.fig = fig
         self.ax = ax
         self.title = None
-        self.elements: list[Element] = []
+        self.elements: list[ElementBase] = []
+        self.v_anchor: float = 0.0  # Y-axis elevation for 3D export (set from YAML)
 
     def add_title(
             self, text: str, font_size: int, rel_x: float = 0.5, rel_y: float = 0.95, **kwargs
@@ -131,7 +131,7 @@ class FloorPlan:
         )
         self.title = text
 
-    def add_element(self, element: Element) -> None:
+    def add_element(self, element: ElementBase) -> None:
         """
         Add element.
 
@@ -153,8 +153,7 @@ class FloorPlan:
         """
         print (f"Drawing floor plan {self.title} elements...")
 
-        for element in sorted(self.elements, key=element_sorter_by_type):
-            #print(f"  Drawing element: {element.__class__.__name__} with id {element.id}")
+        for element in self.elements:
             element.draw(self.ax)
 
     def draw_report(
@@ -183,7 +182,9 @@ class FloorPlan:
         """
         x, y = anchor_point
         line_height = 0.3 * fontsize /11 # Spacing between lines
+        row_width = fontsize/4
         current_y = y
+        room_list_y = y
         font_size = fontsize
         
         # Draw notes first
@@ -200,48 +201,101 @@ class FloorPlan:
             
             # Add extra spacing after notes
             current_y -= line_height * 0.5
+            room_list_y = current_y
         
         # Get all Room elements
         rooms = [elem for elem in self.elements if isinstance(elem, Room)]
         
         # Filter rooms that have labels
-        labeled_rooms = [room for room in rooms if room.label]
-        
-        # Draw room areas
-        if areas and labeled_rooms:
-            # Header
-            self.ax.text(
-                x, current_y, "Room Areas:",
-                fontsize=font_size + 1,
-                verticalalignment='top',
-                horizontalalignment='left',
-                weight='bold'
-            )
-            current_y -= line_height
-            
-            # List each room
-            for room in labeled_rooms:
-                area_text = f"  • {room.label}: {room.inner_area:.2f} m²"
+        all_labeled_rooms = [room for room in rooms if room.label]
+
+        # Grouped iteration over labeled rooms, the grouping element is room's purpose
+        purposed_room_group = defaultdict(set)
+        for lroom in all_labeled_rooms:
+            purposed_room_group[lroom.purpose].add(lroom)
+
+        for purpose, labeled_rooms in purposed_room_group.items():
+            title = f"{purpose if purpose is not None else 'Other'} room areas:"
+            current_y = room_list_y
+            # Draw room areas
+            if areas and labeled_rooms:
+                # Header
                 self.ax.text(
-                    x, current_y, area_text,
-                    fontsize=font_size,
+                    x, current_y, title,
+                    fontsize=font_size + 1,
                     verticalalignment='top',
-                    horizontalalignment='left'
+                    horizontalalignment='left',
+                    weight='bold'
                 )
                 current_y -= line_height
+                
+                # List each room
+                for room in labeled_rooms:
+                    #print (f"Room: {room.label}, {room.purpose}" )
+                    self.ax.text(
+                        x, current_y, f"  • {room.label}:",
+                        fontsize=font_size,
+                        verticalalignment='top',
+                        horizontalalignment='left'
+                    )
+                    self.ax.text(
+                        x + row_width*0.9, current_y, f"{room.inner_area:.2f}m²",
+                        fontsize=font_size,
+                        verticalalignment='top',
+                        horizontalalignment='right'
+                    )
+
+                    current_y -= line_height
+                
+                # Add spacing before total
+                current_y -= line_height * 0.3
             
-            # Add spacing before total
-            current_y -= line_height * 0.3
+            # Draw total area
+            if total_area and labeled_rooms:
+                total = sum(room.inner_area for room in labeled_rooms)
+                total_text = f"Total Area: {total:.2f} m²"
+                self.ax.text(
+                    x, current_y, total_text,
+                    fontsize=font_size + 1,
+                    verticalalignment='top',
+                    horizontalalignment='left',
+                    weight='bold'
+                )
+            # increase x so next group is next row
+            x += row_width
+    
+    def export_to_gltf(
+            self,
+            output_dir: str | Path,
+            filename: str = "floor_plan_3d.gltf",
+            v_anchor: float | None = None,
+    ) -> Path:
+        """
+        Export floor plan to glTF 2.0 format for 3D visualization.
         
-        # Draw total area
-        if total_area and labeled_rooms:
-            total = sum(room.inner_area for room in labeled_rooms)
-            total_text = f"Total Area: {total:.2f} m²"
-            self.ax.text(
-                x, current_y, total_text,
-                fontsize=font_size + 1,
-                verticalalignment='top',
-                horizontalalignment='left',
-                weight='bold'
-            )
-   
+        Creates a glTF file with:
+        - External model references (from models/ directory)
+        - Transform hierarchy (placement × normalization)
+        - Materials and textures
+        
+        Args:
+            output_dir: Directory to write glTF files and textures
+            filename: Output filename (default: floor_plan_3d.gltf)
+        
+        Returns:
+            Path to exported glTF file
+        
+        Example:
+            >>> floor_plan.export_to_gltf("output/3d", "my_floor_plan.gltf")
+        """
+        from floor_planner.gltf_exporter import export_floor_plan_to_gltf
+        
+        output_path = export_floor_plan_to_gltf(
+            elements=self.elements,
+            output_dir=Path(output_dir),
+            filename=filename,
+            v_anchor=self.v_anchor if v_anchor is None else v_anchor
+        )
+        
+        print(f"Exported glTF file: {output_path}")
+        return output_path

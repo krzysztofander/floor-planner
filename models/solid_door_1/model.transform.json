@@ -1,0 +1,26 @@
+{
+  "model_file": "model.obj",
+  "model_format": "obj",
+  "format_version": "1.0",
+  "element_type": "solid_door_1",
+  "registry_key": "solid_door_1",
+  "units": "meters",
+  "up_axis": "Y",
+  "normalization": {
+    "description": "Model at 1:1 metre scale. Origin at bottom-left corner of frame.",
+    "scale": [1.0, 1.0, 1.0],
+    "rotation": [0, 0, 0],
+    "translation": [0, 0, 0]
+  },
+  "anchor_point": "bottom_left",
+  "anchor_offset": [0, 0, 0],
+  "bounding_box": {
+    "min": [0, 0, 0],
+    "max": [0.9, 2.1, 0.12]
+  },
+  "dimensions": {
+    "width": 0.9,
+    "length": 0.9,
+    "height": 2.1
+  }
+}

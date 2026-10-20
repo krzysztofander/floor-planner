@@ -1,0 +1,26 @@
+{
+  "model_file": "model.obj",
+  "model_format": "obj",
+  "format_version": "1.0",
+  "element_type": "glass_slope",
+  "registry_key": "glass_slope",
+  "units": "meters",
+  "up_axis": "Y",
+  "normalization": {
+    "description": "Flat 1x1 m panel. GlassSlope scales and tilts via secondary_normalization.",
+    "scale": [1.0, 1.0, 1.0],
+    "rotation": [0, 0, 0],
+    "translation": [0, 0, 0]
+  },
+  "anchor_point": "bottom_left",
+  "anchor_offset": [0, 0, 0],
+  "bounding_box": {
+    "min": [0, 0, 0],
+    "max": [1.0, 0.01, 1.0]
+  },
+  "dimensions": {
+    "width": 1.0,
+    "length": 1.0,
+    "height": 0.01
+  }
+}

@@ -1,13 +1,12 @@
   - type: room
     label: "south room"
-    constants:
+    vars:
       door_placement_from_left: 0.5       #measured from external left (west) wall edge
       window_placement_from_left: 1.5     #measured from external left (west) wall edge
       doorway_width: 1
       door_width: 0.9
       window_width: 1.4
       
-    vars:
       anchor_x: x_placement
       anchor_y: y_placement
       room_length: room_horizontal_length

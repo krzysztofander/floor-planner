@@ -6,11 +6,13 @@ Author: Nikolay Lysenko
 
 
 import os
+from pathlib import Path
 from typing import Literal, Union
 
 from matplotlib.backends.backend_pdf import PdfPages
 
 from .floor_plan import FloorPlan
+from .obj_exporter import export_floor_plan_to_obj
 
 
 class Project:
@@ -19,7 +21,8 @@ class Project:
     def __init__(
             self,
             floor_plans: list[FloorPlan],
-            dpi: Union[float, Literal["figure"]] = "figure"
+            dpi: Union[float, Literal["figure"]] = "figure",
+            visualisation_dir: str | None = None
     ):
         """
         Initialize an instance.
@@ -28,11 +31,15 @@ class Project:
             floor plans
         :param dpi:
             DPI (dots-per-inch), number of pixels per inch of space in output file
+        :param visualisation_dir:
+            optional directory for 3D visualization assets; if specified, acts as a switch
+            to enable 3D asset generation in the future
         :return:
             freshly created instance of `Project` class
         """
         self.floor_plans = floor_plans
         self.dpi = dpi
+        self.visualisation_dir = visualisation_dir
 
     def render_to_pdf(self, output_path: str) -> None:
         """
@@ -63,3 +70,92 @@ class Project:
             if not title.endswith('png'):
                 title += '.png'
             floor_plan.fig.savefig(os.path.join(output_dir, title), dpi=self.dpi)
+    
+    def export_to_obj(self, config_dir: str | Path) -> None:
+        """
+        Export floor plans to OBJ/MTL 3D format.
+        
+        Only exports if visualisation_dir is set. Each floor plan is exported to a separate
+        OBJ file in the visualisation_dir directory.
+        
+        :param config_dir:
+            path to directory containing YAML config file (for resolving relative texture paths)
+        :return:
+            None
+        """
+        if self.visualisation_dir is None:
+            # No visualisation directory specified, skip 3D export
+            return
+        
+        output_dir = Path(self.visualisation_dir)
+        config_dir = Path(config_dir)
+        
+        print(f"\n{'=' * 80}")
+        print("3D OBJ/MTL Export")
+        print(f"{'=' * 80}")
+        print(f"Output directory: {output_dir}")
+        print(f"Floor plans: {len(self.floor_plans)}")
+        print()
+        
+        for floor_plan in self.floor_plans:
+            try:
+                export_floor_plan_to_obj(floor_plan, output_dir, config_dir)
+            except Exception as e:
+                print(f"Error exporting floor plan '{floor_plan.title}': {e}")
+                import traceback
+                traceback.print_exc()
+        
+        print(f"{'=' * 80}")
+        print("3D export complete")
+        print(f"{'=' * 80}\n")
+    
+    def export_to_gltf(self) -> None:
+        """
+        Export floor plans to glTF 2.0 format for 3D visualization.
+        
+        Only exports if visualisation_dir is set. Each floor plan is exported to a separate
+        glTF file in the visualisation_dir directory.
+        
+        Creates glTF files with:
+        - External model references (from models/ directory)
+        - Procedural geometry (walls, doors, windows)
+        - Transform hierarchy (placement × normalization)
+        - Materials and textures
+        
+        :return:
+            None
+        """
+        if self.visualisation_dir is None:
+            # No visualisation directory specified, skip 3D export
+            return
+        
+        output_dir = Path(self.visualisation_dir)
+        
+        print(f"\n{'=' * 80}")
+        print("3D glTF 2.0 Export")
+        print(f"{'=' * 80}")
+        print(f"Output directory: {output_dir}")
+        print(f"Floor plans: {len(self.floor_plans)}")
+        print()
+        
+        for i, floor_plan in enumerate(self.floor_plans):
+            try:
+                # Generate filename from floor plan title
+                if floor_plan.title:
+                    # Sanitize title for filename
+                    filename = floor_plan.title.replace(' ', '_').replace('/', '_')
+                    if not filename.endswith('.gltf'):
+                        filename += '.gltf'
+                else:
+                    filename = f"floor_plan_{i}.gltf"
+                
+                output_path = floor_plan.export_to_gltf(output_dir, filename, v_anchor=floor_plan.v_anchor)
+                print(f"  ✓ Exported: {output_path.name}")
+            except Exception as e:
+                print(f"  ✗ Error exporting floor plan '{floor_plan.title}': {e}")
+                import traceback
+                traceback.print_exc()
+        
+        print(f"{'=' * 80}")
+        print("glTF export complete")
+        print(f"{'=' * 80}\n")

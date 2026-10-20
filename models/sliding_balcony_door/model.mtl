@@ -1,0 +1,28 @@
+# Material file for Balcony Door 3D model
+# Textures are referenced relative to this file's directory.
+# They point to the shared textures in the floor_planner package.
+
+# Door frame / wooden surround
+newmtl frame_mat
+Ka 0.8 0.8 0.8
+Kd 1.0 1.0 1.0
+Ks 0.2 0.2 0.2
+Ns 25.0
+map_Kd balcony_door__frame.jpg
+
+# Door wing - lower solid wood panel
+newmtl door_wood_mat
+Ka 0.8 0.8 0.8
+Kd 1.0 1.0 1.0
+Ks 0.1 0.1 0.1
+Ns 10.0
+map_Kd balcony_door__door_panel.jpg
+
+# Door wing - upper glass panel (semi-transparent)
+newmtl glass_mat
+Ka 0.85 0.90 1.0
+Kd 0.85 0.90 1.0
+Ks 0.8  0.8  0.8
+Ns 100.0
+d 0.95
+map_Kd balcony_door__glass.png

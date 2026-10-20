@@ -1,0 +1,19 @@
+# Material file for Window Door Double 3D model
+# Textures shared with balcony_door (relative path).
+
+# Door frame / surround + center divider + top/bottom bars
+newmtl frame_mat
+Ka 0.8 0.8 0.8
+Kd 1.0 1.0 1.0
+Ks 0.2 0.2 0.2
+Ns 25.0
+map_Kd ../balcony_door/balcony_door__frame.jpg
+
+# Glass wing panels (semi-transparent)
+newmtl glass_mat
+Ka 0.85 0.90 1.0
+Kd 0.85 0.90 1.0
+Ks 0.8  0.8  0.8
+Ns 100.0
+d 0.95
+map_Kd ../balcony_door/balcony_door__glass.png

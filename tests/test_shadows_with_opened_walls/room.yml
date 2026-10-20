@@ -1,0 +1,86 @@
+  - type: room
+    label: "test room with invisible openings"
+    vars:
+      door_placement_from_bottom: 0.5
+      window_placement_from_bottom: 0.7
+      doorway_width: 1.0
+      door_width: 0.9
+      window_width: 1.5
+      
+      anchor_x: x_placement
+      anchor_y: y_placement
+      room_length: room_horizontal_length
+      room_width: room_vertical_width
+      wall_thickness: wall_thickness
+ 
+    anchor_point: [anchor_x, anchor_y]
+
+    elements:
+    # Edge walls (visible so we can see the holes)
+      - type: wall
+        id: wall_south
+        anchor_point: [0, 0]
+        length: room_width
+        thickness: wall_thickness
+        color: invisible
+        orientation_angle: 0
+        room_edge: true
+
+
+      - type: wall
+        id: wall_south
+        anchor_point: [0, -2]
+        length: room_width
+        thickness: wall_thickness
+        color: gray
+        orientation_angle: 0
+
+      - type: window
+        anchor_point: [0.50, -2]
+        length: window_width
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        color: invisible
+        label: "Invisible Window"
+
+      - type: wall
+        id: wall_south
+        anchor_point: [0, -4]
+        length: room_width
+        thickness: wall_thickness
+        color: gray
+        orientation_angle: 0
+
+
+      - type: wall
+        id: wall_east
+        anchor_point: [room_width, 0]
+        length: room_length
+        thickness: wall_thickness
+        orientation_angle: 90
+        color: invisible
+        room_edge: true
+      
+      - type: wall
+        id: wall_north
+        anchor_point: [room_width, room_length]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 180
+        color: invisible
+        room_edge: true
+      
+      - type: wall
+        id: wall_west
+        anchor_point: [0, room_length]
+        length: room_length
+        thickness: wall_thickness
+        color: invisible
+        orientation_angle: 270
+        room_edge: true
+
+      - type: model_wooden_chair
+        anchor_point: [1, 1]
+        orientation_angle: 0
+        color: brown
+        label: "Wooden Chair"

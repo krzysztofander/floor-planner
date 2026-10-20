@@ -1,0 +1,63 @@
+# ─── FURNITURE ───────────────────────────────────────────────────────────────
+# Row 1 anchor y=28:  desk · dining_table · chair · sofa · fish_tank
+# Row 2 anchor y=23:  wooden_chair (3D) · sofa_model (3D)
+
+- type: text_box
+  anchor_point: [17.5, 30.5]
+  lines:
+    - "FURNITURE  (desk · dining_table · chair · sofa · fish_tank · wooden_chair · sofa_model)"
+  transparency: 0.0
+
+# ── Row 1 ──
+
+# Desk  1.4 × 0.65 m
+- type: desk
+  anchor_point: [2.5, 28.0]
+  orientation_angle: 0
+  color: brown
+  label: "desk"
+
+# Dining table  1.8 × 0.9 m
+- type: dining_table
+  anchor_point: [6.5, 28.0]
+  length: 1.8
+  thickness: 0.9
+  orientation_angle: 0
+  color: brown
+  label: "dining table"
+
+# Chair  0.45 × 0.45 m
+- type: chair
+  anchor_point: [12.0, 28.0]
+  orientation_angle: 0
+  color: darkgray
+  label: "chair"
+
+# Sofa  3 seats = 2.4 × 0.9 m
+- type: sofa
+  anchor_point: [15.0, 28.0]
+  num_seats: 3
+  orientation_angle: 0
+  color: darkslateblue
+  label: "sofa (3)"
+
+# Fish tank  0.6 × 0.3 m
+- type: fish_tank
+  anchor_point: [21.5, 28.0]
+  orientation_angle: 0
+  color: blue
+  label: "fish tank"
+
+# ── Row 2  (external 3D models) ──
+
+# Wooden chair  ~0.5 × 0.5 m  (external 3D model)
+- type: model_wooden_chair
+  anchor_point: [2.5, 23.0]
+  orientation_angle: 0
+  label: "wooden chair (3D)"
+
+# Sofa model  0.49 × 1.37 m  (external 3D model, long axis in Y at angle=0)
+- type: model_sofa_model
+  anchor_point: [7.0, 23.0]
+  orientation_angle: 0
+  label: "sofa model (3D)"

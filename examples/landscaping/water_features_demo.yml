@@ -1,0 +1,138 @@
+project:
+  dpi: 300
+  pdf_file: null
+  png_dir: "."
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [25, 20]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: null
+  grid_minor_step: null
+
+default_options:
+  label_color: 'black'
+  dimensions: false
+  id_color: 'gray'
+
+reusable_elements:
+  water_features:
+    # Fountains with different styles
+    - type: fountain
+      anchor_point: [4.0, 5.0]
+      diameter: 2.0
+      height: 1.5
+      style: 'tiered'
+      color: '#87CEEB'
+      basin_color: '#A9A9A9'
+      label: 'Tiered Fountain'
+    
+    - type: fountain
+      anchor_point: [4.0, 10.0]
+      diameter: 2.5
+      height: 2.0
+      style: 'spray'
+      color: '#87CEEB'
+      basin_color: '#696969'
+      label: 'Spray Fountain'
+    
+    - type: fountain
+      anchor_point: [4.0, 15.0]
+      diameter: 1.5
+      height: 0.8
+      style: 'simple'
+      color: '#B0E0E6'
+      basin_color: '#A9A9A9'
+      label: 'Simple Fountain'
+    
+    # Ponds with different shapes
+    - type: pond
+      anchor_point: [12.0, 5.0]
+      length: 4.0
+      width: 3.0
+      shape: 'oval'
+      color: '#4682B4'
+      border_color: '#2F4F4F'
+      label: 'Oval Pond'
+    
+    - type: pond
+      anchor_point: [12.0, 10.0]
+      length: 4.5
+      width: 3.5
+      shape: 'kidney'
+      color: '#4682B4'
+      border_color: '#2F4F4F'
+      label: 'Kidney Pond'
+    
+    - type: pond
+      anchor_point: [12.0, 15.0]
+      length: 3.5
+      width: 2.5
+      shape: 'rectangular'
+      color: '#5F9EA0'
+      border_color: '#2F4F4F'
+      label: 'Rectangular Pond'
+    
+    - type: pond
+      anchor_point: [20.0, 8.0]
+      length: 4.0
+      width: 4.0
+      shape: 'irregular'
+      color: '#4682B4'
+      border_color: '#2F4F4F'
+      label: 'Irregular Pond'
+    
+    # Swimming Pools
+    - type: rect_pool
+      anchor_point: [20.0, 15.0]
+      length: 8.0
+      thickness: 4.0
+      pool_color: '#00BFFF'
+      border_color: '#B0C4DE'
+      show_lanes: true
+      show_steps: true
+      label: 'Rectangular Pool'
+    
+    - type: oval_pool
+      anchor_point: [20.0, 3.5]
+      length: 6.0
+      thickness: 3.5
+      pool_color: '#00BFFF'
+      border_color: '#B0C4DE'
+      show_steps: true
+      label: 'Oval Pool'
+
+floor_plans:
+  - title:
+      text: 'Water_Features_Demo'
+      font_size: 18
+    inherited_elements:
+      - water_features
+    elements:
+      # Section headers
+      - type: text_box
+        anchor_point: [3.0, 1.0]
+        lines:
+          - 'FOUNTAINS'
+        font_size: 12
+        transparency: 0.0
+      
+      - type: text_box
+        anchor_point: [10.0, 1.0]
+        lines:
+          - 'PONDS'
+        font_size: 12
+        transparency: 0.0
+      
+      # Overview description
+      - type: text_box
+        anchor_point: [2.0, 17.5]
+        lines:
+          - 'Water Features Overview:'
+          - 'Left: 3 fountain styles (tiered, spray, simple)'
+          - 'Middle: 4 pond shapes (oval, kidney, rectangular, irregular)'
+          - 'Right: 2 pool types (rectangular with lanes, oval)'
+          - 'All elements show water texture patterns and ripples'
+        font_size: 10
+        transparency: 0.0

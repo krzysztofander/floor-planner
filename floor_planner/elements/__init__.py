@@ -5,7 +5,7 @@ Author: Nikolay Lysenko
 """
 
 
-from .options import (
+from ..options import (
     get_label_color, 
     get_dimensions, 
     generate_element_id, reset_id_counters, 
@@ -13,41 +13,28 @@ from .options import (
     get_show_invisible,
     set_element_options, get_element_option
 )
-from .basic import Wall, WallND, Window
-from .door import Door
-from .electricity import ElectricalCable, PowerOutlet
-from .element import  Element
-from .info import DimensionArrow, TextBox
-from .lighting import CeilingLamp, LEDStrip, WallLamp, Switch
-from .multipurpose import Line, Polygon
-from .room import Room
+from .foundation.basic import Wall, WallND
+from .foundation.windows import  Window
+from .external import *
+from .foundation.door import Door
+from .symbols.electricity import ElectricalCable, PowerOutlet, GroundCable
+from .devices import *
+from .furniture import *
+from .element import ElementBase, Element, RectangularElement, SurfaceElement, CircularElement
+from .external_models import ExternalModelElement
+
+from .symbols.info import DimensionArrow, TextBox
+from .lightning.lighting import CeilingLamp, LEDStrip, WallLamp, Switch
+from .symbols.multipurpose import Line, Polygon
+from .foundation.room import Room
+from .foundation.group import Group
+from .landscaping import (Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall,
+                           Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GenericSurface,
+                           GardenHouse, Greenhouse,
+                           GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame, Composite_GlassDoor,
+                           RectPool, OvalPool, GableRoof, HippedRoof,
+                           SingleSlopeRoof, HippedRoofOctantLeft, HippedRoofOctantRight,
+                           HippedInternalOctantLeft, HippedInternalOctantRight,
+                           GableEndWallLeft, GableEndWallRight,
+                           GableEndGlassLeft, GableEndGlassRight)
 from .registry import create_elements_registry
-
-
-___all__ = [
-    'CeilingLamp',
-    'DimensionArrow',
-    'Door',
-    'ElectricalCable',
-    'Element',
-    'LEDStrip',
-    'Line',
-    'Polygon',
-    'PowerOutlet',
-    'Room',
-    'Switch',
-    'TextBox',
-    'Wall',
-    'WallND',
-    'WallLamp',
-    'Window',
-    'create_elements_registry',
-    'get_label_color',
-    'get_dimensions',
-    'generate_element_id',
-    'reset_id_counters',
-    'get_id_color',
-    'get_show_invisible',
-    'set_element_options',
-    'get_element_option'
-]

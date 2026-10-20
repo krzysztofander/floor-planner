@@ -21,7 +21,7 @@ default_layout:
   scale_denominator: 40
   grid_major_step: 1
   grid_minor_step: 0.1
-constants:
+vars:
   x_placement: 0.5            # constants that can be used in reusable elements
   y_placement: 0.5            # constants that can be used in reusable elements
   room_horizontal_length: 3

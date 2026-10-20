@@ -1,0 +1,142 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "test_wall_openings",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "tests/test_wall_openings/project_main.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "test_landscaping",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "examples/landscaping/vegetation_demo.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "dzialka",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "../../rzuty/dzialka/dzialka_proj.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "dom grodziec 3",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "../../rzuty/dom_projekt/dom_projekt3.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "dom_i_dzialka",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "../../rzuty/dom_i_dzialka/dom_i_dzialka.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "test_all_elements",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "tests/all_elements/project_main.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "test_play_with_doors",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "tests/play_with_doors/project_main.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "test door",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "tests/door/project_main.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "test glass",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "examples/glass_structures/glass_demo.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "test_play_with_double_doors",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "tests/play_with_double_doors/project_main.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "Make examples",
+            "type": "f5anything",
+            "request": "launch",
+            "command": "",
+            "preLaunchTask": "make"
+        }           
+    ]
+}

@@ -8,8 +8,9 @@ import math
 from functools import lru_cache
 
 import matplotlib.axes
+import numpy as np
 
-from .elements.options import get_label_color, get_id_color
+from .options import get_label_color, get_id_color
 
 @lru_cache
 def _rotate_point(anchor_point: tuple[float, float],
@@ -189,6 +190,122 @@ def render_label_and_id(
     # Render ID if color is configured
     id_color = get_id_color(element_type)
     if id_color is not None:
-        _render_text(ax, position, id_prefix + element.id, rotation, id_color, centered=centered)
+        _render_text(ax, position, id_prefix + element.get_id(), rotation, id_color, centered=centered)
 
+
+def render_text_as_label_and_id(
+        ax: matplotlib.axes.Axes,
+        element,
+        text: str | None,
+        element_type: str,
+        position: tuple[float, float],
+        rotation: float,
+        centered: bool = False
+) -> None:
+    """
+    Render custom text and element ID.
+    
+    Similar to render_label_and_id but uses explicit text parameter
+    for the label instead of element.label. This avoids the need for 
+    temporary label swapping when rendering combined/computed labels.
+
+    :param ax:
+        matplotlib axes to draw on
+    :param element:
+        element instance with .id attribute
+    :param text:
+        custom text to render as label (if None or empty, uses element.label)
+    :param element_type:
+        type name for color lookup
+    :param position:
+        (x, y) position for the text
+    :param rotation:
+        rotation angle in degrees
+    :param centered:
+        if True, text will be centered horizontally and vertically at the position
+    """
+    # Render text as label if provided and color is configured
+    if text:
+        label_color = get_label_color(element_type)
+        if label_color is not None:
+            _render_text(ax, position, text, rotation, label_color, centered=centered)
+    elif element.label is not None:
+        label_color = get_label_color(element_type)
+        if label_color is not None:
+            _render_text(ax, position, element.label, rotation, label_color, centered=centered)
+
+    # Render ID if color is configured
+    id_color = get_id_color(element_type)
+    if id_color is not None:
+        _render_text(ax, position, element.get_id(), rotation, id_color, centered=centered)
+
+def renderDim(ax: matplotlib.axes.Axes,
+              anchor_point: tuple[float, float],
+              text: str,
+              length: float,
+              orientation_angle: float,
+              font_size: float,
+              text_elevation: float,
+              color: str,
+              bgcolor: str | None = None
+              ):
+    shift_vector = np.array([[anchor_point[0], anchor_point[1]]])
+    rotation_angle_radians = math.radians(orientation_angle)
+    rotation_matrix = np.array([
+            [math.cos(rotation_angle_radians), -math.sin(rotation_angle_radians)],
+            [math.sin(rotation_angle_radians), math.cos(rotation_angle_radians)],
+        ])
+    whitespace_shift = (len(text) - len(text.lstrip(' ')) ) * font_size * 0.1
+    initial_text_center = [
+            length / 2 + whitespace_shift,
+            text_elevation
+        ]
+    
+    text_anchor_point = np.dot(rotation_matrix, np.array([initial_text_center]).T).T
+    text_anchor_point += shift_vector
+    text_anchor_x = text_anchor_point[0][0].item()
+    text_anchor_y = text_anchor_point[0][1].item()
+    if bgcolor is not None:
+        bboxdict = dict(facecolor = bgcolor, alpha = 0.6, edgecolor="none", boxstyle="round")
+    else:
+        bboxdict = None
+    ax.text(
+            text_anchor_x, text_anchor_y, text.lstrip(' '),
+            verticalalignment='center', horizontalalignment='center',
+            rotation=orientation_angle, color=color, fontsize=font_size, bbox=bboxdict
+        )
+
+def renderDim2pts(ax: matplotlib.axes.Axes,
+              anchor_point1: tuple[float, float],
+              anchor_point2: tuple[float, float],
+              text: str,
+              append_len: bool,
+              font_size: float,
+              text_elevation: float,
+              color: str,
+              bgcolor: str | None):
+
+    p1 = np.array(anchor_point1)
+    p2 = np.array(anchor_point2)
+    dx, dy = p2 - p1
+    angle = np.arctan2(dy, dx)
+    angle_deg = np.degrees(angle)
+    length = np.linalg.norm(p2 - p1)
+    if append_len:
+        rlen = str(math.ceil(length *10)/10)
+        text = f"{text} ({rlen})" if len(text) > 0 else f"({rlen})"
+
+    renderDim(ax,anchor_point1,text,length,angle_deg, font_size, text_elevation, color, bgcolor)
+
+def WarnMsg(msg: str) -> None:
+    """Print warning message."""
+    #print(f"WARNING: {msg}")
+    exit("WARNING: " + msg)
+    
+
+
+def assert_has_attrs(obj, *attrs):
+    """Usage: assert_has_attrs(obj, "a", "b", "c")"""
+    missing = [a for a in attrs if not hasattr(obj, a)]
+    assert not missing, f"{type(obj).__name__} missing attributes: {missing}"
 

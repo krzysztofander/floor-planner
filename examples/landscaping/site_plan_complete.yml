@@ -1,0 +1,285 @@
+project:
+  dpi: 300
+  pdf_file: null
+  png_dir: "."
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [25, 20]
+  scale_numerator: 1
+  scale_denominator: 100
+  grid_major_step: 5
+  grid_minor_step: 1
+
+default_options:
+  label_color: 'black'
+  auto_dimensions: false
+  Tree:
+    show_species: true
+    show_bloom: true
+  Shrub:
+    show_species: true
+    show_bloom: true
+  Hedge:
+    show_species: true
+    show_bloom: true
+
+# Complete site plan demonstrating all landscaping elements integrated together
+floor_plans:
+  - title:
+      text: "Comprehensive_Landscaping_Site_Plan"
+      font_size: 16
+    elements:
+      # PERIMETER - Privacy hedge across back
+      - type: hedge
+        anchor_point: [0.5, 18.5]
+        length: 24.0
+        thickness: 0.8
+        height: 2.0
+        orientation_angle: 0
+        color: '#228B22'
+        species: 'Privet'
+        label: 'Back Hedge'
+      
+      # FRONT BOUNDARY - Decorative picket fence
+      - type: fence
+        anchor_point: [0.5, 0.5]
+        length: 11.0
+        style: 'picket'
+        height: 1.0
+        thickness: 0.1
+        orientation_angle: 0
+        color: '#FFFFFF'
+        label: 'Front Fence Left'
+      
+      - type: fence
+        anchor_point: [14.0, 0.5]
+        length: 10.5
+        style: 'picket'
+        height: 1.0
+        thickness: 0.1
+        orientation_angle: 0
+        color: '#FFFFFF'
+        label: 'Front Fence Right'
+      
+      # MAIN ENTRANCE PATH - Paving stones from street
+      - type: garden_path
+        anchor_point: [11.5, 1.0]
+        size: [8.0, 1.5]
+        material: 'paving'
+        orientation_angle: 90
+        color: '#B0B0B0'
+        label: 'Main Path'
+      
+      # FRONT YARD TREES
+      - type: tree
+        anchor_point: [5.0, 5.0]
+        diameter: 5.0
+        height: 12.0
+        trunk_diameter: 0.6
+        species: 'Oak'
+        color: '#228B22'
+        label: 'Mature Oak'
+      
+      - type: tree
+        anchor_point: [19.0, 5.0]
+        diameter: 4.5
+        height: 10.0
+        trunk_diameter: 0.5
+        species: 'Maple'
+        color: '#3CB371'
+        label: 'Maple'
+      
+      # FRONT LAWN AREAS
+      - type: lawn
+        anchor_point: [1.5, 2.0]
+        size: [8.0, 5.0]
+        orientation_angle: 0
+        color: '#7CFC00'
+        label: 'Front Lawn Left'
+      
+      - type: lawn
+        anchor_point: [15.0, 2.0]
+        size: [8.5, 5.0]
+        orientation_angle: 0
+        color: '#7CFC00'
+        label: 'Front Lawn Right'
+      
+      # FLOWERING SHRUBS NEAR ENTRANCE
+      - type: shrub
+        anchor_point: [10.5, 9.0]
+        diameter: 1.2
+        height: 1.0
+        species: 'Rose'
+        color: '#90EE90'
+        bloom_season_start: '01.05'
+        bloom_season_end: '30.09'
+        bloom_color: '#FF69B4'
+        label: 'Rose Bush'
+      
+      - type: shrub
+        anchor_point: [13.5, 9.0]
+        diameter: 1.2
+        height: 1.0
+        species: 'Lavender'
+        color: '#98D8C8'
+        bloom_season_start: '15.06'
+        bloom_season_end: '31.08'
+        bloom_color: '#E6E6FA'
+        label: 'Lavender'
+      
+      # BACKYARD PATIO AREA
+      - type: deck
+        anchor_point: [9.0, 10.5]
+        size: [6.0, 4.0]
+        orientation_angle: 0
+        color: '#D2B48C'
+        label: 'Patio Deck'
+      
+      - type: pergola
+        anchor_point: [10.0, 11.0]
+        size: [4.0, 3.0]
+        post_size: 0.25
+        orientation_angle: 0
+        color: '#8B4513'
+        label: 'Pergola'
+      
+      # BACKYARD LAWN
+      - type: lawn
+        anchor_point: [6.0, 15.5]
+        size: [12.0, 2.5]
+        orientation_angle: 0
+        color: '#32CD32'
+        label: 'Back Lawn'
+      
+      # WATER FEATURES
+      - type: pond
+        anchor_point: [20.0, 15.0]
+        length: 3.5
+        width: 2.5
+        shape: 'kidney'
+        color: '#4682B4'
+        border_color: '#2F4F4F'
+        label: 'Garden Pond'
+      
+      - type: fountain
+        anchor_point: [17.0, 14.5]
+        diameter: 1.2
+        height: 0.8
+        style: 'tiered'
+        color: '#87CEEB'
+        basin_color: '#708090'
+        label: 'Fountain'
+      
+      # VEGETABLE GARDEN AREA
+      - type: raised_bed
+        anchor_point: [2.0, 12.0]
+        size: [3.0, 1.2]
+        height: 0.4
+        border_thickness: 0.15
+        orientation_angle: 0
+        fill_color: '#8B4513'
+        border_color: '#654321'
+        label: 'Vegetables'
+      
+      - type: raised_bed
+        anchor_point: [2.0, 13.5]
+        size: [3.0, 1.2]
+        height: 0.4
+        border_thickness: 0.15
+        orientation_angle: 0
+        fill_color: '#8B4513'
+        border_color: '#654321'
+        label: 'Herbs'
+      
+      - type: raised_bed
+        anchor_point: [2.0, 15.0]
+        size: [3.0, 1.2]
+        height: 0.4
+        border_thickness: 0.15
+        orientation_angle: 0
+        fill_color: '#8B4513'
+        border_color: '#654321'
+        label: 'Greens'
+      
+      # GARDEN SHED
+      - type: garden_house
+        anchor_point: [2.0, 10.0]
+        size: [2.5, 2.0]
+        height: 2.2
+        orientation_angle: 0
+        color: '#DEB887'
+        roof_color: '#8B4513'
+        label: 'Tool Shed'
+      
+      # BACKYARD TREES
+      - type: tree
+        anchor_point: [18.0, 11.0]
+        diameter: 4.0
+        height: 8.0
+        trunk_diameter: 0.4
+        species: 'Cherry'
+        color: '#32CD32'
+        bloom_season_start: '15.04'
+        bloom_season_end: '30.05'
+        bloom_color: '#FFB6C1'
+        label: 'Cherry'
+      
+      - type: tree
+        anchor_point: [22.0, 7.0]
+        diameter: 2.5
+        height: 6.0
+        trunk_diameter: 0.25
+        species: 'Birch'
+        color: '#90EE90'
+        label: 'Birch'
+      
+      # GAZEBO IN CORNER
+      - type: gazebo
+        anchor_point: [22.0, 3.0]
+        diameter: 3.0
+        color: '#DEB887'
+        roof_color: '#8B4513'
+        label: 'Gazebo'
+      
+      # ORNAMENTAL SHRUBS AROUND GAZEBO
+      - type: shrub
+        anchor_point: [20.0, 2.0]
+        diameter: 1.2
+        height: 1.0
+        species: 'Hydrangea'
+        color: '#98D8C8'
+        bloom_season_start: '01.06'
+        bloom_season_end: '30.09'
+        bloom_color: '#ADD8E6'
+        label: 'Hydrangea'
+      
+      - type: shrub
+        anchor_point: [24.0, 2.0]
+        diameter: 1.2
+        height: 1.0
+        species: 'Azalea'
+        color: '#90EE90'
+        bloom_season_start: '15.05'
+        bloom_season_end: '30.06'
+        bloom_color: '#FF1493'
+        label: 'Azalea'
+      
+      # PATHWAY TO GAZEBO
+      - type: garden_path
+        anchor_point: [15.0, 2.5]
+        size: [6.0, 1.0]
+        material: 'stone'
+        orientation_angle: 0
+        color: '#A9A9A9'
+        label: 'Garden Path'
+      
+      # RETAINING WALL ON SIDE
+      - type: retaining_wall
+        anchor_point: [23.5, 8.0]
+        length: 7.0
+        height: 1.2
+        thickness: 0.3
+        orientation_angle: 90
+        color: '#696969'
+        label: 'Retaining Wall'

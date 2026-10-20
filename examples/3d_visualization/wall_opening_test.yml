@@ -1,0 +1,78 @@
+# Wall Opening Test - Testing door and window cutouts in walls
+
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "visualisation_3d"
+
+default_layout: 
+  bottom_left_corner: [0, 0]
+  top_right_corner: [6, 6]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+floor_plans:
+  - title:
+      text: "Wall Opening Test"
+      font_size: 18
+    
+    elements:
+      # Front wall with door
+      - type: wall
+        id: wall_front
+        anchor_point: [0, 0]
+        orientation_angle: 0
+        length: 5
+        thickness: 0.2
+        color: gray
+      
+      # Door in front wall
+      - type: door
+        id: door_main
+        anchor_point: [1.5, 0]
+        orientation_angle: 0
+        doorway_width: 1.0
+        door_width: 0.9
+        thickness: 0.2
+        to_the_right: false
+        color: brown
+      
+      # Back wall with window
+      - type: wall
+        id: wall_back
+        anchor_point: [5, 5]
+        orientation_angle: 180
+        length: 5
+        thickness: 0.2
+        color: gray
+      
+      # Window in back wall
+      - type: window
+        id: window_main
+        anchor_point: [1, 5]
+        orientation_angle: 180
+        length: 2.0
+        overall_thickness: 0.2
+        single_line_thickness: 0.02
+        color: lightblue
+      
+      # Left wall (no openings)
+      - type: wall
+        id: wall_left
+        anchor_point: [0, 0]
+        orientation_angle: 90
+        length: 5
+        thickness: 0.2
+        color: gray
+      
+      # Right wall (no openings)
+      - type: wall
+        id: wall_right
+        anchor_point: [5, 0]
+        orientation_angle: 90
+        length: 5
+        thickness: 0.2
+        color: gray

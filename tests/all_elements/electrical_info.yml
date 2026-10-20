@@ -1,0 +1,95 @@
+# ─── ELECTRICAL & INFO ───────────────────────────────────────────────────────
+# Row anchor y=15.5
+
+- type: text_box
+  anchor_point: [17.5, 17.0]
+  lines:
+    - "ELECTRICAL & INFO  (power_outlet variants · electrical_cable · dimension_arrow · line styles · circle · polygon · text_box)"
+  transparency: 0.0
+
+# Power outlet – standard
+- type: power_outlet
+  anchor_point: [2.5, 15.5]
+  length: 0.2
+  orientation_angle: 0
+  label: "outlet"
+
+# Power outlet – waterproof
+- type: power_outlet
+  anchor_point: [4.5, 15.5]
+  length: 0.2
+  orientation_angle: 0
+  waterproof: true
+  label: "waterproof"
+
+# Power outlet – high voltage
+- type: power_outlet
+  anchor_point: [6.5, 15.5]
+  length: 0.2
+  orientation_angle: 0
+  high_voltage: true
+  label: "400V"
+
+# Power outlet – low current
+- type: power_outlet
+  anchor_point: [8.5, 15.5]
+  length: 0.2
+  orientation_angle: 0
+  low_current: true
+  label: "low current"
+
+# Electrical cable
+- type: electrical_cable
+  anchor_point: [11.0, 15.5]
+  symbol_length: 0.2
+  orientation_angle: 0
+  label: "cable"
+
+# Dimension arrow
+- type: dimension_arrow
+  anchor_point: [13.5, 15.5]
+  length: 2.0
+  orientation_angle: 0
+
+# Lines (all four styles)
+- type: line
+  first_point: [17.0, 15.8]
+  second_point: [19.0, 15.8]
+  width: 1.0
+
+- type: line
+  first_point: [17.0, 15.6]
+  second_point: [19.0, 15.6]
+  width: 1.0
+  style: dashed
+
+- type: line
+  first_point: [17.0, 15.4]
+  second_point: [19.0, 15.4]
+  width: 1.0
+  style: dash_dot
+
+- type: line
+  first_point: [17.0, 15.2]
+  second_point: [19.0, 15.2]
+  width: 1.0
+  style: dotted
+
+# Circle
+- type: circle
+  anchor_point: [21.0, 15.5]
+  radius: 0.4
+
+# Polygon (simple triangle)
+- type: polygon
+  vertices:
+    - [23.5, 15.2]
+    - [24.3, 15.2]
+    - [23.9, 15.9]
+
+# Text box
+- type: text_box
+  anchor_point: [27.0, 15.5]
+  lines:
+    - "text_box"
+    - "(multiline)"

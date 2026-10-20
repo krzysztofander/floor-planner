@@ -1,0 +1,35 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "output"         # Folder where to store the png file
+default_options:
+  Door:
+    label_color: green      # Color for door labels
+    dimensions: true        # Draw door dimensions
+  Wall:
+    show_invisible: false   # If color is set to "invisible" it will be shown as red
+  Window:
+    label_color: blue       # Color for window labels
+default_layout:
+  bottom_left_corner: [-1, -1]
+  top_right_corner: [10, 6]
+  scale_numerator: 1
+  scale_denominator: 40
+  grid_major_step: 1
+  grid_minor_step: 0.1
+vars:
+  x_placement: 0.5            # anchor for the group on the floor plan
+  y_placement: 0.5
+  room_horizontal_length: 3
+  room_vertical_width: 4
+  wall_thickness: 0.15
+
+reusable_elements:
+  some_group: "group.yml"     # include the group definition file
+
+floor_plans:
+  - title:
+      text: "group_east"      # will also become the PNG file name
+      font_size: 18
+    inherited_elements:
+      - some_group            # use the group defined above

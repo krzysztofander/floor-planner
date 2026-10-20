@@ -1,0 +1,257 @@
+  - type: room
+    label: "test room with invisible openings"
+    vars:
+      door_placement_from_bottom: 0.5
+      window_placement_from_bottom: 0.7
+      doorway_width: 1.0
+      door_width: 0.9
+      window_width: 1.5
+      
+      balcony_door_doorway_width: 0.9
+      balcony_door_door_width: 0.8
+
+      anchor_x: x_placement
+      anchor_y: y_placement
+      room_length: room_horizontal_length
+      room_width: room_vertical_width
+      wall_thickness: wall_thickness
+
+      x_col1: room_width + 0.5
+      x_col2: (room_width + 0.5) *2
+      x_col3: (room_width + 0.5) *3
+      
+      y_1: room_length + 0.5
+      y_2: (room_length + 0.5) *2
+      y_3: (room_length + 0.5) *3
+      y_4: (room_length + 0.5) *4
+      y_5: (room_length + 0.5) *5
+
+
+
+ 
+    anchor_point: [anchor_x, anchor_y]
+
+    elements:
+    # Edge walls (visible so we can see the holes)
+      - type: wall
+        id: wall_south
+        anchor_point: [0, 0]
+        length: room_width
+        thickness: wall_thickness
+        color: blue
+        orientation_angle: 0
+        room_edge: true
+      - type: wall
+        id: wall_east
+        anchor_point: [room_width, 0]
+        length: room_length
+        thickness: wall_thickness
+        orientation_angle: 90
+        color: blue
+        room_edge: true
+      - type: wall
+        id: wall_north
+        anchor_point: [room_width, room_length]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 180
+        color: blue
+        room_edge: true
+      - type: wall
+        id: wall_west
+        anchor_point: [0, room_length]
+        length: room_length
+        thickness: wall_thickness
+        color: blue
+        orientation_angle: 270
+        room_edge: true
+   
+      - type: generic_storage
+        anchor_point: [0, 0]
+        thickness: 0.2
+        length: 0.5
+        height: 0.1
+        orientation_angle: 0
+        color: blue
+        label: "storage"
+#### walls with holes
+## procedural window
+      - type: wall
+        anchor_point: [x_col1, y_1]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col1_y_1"
+      - type: window
+        anchor_point: [x_col1 + 0.5, y_1]
+        length: window_width
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+      - type: wall
+        anchor_point: [x_col2, y_1]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col2_y_1"
+      - type: window
+        anchor_point: [x_col2 + 0.5, y_1]
+        length: window_width
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        color: invisible
+## procedural door
+      - type: wall
+        anchor_point: [x_col3, y_1]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col3_y_1"
+      - type: door
+        anchor_point: [x_col3 + 0.5, y_1]
+        doorway_width: doorway_width
+        door_width: door_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        color: red
+      - type: wall
+        anchor_point: [x_col1, y_2]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col1_y_2"
+      - type: door
+        anchor_point: [x_col1 + 0.5, y_2]
+        doorway_width: doorway_width
+        door_width: door_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        color: invisible
+# -------------------------
+#balcony door test
+      - type: wall
+        anchor_point: [x_col2, y_2]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col2_y_2"
+      - type: model_balcony_door
+        anchor_point: [x_col2 + 0.5, y_2]
+        doorway_width: balcony_door_doorway_width
+        door_width: balcony_door_door_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        opening_outside: true
+        label: "balcony_door_outside"
+#window door test
+      - type: wall
+        anchor_point: [x_col3, y_2]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col3_y_2"
+      - type: model_window_door
+        anchor_point: [x_col3 + 0.5, y_2]
+        doorway_width: balcony_door_doorway_width
+        door_width: balcony_door_door_width
+        thickness: wall_thickness
+        orientation_angle: 0
+#double window door test 
+      - type: wall
+        anchor_point: [x_col1, y_3]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col1_y_3"
+      - type: model_window_door_double
+        anchor_point: [x_col1 + 0.5, y_3]
+        doorway_width: balcony_door_doorway_width *2
+        door_width: balcony_door_door_width*2
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "window_door_double"
+#windows
+      - type: wall
+        anchor_point: [x_col2, y_3]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col2_y_3"
+      - type: model_window_90x120
+        anchor_point: [x_col2 + 0.5, y_3]
+        overall_width: 0.9
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        label: "window_90x120"
+      
+      - type: wall
+        anchor_point: [x_col3, y_3]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col3_y_3"
+      - type: model_window_140x120
+        anchor_point: [x_col3 + 0.5, y_3]
+        overall_width: 1.4
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        label: "window_140x120"
+
+      - type: wall
+        anchor_point: [x_col1, y_4]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col1_y_4"
+      - type: model_window_double_160x120
+        anchor_point: [x_col1 + 0.5, y_4]
+        overall_width: 1.6
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        label: "window_double_160x120"
+
+      - type: wall
+        anchor_point: [x_col2, y_4]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col2_y_4"
+      - type: model_window_double_160x140
+        anchor_point: [x_col2 + 0.5, y_4]
+        overall_width: 1.6
+        overall_thickness: wall_thickness
+        orientation_angle: 0
+        label: "window_double_160x140"
+
+#balcony door opening inside
+      - type: wall
+        anchor_point: [x_col3, y_4]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col3_y_4"
+      - type: model_balcony_door
+        anchor_point: [x_col3 + 0.5, y_4]
+        doorway_width: balcony_door_doorway_width
+        door_width: balcony_door_door_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        opening_outside: false
+        label: "balcony_door_inside"
+
+      - type: wall
+        anchor_point: [x_col1, y_5]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col1_y_5"
+      - type: wall
+        anchor_point: [x_col2, y_5]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0
+        label: "x_col2_y_5"
+      - type: wall
+        anchor_point: [x_col3, y_5]
+        length: room_width
+        thickness: wall_thickness
+        orientation_angle: 0

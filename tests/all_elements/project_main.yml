@@ -1,0 +1,54 @@
+project:
+  dpi: 150
+  pdf_file: null
+  png_dir: "output"
+  visualisation_dir: "output/3d"
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [35, 76]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 5
+  grid_minor_step: 1
+
+default_options:
+  Wall:
+    dimensions: false
+    show_invisible: false
+  Door:
+    label_color: green
+  Window:
+    label_color: steelblue
+
+reusable_elements:
+  blender_furniture:  "blender_furniture.yml"
+  structural:       "structural.yml"
+  doors:            "doors.yml"
+  fixed_windows:    "fixed_windows.yml"
+  appliances:       "appliances.yml"
+  bathroom:         "bathroom.yml"
+  beds:             "beds.yml"
+  storage:          "storage.yml"
+  furniture:        "furniture.yml"
+  lighting:         "lighting.yml"
+  electrical_info:  "electrical_info.yml"
+  landscaping:      "landscaping.yml"
+
+floor_plans:
+  - title:
+      text: "All_Elements"
+      font_size: 20
+    inherited_elements:
+      - blender_furniture
+      - structural
+      - doors
+      - fixed_windows
+      - appliances
+      - bathroom
+      - beds
+      - storage
+      - furniture
+      - lighting
+      - electrical_info
+      - landscaping

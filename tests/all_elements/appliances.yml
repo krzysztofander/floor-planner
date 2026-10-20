@@ -1,0 +1,61 @@
+# ─── APPLIANCES ──────────────────────────────────────────────────────────────
+# Row anchor y=46.  Most appliances are 0.6×0.6 m.
+# x positions: 2.5, 6.0, 9.5, 13.0, 16.5, 20.0, 23.5, 27.5
+
+- type: text_box
+  anchor_point: [17.5, 47.5]
+  lines:
+    - "APPLIANCES  (dishwasher · fridge · freezer · washing_machine · dryer · stovetop · single_sink · double_sink)"
+  transparency: 0.0
+
+- type: dishwasher
+  anchor_point: [2.5, 46.0]
+  orientation_angle: 0
+  color: grey
+  label: "dishwasher"
+
+- type: fridge
+  anchor_point: [6.0, 46.0]
+  orientation_angle: 0
+  length: 0.6
+  thickness: 0.6
+  color: grey
+  label: "fridge"
+
+- type: freezer
+  anchor_point: [9.5, 46.0]
+  orientation_angle: 0
+  length: 0.6
+  thickness: 0.6
+  color: grey
+  label: "freezer"
+
+- type: washing_machine
+  anchor_point: [13.0, 46.0]
+  orientation_angle: 0
+  color: grey
+  label: "washing machine"
+
+- type: dryer
+  anchor_point: [16.5, 46.0]
+  orientation_angle: 0
+  color: grey
+  label: "dryer"
+
+- type: stovetop
+  anchor_point: [20.0, 46.0]
+  orientation_angle: 0
+  color: grey
+  label: "stovetop"
+
+- type: single_sink
+  anchor_point: [23.5, 46.0]
+  orientation_angle: 0
+  color: grey
+  label: "single sink"
+
+- type: double_sink
+  anchor_point: [27.5, 46.0]
+  orientation_angle: 0
+  color: grey
+  label: "double sink"

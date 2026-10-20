@@ -1,0 +1,17 @@
+# Material file for Glass Slope 3D model
+
+# Aluminium perimeter frame
+newmtl alu_frame_mat
+Ka 0.65 0.67 0.70
+Kd 0.80 0.82 0.85
+Ks 0.95 0.95 1.00
+Ns 200.0
+
+# Glass infill pane (semi-transparent)
+newmtl glass_mat
+Ka 0.85 0.90 1.00
+Kd 0.85 0.90 1.00
+Ks 0.90 0.90 0.95
+Ns 150.0
+d 0.20
+map_Kd ../balcony_door/balcony_door__glass.png

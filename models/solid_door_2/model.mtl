@@ -1,0 +1,18 @@
+# Material file for Window Door 3D model
+# Textures shared with balcony_door (relative path).
+
+# Door frame / wooden surround
+newmtl frame_mat
+Ka 0.8 0.8 0.8
+Kd 1.0 1.0 1.0
+Ks 1.2 1.2 1.2
+Ns 25.0
+map_Kd wood93.jpg
+
+# Full-height solid panel 
+newmtl frame_panel
+Ka 0.8 0.8 0.8
+Kd 1.0 1.0 1.0
+Ks 1.2 1.2 1.2
+Ns 25.0
+map_Kd wood93.jpg
