@@ -107,15 +107,16 @@ class GlassPanel(VertInfoLvl01, ExternalModelElement):
             color: str = '#C8E8F4',
             label: str | None = None,
             v_anchor: float | None = None,
-            **kwargs,
+            id: str | None = None,
     ):
-        # ExternalModelElement rejects 'height', 'length', 'width' in **kwargs,
-        # so we accept them as explicit named params and pass only what's needed.
+        # ExternalModelElement does not take 'height', 'length' or 'width',
+        # so they are stored here after initialisation.
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
             v_anchor=v_anchor,
         )
         self.length = length
@@ -236,13 +237,14 @@ class GlassSlope(VertInfoRoof, ExternalModelElement):
             extension: float = 0,
             color: str = '#C8E8F4',
             label: str | None = None,
-            **kwargs,
+            id: str | None = None,
     ):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
             v_anchor=v_anchor,
         )
         x, z = size[0], size[1]
@@ -372,7 +374,10 @@ class SolidGlassDoor(Door):
             hinges_point: float = 0.95,
             opening_outside: bool = False,
             label: str | None = None,
-            **kwargs,
+            door_type: str = 'hinged',
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -385,7 +390,10 @@ class SolidGlassDoor(Door):
             hinges_point=hinges_point,
             opening_outside=opening_outside,
             label=label,
-            **kwargs,
+            door_type=door_type,
+            id=id,
+            v_anchor=v_anchor,
+            height=height,
         )
 
 
@@ -503,6 +511,7 @@ class Composite_GlassDoor(ElementBase):
         color             – 2-D door-arc colour  (default 'black')
         label             – optional label string
         v_anchor          – 3D Y base of the frame  (default 0.02)
+        id                – optional explicit ID
     """
 
     _MARGIN     = 0.005       # z-fighting / clearance margin (m) on every side
@@ -523,7 +532,7 @@ class Composite_GlassDoor(ElementBase):
             opening_outside: bool = False,
             label: str | None = None,
             v_anchor: float | None = None,
-            **kwargs,
+            id: str | None = None,
     ):
         super().__init__()
 
@@ -590,11 +599,10 @@ class Composite_GlassDoor(ElementBase):
                 label=None,           # label is shown on the frame
                 v_anchor=glass_v_anchor,
                 height=glass_height,
-                **kwargs,
             )
         )
 
-        self.id = generate_element_id(self.__class__.__name__, label)
+        self.id = id if id else generate_element_id(self.__class__.__name__, label)
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
         """Draw frame and glass leaf."""

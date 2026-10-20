@@ -95,10 +95,10 @@ class WindowDoorDouble(BalconyDoor):
             hinges_point: float = 0.95,
             opening_outside: bool = False,
             label: str | None = None,
-            **kwargs
+            id: str | None = None,
+            v_anchor: float | None = None,
+            models_dir: str | None = None
     ):
-        # ExternalModelElement.__init__ rejects 'width', 'length', 'height' in kwargs
-        # but accepts all other keyword args (v_anchor, id, etc.)
         super().__init__(
             anchor_point=anchor_point,
             doorway_width=doorway_width,
@@ -110,7 +110,9 @@ class WindowDoorDouble(BalconyDoor):
             hinges_point=hinges_point,
             opening_outside=opening_outside,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
         )
         _MODEL_DEPTH = 0.12
 

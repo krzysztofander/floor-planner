@@ -128,7 +128,7 @@ self.secondary_normalization = {
 }
 ```
 
-(`ExternalModelElement.__init__` rejects `width` / `length` / `height` kwargs;
+(`ExternalModelElement.__init__` does not take `width` / `length` / `height`;
 elements that support resizing take their own parameters and scale here.)
 
 ### Step 3 — AnchorOffset

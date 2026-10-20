@@ -9,7 +9,7 @@ Examples: [examples/landscaping/](../examples/landscaping/) (`vegetation_demo.ym
 - Positions are given with `anchor_point: [x, y]` in meters. Rectangular elements use the bottom-left corner (rotation via `orientation_angle`, degrees, counterclockwise around the anchor); circular elements and `pond` use the center.
 - Rectangular *surface* elements (`lawn`, `garden_path`, `ground`, `pergola`, `raised_bed`, `deck`, `surface`, `garden_house`) take `size: [x_size, z_size]`. Linear elements (`hedge`, `fence`, `retaining_wall`, `rect_pool`, `oval_pool`) take `length` and `thickness`.
 - `color: 'invisible'` hides an element (drawn red when `Wall: show_invisible: true` is set).
-- Only `deck` and `surface` accept `v_anchor` and `height` overrides (see [Vertical Positioning](element-parameters-reference.md#vertical-positioning-v_anchor-and-height)). None of the landscaping elements accepts `id` or `texture_scale` in YAML. Some have a fixed `texture_scale` for 3D export: `garden_path` 1.5, `ground` 0.5, `deck` 0.6, `surface` 1.0.
+- Only `deck` and `surface` accept `v_anchor` and `height` overrides (see [Vertical Positioning](element-parameters-reference.md#vertical-positioning-v_anchor-and-height)). All landscaping elements accept `id`, but none accepts `texture_scale` in YAML. Some have a fixed `texture_scale` for 3D export: `garden_path` 1.5, `ground` 0.5, `deck` 0.6, `surface` 1.0.
 - Drawing order: every element, including its patterns (grass, gravel, planks, ripples, bloom overlays), is drawn at its own zorder = `v_anchor`, plus a tiny per-element offset. Default `v_anchor`: `ground` -0.10; `lawn`, `garden_path` -0.01; `pond`, `pergola`, `raised_bed`, `garden_house` 0.0; all others 0.01.
 
 ---

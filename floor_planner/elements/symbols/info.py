@@ -29,7 +29,8 @@ class DimensionArrow(VertInfoAnnotations, Element):
             font_size: int = 10,
             annotate_above: bool = False,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -55,10 +56,12 @@ class DimensionArrow(VertInfoAnnotations, Element):
             color to use for drawing the arrow and its annotation
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `DimensionArrow` class
         """
-        super().__init__(anchor_point=anchor_point, label=label, color=color)
+        super().__init__(anchor_point=anchor_point, label=label, id=id, color=color)
         self.length = length
         self.orientation_angle = orientation_angle
         self.width = width
@@ -169,7 +172,8 @@ class TextBox(VertInfoAnnotations, Element):
             color: str = 'black',
             transparency: float = 0.75,
             edgecolor: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -186,8 +190,10 @@ class TextBox(VertInfoAnnotations, Element):
             transparency of the bounding box
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
-        super().__init__(label=label, anchor_point=anchor_point, color=color)
+        super().__init__(label=label, id=id, anchor_point=anchor_point, color=color)
         self.lines = lines
         self.font_size = font_size
         self.transparency = transparency

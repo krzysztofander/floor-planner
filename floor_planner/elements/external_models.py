@@ -96,8 +96,7 @@ class ExternalModelElement(Element):
         id: str | None = None,
         v_anchor: float | None = None,
         texture_scale: float | None = None,
-        models_dir: str | Path | None = None,
-        **kwargs
+        models_dir: str | Path | None = None
     ):
         """
         Initialize external model element.
@@ -111,27 +110,10 @@ class ExternalModelElement(Element):
             v_anchor: Vertical position / Y-coordinate (meters, default 0.0)
             texture_scale: Optional texture tiling scale (meters)
             models_dir: Base directory for model library (default: package models dir)
-            **kwargs: Rejected parameters (width, length, height) raise errors
             
         Raises:
-            ValueError: If user tries to set width/length/height (dimensions are fixed)
             FileNotFoundError: If model metadata not found or required model doesn't exist
         """
-        # Check for rejected dimension overrides
-        rejected_params = []
-        if 'width' in kwargs:
-            rejected_params.append('width')
-        if 'length' in kwargs:
-            rejected_params.append('length')
-        if 'height' in kwargs:
-            rejected_params.append('height')
-        
-        if rejected_params:
-            raise ValueError(
-                f"Cannot set dimensions for external model element: {', '.join(rejected_params)}. "
-                f"Dimensions are fixed by the external model and cannot be overridden."
-            )
-        
         # Store orientation and models directory before loading metadata
         self.orientation_angle = orientation_angle
         
@@ -184,7 +166,7 @@ class ExternalModelElement(Element):
             length = getattr(self, '_default_length', lambda: 1.0)()
             height = getattr(self, '_default_height', lambda: 1.0)()
         
-        # Initialize parent (pass dimensions as positional args to avoid **kwargs conflict)
+        # Initialize parent
         super().__init__(
             anchor_point=anchor_point,
             color=color,

@@ -124,6 +124,7 @@ class Group(Element):
             anchor_point: tuple[float, float] = (0, 0),
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a group.
@@ -137,8 +138,10 @@ class Group(Element):
             default color passed down to walls that have no explicit color
         :param label:
             optional label (informational only)
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
-        super().__init__(anchor_point=anchor_point, label=label, color=color)
+        super().__init__(anchor_point=anchor_point, label=label, color=color, id=id)
         self.child_elements = child_elements or []
 
     # ------------------------------------------------------------------
@@ -318,4 +321,4 @@ class Group(Element):
             color,
         )
 
-        return cls(child_elements=children, anchor_point=anchor, color=color, label=label)
+        return cls(child_elements=children, anchor_point=anchor, color=color, label=label, id=params.get('id'))

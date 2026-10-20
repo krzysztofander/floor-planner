@@ -24,7 +24,8 @@ class CeilingLamp(VertInfoCeiling, Element):
             symbol_diameter: float,
             line_width: float = 0.5,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -39,10 +40,12 @@ class CeilingLamp(VertInfoCeiling, Element):
             color to use for drawing the lamp
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `CeilingLamp` class
         """
-        super().__init__(anchor_point=anchor_point, color=color, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label, id=id)
         self.symbol_diameter = symbol_diameter
         self.line_width = line_width
 
@@ -100,7 +103,8 @@ class WallLamp(VertInfoWallLamps, Element):
             stub_relative_depth: float = 0.3,
             line_width: float = 0.5,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -122,10 +126,12 @@ class WallLamp(VertInfoWallLamps, Element):
             color to use for drawing the lamp
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `WallLamp` class
         """
-        super().__init__(anchor_point=anchor_point, color=color, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label, id=id)
         self.symbol_diameter = symbol_diameter
         self.orientation_angle = orientation_angle
         self.stub_relative_depth = stub_relative_depth
@@ -217,7 +223,8 @@ class LEDStrip(Element):
             orientation_angle: float = 0.0,
             line_width: float = 0.5,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -238,10 +245,12 @@ class LEDStrip(Element):
             color to use for drawing the strip
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `LEDStrip` class
         """
-        super().__init__(anchor_point=anchor_point, label=label, color=color)
+        super().__init__(anchor_point=anchor_point, label=label, id=id, color=color)
         self.length = length
         self.width = width
         self.orientation_angle = orientation_angle
@@ -298,7 +307,8 @@ class Switch(Element):
             pass_through: bool = False,
             line_width: float = 0.5,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -322,10 +332,12 @@ class Switch(Element):
             color to use for drawing the switch
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Switch` class
         """
-        super().__init__(anchor_point=anchor_point, label=label, color=color)
+        super().__init__(anchor_point=anchor_point, label=label, id=id, color=color)
         self.symbol_length = symbol_length
         self.orientation_angle = orientation_angle
         self.two_key = two_key

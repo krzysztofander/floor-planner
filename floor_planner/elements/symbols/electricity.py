@@ -29,7 +29,8 @@ class PowerOutlet(VertInfoOutlets, Element):
             low_current: bool = False,
             line_width: float = 0.5,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -56,10 +57,12 @@ class PowerOutlet(VertInfoOutlets, Element):
             color to use for drawing the power outlet
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `PowerOutlet` class
         """
-        super().__init__(anchor_point=anchor_point, color=color, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label, id=id)
         self.length = length
         self.orientation_angle = orientation_angle
         self.waterproof = waterproof
@@ -184,7 +187,8 @@ class ElectricalCable(Element):
             n_arcs: int = 4,
             line_width: float = 0.5,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -206,10 +210,12 @@ class ElectricalCable(Element):
             color to use for drawing the power outlet
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `ElectricalCable` class
         """
-        super().__init__(anchor_point=anchor_point, color=color, label=label)
+        super().__init__(anchor_point=anchor_point, color=color, label=label, id=id)
         self.symbol_length = symbol_length
         self.orientation_angle = orientation_angle
         self.n_arcs = n_arcs
@@ -257,6 +263,7 @@ class GroundCable(Line):
             style: str = 'solid',
             color: str = 'red',
             label: str | None = None,
+            id: str | None = None,
             print_len: bool | None = None
     ):
         """
@@ -274,6 +281,8 @@ class GroundCable(Line):
             color to use for drawing the line
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         self.append_len = False
 
@@ -281,11 +290,12 @@ class GroundCable(Line):
             self.append_len = True
 
         super().__init__(
-            first_point,
-            second_point,
-            width,
-            style,
-            color,
-            label,
-            self.append_len)
+            first_point=first_point,
+            second_point=second_point,
+            width=width,
+            style=style,
+            color=color,
+            label=label,
+            id=id,
+            append_len=self.append_len)
      

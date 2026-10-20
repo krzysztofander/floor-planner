@@ -29,7 +29,9 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
         bloom_season_start: str | None = None,
         bloom_season_end: str | None = None,
         bloom_color: str | None = None,
-        **kwargs
+        id: str | None = None,
+        v_anchor: float | None = None,
+        models_dir: str | None = None
     ):
         resolved = resolve_species_params(
             species,
@@ -55,7 +57,9 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
             anchor_point=anchor_point,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
             )
         self.veg2d = CircularVegetation2D(
             anchor_point=anchor_point,
@@ -118,7 +122,9 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
         bloom_season_start: str | None = None,
         bloom_season_end: str | None = None,
         bloom_color: str | None = None,
-        **kwargs
+        id: str | None = None,
+        v_anchor: float | None = None,
+        models_dir: str | None = None
     ):
         resolved = resolve_species_params(
             species,
@@ -140,7 +146,9 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
             anchor_point=anchor_point,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
             )
         self.veg2d = CircularVegetation2D(
             anchor_point=anchor_point,

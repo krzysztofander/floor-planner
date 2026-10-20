@@ -27,7 +27,8 @@ class Dishwasher(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -43,6 +44,8 @@ class Dishwasher(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Dishwasher` class
         """
@@ -52,7 +55,8 @@ class Dishwasher(VertInfoLvl03, RectangularElement):
             length=0.6,
             thickness=0.6,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Standard dishwasher width  # Standard dishwasher depth
 
     def _get_3d_expansion(self) -> tuple[float, float, float]:
@@ -213,7 +217,8 @@ class Fridge(VertInfoLvl03, RectangularElement):
             length: float = 0.6,  # Standard fridge width
             thickness: float = 0.6,  # Standard fridge depth
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -231,6 +236,8 @@ class Fridge(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Fridge` class
         """
@@ -246,7 +253,8 @@ class Fridge(VertInfoLvl03, RectangularElement):
 
             color=color,
 
-            label=label
+            label=label,
+            id=id,
 
         )
 
@@ -334,7 +342,8 @@ class Freezer(VertInfoLvl03, RectangularElement):
             length: float = 0.6,  # Standard freezer width
             thickness: float = 0.6,  # Standard freezer depth
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -352,6 +361,8 @@ class Freezer(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Freezer` class
         """
@@ -367,7 +378,8 @@ class Freezer(VertInfoLvl03, RectangularElement):
 
             color=color,
 
-            label=label
+            label=label,
+            id=id,
 
         )
 
@@ -458,7 +470,8 @@ class WashingMachine(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -472,6 +485,8 @@ class WashingMachine(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `WashingMachine` class
         """
@@ -481,7 +496,8 @@ class WashingMachine(VertInfoLvl03, RectangularElement):
             length=0.6,
             thickness=0.6,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Standard washing machine width  # Standard washing machine depth
 
     def _default_height(self) -> float:
@@ -562,7 +578,8 @@ class Dryer(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -576,6 +593,8 @@ class Dryer(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Dryer` class
         """
@@ -585,7 +604,8 @@ class Dryer(VertInfoLvl03, RectangularElement):
             length=0.6,
             thickness=0.6,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Standard dryer width  # Standard dryer depth
 
     def _default_height(self) -> float:
@@ -676,7 +696,8 @@ class Stovetop(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -690,6 +711,8 @@ class Stovetop(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Stovetop` class
         """
@@ -699,7 +722,8 @@ class Stovetop(VertInfoLvl03, RectangularElement):
             length=0.6,
             thickness=0.6,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Standard stovetop width  # Standard stovetop depth
 
     def _default_height(self) -> float:
@@ -779,7 +803,8 @@ class SingleSink(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -793,6 +818,8 @@ class SingleSink(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `SingleSink` class
         """
@@ -802,7 +829,8 @@ class SingleSink(VertInfoLvl03, RectangularElement):
             length=0.9,
             thickness=0.6,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Single sink length  # Single sink width
 
     def _default_height(self) -> float:
@@ -905,7 +933,8 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'grey',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -919,6 +948,8 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             color to use for drawing the appliance
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `DoubleSink` class
         """
@@ -928,7 +959,8 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             length=1.2,
             thickness=0.6,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Double sink length (wider than single)  # Double sink width
 
     def _default_height(self) -> float:
@@ -1035,6 +1067,7 @@ class TV(VertInfoLvl04, RectangularElement):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
             v_anchor: float = 0.80
     ):
         """
@@ -1055,6 +1088,8 @@ class TV(VertInfoLvl04, RectangularElement):
             color to use for drawing the TV
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :param v_anchor:
             vertical anchor point in meters (height above floor/ground)
         :return:
@@ -1072,6 +1107,7 @@ class TV(VertInfoLvl04, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
+            id=id,
             height=height,
             v_anchor=v_anchor
         )

@@ -324,6 +324,7 @@ Room floor plane. Spans the full interior of the room at floor level.
 - `v_anchor`: float | None = None — override vertical anchor; default is `VertInfoFloors` = 0.0 m
 - `height`: float | None = None — override slab thickness; default is 0.02 m
 - `label`: str | None = None — optional label
+- `id`: str | None = None — optional explicit ID
 - `texture_scale`: float | None = None — texture tiling scale in meters (3D export)
 
 **Example:**
@@ -349,6 +350,7 @@ Room ceiling plane. Spans the full interior of the room at ceiling level.
 - `v_anchor`: float | None = None — override vertical anchor; default is `VertInfoCeilingSurface` = 2.69 m
 - `height`: float | None = None — override slab thickness; default is 0.01 m
 - `label`: str | None = None — optional label
+- `id`: str | None = None — optional explicit ID
 - `texture_scale`: float | None = None — texture tiling scale in meters (3D export)
 
 **Example:**
@@ -1023,7 +1025,7 @@ Generic cylindrical water tank, drawn as a circle.
 
 These elements use pre-made 3D models (OBJ/glTF) for 3D export; the 2D drawing is still procedural. The model folder is named after the class `_registry_key`, which is the YAML type without the `model_` prefix (e.g. `model_armchair` → `armchair/`). Folders are searched in this order: `models/`, `models/local/`, `models/models_3rd_party/`, `models/stubs/` (1×1×1 m placeholder cubes). See [models/README.md](../models/README.md).
 
-All elements listed here have `_requires_external_model = True`: if no model is found, the script stops with `FileNotFoundError`. Dimensions come from the model's `model.transform.json`. Passing `width`, `length` or `height` raises `ValueError`, unless the element takes that parameter itself (noted per element).
+All elements listed here have `_requires_external_model = True`: if no model is found, the script stops with `FileNotFoundError`. Dimensions come from the model's `model.transform.json`. Passing `width`, `length` or `height` raises `TypeError`, unless the element takes that parameter itself (noted per element).
 
 **Common parameters** (from `ExternalModelElement`):
 - `anchor_point`: tuple[float, float] - (x, y) position in meters
@@ -1147,7 +1149,7 @@ Trees and shrubs drawn in 2D like circular vegetation (`anchor_point` is the cen
 
 ## Composite Elements
 
-A composite element creates several child elements and draws each of them. Its ID is generated from the class name and `label`. Extra keyword arguments are forwarded to every child.
+A composite element creates several child elements and draws each of them. Its ID is the given `id`, or is generated from the class name and `label`. Model-based composites (`composite_model_*`) forward `v_anchor` and `models_dir` to every child.
 
 ### Composite_WindowDoorDouble
 **YAML type:** `composite_model_window_door_double`
@@ -1226,7 +1228,7 @@ A static glass wall panel with an aluminium frame, placed like a Wall. The base 
 - `label`: str | None = None
 - `v_anchor`: float | None = None
 
-**Note:** Other keyword arguments (`id`, `texture_scale`, `models_dir`) are accepted but not forwarded, so they have no effect.
+**Note:** `id` is accepted; any other parameter (e.g. `texture_scale`, `models_dir`) raises a `TypeError`.
 
 ### AluFrame
 **YAML type:** `alu_frame`
@@ -1248,7 +1250,7 @@ A tilted glass roof slope with an aluminium frame, configured like `SingleSlopeR
 - `color`: str = '#C8E8F4' - 2D outline color
 - `label`: str | None = None - drawn only when set
 
-**Note:** Like GlassPanel, other keyword arguments are not forwarded.
+**Note:** Like GlassPanel, `id` is accepted and any other parameter raises a `TypeError`.
 
 ### SolidGlassDoor
 **YAML type:** `solid_glass_door`
@@ -1274,7 +1276,7 @@ A glass greenhouse (procedural): four glass walls with a gable glass roof. In 2D
 - `label`: str | None = None
 - `v_anchor`: float | None = None - 3D base; default 0.01 (ground level)
 
-**Note:** There is no `**kwargs`, so any other parameter (e.g. `id`) raises a `TypeError`.
+**Note:** Any other parameter raises a `TypeError`.
 
 ---
 
@@ -1292,7 +1294,8 @@ A glass greenhouse (procedural): four glass walls with a gable glass roof. In 2D
 - 0° = horizontal (pointing right), 90° = vertical (pointing up)
 
 ### Labels and IDs
-- Every element gets a unique `id`: `<label>_<number>` if a `label` is given, otherwise `<lowercase_type>_<number>`
+- Every element accepts an explicit `id`; when omitted, a unique one is generated: `<label>_<number>` if a `label` is given, otherwise `<lowercase_type>_<number>`
+- Elements accept only the parameters listed for them; any other parameter raises a `TypeError`
 - `label` is optional and user-defined for identification
 - Both can be displayed on the floor plan if configured in options
 
@@ -1327,7 +1330,7 @@ Every element has a `v_anchor` and a `height` attribute. They control 2D drawing
 
 | Accepts | Element types |
 |---------|---------------|
-| `v_anchor` and `height` | `wall`, `wallnd`, `window`, `door` (via kwargs), `floor`, `ceiling`, roofs (`gable_roof`, `hipped_roof`, `single_slope_roof`, gable-end and hipped-octant parts), `glass_panel`, `glass_slope`, `alu_frame`, `deck`, `surface`, `greenhouse`, `generic_storage`, `storage40`, `storage60`, `generic_tank` |
+| `v_anchor` and `height` | `wall`, `wallnd`, `window`, `door`, `floor`, `ceiling`, roofs (`gable_roof`, `hipped_roof`, `single_slope_roof`, gable-end and hipped-octant parts), `glass_panel`, `glass_slope`, `alu_frame`, `deck`, `surface`, `greenhouse`, `generic_storage`, `storage40`, `storage60`, `generic_tank` |
 | `v_anchor` only | `fish_tank`, `tv`, external `model_*` elements (their height is fixed by the model; passing `height` raises an error) |
 | `height` only | `basin`, `bathtub`, `fence`, `fountain`, `hedge`, `retaining_wall`, `shrub`, `tree`, `raised_bed`, `garden_house`, `model_leafy_tree`, `model_leafy_shrub_1`, `model_window_single_any` |
 
@@ -1467,7 +1470,7 @@ The 3D model is exported only when `project.visualisation_dir` is set: one glTF 
 | `garden_path` | 1.5 | no |
 | roofs | 3.0 | no |
 
-`texture_scale` can be set only on elements whose constructor accepts it: `wall`, `wallnd`, `door` (via kwargs), `floor`, `ceiling` and external `model_*` elements (which keep their model's own UVs, so it has no effect there).
+`texture_scale` can be set only on elements whose constructor accepts it: `wall`, `wallnd`, `door`, `floor`, `ceiling` and external `model_*` elements (which keep their model's own UVs, so it has no effect there).
 
 **YAML Example:**
 ```yaml

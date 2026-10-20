@@ -31,6 +31,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
             height: float | None = None,
             v_anchor: float | None = None
     ):
@@ -52,6 +53,8 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             color to use for drawing the storage box
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :param height:
             height of the storage box in meters; if None, uses default (2.0m)
         :param v_anchor:
@@ -67,6 +70,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
+            id=id,
             height=height,
             v_anchor=v_anchor
         )
@@ -169,6 +173,7 @@ class Storage60(GenericStorage):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
             height: float | None = None,
             v_anchor: float | None = None
     ):
@@ -179,6 +184,7 @@ class Storage60(GenericStorage):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
             height=height,
             v_anchor=v_anchor
         )
@@ -195,6 +201,7 @@ class Storage40(GenericStorage):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
             height: float | None = None,
             v_anchor: float | None = None
     ):
@@ -205,6 +212,7 @@ class Storage40(GenericStorage):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
             height=height,
             v_anchor=v_anchor
         )
@@ -223,7 +231,8 @@ class Tabletop(VertInfoLvl03, RectangularElement):
             thickness: float = 0.6,
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
      
         super().__init__(
@@ -232,7 +241,8 @@ class Tabletop(VertInfoLvl03, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
 
         # Room properties (set by Room class if this storage box is part of a room)

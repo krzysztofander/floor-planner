@@ -36,7 +36,8 @@ class Room(Group):
             anchor_point: tuple[float, float] = (0, 0),
             color: str = 'black',
             label: str | None = None,
-            purpose: str | None = None
+            purpose: str | None = None,
+            id: str | None = None
     ):
         """
         Initialize a room from walls and optional other elements.
@@ -53,11 +54,13 @@ class Room(Group):
             optional label for the room
         :param purpose:
             optional purpose of a room e.g. living space, outdoor, storage, etc.
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :raises ValueError:
             if walls don't form a valid rectangle or exactly 4 walls don't have room_edge=True
         """
         all_children = list(walls) + list(other_elements or [])
-        super().__init__(child_elements=all_children, anchor_point=anchor_point, color=color, label=label)
+        super().__init__(child_elements=all_children, anchor_point=anchor_point, color=color, label=label, id=id)
 
         self.walls = walls
         self.other_elements = other_elements or []
@@ -127,7 +130,7 @@ class Room(Group):
         if not walls:
             raise ValueError("Room must contain at least one wall")
 
-        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color, label=label, purpose = purpose )
+        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color, label=label, purpose = purpose, id=params.get('id'))
 
         if surface_defs:
             cls._create_surface_elements(

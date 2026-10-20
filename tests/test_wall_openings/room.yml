@@ -178,7 +178,6 @@
         label: "x_col2_y_3"
       - type: model_window_90x120
         anchor_point: [x_col2 + 0.5, y_3]
-        overall_width: 0.9
         overall_thickness: wall_thickness
         orientation_angle: 0
         label: "window_90x120"
@@ -191,7 +190,6 @@
         label: "x_col3_y_3"
       - type: model_window_140x120
         anchor_point: [x_col3 + 0.5, y_3]
-        overall_width: 1.4
         overall_thickness: wall_thickness
         orientation_angle: 0
         label: "window_140x120"
@@ -204,7 +202,6 @@
         label: "x_col1_y_4"
       - type: model_window_double_160x120
         anchor_point: [x_col1 + 0.5, y_4]
-        overall_width: 1.6
         overall_thickness: wall_thickness
         orientation_angle: 0
         label: "window_double_160x120"
@@ -217,7 +214,6 @@
         label: "x_col2_y_4"
       - type: model_window_double_160x140
         anchor_point: [x_col2 + 0.5, y_4]
-        overall_width: 1.6
         overall_thickness: wall_thickness
         orientation_angle: 0
         label: "window_double_160x140"

@@ -40,6 +40,9 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
         door_type        – 'hinged' (default) or 'sliding'
         color            – 2-D drawing colour (default 'black')
         label            – optional text label
+        id               – optional explicit ID
+        v_anchor         – optional 3D elevation of the base (metres)
+        models_dir       – optional base model directory
     """
 
     _registry_key = 'balcony_door'
@@ -59,16 +62,18 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
             opening_outside: bool = False,
             door_type: str = 'hinged',
             label: str | None = None,
-            **kwargs
+            id: str | None = None,
+            v_anchor: float | None = None,
+            models_dir: str | None = None
     ):
-        # ExternalModelElement.__init__ rejects 'width', 'length', 'height' in kwargs
-        # but accepts all other keyword args (v_anchor, id, etc.)
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
         )
 
         self.door2d = Door2D(anchor_point, doorway_width, door_width, thickness, door_type,

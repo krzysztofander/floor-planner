@@ -250,6 +250,7 @@ class CircularVegetation(VertInfoLvl01, CircularElement):
             trunk_diameter: float = 0.0,
             trunk_color: str = '#654321',
             label: str | None = None,
+            id: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
             bloom_season_end: str | None = None,
@@ -261,7 +262,8 @@ class CircularVegetation(VertInfoLvl01, CircularElement):
             diameter=diameter,
             height=height,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
         self.veg2d = CircularVegetation2D(
             anchor_point=anchor_point,
@@ -293,6 +295,7 @@ class Tree(CircularVegetation):
             color: str | None = None,
             trunk_color: str | None = None,
             label: str | None = None,
+            id: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
             bloom_season_end: str | None = None,
@@ -319,6 +322,8 @@ class Tree(CircularVegetation):
             trunk fill color (species default or '#654321')
         :param label:
             optional label for the tree
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :param species:
             optional species name; drives automatic parameter defaults
         :param bloom_season_start:
@@ -357,6 +362,7 @@ class Tree(CircularVegetation):
             trunk_color=trunk_color,
             color=color,
             label=label,
+            id=id,
             species=species,
             bloom_season_start=bloom_season_start,
             bloom_season_end=bloom_season_end,
@@ -379,6 +385,7 @@ class Shrub(CircularVegetation):
             height: float | None = None,
             color: str | None = None,
             label: str | None = None,
+            id: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
             bloom_season_end: str | None = None,
@@ -401,6 +408,8 @@ class Shrub(CircularVegetation):
             color for the shrub (species default or '#90EE90')
         :param label:
             optional label for the shrub
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :param species:
             optional species name; drives automatic parameter defaults
         :param bloom_season_start:
@@ -433,6 +442,7 @@ class Shrub(CircularVegetation):
             vegetation_type='Shrub',
             color=color,
             label=label,
+            id=id,
             species=species,
             bloom_season_start=bloom_season_start,
             bloom_season_end=bloom_season_end,
@@ -456,6 +466,7 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             color: str | None = None,
             orientation_angle: float = 0,
             label: str | None = None,
+            id: str | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
             bloom_season_end: str | None = None,
@@ -482,6 +493,8 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the hedge
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :param species:
             optional species name; drives automatic parameter defaults
         :param bloom_season_start:
@@ -512,7 +525,8 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id
         )
         VegetationElement.__init__(
             self,
@@ -602,7 +616,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
             size: tuple[float, float] | None = None,
             color: str = '#7CFC00',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a Lawn instance.
@@ -617,13 +632,16 @@ class Lawn(VertInfoLvl00, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the lawn
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             size=size,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
 
     def _default_height(self) -> float:

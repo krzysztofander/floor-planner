@@ -28,6 +28,7 @@ class Shower(VertInfoLvl03, RectangularElement):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
             length: float = 0.9,  # Standard shower stall size
             thickness: float = 0.9  # Standard shower stall size
 
@@ -44,6 +45,8 @@ class Shower(VertInfoLvl03, RectangularElement):
             color to use for drawing the fixture
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Shower` class
         """
@@ -59,7 +62,8 @@ class Shower(VertInfoLvl03, RectangularElement):
 
             color=color,
 
-            label=label
+            label=label,
+            id=id,
 
         )
         self.alpha_mode = "BLEND"  # Shower glass uses alpha blending
@@ -160,7 +164,8 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             thickness: float = 0.8,
             height: float = 0.6,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -174,6 +179,8 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             color to use for drawing the fixture
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Bathtub` class
         """
@@ -184,6 +191,7 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
+            id=id,
             height = height
         )
 
@@ -254,7 +262,8 @@ class Basin(VertInfoLvl03, RectangularElement):
             orientation_angle: float = 0,
             height: float = 0.85,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
             
     ):
         """
@@ -269,6 +278,8 @@ class Basin(VertInfoLvl03, RectangularElement):
             color to use for drawing the fixture
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Basin` class
         """
@@ -279,7 +290,8 @@ class Basin(VertInfoLvl03, RectangularElement):
             thickness=0.5,
             height=height,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Basin width  # Basin depth
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -366,7 +378,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
             anchor_point: tuple[float, float],
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -380,6 +393,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
             color to use for drawing the fixture
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Toilet` class
         """
@@ -389,7 +404,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
             length=0.7,
             thickness=0.4,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )  # Standard toilet length (front to back)  # Standard toilet width
 
     def _default_height(self) -> float:

@@ -33,7 +33,10 @@ class WallND(VertInfoLvl01, RectangularElement):
             color: str = 'black',
             label: str | None = None,
             room_edge: bool = False,
-            **kwargs
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -55,8 +58,14 @@ class WallND(VertInfoLvl01, RectangularElement):
             optional label for the element
         :param room_edge:
             if True, this wall forms the boundary of a room (used for room validation and calculations)
-        :param kwargs:
-            additional parameters (e.g., texture_scale,  v_anchor, height, id)
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param v_anchor:
+            optional vertical anchor point in meters; if None, uses element's default vertical level
+        :param height:
+            optional height of the wall in meters; if None, uses default (2.7m)
+        :param texture_scale:
+            optional texture tiling scale in meters (3D export only)
         :return:
             freshly created instance of `WallND` class
         """
@@ -67,7 +76,10 @@ class WallND(VertInfoLvl01, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            height=height,
+            texture_scale=texture_scale
         )
         self.room_edge = room_edge
 

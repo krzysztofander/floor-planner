@@ -25,7 +25,8 @@ class Fence(VertInfoLvl01, RectangularElement):
             thickness: float = 0.1,
             color: str = '#8B4513',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a Fence instance.
@@ -46,6 +47,8 @@ class Fence(VertInfoLvl01, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the fence
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -53,7 +56,8 @@ class Fence(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
         self.style = style
         self.height = height
@@ -208,7 +212,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             material: str = 'gravel',
             color: str = '#D3D3D3',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a GardenPath instance.
@@ -225,6 +230,8 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the path
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         self.material = material
         self.texture_scale = 1.5
@@ -234,6 +241,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             size=size,
             color=color,
             label=label,
+            id=id,
             texture_scale=self.texture_scale
         )
 
@@ -434,7 +442,8 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             thickness: float = 0.3,
             color: str = '#696969',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a RetainingWall instance.
@@ -453,6 +462,8 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the wall
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -460,7 +471,8 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
         self.height = height
 
@@ -570,7 +582,8 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             size: tuple[float, float],
             color: str = '#D2691E',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a Ground instance.
@@ -585,6 +598,8 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the ground
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         # Set default texture_scale for Ground to 0.5 (0.5m x 0.5m tiles)
         texture_scale = 0.5
@@ -595,6 +610,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             size=size,
             color=color,
             label=label,
+            id=id,
             texture_scale=texture_scale 
         )
 

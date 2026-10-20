@@ -188,8 +188,6 @@ class Door2DHinged():
             relative position of the hinges along the doorway (0.0 = start, 1.0 = end, 0.5 = middle)
         :param label:
             optional label for the element
-        :param kwargs:
-            additional parameters (e.g., texture_scale,  v_anchor, height, id)
         :return:
             freshly created instance of `Door` class
         """
@@ -769,7 +767,10 @@ class Door(VertInfoDoor, RectangularElement):
             opening_outside: bool = False,
             label: str | None = None,
             door_type: str='hinged',
-            **kwargs
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None,
+            texture_scale: float | None = None
     ):
         """
         Initialize an instance.
@@ -798,8 +799,16 @@ class Door(VertInfoDoor, RectangularElement):
             relative position of the hinges along the doorway (0.0 = start, 1.0 = end, 0.5 = middle)
         :param label:
             optional label for the element
-        :param kwargs:
-            additional parameters (e.g., texture_scale, v_anchor, height, id)
+        :param door_type:
+            'hinged' (default) or 'sliding'
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param v_anchor:
+            optional vertical anchor point in meters; if None, uses element's default vertical level
+        :param height:
+            optional height of the door in meters; if None, uses element's default height
+        :param texture_scale:
+            optional texture tiling scale in meters (3D export only)
         :return:
             freshly created instance of `Door` class
         """
@@ -815,7 +824,10 @@ class Door(VertInfoDoor, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            height=height,
+            texture_scale=texture_scale
         )
 
         # ── 3-D door-swing animation ─────────────────────────────────────────

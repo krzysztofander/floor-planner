@@ -25,6 +25,9 @@ class Floor(VertInfoFloors, SurfaceElement):
     Optional YAML parameters:
         v_anchor  – override vertical anchor (default: VertInfoFloors = 0.0 m)
         height    – override slab thickness  (default: 0.02 m)
+        label     – optional label
+        id        – optional explicit ID
+        texture_scale – optional texture tiling scale in meters
     """
 
     def __init__(
@@ -33,7 +36,9 @@ class Floor(VertInfoFloors, SurfaceElement):
             size: tuple[float, float],
             v_anchor: float | None = None,
             height: float | None = None,
-            **kwargs
+            label: str | None = None,
+            id: str | None = None,
+            texture_scale: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -42,7 +47,9 @@ class Floor(VertInfoFloors, SurfaceElement):
             color='brown',
             v_anchor=v_anchor,
             height=height if height is not None else self._default_height(),
-            **kwargs
+            label=label,
+            id=id,
+            texture_scale=texture_scale
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -61,6 +68,9 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
     Optional YAML parameters:
         v_anchor  – override vertical anchor (default: VertInfoCeilingSurface = 2.69 m)
         height    – override slab thickness  (default: 0.01 m)
+        label     – optional label
+        id        – optional explicit ID
+        texture_scale – optional texture tiling scale in meters
     """
 
     def __init__(
@@ -69,7 +79,9 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
             size: tuple[float, float],
             v_anchor: float | None = None,
             height: float | None = None,
-            **kwargs
+            label: str | None = None,
+            id: str | None = None,
+            texture_scale: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -78,7 +90,9 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
             color='white',
             v_anchor=v_anchor,
             height=height if height is not None else self._default_height(),
-            **kwargs
+            label=label,
+            id=id,
+            texture_scale=texture_scale
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
