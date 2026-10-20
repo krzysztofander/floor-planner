@@ -8,7 +8,7 @@ Kd 1.0 1.0 1.0
 Ks 0.2 0.2 0.2
 Ns 25.0
 map_Kd wood233.jpg
-#map_Kd ../../textures/defaults/door/door.jpg
+#map_Kd door.jpg
 
 # Full-height solid panel 
 newmtl frame_panel
@@ -17,4 +17,4 @@ Kd 1.0 1.0 1.0
 Ks 0.2 0.2 0.2
 Ns 25.0
 #map_Kd wood233.jpg
-map_Kd ../../textures/defaults/door/door.jpg
+map_Kd door.jpg

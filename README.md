@@ -184,33 +184,25 @@ See `docs/element-parameters-reference.md` — *Floor Plan v_anchor (3D Elevatio
 ### Texture and Material System
 The 3D export uses a registry-based texture/material system:
 
-**Key Principle:** Element types from the registry determine folder and file names exactly.
+**Key Principle:** Element types from the registry determine material folder and file names exactly. Materials (`.mtl`) reference textures by file name; all textures live in one common folder.
 
 **Directory Structure:**
 ```
-textures/
-├── fallback/          # System default textures
+models/
+├── procedural/        # Materials of procedural elements
 │   ├── double_bed/
-│   │   ├── double_bed.jpg
 │   │   └── double_bed.mtl
-│   ├── generic_storage/
-│   │   ├── generic_storage.jpg
-│   │   └── generic_storage.mtl
-│   └── door/
-│       ├── door.jpg
-│       ├── door_frame.jpg      # Supplemental texture
-│       └── door.mtl
-└── defaults/          # User custom textures (optional overrides)
-    └── ...
+│   └── generic_storage/
+│       └── generic_storage.mtl
+└── balcony_door/      # External model with its own model.mtl
+textures/              # All texture images (flat, unique names)
+├── double_bed.jpg
+├── generic_storage.jpg
+└── balcony_door__frame.jpg
 ```
 
-**Naming Convention:**
-- Registry key (WITH underscores) = folder name = base texture name
-- Example: `'generic_storage'` → `generic_storage/` → `generic_storage.jpg`
-- Multi-texture elements use: `<element_type>_<descriptor>.jpg` (e.g., `door_frame.jpg`)
-
 **Material Files (.mtl):**
-Each texture has a corresponding `.mtl` file defining material properties:
+Each procedural element type has `models/procedural/<element_type>/<element_type>.mtl` defining material properties and its texture:
 ```mtl
 newmtl generic_storage
 Ka 0.500000 0.300000 0.200000    # Ambient color
@@ -220,12 +212,14 @@ Ns 250.0                         # Shininess
 map_Kd generic_storage.jpg       # Texture reference
 ```
 
+**Texture lookup:** a `map_Kd` texture is searched in the folder of the `.mtl` file first, then in `textures/`. The same rule applies to procedural elements and external models, so they can share textures.
+
 **Custom Textures:**
-Place custom textures in `textures/defaults/<element_type>/` to override system defaults.
+Add the image to `textures/` and change `map_Kd` in the element's `.mtl`.
 
 See:
 - `docs/NAMING_CONVENTION.md` - Complete naming convention specification
-- `scripts/validate_texture_material_structure.py` - Validation tool
+- `docs/texture-material-system.md` - Texture lookup and material rules
 
 ### External Models
 External models live in `models/<registry_key>/` (`model.glb` or `model.obj` + `model.mtl`, plus `model.transform.json`). Models are looked up in this order:

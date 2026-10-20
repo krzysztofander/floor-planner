@@ -172,7 +172,7 @@ def get_element_type_from_instance(element: ElementBase) -> str:
     """
     from .external_models import ExternalModelElement
     # For external model elements, return the _registry_key directly.
-    # This keeps file-system paths (models/, textures/fallback/) stable
+    # This keeps file-system paths (models/, models/procedural/) stable
     # regardless of the model_ prefix used in YAML configs.
     if isinstance(element, ExternalModelElement):
         return element.get_registry_key()

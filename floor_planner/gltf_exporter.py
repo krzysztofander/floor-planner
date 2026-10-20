@@ -168,11 +168,8 @@ class GLTFExporter:
         self.textures_dir = self.output_dir / 'textures'
         self.textures_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize texture manager for procedural element textures
-        floor_planner_dir = Path(__file__).parent.parent
-        default_texture_dir = floor_planner_dir / 'textures' / 'defaults'
-        fallback_texture_dir = floor_planner_dir / 'textures' / 'fallback'
-        self.texture_manager = TextureManager(default_texture_dir, self.textures_dir, fallback_texture_dir)
+        # Initialize texture manager (procedural materials and texture lookup)
+        self.texture_manager = TextureManager(self.textures_dir)
         
         self.buffer_builder = BufferBuilder()
         self.nodes: List[Dict[str, Any]] = []
@@ -329,16 +326,16 @@ class GLTFExporter:
         
         Args:
             texture_path: Relative path to texture (from MTL file)
-            model_dir: Directory containing the model files
+            model_dir: Directory containing the model files (and the MTL file)
         
         Returns:
             Image index if successful, None if failed
         """
-        # Resolve texture path (can be just filename or relative path)
-        source_path = model_dir / texture_path
-        source_path = source_path.resolve()
-        if not source_path.exists():
-            WarnMsg(f"Texture file not found: {source_path}")
+        # Search next to the MTL file first, then the common texture folder
+        source_path = self.texture_manager.find_texture(texture_path, model_dir)
+        if source_path is None:
+            WarnMsg(f"Texture file not found: {texture_path} (searched {model_dir} and "
+                    f"{self.texture_manager.textures_dir})")
             return None
         
         # Check cache
@@ -1888,8 +1885,9 @@ class GLTFExporter:
         """
         Get or create default material for element type with texture support.
         
-        Uses TextureManager to resolve textures from fallback directory.
-        Reads MTL files for material properties (Kd, Ks, Ns).
+        Reads the element type's MTL file (models/procedural/<type>/<type>.mtl)
+        for material properties (Kd, Ks, Ns, d) and its map_Kd texture, which is
+        searched next to the MTL file and then in the common texture folder.
         Falls back to solid colors if no MTL found.
         
         Args:
@@ -1905,26 +1903,22 @@ class GLTFExporter:
         if element_type in self.material_cache:
             return self.material_cache[element_type]
         
-        # Resolve textures using TextureManager
-        texture_paths = self.texture_manager.resolve_element_textures(
-            element_type, Path.cwd()
-        )
+        # Find and parse the MTL file for this element type
+        mtl_properties = {}
+        texture_path = None
+        mtl_path = self.texture_manager.get_procedural_mtl(element_type)
         
-        # Try to find and parse MTL file for this element type
-        mtl_properties = None
-        texture_path = texture_paths.get('all') or next(iter(texture_paths.values()), None)
-        
-        if texture_path:
-            texture_path = Path(texture_path)
-            # MTL file should be in same directory as texture
-            mtl_path = texture_path.parent / f"{element_type}.mtl"
-            
-            if mtl_path.exists():
-                mtl_materials = self._parse_mtl_file(mtl_path)
+        if mtl_path:
+            mtl_materials = self._parse_mtl_file(mtl_path)
 
-                best_material = self._select_best_mtl_material(mtl_materials)
-                if best_material:
-                    mtl_properties = best_material[1]
+            best_material = self._select_best_mtl_material(mtl_materials)
+            if best_material:
+                mtl_properties = best_material[1]
+                if 'diffuse_texture' in mtl_properties:
+                    texture_ref = mtl_properties['diffuse_texture']
+                    texture_path = self.texture_manager.find_texture(texture_ref, mtl_path.parent)
+                    if texture_path is None:
+                        WarnMsg(f"Texture '{texture_ref}' referenced by {mtl_path} not found")
         
         # Create material using MTL properties or defaults
         material_name = f"{element_type}_material"

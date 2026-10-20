@@ -2,17 +2,18 @@
 Material management for 3D model generation.
 
 This module handles material property resolution from external .mtl files.
-Materials are stored alongside textures in per-element subdirectories.
+Procedural element types keep their material in a per-element folder; the
+textures they reference live in the common textures/ folder.
 
 Example directory structure:
+    models/procedural/
+        wall/
+            wall.mtl        (map_Kd wall.jpg)
+        door/
+            door.mtl        (map_Kd door.jpg)
     textures/
-        fallback/
-            wall/
-                wall.jpg
-                wall.mtl
-            door/
-                door.jpg
-                door.mtl
+        wall.jpg
+        door.jpg
 """
 
 from pathlib import Path
@@ -27,21 +28,12 @@ class MaterialManager:
     
     Responsibilities:
         - Parse .mtl files to extract Ka, Kd, Ks, Ns values
-        - Resolve material files based on texture paths
         - Cache loaded materials for performance
         - Provide fallback to default material if .mtl not found
     """
     
-    def __init__(self, default_texture_dir: Path, fallback_texture_dir: Optional[Path] = None):
-        """
-        Initialize material manager.
-        
-        Args:
-            default_texture_dir: Path to default textures folder (e.g., textures/defaults/)
-            fallback_texture_dir: Path to fallback textures folder (e.g., textures/fallback/)
-        """
-        self.default_texture_dir = Path(default_texture_dir)
-        self.fallback_texture_dir = Path(fallback_texture_dir) if fallback_texture_dir else None
+    def __init__(self):
+        """Initialize material manager."""
         self._material_cache = {}  # Cache loaded materials by mtl file path
     
     def parse_mtl_file(self, mtl_path: Path) -> dict:
@@ -104,86 +96,37 @@ class MaterialManager:
         
         return material
     
-    def get_material_for_texture(self, texture_path: Path, element_type: str) -> dict:
+    def get_material(self, mtl_path: Optional[Path], element_type: str) -> dict:
         """
-        Get material properties for a texture file.
-        
-        Looks for .mtl file with same base name as texture file,
-        in the same directory as the texture.
+        Get material properties from a .mtl file.
         
         Args:
-            texture_path: Path to texture file (e.g., textures/fallback/wall/wall.jpg)
-            element_type: Element type (e.g., 'wall') for fallback logic
+            mtl_path: Path to .mtl file (e.g., models/procedural/wall/wall.mtl), or None
+            element_type: Element type (e.g., 'wall'), used in messages
             
         Returns:
-            Dictionary with Ka, Kd, Ks, Ns values
-            
-        Example:
-            texture_path = Path('textures/fallback/wall/wall.jpg')
-            mtl_path = Path('textures/fallback/wall/wall.mtl')
+            Dictionary with Ka, Kd, Ks, Ns values; default material if the file
+            is missing or cannot be parsed
         """
-        # Get .mtl path by replacing texture extension
-        texture_path = Path(texture_path)
-        mtl_path = texture_path.with_suffix('.mtl')
+        if mtl_path is None:
+            WarnMsg(f"Material file not found for {element_type}")
+            print(f"  Using default material for {element_type}")
+            return self.get_default_material()
         
         # Check cache first
         cache_key = str(mtl_path)
         if cache_key in self._material_cache:
             return self._material_cache[cache_key].copy()
         
-        # Try to load .mtl file
-        if mtl_path.exists():
-            try:
-                material = self.parse_mtl_file(mtl_path)
-                self._material_cache[cache_key] = material
-                return material.copy()
-            except Exception as e:
-                WarnMsg(f"Failed to parse {mtl_path}: {e}")
-                print(f"  Using default material for {element_type}")
-        else:
-            # .mtl file doesn't exist
-            # Try to find it in the element subdirectory (element_type directly)
-            element_subdir = element_type
-            
-            found = False
-            
-            # Try in defaults directory first
-            default_dir = self.default_texture_dir / element_subdir
-            if default_dir.exists():
-                # Look for base element .mtl file
-                base_mtl = default_dir / f"{element_type}.mtl"
-                if base_mtl.exists():
-                    try:
-                        material = self.parse_mtl_file(base_mtl)
-                        self._material_cache[cache_key] = material
-                        found = True
-                        return material.copy()
-                    except Exception as e:
-                        WarnMsg(f"Failed to parse {base_mtl}: {e}")
-            
-            # Try in fallback directory
-            if not found and self.fallback_texture_dir:
-                fallback_dir = self.fallback_texture_dir / element_subdir
-                if fallback_dir.exists():
-                    base_mtl = fallback_dir / f"{element_type}.mtl"
-                    if base_mtl.exists():
-                        try:
-                            material = self.parse_mtl_file(base_mtl)
-                            self._material_cache[cache_key] = material
-                            found = True
-                            return material.copy()
-                        except Exception as e:
-                            WarnMsg(f"Failed to parse {base_mtl}: {e}")
-            
-            # If still not found, use default material
-            if not found:
-                WarnMsg(f"Material file not found: {mtl_path}")
-                print(f"  Using default material for {element_type}")
+        try:
+            material = self.parse_mtl_file(Path(mtl_path))
+        except Exception as e:
+            WarnMsg(f"Failed to parse {mtl_path}: {e}")
+            print(f"  Using default material for {element_type}")
+            material = self.get_default_material()
         
-        # Return default material
-        default_material = self.get_default_material()
-        self._material_cache[cache_key] = default_material
-        return default_material.copy()
+        self._material_cache[cache_key] = material
+        return material.copy()
     
     def get_default_material(self) -> dict:
         """
@@ -219,14 +162,11 @@ class MaterialManager:
 # Example usage
 if __name__ == "__main__":
     # Test material manager
-    manager = MaterialManager(
-        default_texture_dir=Path('textures/defaults'),
-        fallback_texture_dir=Path('textures/fallback')
-    )
+    manager = MaterialManager()
     
     # Test parsing a material file
-    test_texture = Path('textures/fallback/wall/wall.jpg')
-    if test_texture.exists():
-        material = manager.get_material_for_texture(test_texture, 'wall')
+    test_mtl = Path('models/procedural/wall/wall.mtl')
+    if test_mtl.exists():
+        material = manager.get_material(test_mtl, 'wall')
         print(f"Wall material: Ka={material['Ka']}, Kd={material['Kd']}, "
               f"Ks={material['Ks']}, Ns={material['Ns']}")

@@ -1,7 +1,0 @@
-# Auto-generated material for switch
-newmtl switch
-Ka 0.850000 0.850000 0.850000
-Kd 0.900000 0.900000 0.900000
-Ks 0.300000 0.300000 0.300000
-Ns 60.0
-map_Kd switch.jpg

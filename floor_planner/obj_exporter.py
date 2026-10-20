@@ -48,16 +48,12 @@ class OBJExporter:
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize texture manager
-        # Use absolute paths based on floor_planner package location
-        floor_planner_dir = Path(__file__).parent.parent  # Go up from floor_planner/obj_exporter.py to floor_planner/
-        default_texture_dir = floor_planner_dir / 'textures' / 'defaults'
-        fallback_texture_dir = floor_planner_dir / 'textures' / 'fallback'
+        # Initialize texture manager (procedural materials and texture lookup)
         output_texture_dir = self.output_dir / 'textures'
-        self.texture_manager = TextureManager(default_texture_dir, output_texture_dir, fallback_texture_dir)
+        self.texture_manager = TextureManager(output_texture_dir)
         
         # Initialize material manager
-        self.material_manager = MaterialManager(default_texture_dir, fallback_texture_dir)
+        self.material_manager = MaterialManager()
         
         # Track vertices and materials globally across all elements
         self.global_vertices = []
@@ -178,9 +174,7 @@ class OBJExporter:
             # Resolve element textures
             element_type = get_element_type_from_instance(element)
         
-            texture_paths = self.texture_manager.resolve_element_textures(
-                element_type, self.config_dir
-            )
+            texture_paths = self.texture_manager.resolve_element_textures(element_type)
             
             # Write faces grouped by material
             self._write_element_faces(
@@ -291,8 +285,10 @@ class OBJExporter:
         if material_name in self.materials:
             return material_name
         
-        # Get material properties from MaterialManager
-        properties = self.material_manager.get_material_for_texture(texture_path, element_type)
+        # Get material properties from the element type's MTL file
+        properties = self.material_manager.get_material(
+            self.texture_manager.get_procedural_mtl(element_type), element_type
+        )
         
         # Create new material entry
         self.materials[material_name] = {

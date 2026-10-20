@@ -1439,13 +1439,14 @@ The 3D model is exported only when `project.visualisation_dir` is set: one glTF 
 
 ### Textures and Materials
 
-- Textures and materials are resolved **per element type** (registry key), not per element: `textures/defaults/<type>/<type>.png|.jpg` is tried first, then `textures/fallback/<type>/`, then `textures/fallback/default/default.jpg` (`.png` is preferred over `.jpg`)
-- An optional `<type>.mtl` next to the texture sets material properties:
+- Materials are resolved **per element type** (registry key), not per element, from `models/procedural/<type>/<type>.mtl`
+- Its `map_Kd` names the texture, searched next to the `.mtl` first and then in the common `textures/` folder
+- The `.mtl` also sets material properties:
   - `Kd` → base color (black `Kd` with a `map_Kd` texture is treated as white)
   - `Ns` → roughness = `1 − min(Ns / 100, 1)` (default roughness 0.8)
   - `Ks` → glTF specular extension
   - `d` / `Tr` < 0.99 → alpha and `alphaMode: BLEND`
-- Without an `.mtl` the base color is a built-in default (light grey; `wall` near white, `door` brown, `window` light blue)
+- Without an `.mtl` there is no texture and the base color is a built-in default (light grey; `wall` near white, `door` brown, `window` light blue)
 - `window`, fixed window models, `shower` and `fish_tank` always use `alphaMode: BLEND`
 
 ### texture_scale (Texture Tiling)

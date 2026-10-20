@@ -1,7 +1,0 @@
-# Auto-generated material for pond
-newmtl pond
-Ka 0.300000 0.500000 0.600000
-Kd 0.400000 0.600000 0.700000
-Ks 0.600000 0.600000 0.600000
-Ns 100.0
-map_Kd pond.jpg

@@ -111,7 +111,7 @@ For best results with tiling:
 3. **Power-of-Two Sizes**: Preferred by 3D viewers (256, 512, 1024, 2048)
 4. **PNG with Alpha**: Use PNG format for glass/transparent materials
 
-Default textures are looked up per element type in `textures/defaults/<element_type>/<element_type>.png` (then `.jpg`), with fallbacks in `textures/fallback/`.
+The texture of an element type is the `map_Kd` of `models/procedural/<element_type>/<element_type>.mtl`; the file is searched next to the `.mtl`, then in `textures/` (see [texture-material-system.md](texture-material-system.md#texture-lookup)).
 
 ## Example Workflow
 
