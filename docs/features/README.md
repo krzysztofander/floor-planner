@@ -52,7 +52,7 @@ Then tell the agent:
 
 ## Active Feature Documents
 
-None
+- [Markdown Report Refactor](markdown-report-refactor.md) - Categorised, per-floor elements report (Planning)
 
 
 ## When to Use Each Approach

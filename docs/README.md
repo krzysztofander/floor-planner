@@ -41,5 +41,6 @@ docs/
 ├── 3d-transform-pipeline.md        ← External model transforms and animation
 └── features/                       ← Feature planning and design documents
     ├── README.md                   ← Feature development workflow
-    └── TEMPLATE.md                 ← Template for new features
+    ├── TEMPLATE.md                 ← Template for new features
+    └── markdown-report-refactor.md ← Planned: elements report refactor
 ```
