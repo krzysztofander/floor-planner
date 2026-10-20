@@ -548,7 +548,8 @@ def validate_model_metadata(metadata: ModelMetadata) -> List[str]:
     
     # Check determinant (should be non-zero for valid transform)
     det = np.linalg.det(metadata.normalization_matrix[:3, :3])
-    if abs(det) < 1e-6:
+    # Threshold allows unit-conversion scales (e.g. mm->m gives det 1e-9)
+    if abs(det) < 1e-15:
         warnings.append(f"Normalization matrix is singular (determinant near zero: {det})")
     
     # Check dimensions
