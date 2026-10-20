@@ -66,6 +66,9 @@ class ExternalModelElement(Element):
     # "stubs" holds placeholder cubes and is the last fallback.
     _MODELS_SUBDIRS: tuple[str, ...] = ("local", "models_3rd_party", "stubs")
 
+    # Model file names checked inside a model folder, in priority order: glTF → OBJ → DAE → 3DS
+    _MODEL_FILE_NAMES: tuple[str, ...] = ('model.glb', 'model.gltf', 'model.obj', 'model.dae', 'model.3ds')
+
     def _candidate_models_dirs(self, base_dir: Path) -> list[Path]:
         """Return models directories to search, in priority order."""
         return [base_dir] + [base_dir / subdir for subdir in self._MODELS_SUBDIRS]
@@ -253,7 +256,7 @@ class ExternalModelElement(Element):
         model_dir = self._models_dir / registry_key
         
         # Priority order: glTF → OBJ → DAE → 3DS
-        for name in ('model.glb', 'model.gltf', 'model.obj', 'model.dae', 'model.3ds'):
+        for name in self._MODEL_FILE_NAMES:
             if (model_dir / name).exists():
                 return True
         return False
@@ -307,7 +310,7 @@ class ExternalModelElement(Element):
         model_dir = self._models_dir / registry_key
         
         # Priority order: glTF → OBJ → DAE → 3DS
-        for name in ('model.glb', 'model.gltf', 'model.obj', 'model.dae', 'model.3ds'):
+        for name in self._MODEL_FILE_NAMES:
             candidate = model_dir / name
             if candidate.exists():
                 return candidate
