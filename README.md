@@ -11,8 +11,11 @@ by Nikolay Lysenko, with additional features added by Krzysztof Bartczak:
 - External YAML file support
 - Floor plan reports
 - Enhanced room options
+- Groups and group templates
+- Many new element categories (furniture, landscaping, roofs, glass structures, ...)
+- 3D export to glTF, including external (pre-made) 3D models
 
-The below figure demonstrates available elements.
+The below figure demonstrates some of available elements.
 
 ![elements.png](https://github.com/krzysztofander/floor-planner/blob/master/examples/images/elements.png)
 
@@ -73,6 +76,33 @@ Elements defined within a room are anchored to the room anchor point. This gives
 It is recommended to work with rooms instead of individual elements.
 *Easiest start is to copy room and main project file from `examples/templates/rooms`*
 
+## Groups
+A `group` is a lightweight container: like a room, it has its own `anchor_point` and `vars`, but it does not require walls. Groups can be nested, and a group may contain rooms. Rooms are now implemented as a special case of a group.
+
+Reusable blueprints can be defined in the top-level `group_templates` section and instantiated with `from_template`. An instance can override template `vars`, and its own `elements` are appended to those from the template:
+```yaml
+- type: group
+  from_template: bedroom
+  anchor_point: [4, 0]
+  vars:
+    w: 4   # wider variant
+```
+See `examples/templates/groups` and the *Groups* section of `docs/element-parameters-reference.md`.
+
+## Element Categories
+Elements are grouped in `floor_planner/elements/`:
+- **Foundation** - walls, windows, doors (hinged and sliding), rooms, groups, floors, ceilings, generic surfaces, roofs
+-- Roofs include gable, hipped (with octants) and single-slope roofs, plus gable end walls. See `examples/roofs`
+-- Glass structures include a greenhouse, glass panels, slopes and doors. See `examples/glass_structures`.
+- **Symbols** - electricity (outlets, cables, ground cables), info (dimension arrows, text boxes), basic shapes
+- **Lighting** - ceiling and wall lamps, LED strips, switches
+- **Furniture** - storage, beds, kitchen appliances, bathroom fixtures, tables, chairs, sofas, TV, decorations
+- **Devices** - generic tanks
+- **Landscaping** - vegetation, hardscape, water features, garden structures, glass structures
+- **Composite** - elements built from other elements, e.g. double window-doors or glass doors in an aluminium frame
+- **External** - elements rendered in 3D from pre-made models (windows, doors, furniture, trees)
+
+
 ## Landscaping Elements
 This fork includes comprehensive landscaping elements for creating site plans and garden designs:
 
@@ -80,15 +110,19 @@ This fork includes comprehensive landscaping elements for creating site plans an
 - **Trees** - with canopy, trunk, species, bloom seasons, and height labels
 - **Shrubs** - circular bushes with optional bloom patterns
 - **Hedges** - linear hedges with rotation, species, and bloom overlays
+- **Lawns**
+- **Species database** - default sizes and bloom seasons by species name
 
 ### Hardscaping
 - **Fences** - multiple styles (solid, picket, chain-link, rail)
 - **Garden Paths** - various materials (gravel, stone, paving, wood, mulch)
 - **Retaining Walls** - stone course patterns
+- **Ground** - base terrain surface
 
 ### Water Features
 - **Fountains** - tiered, spray, and simple styles
 - **Ponds** - multiple shapes (oval, kidney, rectangular, irregular)
+- **Pools** - rectangular and oval
 
 ### Garden Structures
 - **Pergolas** - posts and beam outlines
@@ -102,14 +136,16 @@ All landscaping elements support:
 - Custom colors and labels
 - Integration with floor plans and site layouts
 
-See `examples/landscaping/` for demonstrations of each element type, and `examples/templates/rooms/backyard_garden/` for a reusable outdoor space template.
+See `examples/landscaping/` for demonstrations of each element type and `docs/landscaping-guide.md` for their parameters.
 
 ## 3D Visualization
 
-This fork includes 3D export capabilities to generate Wavefront OBJ/MTL models with textures:
+This fork includes 3D export capabilities to generate glTF 2.0 scenes with textures (the older OBJ/MTL exporter is still in the code but disabled):
 
 ### Features
 - **Automatic 3D geometry generation** - 2D floor plan elements are automatically extruded to 3D
+- **External models** - selected elements (windows, doors, furniture, trees) use pre-made OBJ or GLB models instead of procedural geometry
+- **Animations** - doors can be exported with opening animations
 - **Phong material properties** - Ka (ambient), Kd (diffuse), Ks (specular), Ns (shininess) for realistic materials
 - **Texture support** - PNG (with alpha channel) and JPG textures with automatic fallback
 - **Texture tiling** - Control texture repeat with `texture_scale` parameter
@@ -127,7 +163,7 @@ When doors or windows are positioned in walls, the system automatically:
 Enable 3D export in your YAML config:
 ```yaml
 project:
-  visualisation_dir: "visualisation_3d"  # Output directory for OBJ/MTL files
+  visualisation_dir: "visualisation_3d"  # Output directory for glTF files
 ```
 
 Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` on individual elements to control vertical positioning within a floor plan.
@@ -190,6 +226,15 @@ Place custom textures in `textures/defaults/<element_type>/` to override system 
 See:
 - `docs/NAMING_CONVENTION.md` - Complete naming convention specification
 - `scripts/validate_texture_material_structure.py` - Validation tool
+
+### External Models
+External models live in `models/<registry_key>/` (`model.glb` or `model.obj` + `model.mtl`, plus `model.transform.json`). Models are looked up in this order:
+1. `models/`
+2. `models/local/` - private models
+3. `models/models_3rd_party/` - third-party models kept outside this repository
+4. `models/stubs/` - 1x1x1 m cube placeholders used when the real model is not available
+
+See `models/README.md` for details.
 
 See:
 - `examples/3d_visualization/` - Demos of 3D export with textures and wall openings

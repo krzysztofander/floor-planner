@@ -1,22 +1,10 @@
 # Texture/Material Naming Convention
 
-## Overview
-
-This document defines the **registry-based naming convention** for textures and materials in the floor_planner system.
+Short naming rules for textures and materials. For how textures are resolved and turned into glTF materials, see [texture-material-system.md](./texture-material-system.md).
 
 ## Core Principle
 
-**Registry is the single source of truth**. Element types from `floor_planner/elements/registry.py` determine ALL naming.
-
-- Registry keys (WITH underscores) → folder names and file names
-- Example: Registry key `'generic_storage'` → folder `generic_storage/`, file `generic_storage.jpg`
-- No need for DEFAULT_TEXTURES dict - names come directly from registry
-
-## Naming Rules
-
-### Registry as Source of Truth
-
-The `create_elements_registry()` function in [`registry.py`](cci:1://file:///home/krzysztof/work/excercises/preprojektant/floor_planner/floor_planner/elements/registry.py:0:0-0:0) defines all valid element types:
+**The registry is the single source of truth.** Keys of `create_elements_registry()` in [`floor_planner/elements/registry.py`](../floor_planner/elements/registry.py) determine all names, exactly as written (snake_case, WITH underscores):
 
 ```python
 registry = {
@@ -28,42 +16,24 @@ registry = {
 }
 ```
 
-These keys (WITH underscores) become the naming standard.
+At export time the key is obtained from an instance with `get_element_type_from_instance(element)` (never from the class name: `DoubleBed` → `'double_bed'`, not `'doublebed'`). For external-model elements it returns the class's `_registry_key` instead (see below).
 
-### Directory Names
-- Directory name = Registry key exactly
-- Examples:
-  - Registry: `'generic_storage'` → Directory: `generic_storage/`
-  - Registry: `'double_bed'` → Directory: `double_bed/`
-  - Registry: `'ceiling_lamp'` → Directory: `ceiling_lamp/`
+## Rules
 
-### Base Texture Names
-- Base texture = `<element_type>.jpg` or `<element_type>.png`
-- Examples:
-  - Element: `generic_storage` → File: `generic_storage.jpg`
-  - Element: `double_bed` → File: `double_bed.jpg`
-  - Element: `ceiling_lamp` → File: `ceiling_lamp.jpg`
+For a registry key `<key>`:
 
-### Supplemental Texture Names
-- For multi-texture elements (doors, desks): `<element_type>_<descriptor>.jpg`
-- Defined in `SUPPLEMENTAL_TEXTURES` registry
-- Examples:
-  - Door frame: `door_frame.jpg`
-  - Desk sides: `desk_sides.jpg`
-  - Table sides: `table_sides.jpg`
+| Item | Name | Example (`double_bed`) |
+|------|------|------------------------|
+| Directory | `textures/fallback/<key>/` and/or `textures/defaults/<key>/` | `double_bed/` |
+| Base texture | `<key>.png` or `<key>.jpg` (PNG wins if both exist) | `double_bed.jpg` |
+| Material file | `<key>.mtl`, in the same directory as the texture | `double_bed.mtl` |
+| `newmtl` | `<key>` | `newmtl double_bed` |
+| `map_Kd` | texture filename | `map_Kd double_bed.jpg` |
 
-### Material File Names
-- Material file = `<element_type>.mtl`
-- Same base name as texture
-- Examples:
-  - Element: `generic_storage` → File: `generic_storage.mtl`
-  - Element: `double_bed` → File: `double_bed.mtl`
+Only one texture per element type is used (face key `'all'`). Extra files such as `door/door_frame.jpg` or `desk/desk_sides.jpg` are not read by the code.
 
-### MTL File Content
-- `newmtl` declaration: Use element type (WITH underscores)
-- `map_Kd` reference: Use texture filename (WITH underscores)
+Example (`textures/fallback/generic_storage/generic_storage.mtl`):
 
-Example MTL file for `generic_storage`:
 ```mtl
 # Auto-generated material for generic_storage
 newmtl generic_storage
@@ -74,137 +44,46 @@ Ns 250.0
 map_Kd generic_storage.jpg
 ```
 
+Transparent (glass) elements use a `.png` texture and a `d` (opacity) line, e.g. `textures/fallback/solid_glass_door/solid_glass_door.mtl`:
+
+```mtl
+newmtl solid_glass_door
+Ka 0.85 0.90 1.00
+Kd 0.85 0.90 1.00
+Ks 0.90 0.90 0.95
+Ns 150.0
+d 0.20
+map_Kd solid_glass_door.png
+```
+
 ## Directory Structure
 
 ```
 textures/
-├── fallback/                    # System defaults
+├── fallback/                    # System defaults (always searched second)
 │   ├── generic_storage/
-│   │   ├── generic_storage.jpg  # WITH underscores
+│   │   ├── generic_storage.jpg
 │   │   └── generic_storage.mtl
-│   ├── double_bed/
-│   │   ├── double_bed.jpg
-│   │   └── double_bed.mtl
-│   ├── ceiling_lamp/
-│   │   ├── ceiling_lamp.jpg
-│   │   └── ceiling_lamp.mtl
-│   ├── door/
-│   │   ├── door.jpg
-│   │   ├── door_frame.jpg       # Supplemental texture
-│   │   └── door.mtl
+│   ├── gable_end_glass_left/
+│   │   ├── gable_end_glass_left.png   # PNG for transparency
+│   │   └── gable_end_glass_left.mtl
+│   ├── future/                  # Spare textures, not referenced by the registry
 │   └── ...
-└── defaults/                    # User overrides
-    ├── generic_storage/
-    │   └── generic_storage.mtl
+└── defaults/                    # User overrides (searched first, same layout)
+    ├── wall/
+    │   ├── wall.jpg
+    │   └── wall.mtl
     └── ...
 ```
 
-## Supplemental Textures
+## External Models
 
-Defined in [`supplemental_textures.py`](cci:1://file:///home/krzysztof/work/excercises/preprojektant/floor_planner/floor_planner/supplemental_textures.py:0:0-0:0):
+Elements with external 3D models (e.g. `model_wooden_chair`, `glass_panel`, `glass_door`, `glass_slope`, `alu_frame`) do not use `textures/`. Their folder is `models/<_registry_key>/` (searched in `models/`, then `models/local/`, `models/models_3rd_party/`, `models/stubs/`), with `model.obj` + `model.mtl` (or `model.glb`) and `model.transform.json`. `_registry_key` may drop the `model_` YAML prefix (e.g. `model_wooden_chair` → `models/models_3rd_party/wooden_chair/`). Material names inside `model.mtl` are free; `map_Kd` paths are relative to the model folder. Validate with `python scripts/validate_models.py`.
 
-```python
-SUPPLEMENTAL_TEXTURES = {
-    'door': ['frame'],      # door.jpg + door_frame.jpg
-    'desk': ['sides'],      # desk.jpg + desk_sides.jpg
-    'table': ['sides'],     # table.jpg + table_sides.jpg
-}
-```
+## Adding a New Procedural Element
 
-## No More DEFAULT_TEXTURES Dict
+1. Add `'new_element': NewElement` to the registry.
+2. Create `textures/fallback/new_element/` with `new_element.jpg` (or `.png`) and `new_element.mtl` following the rules above.
+3. Optionally put an override in `textures/defaults/new_element/` (texture **and** `.mtl` — see [texture-material-system.md](./texture-material-system.md#lookup-order)).
 
-The old `DEFAULT_TEXTURES` dictionary has been **removed**. Texture names now come directly from:
-1. Registry keys for base textures
-2. `SUPPLEMENTAL_TEXTURES` for additional textures
-
-This simplifies the system - one source of truth instead of two.
-
-## Validation
-
-Use the validation script to verify naming compliance:
-```bash
-python scripts/validate_texture_material_structure.py
-```
-
-This checks:
-- All registered elements have directories (exact match with registry keys)
-- All texture files match element names (WITH underscores)
-- All textures have corresponding `.mtl` files
-- All `.mtl` files reference correct texture filenames
-
-## Migration
-
-If you have textures that don't follow this convention, use:
-```bash
-python scripts/rename_to_registry_keys.py
-```
-
-This will:
-- Rename directories to match registry keys exactly
-- Rename files to match registry keys
-- Update MTL file content to reference new filenames
-
-## Examples
-
-| Registry Key | Directory | Texture | Material | MTL newmtl | MTL map_Kd |
-|--------------|-----------|---------|----------|------------|------------|
-| `generic_storage` | `generic_storage/` | `generic_storage.jpg` | `generic_storage.mtl` | `generic_storage` | `generic_storage.jpg` |
-| `double_bed` | `double_bed/` | `double_bed.jpg` | `double_bed.mtl` | `double_bed` | `double_bed.jpg` |
-| `ceiling_lamp` | `ceiling_lamp/` | `ceiling_lamp.jpg` | `ceiling_lamp.mtl` | `ceiling_lamp` | `ceiling_lamp.jpg` |
-| `wall_lamp` | `wall_lamp/` | `wall_lamp.jpg` | `wall_lamp.mtl` | `wall_lamp` | `wall_lamp.jpg` |
-| `single_sink` | `single_sink/` | `single_sink.jpg` | `single_sink.mtl` | `single_sink` | `single_sink.jpg` |
-| `garden_path` | `garden_path/` | `garden_path.jpg` | `garden_path.mtl` | `garden_path` | `garden_path.jpg` |
-| `door` | `door/` | `door.jpg` + `door_frame.jpg` | `door.mtl` | `door` | `door.jpg` |
-
-## Adding New Elements
-
-When adding a new element with texture support:
-
-1. **Add to registry** in [`registry.py`](cci:1://file:///home/krzysztof/work/excercises/preprojektant/floor_planner/floor_planner/elements/registry.py:0:0-0:0):
-   ```python
-   registry = {
-       'new_element': NewElement,
-   }
-   ```
-
-2. **Create directory** (matches registry key exactly):
-   ```bash
-   mkdir -p textures/fallback/new_element
-   ```
-
-3. **Add texture file** (matches registry key):
-   ```bash
-   cp source.jpg textures/fallback/new_element/new_element.jpg
-   ```
-
-4. **Create MTL file**:
-   ```bash
-   cat > textures/fallback/new_element/new_element.mtl << 'EOF'
-   newmtl new_element
-   Ka 0.700000 0.700000 0.700000
-   Kd 0.800000 0.800000 0.800000
-   Ks 0.200000 0.200000 0.200000
-   Ns 30.0
-   map_Kd new_element.jpg
-   EOF
-   ```
-
-5. **Add supplemental textures** (if needed) in [`supplemental_textures.py`](cci:1://file:///home/krzysztof/work/excercises/preprojektant/floor_planner/floor_planner/supplemental_textures.py:0:0-0:0):
-   ```python
-   SUPPLEMENTAL_TEXTURES = {
-       'new_element': ['detail'],  # Creates new_element_detail.jpg
-   }
-   ```
-
-6. **Validate**:
-   ```bash
-   python scripts/validate_texture_material_structure.py
-   ```
-
-## Key Advantages
-
-1. **Single Source of Truth**: Registry defines everything
-2. **Simpler Code**: No DEFAULT_TEXTURES dict to maintain
-3. **Predictable**: Element name = folder name = file name
-4. **Maintainable**: Add element to registry, create folder, done
-5. **Consistent**: Underscores used uniformly across Python code and filesystem
+There is no automated texture-structure validator; check names by hand.

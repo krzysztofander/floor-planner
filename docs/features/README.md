@@ -20,7 +20,7 @@ The agent will:
 - Read the feature document
 - Create session memory to track progress
 - Follow the implementation plan
-- Run `make all` after each significant change
+- Run `make all` and `make tests` after each significant change
 
 ### 3. During Development
 The agent maintains context using:

@@ -1,8 +1,13 @@
 # 3D Transform Pipeline for External Model Elements
 
-This document describes exactly how each transform is computed, in which order they
-are applied, and whether the work is done by the Python floor-planner tool or by the
-3D player at runtime.
+This document describes how each transform is computed, in which order they are
+applied, and what is done by the Python floor-planner tool vs. the 3D player at
+runtime.
+
+glTF 2.0 is the only active 3D exporter (`project.export_to_gltf()` in
+`floor_planner/__main__.py`; the legacy OBJ export call is commented out).
+External models in `.glb`/`.gltf`, `.obj`, `.dae` or `.3ds` format are all
+converted into glTF meshes by `floor_planner/gltf_exporter.py`.
 
 ---
 
@@ -10,13 +15,32 @@ are applied, and whether the work is done by the Python floor-planner tool or by
 
 | Axis | Direction | Unit |
 |------|-----------|------|
-| **X** | East — floor-plan horizontal | metre |
+| **X** | floor-plan x | metre |
 | **Y** | Up — vertical height | metre |
-| **Z** | South — floor-plan "depth" | metre |
+| **Z** | floor-plan y | metre |
 
 A floor-plan `anchor_point: [2.5, 3.0]` therefore maps to world position
-`X = 2.5 m`, `Z = 3.0 m`.  The YAML `v_anchor` / `v_offset` value sets the `Y`
-position (height above floor).
+`X = 2.5 m`, `Z = 3.0 m`.  The element's `v_anchor` sets the `Y` position
+(height above the floor level).
+
+---
+
+## Model lookup
+
+The model directory for an element is `<models_dir>/<registry_key>/`, where the
+default base `models_dir` is the repo's `models/`.  `ExternalModelElement._resolve_models_dir()`
+searches, in order:
+
+```
+models/  →  models/local/  →  models/models_3rd_party/  →  models/stubs/
+```
+
+The first base directory containing a `<registry_key>/` folder wins (`stubs/`
+holds placeholder cubes as the last fallback).  Inside it the model file is
+picked in priority order `model.glb`, `model.gltf`, `model.obj`, `model.dae`,
+`model.3ds`, and metadata is read from `model.transform.json`.  If
+`_requires_external_model = True` and no model file is found, a
+`FileNotFoundError` listing all searched paths is raised.
 
 ---
 
@@ -24,21 +48,21 @@ position (height above floor).
 
 | Name | Where defined | Python attribute |
 |------|---------------|-----------------|
-| `normalization` | `models/<key>/model.transform.json` | `element._model_metadata.normalization_matrix` |
-| `anchor_offset` | `models/<key>/model.transform.json` → `anchor_offset` | `element._model_metadata.anchor_offset` |
-| `secondary_normalization` | Element `__init__` code (e.g. `BalconyDoor`) | `element.secondary_normalization` (dict or `None`) |
+| `normalization` | `<model dir>/model.transform.json` → `normalization` | `element._model_metadata.normalization_matrix` |
+| `anchor_offset` | `<model dir>/model.transform.json` → `anchor_offset` | `element._model_metadata.anchor_offset` |
+| `secondary_normalization` | Element `__init__` code (e.g. `WindowDoorDouble`, `LeafyTree`, `GlassPanel`) | `element.secondary_normalization` (dict or `None`) |
 | `secondary_anchor_offset` | Element `__init__` code | `element.secondary_anchor_offset` (list or `None`) |
 | `orientation_angle` | YAML `orientation_angle:` | `element.orientation_angle` |
 | `anchor_point` | YAML `anchor_point: [x, z]` | `element.anchor_point` |
-| `v_anchor` / `v_offset` | YAML `v_anchor:` (or computed vertical level) | `element.v_anchor` |
+| `v_anchor` | YAML `v_anchor:` (or computed vertical level) | `element.v_anchor` |
 
 ---
 
 ## Pipeline — order of application
 
-The pipeline is expressed as a single 4 × 4 matrix product, computed once
-by `ExternalModelElement.get_final_transform()` in
-`floor_planner/elements/external_models.py`:
+The pipeline is a single 4 × 4 matrix product, computed by
+`ExternalModelElement.get_final_transform()` in
+`floor_planner/elements/external_models.py` (via `compose_transforms()`):
 
 ```
 final = Placement × SecondaryAnchor × AnchorOffset × SecondaryNorm × Normalization
@@ -57,20 +81,27 @@ the model in this order**:
 
 ### Step 1 — Normalization
 
-**Source:** `models/<registry_key>/model.transform.json` → `normalization` section.  
-**Built by:** `ModelMetadata.normalization_matrix` (parsed in `floor_planner/model_metadata.py`).  
+**Source:** `model.transform.json` → `normalization` section.  
+**Built by:** `_build_transform_matrix()` in `ModelMetadata.from_dict()`
+(`floor_planner/model_metadata.py`), stored as `ModelMetadata.normalization_matrix`.  
 **Purpose:** Bring the raw model into standard space — correct scale, axis alignment, unit.
 
-The JSON section accepts `scale`, `rotation` (Euler XYZ in degrees), and `translation`.
-The matrix is built as:
+Two formats are accepted:
 
-```
-Normalization = Translation @ (Rz @ Ry @ Rx) @ Scale
-```
+- **Components** (used when any of `scale` / `rotation` / `translation` is
+  present; missing ones default to identity values):
 
-i.e. scale first, then rotate X→Y→Z, then translate.
+  ```text
+  Normalization = Translation @ (Rz @ Ry @ Rx) @ Scale
+  ```
 
-Example (`window_90x120/model.transform.json`):
+  i.e. scale first, then rotate X→Y→Z (Euler, degrees), then translate.
+- **Legacy `matrix`**: a 4 × 4 nested row-major list (translation in the last
+  column), loaded by `load_matrix_from_json()`.
+
+No `normalization` section → identity.
+
+Example (`models/window_90x120/model.transform.json`):
 ```json
 "normalization": {
   "scale":       [1.0, 1.0, 1.0],
@@ -81,303 +112,240 @@ Example (`window_90x120/model.transform.json`):
 
 ### Step 2 — SecondaryNormalization
 
-**Source:** Python element class `__init__` (e.g. `BalconyDoor.__init__`).  
-**Built by:** `build_normalization_matrix(element.secondary_normalization)` in `floor_planner/transform.py`.  
-**Purpose:** Per-instance override — used to partially open a door wing, mirror a
-model variant, etc. Not present in most elements (`None` → identity matrix).
+**Source:** Python element class `__init__`.  
+**Built by:** `build_normalization_matrix(element.secondary_normalization)` in
+`floor_planner/transform.py` — same `{scale, rotation, translation}` dict and
+the same `Translation @ (Rz @ Ry @ Rx) @ Scale` math as Step 1; all keys optional.  
+**Purpose:** Per-instance adjustment.  `None` (class default) → identity.
 
-Accepts the same `{scale, rotation, translation}` dict as the JSON normalization:
+Typical uses: scaling a fixed-size model to user-given dimensions (fixed
+windows, `GlassPanel`, `GlassSlope`, `LeafyTree` / `LeafyShrub1` — which also
+add a random Y rotation), or mirroring a model variant (`WindowDoorDouble`):
 
 ```python
 self.secondary_normalization = {
-    'rotation': [0, 15, 0],   # open door 15° around Y
+    'scale': [length / self._default_length(), height / self._default_height(), 1],
 }
 ```
 
-Matrix is built identically to Step 1:
-```
-SecondaryNorm = Translation @ (Rz @ Ry @ Rx) @ Scale
-```
+(`ExternalModelElement.__init__` rejects `width` / `length` / `height` kwargs;
+elements that support resizing take their own parameters and scale here.)
 
 ### Step 3 — AnchorOffset
 
-**Source:** `models/<registry_key>/model.transform.json` → `anchor_offset` field.  
+**Source:** `model.transform.json` → `anchor_offset` (default `[0, 0, 0]`).  
 **Built by:** inline matrix construction in `get_final_transform()`.  
-**Purpose:** Translate the model so that its logical anchor point (e.g. bottom-left
-corner of a door frame) lies at the local origin before the placement rotation is
-applied.
+**Purpose:** Move the model's logical anchor point (e.g. bottom-left corner of a
+door frame) to the local origin before the placement rotation.
 
 The offset is **negated**:
 
 ```python
-anchor_offset_matrix[0, 3] = -off[0]   # move anchor to origin
+anchor_offset_matrix[0, 3] = -off[0]
 anchor_offset_matrix[1, 3] = -off[1]
 anchor_offset_matrix[2, 3] = -off[2]
 ```
-
-Most current models have `anchor_offset: [0, 0, 0]` (identity).
 
 ### Step 4 — SecondaryAnchorOffset
 
 **Source:** Python element class `__init__`.  
 **Built by:** inline matrix construction in `get_final_transform()`.  
-**Purpose:** Same mechanic as AnchorOffset but set per-instance in code.  Used by
-`BalconyDoor` for `to_the_right=True` variants to move the hinge to the origin
-before the secondary rotation is applied.
-
-Also **negated** (same sign convention as `anchor_offset`):
-
-```python
-self.secondary_anchor_offset = [W, 0, 0]   # hinge is at X=W; move it to origin
-```
-
-`None` → identity matrix.
+**Purpose:** Same mechanic as AnchorOffset, set per instance in code; also
+**negated** (the value is the point that should be moved to the origin).
+`None` → identity.
 
 ### Step 5 — Placement
 
 **Source:** YAML `anchor_point`, `orientation_angle`, `v_anchor`.  
 **Built by:** `create_placement_matrix()` in `floor_planner/transform.py`.  
-**Purpose:** Rotate the model around the world Y-axis and translate it to its final
+**Purpose:** Rotate the model around the world Y-axis and translate it to its
 scene position.
 
-```
-Placement = Translation(anchor_point.x, v_anchor, anchor_point.z)
-            × RotationY(orientation_angle)
-```
-
-Exact matrix (row-major notation, `a = radians(orientation_angle)`):
+Exact matrix (`a = radians(orientation_angle)`):
 
 ```
-┌  cos(a)   0   -sin(a)   anchor_point.x ┐
-│  0        1    0        v_anchor       │
-│  sin(a)   0    cos(a)   anchor_point.z │
-└  0        0    0        1              ┘
+┌  cos(a)   0   -sin(a)   anchor_point[0] ┐
+│  0        1    0        v_anchor        │
+│  sin(a)   0    cos(a)   anchor_point[1] │
+└  0        0    0        1               ┘
 ```
 
-Note: `anchor_point[1]` (the second element of the YAML list) maps to the **Z axis**,
-not Y.
+Local +X maps to `(cos a, sin a)` in floor-plan (x, y), i.e. the angle is
+counter-clockwise in the floor plan.  `anchor_point[1]` maps to the **Z axis**.
 
 ---
 
 ## Where the computation happens
 
-| Step | Done in Python tool? | Done by 3D player? |
-|------|---------------------|--------------------|
-| 1–5 combined into `final` matrix | **Yes** — in `get_final_transform()` | No |
-| Emitting transform to glTF | **Yes** — `matrix_to_json(final_transform)` converts to column-major flat list of 16 | No |
-| Applying the matrix to mesh vertices | No | **Yes** — the glTF node `matrix` field is applied by the renderer |
+| Step | Python tool | 3D player |
+|------|-------------|-----------|
+| Steps 1–5 composed into matrices | **Yes** | No |
+| Emitting to glTF (`matrix_to_json()` → flat column-major list of 16, or `matrix_to_trs()` → TRS) | **Yes** | No |
+| Applying node transforms to mesh vertices | No | **Yes** — standard glTF scene graph |
+| Playing door animations from `extras.animation` | No | **Yes** — custom player logic |
 
-> **Note:** All five steps are fully computed and baked by the Python tool.
-> The 3D player applies the resulting `node.matrix` passively; it performs no
-> transform computation of its own.
-
-### How the matrix is passed to the 3D player (non-animated elements)
+### Non-animated elements
 
 `_add_external_model_element()` in `floor_planner/gltf_exporter.py` writes the
-fully-composed matrix into the glTF node:
+fully composed matrix into a single node:
 
 ```python
-final_transform = element.get_final_transform()   # 4×4 numpy array
-
 node = {
-    "name": f"{registry_key}_{index:03d}",
-    "matrix": matrix_to_json(final_transform),    # 16-element column-major list
+    "name": f"{registry_key}_{node_index:03d}",
+    "matrix": matrix_to_json(element.get_final_transform()),
     "extras": {
         "element_type": element.get_registry_key(),
         "external_model": True,
         "model_path": str(model_path),
         "model_format": model_format,
-    }
+    },
+    "mesh": ...,   # loaded from the model file
 }
 ```
-
-`matrix_to_json()` produces a **flat column-major array of 16 floats** as required
-by the glTF 2.0 spec (`node.matrix`).  A conformant glTF renderer applies it to
-every vertex of the node's mesh automatically — the 3D player needs no special
-logic beyond loading a standard glTF file.
 
 ```
 glTF node.matrix = [m00, m10, m20, m30,  m01, m11, m21, m31,  ...]   (column-major)
 ```
 
-The `extras` object is purely informational metadata for tooling or debugging; it
-is not used by the renderer for any transform.
+`extras` is informational only; it does not affect the transform.
+
+### Floor level and composite elements
+
+- `export()` gets the floor plan's `v_anchor`; when non-zero, all element root
+  nodes are wrapped in a `floor_level` node with `translation [0, v_anchor, 0]`
+  (stacking storeys in one scene).
+- Composite elements (e.g. `Composite_WindowDoorDouble`, `Composite_GlassDoor`)
+  hold sub-elements in a list; `add_element()` recurses into `getList()` and
+  each sub-element is exported with its own nodes/transforms.
 
 ---
 
-## Animation support (Option B — extras metadata + node hierarchy)
+## Animation (doors)
 
-Animated elements (currently: `BalconyDoor`; future: sliding garage doors, etc.)
-use a **two-node glTF hierarchy** instead of a single baked node.  The split
-allows the 3D player to animate the inner node independently while the outer
-Placement stays fixed.
+Animated elements are those with `element.animation is not None`.  Currently
+these are doors: external-model `BalconyDoor` and subclasses (`WindowDoor`,
+`WindowDoorDouble`, `SolidDoor1/2`, `GlassDoor`) and procedural `Door`
+(and `SolidGlassDoor`).  `door_type='fixture'` produces no animation.
 
 ### Node hierarchy
 
 ```
-Parent node  →  matrix = Placement only  (Steps 1–5 = Placement; static)
-  └── Child node  →  TRS = Steps 1–4  +  mesh  +  extras.animation
+Parent node  →  matrix = Placement only  (static)
+  └── Child node  →  TRS + mesh + extras.animation
 ```
 
-glTF's scene graph multiplies `parent.matrix × child.TRS` at render time, so the
-rendered rest-pose is identical to the single-node non-animated version.  The
-player animates only the **child** node's `rotation` (hinge) or `translation`
-(slide).
+The glTF spec forbids `matrix` together with TRS on one node, and animation can
+only target TRS, so the child uses `translation` / `rotation` / `scale`
+decomposed with `matrix_to_trs()`.  Rest pose = `parent.matrix × child.TRS`,
+identical to the non-animated result.
 
-> **Why split?**  The glTF spec forbids a node from having both a `matrix` field
-> **and** TRS (`translation`/`rotation`/`scale`) fields.  Animation channels can
-> only target TRS properties, not `matrix`.  So the child must use TRS.
+| Element kind | Child TRS decomposed from | Node names |
+| --- | --- | --- |
+| External model (`_add_external_model_element`) | `SecAnchor × AnchorOffset × SecNorm × Normalization` (Steps 1–4) | `<registry_key>_<idx>_placement` / `_anim` |
+| Procedural (`_add_procedural_element`) | `SecAnchor × SecNorm` | `<ClassName>_<id>_placement` / `_anim` |
 
-### What the Python tool emits
+For procedural animated elements the mesh is generated in local space
+(`_generate_local_geometry()` temporarily sets `anchor_point=(0,0)`,
+`orientation_angle=0`, `v_anchor=0`), so the parent Placement positions it.
 
-```python
-# Parent — Placement only, static matrix
-parent_node = {
-    "name": "balcony_door_004_placement",
-    "matrix": [...],          # 16-float column-major Placement matrix
-    "children": [child_idx],
-    "extras": { "element_type": "balcony_door", ... }
-}
+### `extras.animation` descriptor
 
-# Child — normalization chain as TRS + animation descriptor in extras
-child_node = {
-    "name": "balcony_door_005_anim",
-    "translation": [tx, ty, tz],
-    "rotation":    [qx, qy, qz, qw],   # unit quaternion decomposed from Steps 1-4
-    "scale":       [sx, sy, sz],
-    "mesh": ...,
-    "extras": {
-        "animation": {
-            "type":         "hinge_rotation",
-            "axis":         [0, 1, 0],         # Y-axis (vertical hinge)
-            "pivot_local":  [0.0, 0.0, 0.0],   # hinge point in child-node space
-            "closed_angle": 0.0,               # degrees, door shut
-            "open_angle":   90.0,              # degrees, door fully open
-            "duration":     0.5,               # seconds
-            "trigger":      "click"
-        }
-    }
+Built by `Door3D.getAnimation()` (`floor_planner/elements/foundation/door.py`)
+using `AnimationMetadata` (`floor_planner/motion_3d.py`).  `Door3D` delegates to
+`Door3DHinged` (`door_type='hinged'`) or `SlidingDoor3D` (`'sliding'`), whose
+`calcNormalisationAndOffset()` computes the values.  Only the `proximity`
+trigger is emitted.
+
+```jsonc
+"animation": {
+  "type": "proximity",
+  "pre_translation":  [x, y, z],   // applied before the animated delta
+  "pre_rotation":     [rx, ry, rz],//   (e.g. stretch to doorway width,
+  "pre_scale":        [sx, sy, sz],//    180° flip for right-hand doors)
+  "translation":      [x, y, z],   // open-state delta
+  "rotation":         [rx, ry, rz],//   (degrees, Euler)
+  "scale":            [sx, sy, sz],
+  "post_translation": [x, y, z],   // applied after the delta (move back to
+  "post_rotation":    [rx, ry, rz],//   the hinge/slide position in the wall)
+  "post_scale":       [sx, sy, sz],
+  "data": [px, py, pz, d1, d2]     // activation point + activation distances
 }
 ```
 
-The TRS values are computed by decomposing the Steps 1–4 matrix via
-`matrix_to_trs()` in `floor_planner/transform.py`.
+| | Hinged (`Door3DHinged`) | Sliding (`SlidingDoor3D`) |
+| --- | --- | --- |
+| `rotation` | `[0, ±90, 0]` (sign from `opening_outside` / `to_the_right`) | `[0, 0, 0]` |
+| `translation` | `[0, 0, 0]` | `[±door_width × stretch × 0.999, 0, 0]` (+X if `to_the_right`) |
+| `pre_scale` | `[stretch, 1, 1]`, `stretch = doorway_width / model_door_width` | same |
 
-The child's rest-pose (TRS) already includes the 15° ajar angle from
-`secondary_normalization`.  The `closed_angle` and `open_angle` in the animation
-descriptor are relative to that rest-pose and are applied **on top of** it by the
-player.
+Activation: `point = (doorway_width / 2, 1.2, -0.5 if opening_outside else 0.5)`,
+`distance = (2.0, 1)`.  Procedural `Door` passes `model_door_width = doorway_width`
+(stretch = 1) and `wing_width_on_model = model_depth = thickness`; external
+doors use the defaults `0.9` / `0.12`.
 
-### What the 3D player must do
+How `pre_* → delta → post_*` is combined with the child rest TRS and
+interpolated is defined by the 3D player (not part of this repo); the Python
+tool only emits the descriptor.
 
-Only the child node (`_anim` suffix, has `extras.animation`) requires player logic.
+### Adding animation to a new element
 
-```js
-// Pseudo-code for a hinge_rotation door
-function onSceneLoad(gltf) {
-    for (const node of gltf.nodes) {
-        if (node.extras?.animation?.type === 'hinge_rotation') {
-            node.userData.anim = node.extras.animation;
-            node.addEventListener('click', () => toggleDoor(node));
-        }
-    }
-}
-
-function toggleDoor(node) {
-    const a = node.userData.anim;
-    // Rotate node around a.pivot_local along a.axis
-    // from current angle toward a.open_angle (or back to a.closed_angle)
-    // over a.duration seconds.
-    // DO NOT touch the parent node's matrix.
-}
-```
-
-For `slide_translation` (e.g. garage door):
-```js
-// Translate node along a.axis by a.distance over a.duration seconds.
-```
-
-### How to add animation to a new element
-
-1. Set `self.animation` dict in the element's `__init__` (see
-   `ExternalModelElement.animation` class-level docstring for full schema).
-2. No exporter changes needed — `_add_external_model_element()` detects
-   `element.animation is not None` and automatically emits the two-node hierarchy.
-
-```python
-# Example: sliding garage door
-self.animation = {
-    'type':     'slide_translation',
-    'axis':     [1, 0, 0],    # slide along X
-    'distance': self.door_width,
-    'duration': 1.2,
-    'trigger':  'click',
-}
-```
+Set `self.animation` to a descriptor dict in `__init__` (for doors: build a
+`Door3D` and call `getAnimation()`).  No exporter changes are needed — both
+`_add_external_model_element()` and `_add_procedural_element()` detect
+`element.animation is not None` and emit the two-node hierarchy.
 
 ---
 
 ## Summary diagram
 
 ```
-Model file (.obj / .glb)
+Model file (.glb / .gltf / .obj / .dae / .3ds)
         │
         ▼
-[1] Normalization          ← models/<key>/model.transform.json  →  scale/rotate/translate
-        │                     (scale, rotation[XYZ deg], translation)
+[1] Normalization          ← model.transform.json normalization
+        │                     (scale, rotation[XYZ deg], translation  |  legacy matrix)
         ▼
-[2] SecondaryNormalization ← element __init__ code             →  per-variant adjust
-        │                     (same dict format; None = skip)
+[2] SecondaryNormalization ← element __init__ code (same dict format; None = skip)
         ▼
-[3] AnchorOffset           ← model.transform.json anchor_offset →  negate & translate
-        │                     (moves logical anchor to origin)
+[3] AnchorOffset           ← model.transform.json anchor_offset (negated)
         ▼
-[4] SecondaryAnchorOffset  ← element __init__ code             →  additional pivot shift
-        │                     (None = skip)
+[4] SecondaryAnchorOffset  ← element __init__ code (negated; None = skip)
         ▼
 [5] Placement              ← YAML: anchor_point, orientation_angle, v_anchor
-        │                     RotationY(orientation_angle) then translate to scene pos
-        ▼
-  final 4×4 matrix
         │
-        ▼  matrix_to_json()  →  16-float column-major list
-  glTF node.matrix
+        ├─ not animated → final 4×4 → matrix_to_json() → single node.matrix
+        └─ animated     → parent.matrix = [5];  child TRS = [1–4] + extras.animation
         │
-        ▼  (renderer applies to mesh at load time)
+        ▼  (optional floor_level node: translation [0, floor v_anchor, 0])
   Rendered 3D position
 ```
 
 ---
 
-## `build_normalization_matrix` helper
-
-Used for both Steps 1 and 2.  Located in `floor_planner/transform.py`.
-
-```python
-build_normalization_matrix({'scale': [sx,sy,sz], 'rotation': [rx,ry,rz], 'translation': [tx,ty,tz]})
-# Returns: Translation @ (Rz @ Ry @ Rx) @ Scale
-```
-
-All keys optional; defaults: `scale=[1,1,1]`, `rotation=[0,0,0]`, `translation=[0,0,0]`.
-
----
-
-## `model.transform.json` schema (relevant fields)
+## `model.transform.json` schema (transform-relevant fields)
 
 ```jsonc
 {
+  "model_file": "model.obj",
+  "model_format": "obj",                 // "gltf" (default) or "obj" — informational
+  "format_version": "1.0",
+  "element_type": "window_90x120",
+  "registry_key": "window_90x120",       // defaults to element_type
   "normalization": {
-    "scale":       [sx, sy, sz],         // uniform or per-axis scale
-    "rotation":    [rx_deg, ry_deg, rz_deg],  // Euler angles, X→Y→Z, degrees
-    "translation": [tx, ty, tz]          // metres
+    "description": "...",
+    "scale":       [sx, sy, sz],
+    "rotation":    [rx_deg, ry_deg, rz_deg],  // Euler, X→Y→Z, degrees
+    "translation": [tx, ty, tz]               // metres
+    // or legacy: "matrix": [[...],[...],[...],[...]]  (4×4 row-major)
   },
-  "anchor_offset": [ox, oy, oz],         // point in model-space that is the logical anchor
-  "bounding_box": {
-    "min": [x, y, z],
-    "max": [x, y, z]
-  }
+  "anchor_point": "bottom_left",         // semantic name only
+  "anchor_offset": [ox, oy, oz],         // negated when applied (Step 3)
+  "bounding_box": { "min": [x, y, z], "max": [x, y, z] },
+  "dimensions": { "width": w, "length": l, "height": h }  // optional; else from bounding_box
 }
 ```
 
-The `anchor_offset` vector is **negated** when applied (Step 3) so the named
-anchor point is moved to the local origin before the placement rotation.
+`model_file`, `format_version` and `element_type` are required.  Element
+dimensions come from `dimensions` (if all three are given) or the bounding box
+(`width` = X extent, `length` = Z extent, `height` = Y extent).  The actual
+model file is chosen by file existence (see *Model lookup*), not by `model_file`.

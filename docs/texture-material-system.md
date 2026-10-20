@@ -2,284 +2,103 @@
 
 ## Overview
 
-The Floor Planner's 3D export system uses a registry-based approach for texture and material management. This document explains the architecture and conventions used throughout the system.
+How the 3D export finds textures and `.mtl` material files and turns them into materials. File and folder naming rules are in [NAMING_CONVENTION.md](./NAMING_CONVENTION.md); this document does not repeat them.
 
-## Core Architecture
+The active export is **glTF 2.0** (`GLTFExporter` in [`floor_planner/gltf_exporter.py`](../floor_planner/gltf_exporter.py)). The OBJ/MTL export ([`obj_exporter.py`](../floor_planner/obj_exporter.py)) still exists but is commented out in [`__main__.py`](../floor_planner/__main__.py).
 
-### Single Source of Truth: The Registry
+Two kinds of elements are textured differently:
 
-Element types are defined in [`floor_planner/elements/registry.py`](../floor_planner/elements/registry.py):
+| Element kind | Texture/material source |
+|--------------|-------------------------|
+| Procedural (has `generate_vertices_and_indices()`: walls, furniture boxes, roofs, gable ends, greenhouse, `solid_glass_door`, ...) | `textures/defaults/<key>/` or `textures/fallback/<key>/` |
+| External model (`ExternalModelElement` with a model file: `model_*`, `glass_door`, `glass_panel`, `glass_slope`, `alu_frame`) | the model's own `model.mtl` / embedded materials in `models/.../<_registry_key>/` |
 
-```python
-def create_elements_registry() -> dict[str, type(Element)]:
-    registry = {
-        'ceiling_lamp': CeilingLamp,
-        'generic_storage': GenericStorage,
-        'double_bed': DoubleBed,
-        'garden_path': GardenPath,
-        # ... etc
-    }
-    return registry
-```
-
-**Registry keys (WITH underscores) determine all naming:**
-- Folder names
-- Texture filenames
-- Material filenames
-
-This eliminates the need for separate texture mapping dictionaries and ensures consistency.
-
-## Directory Structure
-
-```
-textures/
-├── fallback/                    # System default textures
-│   ├── generic_storage/         # Registry key → folder name
-│   │   ├── generic_storage.jpg  # Base texture
-│   │   └── generic_storage.mtl  # Material properties
-│   ├── double_bed/
-│   │   ├── double_bed.jpg
-│   │   └── double_bed.mtl
-│   ├── ceiling_lamp/
-│   │   ├── ceiling_lamp.jpg
-│   │   └── ceiling_lamp.mtl
-│   └── door/
-│       ├── door.jpg             # Base texture
-│       ├── door_frame.jpg       # Supplemental texture
-│       └── door.mtl             # Material references both
-└── defaults/                    # User custom textures (overrides)
-    └── (same structure)
-```
-
-## Naming Convention
-
-### Rule: Registry Key = Folder Name = Base File Name
-
-| Registry Key | Folder | Base Texture | Material |
-|--------------|--------|--------------|----------|
-| `'generic_storage'` | `generic_storage/` | `generic_storage.jpg` | `generic_storage.mtl` |
-| `'double_bed'` | `double_bed/` | `double_bed.jpg` | `double_bed.mtl` |
-| `'ceiling_lamp'` | `ceiling_lamp/` | `ceiling_lamp.jpg` | `ceiling_lamp.mtl` |
-
-## Material Files (.mtl)
-
-Material files define Phong shading properties:
-
-```mtl
-# Material for generic_storage
-newmtl generic_storage
-Ka 0.500000 0.300000 0.200000    # Ambient color (RGB 0-1)
-Kd 0.580000 0.380000 0.230000    # Diffuse color (RGB 0-1)
-Ks 1.200000 1.200000 1.200000    # Specular color (RGB 0-1)
-Ns 250.0                         # Shininess (0-1000)
-map_Kd generic_storage.jpg       # Texture reference
-```
-
-**Properties:**
-- **Ka (Ambient)**: Base color in shadow
-- **Kd (Diffuse)**: Color under direct light
-- **Ks (Specular)**: Highlight color
-- **Ns (Shininess)**: Specular power (higher = sharper highlights)
-- **map_Kd**: Texture filename (must match base texture name)
+`<key>` is the registry key from `get_element_type_from_instance(element)`.
 
 ## Key Components
 
-### 1. TextureManager
+### TextureManager ([`texture_manager.py`](../floor_planner/texture_manager.py))
 
-Located in [`floor_planner/texture_manager.py`](../floor_planner/texture_manager.py).
+Used by both exporters to find the texture file for an element type.
 
-**Responsibilities:**
-- Resolve texture paths from element types
-- Handle default/fallback texture lookup
-- Copy textures to output directory for 3D export
-- Support PNG (with alpha) and JPG formats
+- `get_default_textures(element_type)` → `{'all': '<key>.jpg'}` (one texture per element)
+- `normalize_texture_spec(element_type)` → `{'all': <absolute path>}` using the lookup order below
+- `resolve_element_textures(element_type, config_dir)` → `{'all': Path}`; repeats the lookup if the path does not exist
+- `copy_texture_to_output()`, `get_relative_texture_path()` → used by the OBJ exporter only
 
-**Key Methods:**
-- `get_default_textures(element_type)` - Returns texture filenames derived from registry key
-- `normalize_texture_spec()` - Converts user texture specs to absolute paths
-- `resolve_element_textures()` - Resolves textures for an element
-- `copy_texture_to_output()` - Copies textures to visualization directory
+### GLTFExporter material code ([`gltf_exporter.py`](../floor_planner/gltf_exporter.py))
 
-**No DEFAULT_TEXTURES Dictionary:**
-The old `DEFAULT_TEXTURES` dict has been removed. Texture names now come directly from:
-1. Registry keys for base textures
-2. `SUPPLEMENTAL_TEXTURES` for multi-texture elements
+- `_get_default_material(element)` → material for procedural elements (one per element type, cached)
+- `_parse_mtl_file(path)` → reads `newmtl`, `Ka`, `Kd`, `Ks`, `Ns`, `map_Kd`, `d`/`Tr`
+- `_select_best_mtl_material()` → picks one material if the file has several (prefers one with `map_Kd`, then non-black `Kd`)
+- `_create_gltf_material()` → materials for external OBJ models
+- `_add_specular_extension()` → `Ks` → `KHR_materials_specular`
 
-### 2. MaterialManager
+### MaterialManager ([`material_manager.py`](../floor_planner/material_manager.py))
 
-Located in [`floor_planner/material_manager.py`](../floor_planner/material_manager.py).
+Used **only by the OBJ exporter**. Parses `Ka`, `Kd`, `Ks`, `Ns` (no `d`), caches by `.mtl` path, falls back to `get_default_material()` (Ka 0.7, Kd 0.8, Ks 0.2, Ns 30). The glTF export does not use it.
 
-**Responsibilities:**
-- Parse `.mtl` files to extract Ka, Kd, Ks, Ns properties
-- Cache loaded materials for performance
-- Provide fallback to default material if `.mtl` not found
+## Lookup Order
 
-**Key Methods:**
-- `parse_mtl_file(mtl_path)` - Parses MTL file format
-- `get_material_for_texture()` - Gets material for a texture file
-- `get_default_material()` - Returns neutral gray fallback
-- `format_mtl_color()` - Formats RGB tuple for MTL output
+For a procedural element with key `<key>` (`TextureManager.normalize_texture_spec`):
 
-### 3. OBJExporter
+1. `textures/defaults/<key>/<key>.png`
+2. `textures/defaults/<key>/<key>.jpg`
+3. `textures/fallback/<key>/<key>.png`
+4. `textures/fallback/<key>/<key>.jpg`
+5. `textures/fallback/default/default.jpg` (this file does not exist in the repo; there is a loose `textures/fallback/default.jpg`, which is not used)
 
-Located in [`floor_planner/obj_exporter.py`](../floor_planner/obj_exporter.py).
+The `.mtl` is then read **only from the folder where the texture was found** (`<texture dir>/<key>.mtl`). Consequences:
 
-**Responsibilities:**
-- Generate OBJ/MTL files for 3D export
-- Use `get_element_type_from_instance()` to get registry keys from element instances
-- Coordinate TextureManager and MaterialManager
-- Write vertex, normal, texture coordinate, and face data
+- An override in `textures/defaults/<key>/` must contain the texture; a `defaults/` folder with only `<key>.mtl` is ignored by glTF export (the texture and `.mtl` come from `fallback/`). Many current `defaults/` folders are like this (copies of the fallback `.mtl`).
+- If you override the texture, also put a `.mtl` next to it.
 
-**Key Fix:**
-Uses `get_element_type_from_instance(element)` instead of `type(element).__name__.lower()` to get correct registry keys:
-- `DoubleBed` class → `'double_bed'` registry key ✓
-- ~~`DoubleBed` class → `'doublebed'` (wrong)~~ ✗
+The `map_Kd` line of these `.mtl` files is not used by the glTF export (the texture is the file found above); keep it correct for consistency and for the OBJ exporter.
 
-### 4. Registry Helper
+Roofs (`gable_roof`, `hipped_roof`, `single_slope_roof`, octants), gable ends (`gable_end_wall_*`, `gable_end_glass_*`), `greenhouse` and `solid_glass_door` are procedural and follow this order like any other element.
 
-Located in [`floor_planner/elements/registry.py`](../floor_planner/elements/registry.py).
+## MTL → glTF Material (procedural elements)
 
-**New Function:**
-```python
-def get_element_type_from_instance(element: Element) -> str:
-    """
-    Get registry key (element type) from an element instance.
-    
-    This provides the reverse mapping: Class → registry key.
-    Essential for texture/material resolution where registry keys
-    define folder and file names.
-    
-    Example:
-        bed = DoubleBed(...)
-        get_element_type_from_instance(bed)  # Returns: 'double_bed'
-    """
-```
+`_get_default_material()` builds a material named `<key>_material`:
 
-This function ensures correct mapping from element instances to registry keys, which then determine texture/material paths.
+| MTL | glTF |
+|-----|------|
+| `Kd` | `baseColorFactor` RGB (multiplies the texture; black `Kd` with a texture → white) |
+| `d` (or `Tr`) < 0.99 | `alphaMode: BLEND`, value used as `baseColorFactor` alpha |
+| `Ns` | `roughnessFactor = 1 - min(Ns/100, 1)` (no `Ns` → 0.8) |
+| `Ks` | `KHR_materials_specular`: factor = mean(Ks) clamped to 3, colour = Ks / mean |
+| `Ka` | ignored |
+| — | `metallicFactor = 0` |
 
-## Texture Resolution Flow
+The code has fallback colours for a missing `.mtl` (`0.95` grey for `wall`, `[0.7, 0.4, 0.2]` for `door`, `[0.8, 0.9, 1.0]` for `window`, otherwise `0.8` grey), but currently a missing `.mtl` makes the export fail (see Common Issues). Always ship a `.mtl` with each texture.
 
-1. **Element instantiation** in YAML config (e.g., `type: double_bed`)
-2. **Registry lookup** maps `'double_bed'` → `DoubleBed` class
-3. **3D export** calls `get_element_type_from_instance(element)` → `'double_bed'`
-4. **TextureManager** looks for:
-   - `textures/defaults/double_bed/double_bed.jpg` (user override)
-   - `textures/fallback/double_bed/double_bed.jpg` (system default)
-5. **MaterialManager** looks for:
-   - `textures/defaults/double_bed/double_bed.mtl`
-   - `textures/fallback/double_bed/double_bed.mtl`
-6. **Texture copying** to `<visualisation_dir>/textures/double_bed.jpg`
-7. **MTL file generation** references `textures/double_bed.jpg`
+Procedural elements that set `alpha_mode = "BLEND"` (`Window`, `Shower`, `FishTank`) always get `alphaMode: BLEND`, but their alpha stays 1.0 unless the `.mtl` has `d` — the visible transparency then comes from the PNG alpha channel. For glass use a PNG texture plus `d` (see `solid_glass_door`, `gable_end_glass_*`, `greenhouse` in `textures/fallback/`).
+
+The texture is copied to `<output>/textures/<filename>` and referenced as `textures/<filename>`. Tiling is controlled by the element's `texture_scale`, see [texture-tiling-guide.md](./texture-tiling-guide.md).
+
+## External Models
+
+For OBJ models, `_load_obj_as_mesh()` reads `model.mtl` next to `model.obj` and creates one primitive per `usemtl` group (unknown names → best material from the file). `map_Kd` is resolved relative to the model folder (e.g. `../balcony_door/balcony_door__glass.png` in `models/glass_panel/model.mtl`) and copied to `<output>/textures/`. `d` < 0.99 → `BLEND`. GLB models keep their embedded materials; 3DS and DAE models are converted by their own loaders. `textures/` is not used. Folder layout: [NAMING_CONVENTION.md](./NAMING_CONVENTION.md#external-models).
 
 ## Custom Textures
 
-Users can override system textures by placing files in `textures/defaults/`:
-
 ```bash
-# Override generic_storage texture
 mkdir -p textures/defaults/generic_storage/
-cp my_custom_texture.jpg textures/defaults/generic_storage/generic_storage.jpg
-cp my_custom_material.mtl textures/defaults/generic_storage/generic_storage.mtl
+cp my_texture.jpg  textures/defaults/generic_storage/generic_storage.jpg
+cp textures/fallback/generic_storage/generic_storage.mtl textures/defaults/generic_storage/
 ```
 
-The system searches defaults first, then falls back to fallback textures.
-
-## Validation
-
-Use the validation script to verify naming compliance:
-
-```bash
-python scripts/validate_texture_material_structure.py
-```
-
-**Checks:**
-- All registered elements have directories (exact match with registry keys)
-- All texture files match element names (WITH underscores)
-- All textures have corresponding `.mtl` files
-- All `.mtl` files reference correct texture filenames (WITH underscores)
-
-## Adding Textures for New Elements
-
-When adding a new element type, **you MUST create textures**:
-
-1. **Add to registry** in `floor_planner/elements/registry.py`:
-   ```python
-   'new_element': NewElement,
-   ```
-
-2. **Create texture directory** (matches registry key exactly):
-   ```bash
-   mkdir -p textures/fallback/new_element/
-   ```
-
-3. **Add texture file**:
-   ```bash
-   cp source.jpg textures/fallback/new_element/new_element.jpg
-   ```
-
-4. **Create MTL file**:
-   ```bash
-   cat > textures/fallback/new_element/new_element.mtl << 'EOF'
-   newmtl new_element
-   Ka 0.700000 0.700000 0.700000
-   Kd 0.800000 0.800000 0.800000
-   Ks 0.200000 0.200000 0.200000
-   Ns 30.0
-   map_Kd new_element.jpg
-   EOF
-   ```
-
-5. **For multi-texture elements**, add to `supplemental_textures.py`:
-   ```python
-   SUPPLEMENTAL_TEXTURES = {
-       'new_element': ['frame', 'detail'],
-   }
-   ```
-
-6. **Validate**:
-   ```bash
-   python scripts/validate_texture_material_structure.py
-   ```
+Use `.png` for transparency; it takes priority over `.jpg` in the same folder.
 
 ## Common Issues
 
-### Issue: Textures not copied to visualisation_dir
-
-**Cause:** Using class name instead of registry key for texture lookup.
-
-**Solution:** Use `get_element_type_from_instance(element)` to get registry key.
-
-### Issue: MTL file references wrong texture name
-
-**Cause:** MTL file created with old naming convention (no underscores).
-
-**Solution:** Update MTL content to use registry key naming:
-```mtl
-newmtl double_bed         # Not 'doublebed'
-map_Kd double_bed.jpg     # Not 'doublebed.jpg'
-```
-
-### Issue: Validation fails with "Missing subdirectory"
-
-**Cause:** Folder name doesn't match registry key exactly.
-
-**Solution:** Rename folder to match registry key (WITH underscores):
-```bash
-mv textures/fallback/doublebed textures/fallback/double_bed
-```
-
-## Benefits of Registry-Based System
-
-1. **Single Source of Truth**: Registry defines everything
-2. **No Manual Maintenance**: No DEFAULT_TEXTURES dict to keep in sync
-3. **Predictable**: Element name = folder name = file name
-4. **Extensible**: Add to registry → create folder → done
-5. **Consistent**: Underscores used uniformly across Python code and filesystem
-6. **Type-Safe**: Registry provides compile-time validation of element types
+- **Override has no effect** — the texture is missing from the `defaults/<key>/` folder (an `.mtl` alone is not enough), or the folder/file name differs from the registry key.
+- **`TypeError` (`'NoneType'`) raised from `_get_default_material`** — no `<key>.mtl` next to the resolved texture, or no texture folder at all for a procedural element type.
+- **Glass is opaque** — no `d` line in the `.mtl` and no alpha in the PNG.
+- **`ValueError: Element class ... not found in registry`** — the element class (not its parent) must be a value in the registry, or be an `ExternalModelElement` with `_registry_key`.
 
 ## See Also
 
-- [NAMING_CONVENTION.md](./NAMING_CONVENTION.md) - Detailed naming rules and examples
-- [supplemental_textures.py](../floor_planner/supplemental_textures.py) - Multi-texture definitions
-- [.github/copilot-instructions.md](../.github/copilot-instructions.md) - AI agent instructions
-- [element-parameters-reference.md](./element-parameters-reference.md) - Element parameters
+- [NAMING_CONVENTION.md](./NAMING_CONVENTION.md) - naming rules
+- [texture-tiling-guide.md](./texture-tiling-guide.md) - `texture_scale` and UV tiling
+- [element-parameters-reference.md](./element-parameters-reference.md) - element parameters

@@ -1,293 +1,293 @@
 # Landscaping Elements Documentation
 
-## Element Parameters Reference
+Parameter reference for the landscaping elements: vegetation, hardscape, water features and garden structures. Other element types (including the external-model plants `model_leafy_tree` / `model_leafy_shrub_1` and the glass structures / `greenhouse`) are described in [element-parameters-reference.md](element-parameters-reference.md).
 
-### Vegetation
+Examples: [examples/landscaping/](../examples/landscaping/) (`vegetation_demo.yml`, `hardscape_demo.yml`, `water_features_demo.yml`, `structures_demo.yml`, `site_plan_complete.yml`).
 
-#### Tree
-- `anchor`: tuple[float, float] - Center point of canopy
-- `diameter`: float - Canopy diameter in meters
-- `height`: float - Tree height in meters (for label)
-- `trunk_diameter`: float - Trunk diameter in meters
-- `color`: str - Canopy color (hex or color name)
-- `species`: str | None - Species name (optional)
-- `bloom_season_start`: str | None - Bloom start date in dd.mm format (optional)
-- `bloom_season_end`: str | None - Bloom end date in dd.mm format (optional)
-- `bloom_color`: str | None - Bloom color (hex or color name, optional)
-- `label`: str | None - Custom label (optional)
+## Common Notes
 
-#### Shrub
-- `anchor`: tuple[float, float] - Center point of shrub
-- `diameter`: float - Shrub diameter in meters
-- `height`: float - Shrub height in meters (for label)
-- `color`: str - Shrub color (hex or color name)
-- `species`: str | None - Species name (optional)
-- `bloom_season_start`: str | None - Bloom start date in dd.mm format (optional)
-- `bloom_season_end`: str | None - Bloom end date in dd.mm format (optional)
-- `bloom_color`: str | None - Bloom color (hex or color name, optional)
-- `label`: str | None - Custom label (optional)
+- Positions are given with `anchor_point: [x, y]` in meters. Rectangular elements use the bottom-left corner (rotation via `orientation_angle`, degrees, counterclockwise around the anchor); circular elements and `pond` use the center.
+- Rectangular *surface* elements (`lawn`, `garden_path`, `ground`, `pergola`, `raised_bed`, `deck`, `surface`, `garden_house`) take `size: [x_size, z_size]`. Linear elements (`hedge`, `fence`, `retaining_wall`, `rect_pool`, `oval_pool`) take `length` and `thickness`.
+- `color: 'invisible'` hides an element (drawn red when `Wall: show_invisible: true` is set).
+- Only `deck` and `surface` accept `v_anchor` and `height` overrides (see [Vertical Positioning](element-parameters-reference.md#vertical-positioning-v_anchor-and-height)). None of the landscaping elements accepts `id` or `texture_scale` in YAML. Some have a fixed `texture_scale` for 3D export: `garden_path` 1.5, `ground` 0.5, `deck` 0.6, `surface` 1.0.
+- Drawing order: every element, including its patterns (grass, gravel, planks, ripples, bloom overlays), is drawn at its own zorder = `v_anchor`, plus a tiny per-element offset. Default `v_anchor`: `ground` -0.10; `lawn`, `garden_path` -0.01; `pond`, `pergola`, `raised_bed`, `garden_house` 0.0; all others 0.01.
 
-#### Hedge
-- `anchor`: tuple[float, float] - Bottom-left corner point
-- `length`: float - Hedge length in meters
-- `thickness`: float - Hedge thickness in meters
-- `height`: float - Hedge height in meters (for label)
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Hedge color (default: '#556B2F')
-- `species`: str | None - Species name (optional)
-- `bloom_season_start`: str | None - Bloom start date in dd.mm format (optional)
-- `bloom_season_end`: str | None - Bloom end date in dd.mm format (optional)
-- `bloom_color`: str | None - Bloom color (hex or color name, optional)
-- `label`: str | None - Custom label (optional)
+---
 
-#### Lawn
-- `anchor`: tuple[float, float] - Bottom-left corner point
-- `length`: float - Lawn length in meters
-- `width`: float - Lawn width in meters
-- `color`: str - Grass color (default: '#7CFC00' - bright green)
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `label`: str | None - Custom label (optional)
+## Vegetation
 
-### Hardscaping
+### Tree
+**YAML type:** `tree`
 
-#### Fence
-- `anchor`: tuple[float, float] - Start point (bottom-left)
-- `length`: float - Fence length in meters
-- `style`: str - Fence style: 'solid', 'picket', 'chain-link', 'rail'
-- `height`: float - Fence height in meters
-- `thickness`: float - Fence thickness in meters
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Fence color (hex or color name)
-- `label`: str | None - Custom label (optional)
+Circular canopy with a trunk circle. Unset values come from `species` first (see [Species Database](#species-database)), then from the fallback.
+- `anchor_point`: tuple[float, float] - center of the canopy
+- `diameter`: float | None = None - canopy diameter; fallback 4.0
+- `height`: float | None = None - tree height (shown in label); fallback 10.0
+- `trunk_diameter`: float | None = None - fallback 0.3
+- `color`: str | None = None - canopy color; fallback '#228B22'
+- `trunk_color`: str | None = None - fallback '#654321'
+- `species`: str | None = None - species name; fills unset values from the database
+- `bloom_season_start` / `bloom_season_end`: str | None = None - bloom period, 'dd.mm'
+- `bloom_color`: str | None = None - color of the dashed bloom ring
+- `label`: str | None = None
 
-#### GardenPath
-- `anchor`: tuple[float, float] - Start point (bottom-left)
-- `length`: float - Path length in meters
-- `width`: float - Path width in meters
-- `material`: str - Path material: 'gravel', 'stone', 'paving', 'wood', 'mulch'
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Path color (hex or color name)
-- `label`: str | None - Custom label (optional)
+### Shrub
+**YAML type:** `shrub`
 
-#### RetainingWall
-- `anchor`: tuple[float, float] - Start point (bottom-left)
-- `length`: float - Wall length in meters
-- `height`: float - Wall height in meters
-- `thickness`: float - Wall thickness in meters
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Wall color (default: '#696969')
-- `label`: str | None - Custom label (optional)
+Circular bush without a trunk; blooms are drawn as 5 small colored circles.
+- `anchor_point`: tuple[float, float] - center of the shrub
+- `diameter`: float | None = None - fallback 1.0
+- `height`: float | None = None - fallback 1.5
+- `color`: str | None = None - fallback '#90EE90'
+- `species`, `bloom_season_start`, `bloom_season_end`, `bloom_color`, `label` - as for Tree
 
-### Water Features
+### Hedge
+**YAML type:** `hedge`
 
-#### Fountain
-- `anchor`: tuple[float, float] - Center point of fountain
-- `diameter`: float - Basin diameter in meters
-- `height`: float - Fountain height in meters
-- `style`: str - Fountain style: 'tiered', 'spray', 'simple'
-- `color`: str - Water color (default: '#87CEEB')
-- `basin_color`: str - Basin color (default: '#708090')
-- `label`: str | None - Custom label (optional)
+Rectangle; blooms are drawn as a dashed outline.
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `length`: float - hedge length
+- `thickness`: float - hedge depth
+- `height`: float | None = None - from `species`; otherwise stays unset (not shown)
+- `color`: str | None = None - fallback '#556B2F'
+- `orientation_angle`: float = 0
+- `species`, `bloom_season_start`, `bloom_season_end`, `bloom_color`, `label` - as for Tree (species fills `height`, `color` and bloom values)
 
-#### Pond
-- `anchor`: tuple[float, float] - Center point of pond
-- `length`: float - Pond length in meters
-- `width`: float - Pond width in meters
-- `shape`: str - Pond shape: 'oval', 'kidney', 'rectangular', 'irregular'
-- `color`: str - Water color (default: '#4682B4')
-- `border_color`: str - Border/edge color (default: '#2F4F4F')
-- `label`: str | None - Custom label (optional)
+### Lawn
+**YAML type:** `lawn`
 
-#### RectPool
-- `anchor`: tuple[float, float] - Center point of pool
-- `width`: float - Pool width in meters
-- `height`: float - Pool length in meters
-- `pool_color`: str - Pool water color (default: '#00BFFF' - bright blue)
-- `border_color`: str - Pool edge/border color (default: '#B0C4DE' - light steel blue)
-- `show_lanes`: bool - Whether to show lane lines (default: True)
-- `show_steps`: bool - Whether to show entry steps (default: True)
-- `label`: str | None - Custom label (optional)
+Filled rectangle with a grass texture; the label shows `size` (e.g. `8.0m×5.0m`).
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `color`: str = '#7CFC00'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
 
-#### OvalPool
-- `anchor`: tuple[float, float] - Center point of pool
-- `width`: float - Pool width in meters
-- `height`: float - Pool length in meters
-- `pool_color`: str - Pool water color (default: '#00BFFF' - bright blue)
-- `border_color`: str - Pool edge/border color (default: '#B0C4DE' - light steel blue)
-- `show_steps`: bool - Whether to show entry steps (default: True)
-- `label`: str | None - Custom label (optional)
+### External-model plants
+`model_leafy_tree` and `model_leafy_shrub_1` take the same parameters as Tree/Shrub (also resolved from `species`), plus 3D-model options. See [External Models - Vegetation](element-parameters-reference.md#external-models---vegetation).
 
-### Garden Structures
+---
 
-#### Pergola
-- `anchor`: tuple[float, float] - Bottom-left corner
-- `length`: float - Pergola length in meters
-- `width`: float - Pergola width in meters
-- `post_size`: float - Post dimension in meters (default: 0.2)
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Structure color (default: '#8B4513')
-- `label`: str | None - Custom label (optional)
+## Species Database
 
-#### RaisedBed
-- `anchor`: tuple[float, float] - Bottom-left corner
-- `length`: float - Bed length in meters
-- `width`: float - Bed width in meters
-- `height`: float - Bed height in meters
-- `border_thickness`: float - Border thickness in meters (default: 0.15)
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `fill_color`: str - Soil color (default: '#8B4513')
-- `border_color`: str - Border color (default: '#654321')
-- `label`: str | None - Custom label (optional)
+Defined in `floor_planner/elements/landscaping/species_db.py` (`SPECIES_DB`). When `species` matches a key (case-insensitive), the entry gives default values. Priority: explicit YAML value > species value > class fallback. Unknown names are ignored silently (the name is still shown as text).
 
-#### Gazebo
-- `anchor`: tuple[float, float] - Center point
-- `diameter`: float - Gazebo diameter in meters
-- `color`: str - Floor color (default: '#DEB887')
-- `roof_color`: str - Roof color (default: '#8B4513')
-- `label`: str | None - Custom label (optional)
+Parameters a species entry can fill: `height`, `diameter`, `color`, `trunk_diameter`, `trunk_color` (trees only), `bloom_season_start`, `bloom_season_end`, `bloom_color`. Tree and the external-model plants use all of them, Shrub all except the trunk values, Hedge only `height`, `color` and the bloom values.
 
-#### Deck
-- `anchor`: tuple[float, float] - Bottom-left corner
-- `length`: float - Deck length in meters
-- `width`: float - Deck width in meters
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Deck color (default: '#D2B48C')
-- `label`: str | None - Custom label (optional)
+Available keys:
+- Trees: `Lipa`, `Glediczja`, `Katalpa`, `Dąb`, `Klon`, `Brzoza`, `Świerk`, `Sosna`, `Jabłoń`, `Wiśnia`
+- Shrubs: `Heptakodium`, `Jagoda Kamczacka`, `Biała Forsycja`, `Kalina Waka`, `Guzikowiec`, `Krzewuszka`, `Ligustr`, `Lilak`, `Jaśminowiec`, `Forsycja`, `Hortensja`, `Tawuła`, `Pęcherznica`, `Kalina Pompon`
+- Berries: `Porz. czerwona`, `Porz. biała`, `Porz. czarna`, `Borówka`
 
-#### GardenHouse
-- `anchor`: tuple[float, float] - Bottom-left corner
-- `length`: float - House length in meters
-- `width`: float - House width in meters
-- `height`: float - House height in meters
-- `orientation_angle`: float - Rotation angle in degrees (default: 0)
-- `color`: str - Wall color (default: '#DEB887')
-- `roof_color`: str - Roof color (default: '#8B4513')
-- `label`: str | None - Custom label (optional)
+To add a species, add an entry to `SPECIES_DB` with only the keys you need.
+
+```yaml
+- type: tree
+  anchor_point: [5, 5]
+  species: 'Lipa'      # height 20, diameter 12, bloom 15.06-15.07 ...
+  diameter: 8.0        # explicit value wins
+```
+
+---
+
+## Vegetation Options
+
+Options are set per element class in `default_options` and can be overridden for one floor plan in its `options` section:
+
+- `show_species`: bool = false - draw the species name in the center (Tree, Shrub, Hedge)
+- `show_bloom`: bool = false - draw the bloom period text, and the bloom overlay when `bloom_color` and both bloom dates are set (Tree, Shrub, Hedge)
+- `label_color` / `id_color` - color of the label / ID text. A label is drawn only when `label_color` is set for its class.
+
+Keys: `Tree`, `Shrub`, `Hedge`, `Lawn`, or `Vegetation`. `Vegetation` is used for any of these that has no setting of its own. `model_leafy_tree` / `model_leafy_shrub_1` are drawn in 2D as a Tree / Shrub and use those keys. The other landscaping keys are `Fence`, `GardenPath`, `RetainingWall`, `Fountain`, `Pond`, `Pool` (both `rect_pool` and `oval_pool`), `Pergola`, `RaisedBed`, `Gazebo`, `Deck`, `GenericSurface` (`surface`) and `GardenHouse`. `ground` never draws a label or ID.
+
+```yaml
+default_options:
+  Vegetation:
+    show_species: true
+    show_bloom: true
+    label_color: 'black'
+  Pool:
+    label_color: 'navy'
+floor_plans:
+  - options:
+      Tree:
+        show_bloom: false   # this floor plan only
+```
+
+Note: options must be nested under a class key. A bare `label_color` placed directly under `default_options` is ignored.
+
+---
+
+## Hardscaping
+
+### Fence
+**YAML type:** `fence`
+- `anchor_point`: tuple[float, float] - start point (bottom-left)
+- `length`: float
+- `style`: str = 'solid' - 'solid', 'picket', 'chain-link', 'rail'
+- `height`: float = 1.8 - shown in label
+- `thickness`: float = 0.1
+- `color`: str = '#8B4513'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+### GardenPath
+**YAML type:** `garden_path`
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `material`: str = 'gravel' - 'gravel', 'stone', 'paving', 'wood', 'mulch'
+- `color`: str = '#D3D3D3'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+### Ground
+**YAML type:** `ground`
+
+Earth/soil area below ground level, drawn as a thin outline only. Default height 0.09 m.
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `color`: str = '#D2691E' - outline color
+- `orientation_angle`: float = 0
+- `label`: str | None = None - not drawn
+
+### RetainingWall
+**YAML type:** `retaining_wall`
+- `anchor_point`: tuple[float, float] - start point (bottom-left)
+- `length`: float
+- `height`: float - wall height; sets the number of stone courses drawn (one per 0.3 m). Required in practice: the code has no working fallback.
+- `thickness`: float = 0.3
+- `color`: str = '#696969'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+---
+
+## Water Features
+
+### Fountain
+**YAML type:** `fountain`
+- `anchor_point`: tuple[float, float] - center
+- `diameter`: float - basin diameter
+- `height`: float = 0.5
+- `style`: str = 'tiered' - 'tiered', 'spray', 'simple'
+- `color`: str = '#87CEEB' - water
+- `basin_color`: str = '#A9A9A9'
+- `label`: str | None = None
+
+### Pond
+**YAML type:** `pond`
+- `anchor_point`: tuple[float, float] - center
+- `length`: float
+- `width`: float
+- `shape`: str = 'oval' - 'oval', 'kidney', 'rectangular', 'irregular'
+- `color`: str = '#4682B4' - water
+- `border_color`: str = '#2F4F4F'
+- `label`: str | None = None
+
+### RectPool
+**YAML type:** `rect_pool`
+
+Water rectangle with a 0.15 m border; the label shows `length×thickness`. Default height 1.4 m.
+- `anchor_point`: tuple[float, float] - bottom-left corner of the water
+- `length`: float - pool length (along X before rotation)
+- `thickness`: float - pool width
+- `pool_color`: str = '#00BFFF'
+- `border_color`: str = '#B0C4DE'
+- `show_lanes`: bool = False - lane lines
+- `show_steps`: bool = True - entry steps in the bottom-left corner
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+### OvalPool
+**YAML type:** `oval_pool`
+
+Like RectPool, but oval and without `show_lanes`. `show_steps` draws semicircular steps.
+- `anchor_point`, `length`, `thickness`, `pool_color`, `border_color`, `show_steps`, `orientation_angle`, `label` - as for RectPool
+
+---
+
+## Garden Structures
+
+Glass structures and `greenhouse` are described in [Glass Structures](element-parameters-reference.md#glass-structures).
+
+### Pergola
+**YAML type:** `pergola`
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `post_size`: float = 0.2
+- `orientation_angle`: float = 0
+- `color`: str = '#8B4513'
+- `label`: str | None = None
+
+### RaisedBed
+**YAML type:** `raised_bed`
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `height`: float = 0.4
+- `border_thickness`: float = 0.15
+- `fill_color`: str = '#654321' - soil
+- `border_color`: str = '#8B4513'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+### Gazebo
+**YAML type:** `gazebo`
+
+Octagonal structure with a roof. Default height 2.5 m.
+- `anchor_point`: tuple[float, float] - center
+- `diameter`: float
+- `color`: str = '#DEB887'
+- `roof_color`: str = '#8B4513'
+- `label`: str | None = None
+
+### Deck
+**YAML type:** `deck`
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `color`: str = '#D2691E'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+- `v_anchor`: float | None = None - default 0.01
+- `height`: float | None = None - default 0.015
+
+### Surface
+**YAML type:** `surface`
+
+Generic flat surface (e.g. concrete), drawn as a faint rectangle with a black outline.
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `color`: str = '#6D645E'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+- `v_anchor`: float | None = None - default 0.01
+- `height`: float | None = None - default 0.30
+
+### GardenHouse
+**YAML type:** `garden_house`
+- `anchor_point`: tuple[float, float] - bottom-left corner
+- `size`: tuple[float, float] - (x_size, z_size)
+- `height`: float = 2.5
+- `color`: str = '#DEB887' - walls
+- `roof_color`: str = '#8B4513'
+- `orientation_angle`: float = 0
+- `label`: str | None = None
+
+---
 
 ## Color Palette Suggestions
 
-### Natural Green Tones (Vegetation)
-- `#228B22` - Forest Green (mature trees)
-- `#32CD32` - Lime Green (spring foliage)
-- `#3CB371` - Medium Sea Green (healthy trees)
-- `#90EE90` - Light Green (young trees, shrubs)
-- `#98D8C8` - Pale Turquoise (decorative shrubs)
-- `#556B2F` - Dark Olive Green (hedges)
+- **Vegetation:** `#228B22` forest green (tree default), `#90EE90` light green (shrub default), `#556B2F` dark olive (hedge default), `#3CB371`, `#32CD32`
+- **Wood / earth:** `#8B4513` saddle brown, `#D2B48C` tan, `#DEB887` burlywood, `#654321` dark brown
+- **Stone / gravel:** `#696969` dim gray, `#A9A9A9` dark gray, `#D3D3D3` light gray
+- **Water:** `#4682B4` pond, `#87CEEB` fountain, `#00BFFF` pool, `#2F4F4F` pond edge
+- **Bloom:** `#FFB6C1` light pink, `#FF69B4` hot pink, `#E6E6FA` lavender, `#ADD8E6` light blue, `#FFD700` gold, `white`
 
-### Earth Tones (Structures & Hardscaping)
-- `#8B4513` - Saddle Brown (wood structures)
-- `#D2B48C` - Tan (decks, light wood)
-- `#DEB887` - Burlywood (natural wood)
-- `#654321` - Dark Brown (borders, aged wood)
-- `#696969` - Dim Gray (stone, concrete)
-- `#A9A9A9` - Dark Gray (gravel paths)
-- `#B0B0B0` - Light Gray (paving)
+## Best Practices
 
-### Water Colors
-- `#4682B4` - Steel Blue (pond water)
-- `#87CEEB` - Sky Blue (fountain water)
-- `#2F4F4F` - Dark Slate Gray (water edges)
-- `#708090` - Slate Gray (fountain basins)
-
-### Bloom Colors
-- `#FFB6C1` - Light Pink (cherry blossoms)
-- `#FF69B4` - Hot Pink (roses)
-- `#E6E6FA` - Lavender (lavender flowers)
-- `#ADD8E6` - Light Blue (hydrangea)
-- `#FF1493` - Deep Pink (azalea)
-- `#FFD700` - Gold (yellow flowers)
-
-### Fencing
-- `#FFFFFF` - White (picket fences)
-- `#8B4513` - Brown (natural wood fences)
-- `#708090` - Slate Gray (chain-link)
-
-## Landscaping Best Practices
-
-### Planning & Layout
-
-1. **Start with Perimeter Elements**
-   - Define property boundaries first
-   - Add fences, hedges, or retaining walls along edges
-   - This provides context for interior elements
-
-2. **Work from Large to Small**
-   - Place large trees first
-   - Add structures (sheds, gazebos, pergolas)
-   - Then add paths and beds
-   - Finish with shrubs and decorative elements
-
-3. **Use Consistent Scale**
-   - Keep scale_denominator consistent across site plans
-   - Typical scales: 1:50 for detailed gardens, 1:100 for larger sites
-   - Use grid settings for alignment: `grid_major_step: 5`, `grid_minor_step: 1`
-
-### Design Principles
-
-4. **Balance and Symmetry**
-   - Create visual balance with paired elements (trees, shrubs)
-   - Use symmetry for formal designs
-   - Use asymmetry for natural, informal looks
-
-5. **Layering**
-   - Back layer: tall trees and hedges (2-12m)
-   - Middle layer: shrubs and small trees (1-3m)
-   - Front layer: low beds, paths, groundcover
-
-6. **Focal Points**
-   - Use gazebos, ponds, or specimen trees as focal points
-   - Add paths leading to focal areas
-   - Use bloom colors to draw attention seasonally
-
-### Technical Tips
-
-7. **Rotation for Natural Placement**
-   - Use `orientation_angle` to vary fence and path directions
-   - Rotate structures to avoid grid-like appearance
-   - Typical angles: 0, 45, 90, 135 degrees
-
-8. **Bloom Seasons**
-   - Use `bloom_season_start` and `bloom_season_end` for temporal planning
-   - Format: 'dd.mm' (e.g., '15.04' for April 15)
-   - Plan for continuous blooms: early spring → summer → fall
-
-9. **Species Labels**
-   - Enable with `show_species: true` in options
-   - Helps with plant selection and contractor communication
-   - Use common or botanical names consistently
-
-10. **Color Coordination**
-    - Use analogous colors for harmony (greens with blues)
-    - Use complementary colors for contrast (green with red/pink blooms)
-    - Keep hardscaping neutral to highlight vegetation
-
-### Reusable Elements
-
-11. **Create Templates**
-    - Save common combinations as reusable elements
-    - Example: patio set (deck + pergola + raised beds)
-    - Store in separate YAML files for easy reuse
-
-12. **Use Room Concept**
-    - Define outdoor "rooms" (patio area, vegetable garden, etc.)
-    - Each room has its own anchor point
-    - Easy to move entire sections
-
-### Rendering Options
-
-13. **DPI Settings**
-    - Use 300 DPI for print-quality plans
-    - Keep images under 8000 pixels per dimension
-    - For large sites: reduce DPI or increase scale_denominator
-
-14. **Labels and IDs**
-    - Use labels for presentation plans
-    - Use IDs for construction documents
-    - Set `id_color: 'gray'` for subtle identifiers
-
-15. **Markdown Reports**
-    - Automatically generated with element counts
-    - Includes species, dimensions, bloom seasons
-    - Reference for plant ordering and installation
-
-
+1. **Layout:** draw perimeter elements first (fences, hedges, retaining walls), then large trees and structures, then paths, beds and shrubs.
+2. **Scale:** use the same `scale_denominator` across site plans (1:50 for detailed gardens, 1:100 for larger sites). For alignment, set `grid_major_step` / `grid_minor_step` in the layout.
+3. **Species:** use the database keys to get consistent sizes, colors and bloom periods; override single values explicitly.
+4. **Bloom planning:** give bloom dates as 'dd.mm' (e.g. '15.04'). Use `show_bloom` on separate floor plans to compare seasons (see `vegetation_demo.yml`).
+5. **Labels:** set `label_color` (and `id_color: 'gray'` for subtle IDs) per class or via `Vegetation`, otherwise labels are not drawn.
+6. **Reuse:** keep shared elements in `reusable_elements` and pull them in with `inherited_elements`. Use groups or group templates for repeated arrangements (see [Groups](element-parameters-reference.md#groups)).
+7. **Output:** `project.dpi: 300` gives print quality. The generated Markdown report lists the vegetation with species, height, bloom period and bloom color, and the counts of the other elements.
