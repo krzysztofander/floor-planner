@@ -4,7 +4,7 @@
 
 How the 3D export finds `.mtl` material files and the textures they reference, and turns them into materials. File and folder naming rules are in [NAMING_CONVENTION.md](./NAMING_CONVENTION.md); this document does not repeat them.
 
-The active export is **glTF 2.0** (`GLTFExporter` in [`floor_planner/gltf_exporter.py`](../floor_planner/gltf_exporter.py)). The OBJ/MTL export ([`obj_exporter.py`](../floor_planner/obj_exporter.py)) still exists but is commented out in [`__main__.py`](../floor_planner/__main__.py).
+The 3D export is **glTF 2.0** (`GLTFExporter` in [`floor_planner/gltf_exporter.py`](../floor_planner/gltf_exporter.py)).
 
 Procedural elements and external models use the same rule: a `.mtl` file describes the material and references its texture with `map_Kd`. Only the place of the `.mtl` differs:
 
@@ -36,8 +36,6 @@ A `map_Kd` that cannot be found stops the export with an error. A procedural `.m
 
 - `find_texture(texture_ref, mtl_dir)` → absolute path of a texture referenced from a `.mtl` in `mtl_dir` (lookup above), or `None`
 - `get_procedural_mtl(element_type)` → `models/procedural/<key>/<key>.mtl`, or `None` if it does not exist
-- `resolve_element_textures(element_type)` → `{'all': Path}`: the `map_Kd` texture of the procedural `.mtl`, or `textures/default.jpg` (used by the OBJ exporter)
-- `copy_texture_to_output()`, `get_relative_texture_path()` → used by the OBJ exporter only
 
 ### GLTFExporter material code ([`gltf_exporter.py`](../floor_planner/gltf_exporter.py))
 
@@ -46,10 +44,6 @@ A `map_Kd` that cannot be found stops the export with an error. A procedural `.m
 - `_select_best_mtl_material()` → picks one material if the file has several (prefers one with `map_Kd`, then non-black `Kd`)
 - `_create_gltf_material()` / `_copy_texture()` → materials and textures for external models
 - `_add_specular_extension()` → `Ks` → `KHR_materials_specular`
-
-### MaterialManager ([`material_manager.py`](../floor_planner/material_manager.py))
-
-Used **only by the OBJ exporter**. `get_material(mtl_path, element_type)` parses `Ka`, `Kd`, `Ks`, `Ns` (no `d`), caches by `.mtl` path, and falls back to `get_default_material()` (Ka 0.7, Kd 0.8, Ks 0.2, Ns 30). The glTF export does not use it.
 
 ## MTL → glTF Material (procedural elements)
 

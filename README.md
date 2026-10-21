@@ -140,7 +140,7 @@ See `examples/landscaping/` for demonstrations of each element type and `docs/la
 
 ## 3D Visualization
 
-This fork includes 3D export capabilities to generate glTF 2.0 scenes with textures (the older OBJ/MTL exporter is still in the code but disabled):
+This fork includes 3D export capabilities to generate glTF 2.0 scenes with textures:
 
 ### Features
 - **Automatic 3D geometry generation** - 2D floor plan elements are automatically extruded to 3D

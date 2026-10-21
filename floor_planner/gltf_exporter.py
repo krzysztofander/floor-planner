@@ -164,12 +164,12 @@ class GLTFExporter:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create textures subdirectory (matching OBJ exporter structure)
+        # Create textures subdirectory
         self.textures_dir = self.output_dir / 'textures'
         self.textures_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize texture manager (procedural materials and texture lookup)
-        self.texture_manager = TextureManager(self.textures_dir)
+        self.texture_manager = TextureManager()
         
         self.buffer_builder = BufferBuilder()
         self.nodes: List[Dict[str, Any]] = []
@@ -344,7 +344,7 @@ class GLTFExporter:
             return self.texture_paths[cache_key]
         
         try:
-            # Copy texture to textures/ subdirectory (matching OBJ exporter structure)
+            # Copy texture to textures/ subdirectory
             dest_filename = source_path.name
             dest_path = self.textures_dir / dest_filename
             

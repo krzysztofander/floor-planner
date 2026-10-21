@@ -368,7 +368,6 @@ def main() -> None:
     # Export 3D formats if visualisation_dir is set
     if vis_dir_resolved:
         project.export_to_gltf()  # glTF 2.0 (modern, feature-rich)
-        # project.export_to_obj(config_dir)  # OBJ/MTL (legacy, commented out)
 
         # Write camera.json with initial viewer position
         _write_camera_json(

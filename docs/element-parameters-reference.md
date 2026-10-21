@@ -1435,7 +1435,7 @@ The physical height of the element. It is not used for 2D drawing; in the 3D exp
 
 ## 3D Visualization Parameters
 
-The 3D model is exported only when `project.visualisation_dir` is set: one glTF 2.0 file per floor plan (named after the floor-plan title), with textures copied to `<visualisation_dir>/textures/`, plus a `camera.json` viewer file. OBJ/MTL export exists in code but is disabled.
+The 3D model is exported only when `project.visualisation_dir` is set: one glTF 2.0 file per floor plan (named after the floor-plan title), with textures copied to `<visualisation_dir>/textures/`, plus a `camera.json` viewer file.
 
 ### Textures and Materials
 

@@ -3,7 +3,7 @@
 
 This module provides mixin classes that add 3D geometry generation capabilities
 to 2D floor plan elements. Elements can generate vertices, faces, and texture
-coordinates for export to OBJ/MTL format.
+coordinates for export to glTF.
 
 The geometry generation uses the existing vertical positioning system (v_anchor, height)
 to extrude 2D elements into 3D objects.
@@ -69,7 +69,7 @@ class Generate3DMixin(ABC):
     Abstract base class for 3D geometry generation.
     
     Subclasses must implement generate_vertices_and_indices() to provide
-    3D geometry data for OBJ export.
+    3D geometry data for glTF export.
     """
     
     @abstractmethod

@@ -24,7 +24,6 @@ sed -i 's/^map_Kd .*/map_Kd generic_storage_oak.jpg/' models/procedural/generic_
 - Model textures use `<model>__<part>.jpg`, e.g. `balcony_door__frame.jpg`.
 - When two textures would have the same name, the one that is not used by default gets a suffix naming its origin, e.g. `wall_fallback.jpg`.
 - Files that no `.mtl` references (e.g. `bench.jpg`, `stairs.jpg`, `door_frame.jpg`) are kept for future elements.
-- `default.jpg` is used by the (legacy) OBJ exporter when an element type has no material.
 
 ## Requirements
 
