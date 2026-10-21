@@ -376,6 +376,7 @@ class SolidGlassDoor(Door):
             label: str | None = None,
             door_type: str = 'hinged',
             id: str | None = None,
+            textures: dict | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
     ):
@@ -392,6 +393,7 @@ class SolidGlassDoor(Door):
             label=label,
             door_type=door_type,
             id=id,
+            textures=textures,
             v_anchor=v_anchor,
             height=height,
         )
@@ -512,6 +514,8 @@ class Composite_GlassDoor(ElementBase):
         label             – optional label string
         v_anchor          – 3D Y base of the frame  (default 0.02)
         id                – optional explicit ID
+        textures          – optional per-face textures and lighting of the glass leaf
+                            (see floor_planner.face_textures); the frame is an external model
     """
 
     _MARGIN     = 0.005       # z-fighting / clearance margin (m) on every side
@@ -533,6 +537,7 @@ class Composite_GlassDoor(ElementBase):
             label: str | None = None,
             v_anchor: float | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         super().__init__()
 
@@ -599,6 +604,7 @@ class Composite_GlassDoor(ElementBase):
                 label=None,           # label is shown on the frame
                 v_anchor=glass_v_anchor,
                 height=glass_height,
+                textures=textures,
             )
         )
 

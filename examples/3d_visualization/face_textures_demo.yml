@@ -1,0 +1,170 @@
+# Fine-grained textures for boxes (per-face textures, scale, lighting, opacity)
+# See docs/features/fine-grained-textures-for-boxes.md and the `textures`
+# parameter in docs/element-parameters-reference.md.
+
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "visualisation_3d"  # Enable 3D glTF export
+
+vars:
+  brick_tile: 0.5        # metres per texture tile
+  plaster: wall.jpg
+
+default_layout:
+  bottom_left_corner: [-1, -1]
+  top_right_corner: [7, 6]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+floor_plans:
+  - title:
+      text: "Face Textures Demo"
+      font_size: 18
+
+    elements:
+      # Front (outside): tiled every 0.5 m; back (inside): plaster;
+      # reveals of the door and window openings: own textures
+      - type: wall
+        anchor_point: [0, 0]
+        orientation_angle: 0
+        length: 5
+        thickness: 0.3
+        color: gray
+        textures:
+          default:
+            texture: wall_fallback.jpg
+          front:
+            texture: patio.jpg
+            scale_meters: brick_tile
+            specular: [0.05, 0.05, 0.05]
+          back:
+            texture: "{plaster}"
+          extras:
+            inside_left:   {texture: countertop.jpg}
+            inside_right:  {texture: countertop.jpg}
+            inside_top:    {texture: shelves.jpg}
+            inside_bottom: {texture: deck.jpg, scale_meters: 0.3}   # door: floor strip
+
+      - type: door
+        anchor_point: [0.5, 0]
+        orientation_angle: 0
+        doorway_width: 1.0
+        door_width: 0.9
+        thickness: 0.3
+        color: brown
+
+      - type: window
+        anchor_point: [2.5, 0]
+        orientation_angle: 0
+        length: 1.5
+        overall_thickness: 0.3
+        color: lightblue
+
+      # No `textures`: looks exactly as before
+      - type: wall
+        anchor_point: [5, 0]
+        orientation_angle: 90
+        length: 4
+        thickness: 0.3
+        color: gray
+
+      # Tinted vertical faces, texture repeated 3 x 3 on every face
+      - type: wall
+        anchor_point: [5, 4]
+        orientation_angle: 180
+        length: 5
+        thickness: 0.3
+        color: gray
+        textures:
+          default:
+            scale_relative: 3
+          sides:
+            diffuse: [0.8, 0.9, 1.0]
+
+      # Colour only (no texture)
+      - type: wall
+        anchor_point: [0, 4]
+        orientation_angle: 270
+        length: 4
+        thickness: 0.3
+        color: gray
+        textures:
+          default:
+            texture: null
+            diffuse: [0.6, 0.4, 0.3]
+
+      # Cabinet: oak sides, separate top, untextured bottom; `decor` is not read by this element
+      - type: generic_storage
+        anchor_point: [0.5, 2.6]
+        orientation_angle: 0
+        length: 1.2
+        thickness: 0.6
+        height: 0.9
+        label: cabinet
+        textures:
+          default:
+            texture: wardrobe.jpg
+            scale_relative: 2
+            specular: [0.2, 0.2, 0.2]
+          sides:
+            diffuse: [0.9, 0.85, 0.8]
+          top:
+            texture: tabletop.jpg
+            scale_meters: 0.3
+            shininess: 80
+          bottom:
+            texture: null
+            diffuse: [0.3, 0.3, 0.3]
+          extras:
+            decor: {texture: bench.jpg}
+
+      # Resized pair: same `scale_relative`, so both look the same (2 x 2 tiles per face)
+      - type: storage60
+        anchor_point: [2.2, 2.6]
+        orientation_angle: 0
+        length: 0.8
+        height: 0.8
+        label: small
+        textures:
+          default: {texture: drawer.jpg, scale_relative: 2}
+
+      - type: storage60
+        anchor_point: [3.2, 2.6]
+        orientation_angle: 0
+        length: 1.6
+        height: 1.6
+        label: big
+        textures:
+          default: {texture: drawer.jpg, scale_relative: 2}
+
+      # Orientation check: a different texture on every face, rotated by 90 degrees
+      - type: generic_storage
+        anchor_point: [4.4, 0.6]
+        orientation_angle: 90
+        length: 1.0
+        thickness: 0.5
+        height: 0.6
+        label: faces
+        textures:
+          front:  {texture: door.jpg}
+          back:   {texture: bench.jpg}
+          left:   {texture: stairs.jpg}
+          right:  {texture: cabinet.jpg}
+          top:    {texture: tabletop.jpg}
+          bottom: {texture: null}
+
+      # Glass door with a half-transparent leaf (in the right-hand wall)
+      - type: composite_glass_door
+        anchor_point: [5, 1.5]
+        orientation_angle: 90
+        doorway_width: 1.0
+        door_width: 0.9
+        thickness: 0.3
+        textures:
+          default:
+            opacity: 0.5
+            diffuse: [0.9, 0.95, 1.0]

@@ -1,6 +1,6 @@
 # Feature: fine-grained-textures-for-boxes
 
-**Status:** Planning (finalized, ready for implementation)  
+**Status:** Complete  
 **Priority:** Medium  
 **Estimated Effort:** 2 days
 
@@ -302,33 +302,45 @@ Stretched is `r = 1`, which is today's `texture_scale = None` behaviour. `scale_
 ## Implementation Plan
 
 ### Phase 1: Data structure
-- [ ] `floor_planner/face_textures.py`: `FaceSpec` (with `UNSET`), `FaceTextures.from_yaml()` with validation, `ResolvedFace`, `resolve_face()`
-- [ ] `RectangularGeometry3D._init_face_textures()` and `_default_textures`; `RectangularElement` / `SurfaceElement` accept `textures`, drop `texture_scale`
-- [ ] Add `textures` to the 44 box leaf classes and their intermediate bases (script, as for `id`); docstrings
-- [ ] Remove `texture_scale` from `WallND`, `Door`, `Floor`, `Ceiling`; replace the fixed values in `Window`, `Ground`, `Deck`, `GenericSurface`, `GardenPath` with `_default_textures`
-- [ ] `Composite_GlassDoor` passes `textures` to `SolidGlassDoor`
-- [ ] Variable resolution for `textures` in `variables.py`; remove the dead `'textures'` string field
+- [x] `floor_planner/face_textures.py`: `FaceSpec` (with `UNSET`), `FaceTextures.from_yaml()` with validation, `ResolvedFace`, `resolve_face()`
+- [x] `RectangularGeometry3D._init_face_textures()` and `_default_textures`; `RectangularElement` / `SurfaceElement` accept `textures`, drop `texture_scale`
+- [x] Add `textures` to the 44 box leaf classes and their intermediate bases (script, as for `id`); docstrings
+- [x] Remove `texture_scale` from `WallND`, `Door`, `Floor`, `Ceiling`; replace the fixed values in `Window`, `Ground`, `Deck`, `GenericSurface`, `GardenPath` with `_default_textures`
+- [x] `Composite_GlassDoor` passes `textures` to `SolidGlassDoor`
+- [x] Variable resolution for `textures` in `variables.py`; remove the dead `'textures'` string field
 
 ### Phase 2: Export of simple boxes
-- [ ] Split `_get_default_material()` into `.mtl` reading and material building with an override-aware cache key (incl. opacity → alpha/BLEND)
-- [ ] Per-face UVs from the resolved scale in `_generate_box_geometry_with_uvs()`
-- [ ] Per-face material groups → several primitives in `_add_procedural_element()`
-- [ ] Missing `texture` file → error naming the element and face (same behaviour as an unresolved `map_Kd`)
+- [x] Split `_get_default_material()` into `.mtl` reading and material building with an override-aware cache key (incl. opacity → alpha/BLEND)
+- [x] Per-face UVs from the resolved scale in `_generate_box_geometry_with_uvs()`
+- [x] Per-face material groups → several primitives in `_add_procedural_element()`
+- [x] Missing `texture` file → error naming the element and face (same behaviour as an unresolved `map_Kd`)
 
 ### Phase 3: Walls with openings
-- [ ] `generate_wall_with_openings()`: split the reveals into `inside_bottom` / `inside_top` / `inside_left` / `inside_right` face groups (keep `opening_edges` as the union)
-- [ ] `WallND._extra_faces`; resolve the `inside_*` faces through `extras` → `default` → …
-- [ ] Group triangles by face into primitives, as for boxes
-- [ ] Scale-aware UVs in `_generate_wall_opening_uvs()` (reveal strip sizes from the table), no clamping
+- [x] `generate_wall_with_openings()`: split the reveals into `inside_bottom` / `inside_top` / `inside_left` / `inside_right` face groups (keep `opening_edges` as the union)
+- [x] `WallND._extra_faces`; resolve the `inside_*` faces through `extras` → `default` → …
+- [x] Group triangles by face into primitives, as for boxes
+- [x] Scale-aware UVs in `_generate_wall_opening_uvs()` (reveal strip sizes from the table), no clamping
 
 ### Phase 4: Integration & docs
-- [ ] `examples/3d_visualization/face_textures_demo.yml` and a Makefile target in `extras`. Contents:
+- [x] `examples/3d_visualization/face_textures_demo.yml` and a Makefile target in `extras`. Contents:
   - a wall with brick/plaster, with and without openings, with `extras` reveals (incl. a door, whose `inside_bottom` is at floor level);
   - a cabinet with a different top and `texture: null` bottom;
   - a resized pair of boxes using `scale_relative`;
   - a glass door with opacity.
-- [ ] Add one `textures` use to `tests/all_elements` so `make tests` covers it
-- [ ] Update the three docs listed above
+- [x] Add one `textures` use to `tests/all_elements` so `make tests` covers it
+- [x] Update the three docs listed above
+
+## Implementation Notes
+
+Details settled during implementation (where the plan left room, or a literal reading would have changed existing output):
+
+- **Reveal UVs keep wall coordinates.** Today the reveals (`opening_edges`) are mapped with wall-normalized coordinates (position / wall length, height or thickness), not per strip. To keep walls without `textures` identical, stretched / `scale_relative` reveals use the same wall-normalized coordinates × `r`. `scale_meters` reveals use position in metres / `m`, so the pattern continues from the wall faces into the reveals. The strip sizes in the table above are therefore informational only.
+- **Clamp only in relative mode.** UVs of walls with openings are clamped to `0…r` for stretched / `scale_relative` (identical to today's 0–1 clamp at `r = 1`), and not clamped for `scale_meters`.
+- **Opacity from `.mtl` as parsed today.** The shared `.mtl` parser stores `d` and `Tr` in the same field. Changing that would alter third-party models that use `Tr` (e.g. `master_bed`), so the parser is unchanged; no procedural `.mtl` uses `Tr`.
+- **Material names.** The first material created for a type is `<type>_material`, further looks `<type>_material_<n>`, in order of creation. With overrides, the plain `.mtl` look can therefore get a suffixed name.
+- **The black `Kd` → white rule** (black diffuse with a texture shows the texture) applies only to `Kd` from the `.mtl`; a `diffuse` set in YAML is used as given.
+- **Non-box elements** (roofs, circular elements, greenhouse) resolve their single material through the same code with no overrides.
+- **Missing texture** named in `textures` stops the export (`WarnMsg`), like an unresolved `map_Kd`: `Texture 'x.jpg' referenced by textures.top of element 'cabinet_1' not found`.
 
 ## Testing Strategy
 

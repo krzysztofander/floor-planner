@@ -239,7 +239,6 @@ def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = No
         'bloom_season_end',
         'label',
         'material',
-        'textures',
     ]
 
     for field in string_fields:
@@ -250,5 +249,39 @@ def resolve_element_params(params: dict, global_vars: dict, room_vars: dict = No
             if isinstance(val, (str, dict)):
                 params[field] = resolve_string_param(val, merged_values)
 
+    # Per-face textures structure (box elements)
+    if isinstance(params.get('textures'), dict):
+        params['textures'] = _resolve_textures_param(params['textures'], merged_values)
+
     return params
+
+
+def _resolve_textures_entry(entry, values: dict):
+    """Resolve one ``textures`` entry: numbers/colours as expressions, ``texture`` as ``{var}``."""
+    if not isinstance(entry, dict):
+        return entry
+    resolved = {}
+    for key, value in entry.items():
+        if key == 'texture':
+            resolved[key] = resolve_string_param(value, values) if isinstance(value, (str, dict)) else value
+        else:
+            resolved[key] = resolve_constants(value, values)
+    return resolved
+
+
+def _resolve_textures_param(textures: dict, values: dict) -> dict:
+    """
+    Resolve variable references in a ``textures`` structure (see ``floor_planner.face_textures``).
+
+    Numeric keys (``scale_relative``, ``scale_meters``, ``shininess``, ``opacity`` and the
+    components of ``diffuse`` / ``specular``) accept arithmetic expressions; ``texture``
+    accepts ``{var}`` substitution. The structure itself is validated by the element.
+    """
+    resolved = {}
+    for key, entry in textures.items():
+        if key == 'extras' and isinstance(entry, dict):
+            resolved[key] = {name: _resolve_textures_entry(e, values) for name, e in entry.items()}
+        else:
+            resolved[key] = _resolve_textures_entry(entry, values)
+    return resolved
 

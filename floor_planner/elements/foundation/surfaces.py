@@ -27,7 +27,7 @@ class Floor(VertInfoFloors, SurfaceElement):
         height    – override slab thickness  (default: 0.02 m)
         label     – optional label
         id        – optional explicit ID
-        texture_scale – optional texture tiling scale in meters
+        textures  – optional per-face textures and lighting (see floor_planner.face_textures)
     """
 
     def __init__(
@@ -38,7 +38,7 @@ class Floor(VertInfoFloors, SurfaceElement):
             height: float | None = None,
             label: str | None = None,
             id: str | None = None,
-            texture_scale: float | None = None
+            textures: dict | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -49,7 +49,7 @@ class Floor(VertInfoFloors, SurfaceElement):
             height=height if height is not None else self._default_height(),
             label=label,
             id=id,
-            texture_scale=texture_scale
+            textures=textures
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -70,7 +70,7 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
         height    – override slab thickness  (default: 0.01 m)
         label     – optional label
         id        – optional explicit ID
-        texture_scale – optional texture tiling scale in meters
+        textures  – optional per-face textures and lighting (see floor_planner.face_textures)
     """
 
     def __init__(
@@ -81,7 +81,7 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
             height: float | None = None,
             label: str | None = None,
             id: str | None = None,
-            texture_scale: float | None = None
+            textures: dict | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -92,7 +92,7 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
             height=height if height is not None else self._default_height(),
             label=label,
             id=id,
-            texture_scale=texture_scale
+            textures=textures
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

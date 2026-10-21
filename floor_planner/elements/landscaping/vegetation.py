@@ -467,6 +467,7 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
             species: str | None = None,
             bloom_season_start: str | None = None,
             bloom_season_end: str | None = None,
@@ -495,6 +496,8 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             optional label for the hedge
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :param species:
             optional species name; drives automatic parameter defaults
         :param bloom_season_start:
@@ -526,7 +529,8 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
-            id=id
+            id=id,
+            textures=textures,
         )
         VegetationElement.__init__(
             self,
@@ -618,6 +622,7 @@ class Lawn(VertInfoLvl00, SurfaceElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a Lawn instance.
@@ -634,6 +639,8 @@ class Lawn(VertInfoLvl00, SurfaceElement):
             optional label for the lawn
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -642,6 +649,7 @@ class Lawn(VertInfoLvl00, SurfaceElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
 
     def _default_height(self) -> float:

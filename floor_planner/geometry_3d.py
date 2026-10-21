@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 import math
 from typing import TYPE_CHECKING
 
+from .face_textures import FaceTextures
 from .utils import rotate_point
 
 if TYPE_CHECKING:
@@ -102,7 +103,40 @@ class RectangularGeometry3D(Generate3DMixin):
         - orientation_angle - rotation around vertical axis
         - v_anchor - Y coordinate of bottom
         - height - Y extent (top = v_anchor + height)
+
+    Per-face textures and lighting come from the element's ``textures`` structure
+    (see ``floor_planner.face_textures``), falling back to the class default
+    ``_default_textures`` and then to the element type's ``.mtl`` file.
     """
+
+    # Class-level default ``textures`` structure (same format as YAML); None = no defaults
+    _default_textures: dict | None = None
+    # Names in ``textures.extras`` that this element type reads (e.g. wall opening reveals)
+    _extra_faces: tuple[str, ...] = ()
+
+    def _init_face_textures(self, textures: dict | None) -> None:
+        """
+        Validate and store the element's ``textures`` structure.
+
+        :param textures:
+            ``textures`` mapping from YAML, or None
+        :raises ValueError:
+            if the structure is invalid
+        """
+        self.face_textures = FaceTextures.from_yaml(textures)
+
+    def get_face_textures(self) -> FaceTextures:
+        """Return the element's ``textures`` structure (empty if not set)."""
+        return getattr(self, 'face_textures', None) or FaceTextures()
+
+    @classmethod
+    def get_default_face_textures(cls) -> FaceTextures:
+        """Return the validated class default ``textures`` structure (cached per class)."""
+        cache = cls.__dict__.get('_default_face_textures_cache')
+        if cache is None:
+            cache = FaceTextures.from_yaml(cls._default_textures, f"{cls.__name__}._default_textures")
+            cls._default_face_textures_cache = cache
+        return cache
     
     def generate_vertices_and_indices(self) -> tuple[list[tuple[float, float, float]], 
                                                       list[tuple[int, int, int]], 

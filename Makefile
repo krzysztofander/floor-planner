@@ -121,6 +121,7 @@ $(GLASS_PNG): examples/glass_structures/glass_demo.yml $(PYSRC)
 EXTRAS_PNG = examples/landscaping/Comprehensive_Landscaping_Site_Plan.png 
 EXTRAS_PNG += examples/3d_visualization/Simple_Room_-_3D_Export_Demo.png
 EXTRAS_PNG += examples/3d_visualization/Furnished_Room_-_3D_Visualization.png
+EXTRAS_PNG += examples/3d_visualization/Face_Textures_Demo.png
 extras: $(EXTRAS_PNG)
 
 $(word 1,$(EXTRAS_PNG)): examples/landscaping/site_plan_complete.yml $(PYSRC)
@@ -132,6 +133,10 @@ $(word 2,$(EXTRAS_PNG)): examples/3d_visualization/simple_room.yml $(PYSRC)
 	$(PYTHON) -m floor_planner -c $<
 
 $(word 3,$(EXTRAS_PNG)): examples/3d_visualization/furnished_room.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 4,$(EXTRAS_PNG)): examples/3d_visualization/face_textures_demo.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

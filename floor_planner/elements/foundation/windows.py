@@ -107,6 +107,9 @@ class Window2D:
 class Window(VertInfoWindows, RectangularElement):
     """Window in a wall."""
 
+    # Windows use 0.2 m x 0.2 m texture tiles
+    _default_textures = {'default': {'scale_meters': 0.2}}
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -117,6 +120,7 @@ class Window(VertInfoWindows, RectangularElement):
             color: str = 'black',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
             v_anchor: float | None = None,
             height: float | None = None
     ):
@@ -142,6 +146,8 @@ class Window(VertInfoWindows, RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :param v_anchor:
             optional vertical anchor point in meters; if None, uses element's default vertical level
         :param height:
@@ -165,9 +171,9 @@ class Window(VertInfoWindows, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
             v_anchor=v_anchor,
-            height=height,
-            texture_scale=0.2  # windows always use 0.2m x 0.2m texture tiles
+            height=height
         )
 
         self.window2d = Window2D(self)

@@ -27,6 +27,7 @@ class Fence(VertInfoLvl01, RectangularElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a Fence instance.
@@ -49,6 +50,8 @@ class Fence(VertInfoLvl01, RectangularElement):
             optional label for the fence
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -58,6 +61,7 @@ class Fence(VertInfoLvl01, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
         self.style = style
         self.height = height
@@ -205,6 +209,9 @@ class Fence(VertInfoLvl01, RectangularElement):
 class GardenPath(VertInfoLvl00, SurfaceElement):
     """Garden path with material patterns."""
 
+    # Texture tiles of 1.5 m x 1.5 m
+    _default_textures = {'default': {'scale_meters': 1.5}}
+
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
@@ -214,6 +221,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a GardenPath instance.
@@ -232,9 +240,10 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             optional label for the path
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         self.material = material
-        self.texture_scale = 1.5
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
@@ -242,7 +251,7 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             color=color,
             label=label,
             id=id,
-            texture_scale=self.texture_scale
+            textures=textures,
         )
 
     def _default_height(self) -> float:
@@ -444,6 +453,7 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a RetainingWall instance.
@@ -464,6 +474,8 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             optional label for the wall
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -473,6 +485,7 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
         self.height = height
 
@@ -576,6 +589,9 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
 
 class Ground(VertInfoLvlGround, SurfaceElement):
     """Literal ground/earth surface"""
+
+    # Texture tiles of 0.5 m x 0.5 m
+    _default_textures = {'default': {'scale_meters': 0.5}}
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -584,6 +600,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a Ground instance.
@@ -600,10 +617,9 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             optional label for the ground
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
-        # Set default texture_scale for Ground to 0.5 (0.5m x 0.5m tiles)
-        texture_scale = 0.5
-
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
@@ -611,7 +627,7 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             color=color,
             label=label,
             id=id,
-            texture_scale=texture_scale 
+            textures=textures,
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

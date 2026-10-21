@@ -30,6 +30,7 @@ class MultiBed(VertInfoLvl03, RectangularElement):
             color: str,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         super().__init__(
 
@@ -45,6 +46,7 @@ class MultiBed(VertInfoLvl03, RectangularElement):
 
             label=label,
             id=id,
+            textures=textures,
 
         )
         self.is_double = thickness > 1.2
@@ -124,6 +126,7 @@ class DoubleBed(MultiBed):
             color: str = 'grey',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -133,6 +136,7 @@ class DoubleBed(MultiBed):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
 class SingleBed(MultiBed):
     """
@@ -147,6 +151,7 @@ class SingleBed(MultiBed):
             color: str = 'grey',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):       
         super().__init__(label=label,
                             anchor_point=anchor_point,
@@ -154,4 +159,5 @@ class SingleBed(MultiBed):
                             length=2.0,
                             thickness=0.9,
                             color=color,
-                            id=id)
+                            id=id,
+                            textures=textures)

@@ -24,6 +24,9 @@ class WallND(VertInfoLvl01, RectangularElement):
     For corners of acute or obtuse angles please consider `renovation.elements.Polygon` class.
     """
 
+    # Extra faces read from ``textures.extras``: reveals of embedded doors/windows
+    _extra_faces = ('inside_left', 'inside_right', 'inside_top', 'inside_bottom')
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -36,7 +39,7 @@ class WallND(VertInfoLvl01, RectangularElement):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            texture_scale: float | None = None
+            textures: dict | None = None
     ):
         """
         Initialize an instance.
@@ -64,8 +67,9 @@ class WallND(VertInfoLvl01, RectangularElement):
             optional vertical anchor point in meters; if None, uses element's default vertical level
         :param height:
             optional height of the wall in meters; if None, uses default (2.7m)
-        :param texture_scale:
-            optional texture tiling scale in meters (3D export only)
+        :param textures:
+            optional per-face textures and lighting for the 3D export
+            (see ``floor_planner.face_textures``); None = class defaults and .mtl
         :return:
             freshly created instance of `WallND` class
         """
@@ -79,7 +83,7 @@ class WallND(VertInfoLvl01, RectangularElement):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            texture_scale=texture_scale
+            textures=textures
         )
         self.room_edge = room_edge
 

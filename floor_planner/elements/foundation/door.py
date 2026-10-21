@@ -770,7 +770,7 @@ class Door(VertInfoDoor, RectangularElement):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            texture_scale: float | None = None
+            textures: dict | None = None
     ):
         """
         Initialize an instance.
@@ -807,8 +807,9 @@ class Door(VertInfoDoor, RectangularElement):
             optional vertical anchor point in meters; if None, uses element's default vertical level
         :param height:
             optional height of the door in meters; if None, uses element's default height
-        :param texture_scale:
-            optional texture tiling scale in meters (3D export only)
+        :param textures:
+            optional per-face textures and lighting for the 3D export
+            (see ``floor_planner.face_textures``); None = class defaults and .mtl
         :return:
             freshly created instance of `Door` class
         """
@@ -827,7 +828,7 @@ class Door(VertInfoDoor, RectangularElement):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            texture_scale=texture_scale
+            textures=textures
         )
 
         # ── 3-D door-swing animation ─────────────────────────────────────────

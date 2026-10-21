@@ -17,6 +17,8 @@ Procedural elements and external models use the same rule: a `.mtl` file describ
 
 All texture images live in one common folder, **`textures/`**, so any `.mtl` (procedural or model) can reference any texture by file name.
 
+Box elements can override the `.mtl` per element and per face with the YAML [`textures`](element-parameters-reference.md#textures-per-face-textures-box-elements) structure (see [Per-Face Overrides](#per-face-overrides-box-elements)).
+
 ## Texture Lookup
 
 A texture referenced by `map_Kd <file>` in a `.mtl` is searched in this order (`find_texture()` in [`texture_manager.py`](../floor_planner/texture_manager.py)):
@@ -39,7 +41,10 @@ A `map_Kd` that cannot be found stops the export with an error. A procedural `.m
 
 ### GLTFExporter material code ([`gltf_exporter.py`](../floor_planner/gltf_exporter.py))
 
-- `_get_default_material(element)` → material for procedural elements (one per element type, cached)
+- `_read_procedural_mtl(element_type)` → best material of `models/procedural/<key>/<key>.mtl` and its folder (cached per type)
+- `_resolve_element_faces(element, names)` → `ResolvedFace` per face: `textures` structure → class default → `.mtl` (see [`face_textures.py`](../floor_planner/face_textures.py))
+- `_get_procedural_material(element, resolved)` → glTF material for one resolved look, cached by element type + look
+- `_get_default_material(element)` → material of a non-box procedural element as a whole (`.mtl` only)
 - `_parse_mtl_file(path)` → reads `newmtl`, `Ka`, `Kd`, `Ks`, `Ns`, `map_Kd`, `d`/`Tr`
 - `_select_best_mtl_material()` → picks one material if the file has several (prefers one with `map_Kd`, then non-black `Kd`)
 - `_create_gltf_material()` / `_copy_texture()` → materials and textures for external models
@@ -47,7 +52,7 @@ A `map_Kd` that cannot be found stops the export with an error. A procedural `.m
 
 ## MTL → glTF Material (procedural elements)
 
-`_get_default_material()` reads `models/procedural/<key>/<key>.mtl` and builds a material named `<key>_material`:
+`_get_procedural_material()` builds a material from the resolved look. Without `textures` the look is exactly the `.mtl` of `models/procedural/<key>/<key>.mtl`, and the material is named `<key>_material`:
 
 | MTL | glTF |
 |-----|------|
@@ -63,7 +68,29 @@ Without a `.mtl` the material has no texture and uses a fallback colour (`0.95` 
 
 Procedural elements that set `alpha_mode = "BLEND"` (`Window`, `Shower`, `FishTank`) always get `alphaMode: BLEND`, but their alpha stays 1.0 unless the `.mtl` has `d` — the visible transparency then comes from the PNG alpha channel. For glass use a PNG texture plus `d` (see `solid_glass_door`, `gable_end_glass_*`, `greenhouse` in `models/procedural/`).
 
-The texture is copied to `<output>/textures/<filename>` and referenced as `textures/<filename>`. Tiling is controlled by the element's `texture_scale`, see [texture-tiling-guide.md](./texture-tiling-guide.md).
+The texture is copied to `<output>/textures/<filename>` and referenced as `textures/<filename>`. Tiling is controlled per face by `scale_relative` / `scale_meters` for boxes, and by `texture_scale` for non-box geometry, see [texture-tiling-guide.md](./texture-tiling-guide.md).
+
+## Per-Face Overrides (box elements)
+
+For box elements (`RectangularGeometry3D`), each face (`front`, `back`, `left`, `right`, `top`, `bottom`, plus extra faces such as the wall reveals `inside_*`) is resolved separately, property by property:
+
+```
+box face:    face entry    → sides (vertical faces) → default → class default → .mtl → built-in
+extra face:  extras.<name>                          → default → class default → .mtl → built-in
+```
+
+| `textures` key | Overrides |
+|----------------|-----------|
+| `texture` (or `null` = none) | `map_Kd`; searched next to the `.mtl`, then in `textures/` |
+| `diffuse` | `Kd` (the black-`Kd`-with-texture → white rule applies only to `Kd` from the `.mtl`) |
+| `specular` | `Ks` |
+| `shininess` | `Ns` |
+| `opacity` | `d` |
+| `scale_relative` / `scale_meters` | UVs only (not part of the material) |
+
+The class default is the class attribute `_default_textures` (same format as YAML), e.g. `Window` tiles every 0.2 m.
+
+Faces with the same resolved look form one glTF primitive; a mesh has one primitive per distinct look, all sharing the vertex data. Materials are shared between faces and elements of the same type with the same look. The first material of a type is named `<key>_material`, further variants `<key>_material_<n>`. A texture named in `textures` that cannot be found stops the export with an error naming the element and the face.
 
 ## External Models
 
@@ -90,5 +117,6 @@ Texture names in `textures/` must be unique. Where two sources had a file with t
 ## See Also
 
 - [NAMING_CONVENTION.md](./NAMING_CONVENTION.md) - naming rules
-- [texture-tiling-guide.md](./texture-tiling-guide.md) - `texture_scale` and UV tiling
+- [texture-tiling-guide.md](./texture-tiling-guide.md) - scale and UV tiling
+- [fine-grained-textures-for-boxes.md](./features/fine-grained-textures-for-boxes.md) - design of the per-face overrides
 - [element-parameters-reference.md](./element-parameters-reference.md) - element parameters

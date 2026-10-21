@@ -148,7 +148,7 @@ This fork includes 3D export capabilities to generate glTF 2.0 scenes with textu
 - **Animations** - doors can be exported with opening animations
 - **Phong material properties** - Ka (ambient), Kd (diffuse), Ks (specular), Ns (shininess) for realistic materials
 - **Texture support** - PNG (with alpha channel) and JPG textures with automatic fallback
-- **Texture tiling** - Control texture repeat with `texture_scale` parameter
+- **Per-face textures** - Texture, tiling (`scale_relative` / `scale_meters`), lighting and opacity per face of box elements with the `textures` parameter
 - **Wall opening detection** - Doors and windows automatically create cutouts in walls for realistic visualization
 - **Multi-texture elements** - Different textures for different faces (e.g., door vs door frame)
 
@@ -233,7 +233,7 @@ See `models/README.md` for details.
 See:
 - `examples/3d_visualization/` - Demos of 3D export with textures and wall openings
 - `docs/features/wall-opening-detection.md` - Detailed documentation of wall opening feature
-- `docs/texture-tiling-guide.md` - Guide to texture tiling and `texture_scale` parameter
+- `docs/texture-tiling-guide.md` - Guide to texture tiling (`scale_relative` / `scale_meters`, `texture_scale` for roofs)
 
 ## Capabilities
 There are no build in limitations. With this module it is possible to draw a complex plans like below.

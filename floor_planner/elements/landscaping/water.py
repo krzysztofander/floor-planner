@@ -447,6 +447,7 @@ class RectPool(VertInfoLvl01, RectangularElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a RectPool instance.
@@ -471,6 +472,8 @@ class RectPool(VertInfoLvl01, RectangularElement):
             optional label for the pool
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -480,6 +483,7 @@ class RectPool(VertInfoLvl01, RectangularElement):
             color=pool_color,
             label=label,
             id=id,
+            textures=textures,
         )
         self.pool_color = pool_color
         self.border_color = border_color
@@ -610,6 +614,7 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             orientation_angle: float = 0,
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an OvalPool instance.
@@ -632,6 +637,8 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             optional label for the pool
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -641,6 +648,7 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             color=pool_color,
             label=label,
             id=id,
+            textures=textures,
         )
         self.pool_color = pool_color
         self.border_color = border_color

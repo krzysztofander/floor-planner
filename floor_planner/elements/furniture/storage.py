@@ -32,6 +32,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             color: str = 'black',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
             height: float | None = None,
             v_anchor: float | None = None
     ):
@@ -55,6 +56,8 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :param height:
             height of the storage box in meters; if None, uses default (2.0m)
         :param v_anchor:
@@ -71,6 +74,7 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
             height=height,
             v_anchor=v_anchor
         )
@@ -174,6 +178,7 @@ class Storage60(GenericStorage):
             color: str = 'black',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
             height: float | None = None,
             v_anchor: float | None = None
     ):
@@ -185,6 +190,7 @@ class Storage60(GenericStorage):
             color=color,
             label=label,
             id=id,
+            textures=textures,
             height=height,
             v_anchor=v_anchor
         )
@@ -202,6 +208,7 @@ class Storage40(GenericStorage):
             color: str = 'black',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
             height: float | None = None,
             v_anchor: float | None = None
     ):
@@ -213,6 +220,7 @@ class Storage40(GenericStorage):
             color=color,
             label=label,
             id=id,
+            textures=textures,
             height=height,
             v_anchor=v_anchor
         )
@@ -233,6 +241,7 @@ class Tabletop(VertInfoLvl03, RectangularElement):
             color: str = 'black',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
      
         super().__init__(
@@ -243,6 +252,7 @@ class Tabletop(VertInfoLvl03, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
 
         # Room properties (set by Room class if this storage box is part of a room)

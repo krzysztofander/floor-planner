@@ -49,6 +49,7 @@ Straight wall without dimensions. For corners of acute or obtuse angles, conside
 - `color`: str = 'black' - color to use for drawing the wall
 - `label`: str | None = None - optional label for the element
 - `room_edge`: bool = False - if True, this wall forms the boundary of a room (used for room validation and calculations)
+- `textures`: dict | None = None - per-face textures and lighting for the 3D export (see [textures](#textures-per-face-textures-box-elements)); walls also read the extra faces `inside_left`, `inside_right`, `inside_top`, `inside_bottom` (reveals of embedded doors/windows)
 
 ### Wall
 Wall with dimensions. Same as WallND, but includes a dimension arrow from the anchor point to the end of the wall when dimensions option is enabled.
@@ -63,6 +64,7 @@ Wall with dimensions. Same as WallND, but includes a dimension arrow from the an
 - `color`: str = 'black' - color to use for drawing the wall
 - `label`: str | None = None - optional label for the element
 - `room_edge`: bool = False - if True, this wall forms the boundary of a room
+- `textures`: dict | None = None - per-face textures and lighting for the 3D export (see [textures](#textures-per-face-textures-box-elements)); walls also read the extra faces `inside_left`, `inside_right`, `inside_top`, `inside_bottom` (reveals of embedded doors/windows)
 
 ### Window
 Window in a wall.
@@ -325,7 +327,7 @@ Room floor plane. Spans the full interior of the room at floor level.
 - `height`: float | None = None — override slab thickness; default is 0.02 m
 - `label`: str | None = None — optional label
 - `id`: str | None = None — optional explicit ID
-- `texture_scale`: float | None = None — texture tiling scale in meters (3D export)
+- `textures`: dict | None = None — per-face textures and lighting (3D export), see [textures](#textures-per-face-textures-box-elements)
 
 **Example:**
 ```yaml
@@ -351,7 +353,7 @@ Room ceiling plane. Spans the full interior of the room at ceiling level.
 - `height`: float | None = None — override slab thickness; default is 0.01 m
 - `label`: str | None = None — optional label
 - `id`: str | None = None — optional explicit ID
-- `texture_scale`: float | None = None — texture tiling scale in meters (3D export)
+- `textures`: dict | None = None — per-face textures and lighting (3D export), see [textures](#textures-per-face-textures-box-elements)
 
 **Example:**
 ```yaml
@@ -1201,6 +1203,7 @@ An `AluFrame` (static outer frame) with an animated `SolidGlassDoor` leaf inside
 - `opening_outside`: bool = False - leaf opens outward
 - `label`: str | None = None
 - `v_anchor`: float | None = None - 3D base of the frame; default 0.02
+- `textures`: dict | None = None - per-face textures and lighting of the glass leaf (see [textures](#textures-per-face-textures-box-elements)); the frame is an external model and is not affected
 
 ---
 
@@ -1308,8 +1311,9 @@ A glass greenhouse (procedural): four glass walls with a gable glass roof. In 2D
 ### Variables and Expressions
 - Top-level `vars:` (legacy name: `constants:`) define variables; `group`/`room` containers may define their own `vars` that override global ones
 - Numeric parameters (`anchor_point`, `length`, `thickness`, `width`, `size`, `height`, `v_anchor`, `diameter`, `radius`, `orientation_angle`, `doorway_width`, `door_width`, `overall_thickness`, `first_point`, `second_point`, `extension`, `extension_a`, `extension_b`, `roof_thickness`) accept a variable name or an arithmetic expression, e.g. `length: room_w - 2 * wall_t`
-- String parameters (`color`, `label`, `species`, `trunk_color`, `bloom_color`, `bloom_season_start`, `bloom_season_end`, `material`, `textures`) accept `{var}` references, e.g. `color: {wall_clr}` or `label: "shrub ({gat_1})"`; an unknown variable raises an error
+- String parameters (`color`, `label`, `species`, `trunk_color`, `bloom_color`, `bloom_season_start`, `bloom_season_end`, `material`) accept `{var}` references, e.g. `color: {wall_clr}` or `label: "shrub ({gat_1})"`; an unknown variable raises an error
 - String variables are not substituted inside arithmetic expressions
+- Inside `textures`, numeric keys (`scale_relative`, `scale_meters`, `shininess`, `opacity`, colour components) accept variables and expressions, and `texture` accepts `{var}` references
 
 ### Container Integration
 - `Room` and `Group` are containers; child `anchor_point` values are relative to the container's own `anchor_point`
@@ -1448,51 +1452,109 @@ The 3D model is exported only when `project.visualisation_dir` is set: one glTF 
   - `d` / `Tr` < 0.99 → alpha and `alphaMode: BLEND`
 - Without an `.mtl` there is no texture and the base color is a built-in default (light grey; `wall` near white, `door` brown, `window` light blue)
 - `window`, fixed window models, `shower` and `fish_tank` always use `alphaMode: BLEND`
+- Box elements can override texture, scale and lighting per face and per element with [`textures`](#textures-per-face-textures-box-elements); the `.mtl` is then only the fallback
 
-### texture_scale (Texture Tiling)
+### textures (Per-Face Textures, box elements)
 
-**Type:** `float | None`  
-**Default:** `None` (stretch texture to fit), with element-specific defaults below  
-**Unit:** meters (size of one texture tile)
+Box elements (all types whose 3D shape is a box: `wall`, `wallnd`, `window`, `door`, `solid_glass_door`, `floor`, `ceiling`, the furniture boxes, `fish_tank`, `ground`, `deck`, `surface`, `garden_path`, `lawn`, `hedge`, `fence`, `retaining_wall`, `pergola`, `raised_bed`, `garden_house`, `rect_pool`, `oval_pool`, …) accept a `textures` structure that sets texture, scale and lighting per face. `composite_glass_door` passes it to its glass leaf. Without `textures` an element looks as defined by its `.mtl`.
 
-- **None**: box-shaped geometry gets 0–1 UVs per face (texture stretched over each face)
-- **Set to value**: texture repeats every N meters: `u_max = face_length / texture_scale`, computed per face from that face's own dimensions (e.g. a 1.8 m window face with 0.2 → 9 repeats)
-- Sloped/roof geometry uses per-face planar UVs divided by `texture_scale` (1.0 if unset)
-- Texture must be seamless/tileable for good results
+**Faces** are named in the element's own frame (as with `orientation_angle = 0`; X along `length`, Z along `thickness`) and rotate with it:
 
-**Element-specific defaults:**
+| Face | Position | In the 2D plan (angle 0) |
+|------|----------|--------------------------|
+| `front` | z = 0 (anchor side of the thickness) | lower edge |
+| `back` | z = thickness | upper edge |
+| `left` | x = 0 (anchor end of the length) | left edge |
+| `right` | x = length | right edge |
+| `top` / `bottom` | top / bottom face | — |
 
-| Element | texture_scale | Overridable |
-|---------|---------------|-------------|
-| `window` | 0.2 | no |
-| `ground` | 0.5 | no |
-| `deck` | 0.6 | no |
-| `surface` | 1.0 | no |
-| `garden_path` | 1.5 | no |
-| roofs | 3.0 | no |
+**Keys of `textures`:**
+- `default` – all faces (including extra faces)
+- `sides` – `front`, `back`, `left`, `right`
+- `front`, `back`, `left`, `right`, `top`, `bottom` – one face
+- `extras` – faces with free names, read by elements whose geometry has more faces. `wall` / `wallnd` read `inside_left`, `inside_right` (jambs at the start / end of an opening), `inside_top` (head) and `inside_bottom` (sill; for doors the strip at floor level); all openings of a wall share them. Names an element does not read are ignored.
 
-`texture_scale` can be set only on elements whose constructor accepts it: `wall`, `wallnd`, `door`, `floor`, `ceiling` and external `model_*` elements (which keep their model's own UVs, so it has no effect there).
+**Keys of each entry** (all optional):
+
+| Key | Value | Meaning |
+|-----|-------|---------|
+| `texture` | file name or `null` | texture, searched next to the element type's `.mtl`, then in `textures/`; `null` = colour only |
+| `scale_relative` | float > 0 | texture repeats along each face axis: `1` = stretched once, `2` = 2 × 2 tiles, regardless of the face size |
+| `scale_meters` | float > 0 | size of one texture tile in metres |
+| `diffuse` | [r, g, b], 0–1 | base colour (multiplies the texture), as `Kd` |
+| `specular` | [r, g, b], ≥ 0 | specular colour, as `Ks` |
+| `shininess` | float ≥ 0 | specular exponent, as `Ns` (roughness = `1 − min(Ns / 100, 1)`) |
+| `opacity` | 0–1 | 1 = opaque; < 0.99 enables blending, as `d` |
+
+An entry may set only one of `scale_relative` / `scale_meters`. Unknown keys or faces, wrong values and an `extras` name equal to a face or group name raise `ValueError`.
+
+**Resolution** (per face and property, the first level that sets it wins):
+
+```
+box face:    face entry    → sides (vertical faces) → default → class default → .mtl → built-in
+extra face:  extras.<name>                          → default → class default → .mtl → built-in
+```
+
+Explicit `texture: null` counts as set. The scale is one property: the most specific level that sets either scale key wins. Built-in values when nothing is set: stretched (one texture per face), no texture, colour from the `.mtl` or the built-in default, roughness 0.8, opacity 1.
+
+**Class defaults** (same effect as the former fixed `texture_scale`):
+
+| Element | Class default |
+|---------|---------------|
+| `window` | `default: {scale_meters: 0.2}` |
+| `ground` | `default: {scale_meters: 0.5}` |
+| `deck` | `default: {scale_meters: 0.6}` |
+| `surface` | `default: {scale_meters: 1.0}` |
+| `garden_path` | `default: {scale_meters: 1.5}` |
+
+**UVs:** a face of `w × h` metres gets UVs `0…r` × `0…r` (stretched / `scale_relative: r`) or `0…w/m` × `0…h/m` (`scale_meters: m`). On walls with openings the front/back faces and reveals use wall coordinates: position / wall size × `r`, or position in metres / `m`, so tiling is continuous across the wall and its reveals.
+
+Each group of faces with the same look becomes one glTF primitive with its own material; faces and elements with the same look share materials.
 
 **YAML Example:**
 ```yaml
 elements:
-  # Window with fixed tiling (0.2m tiles)
-  - type: window
-    anchor_point: [0, 3.5]
-    orientation_angle: 0
-    length: 1.8
-    overall_thickness: 0.15
-    color: lightblue
-
-  # Wall with a repeating brick texture
+  # Wall: tiled brick outside, plaster inside, own reveals for embedded openings
   - type: wall
     anchor_point: [0, 0]
     orientation_angle: 0
     length: 5.0
-    thickness: 0.2
-    color: gray
-    texture_scale: 0.5
+    thickness: 0.3
+    textures:
+      default:
+        texture: wall_fallback.jpg
+      front:
+        texture: patio.jpg
+        scale_meters: 0.5
+      back:
+        texture: wall.jpg
+      extras:
+        inside_bottom: {texture: deck.jpg, scale_meters: 0.3}
+
+  # Cabinet: oak, separate top, untextured bottom
+  - type: generic_storage
+    anchor_point: [0.5, 2.6]
+    length: 1.2
+    thickness: 0.6
+    textures:
+      default: {texture: wardrobe.jpg, scale_relative: 2}
+      sides:   {diffuse: [0.9, 0.85, 0.8]}
+      top:     {texture: tabletop.jpg, scale_meters: 0.3, shininess: 80}
+      bottom:  {texture: null, diffuse: [0.3, 0.3, 0.3]}
 ```
+
+See `examples/3d_visualization/face_textures_demo.yml` for a complete project.
+
+### texture_scale (Texture Tiling, non-box elements)
+
+**Type:** `float | None`  
+**Unit:** meters (size of one texture tile)
+
+Box elements use [`textures`](#textures-per-face-textures-box-elements) instead. `texture_scale` remains only for geometry that is not a box:
+
+- Sloped/roof geometry uses per-face planar UVs divided by `texture_scale` (1.0 if unset); roofs use a fixed 3.0
+- External `model_*` elements accept `texture_scale`, but keep their model's own UVs, so it has no effect there
+- Texture must be seamless/tileable for good results
 
 ---
 

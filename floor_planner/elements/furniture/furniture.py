@@ -31,6 +31,7 @@ class Desk(VertInfoLvl03, RectangularElement):
             color: str = 'brown',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an instance.
@@ -48,6 +49,8 @@ class Desk(VertInfoLvl03, RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :return:
             freshly created instance of `Desk` class
         """
@@ -65,6 +68,7 @@ class Desk(VertInfoLvl03, RectangularElement):
 
             label=label,
             id=id,
+            textures=textures,
 
         )  # Standard desk width  # Standard desk depth
 
@@ -145,6 +149,7 @@ class DiningTable(VertInfoLvl03, RectangularElement):
             color: str = 'brown',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an instance.
@@ -166,6 +171,8 @@ class DiningTable(VertInfoLvl03, RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :return:
             freshly created instance of `DiningTable` class
         """
@@ -183,6 +190,7 @@ class DiningTable(VertInfoLvl03, RectangularElement):
 
             label=label,
             id=id,
+            textures=textures,
 
         )
 
@@ -261,6 +269,7 @@ class Chair(VertInfoLvl03, RectangularElement):
             color: str = 'darkgray',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an instance.
@@ -278,6 +287,8 @@ class Chair(VertInfoLvl03, RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :return:
             freshly created instance of `Chair` class
         """
@@ -289,6 +300,7 @@ class Chair(VertInfoLvl03, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
 
     def _default_height(self) -> float:
@@ -364,6 +376,7 @@ class Sofa(VertInfoLvl03, RectangularElement):
             color: str = 'darkslateblue',
             label: str | None = None,
             id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an instance.
@@ -383,6 +396,8 @@ class Sofa(VertInfoLvl03, RectangularElement):
             optional label for the element
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :return:
             freshly created instance of `Sofa` class
         """
@@ -399,6 +414,7 @@ class Sofa(VertInfoLvl03, RectangularElement):
             color=color,
             label=label,
             id=id,
+            textures=textures,
         )
 
     def _default_height(self) -> float:

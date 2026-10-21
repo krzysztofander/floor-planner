@@ -29,6 +29,6 @@ sed -i 's/^map_Kd .*/map_Kd generic_storage_oak.jpg/' models/procedural/generic_
 
 - **Format**: PNG for transparency (alpha channel: glass, cutouts), JPEG for opaque textures
 - **Size**: 1024x1024 recommended (512x512 minimum)
-- **Seamless**: textures that tile (walls, floors, roofs) should be seamless, see `texture_scale` in [docs/texture-tiling-guide.md](../docs/texture-tiling-guide.md)
+- **Seamless**: textures that tile (walls, floors, roofs) should be seamless, see `scale_meters` / `scale_relative` in [docs/texture-tiling-guide.md](../docs/texture-tiling-guide.md)
 
 See [docs/texture-material-system.md](../docs/texture-material-system.md) for the full lookup and material rules.
