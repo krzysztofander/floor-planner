@@ -20,10 +20,10 @@ sed -i 's/^map_Kd .*/map_Kd generic_storage_oak.jpg/' models/procedural/generic_
 
 ## Naming
 
-- By convention the default texture of an element type is `<element_type>.jpg` (or `.png`), e.g. `wall.jpg`.
-- Model textures use `<model>__<part>.jpg`, e.g. `balcony_door__frame.jpg`.
-- When two textures would have the same name, the one that is not used by default gets a suffix naming its origin, e.g. `wall_fallback.jpg`.
-- Files that no `.mtl` references (e.g. `bench.jpg`, `stairs.jpg`, `door_frame.jpg`) are kept for future elements.
+- Each image exists once in `textures/`: identical files were merged, keeping the shortest name, so an element type's texture is often named after another type (e.g. `generic_storage`, `storage40` and `storage60` use `wardrobe.jpg`). The `.mtl` decides which image an element uses; the file name says nothing about it.
+- Names that differ only by origin keep a suffix, e.g. `door_fallback.jpg`.
+- Subfolders work when the reference includes them (`map_Kd wood/oak.jpg` → `textures/wood/oak.jpg`). File names must still be unique across all folders, because the glTF export copies textures into one flat output folder.
+- Files that no `.mtl` references (e.g. `armchair.jpg`, `driveway.jpg`, `floor_lamp.jpg`) are kept for future elements.
 
 ## Requirements
 
