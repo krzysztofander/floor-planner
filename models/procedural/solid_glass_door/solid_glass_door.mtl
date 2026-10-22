@@ -5,4 +5,4 @@ Kd 0.85 0.90 1.00
 Ks 0.90 0.90 0.95
 Ns 150.0
 d 0.20
-map_Kd solid_glass_door.png
+map_Kd transparent/shower-plain.png

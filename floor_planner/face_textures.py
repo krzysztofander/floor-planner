@@ -4,9 +4,9 @@ Per-face textures and lighting for box-like elements (fine-grained-textures-for-
 Box elements (``RectangularGeometry3D``) accept a ``textures`` YAML structure:
 
     textures:
-      default:   {texture: oak.jpg, scale_relative: 2.0}   # all faces (and extras)
+      default:   {texture: wood/pear_wood.jpg, scale_relative: 2.0}   # all faces (and extras)
       sides:     {diffuse: [0.9, 0.9, 0.9]}               # front, back, left, right
-      top:       {texture: tabletop.jpg, scale_meters: 0.3}
+      top:       {texture: plain_named/brown-wood-table.jpg, scale_meters: 0.3}
       extras:                                              # free face names
         inside_bottom: {texture: window_sill.jpg}
 

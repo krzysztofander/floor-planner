@@ -27,12 +27,12 @@ For a registry key `<key>`:
 | Material directory | `models/procedural/<key>/` | `models/procedural/double_bed/` |
 | Material file | `<key>.mtl` | `double_bed.mtl` |
 | `newmtl` | `<key>` | `newmtl double_bed` |
-| `map_Kd` | name of a file in `textures/` (any name; by convention `<key>.jpg` or `.png`) | `map_Kd double_bed.jpg` |
+| `map_Kd` | name of a file in `textures/` (any name, may be shared with other types) | `map_Kd plain_named/white-cream-bed.jpg` |
 | Texture file | `textures/<file>`, unique within `textures/` | `textures/double_bed.jpg` |
 
-Only one texture per element type is used: the `map_Kd` of the best material in the `.mtl` (face key `'all'`). Textures that no `.mtl` references (e.g. `textures/door_frame.jpg`, `textures/desk_sides.jpg`, spare textures such as `textures/bench.jpg`) are kept for future use and are not read by the code.
+Only one texture per element type is used: the `map_Kd` of the best material in the `.mtl` (face key `'all'`). Textures that no `.mtl` references (e.g. `textures/armchair.jpg`, `textures/driveway.jpg`, `textures/floor_lamp.jpg`) are kept for future use and are not read by the code.
 
-When two textures would have the same name, the one that is not the default gets a suffix naming its origin, e.g. `wall.jpg` (default) and `wall_fallback.jpg`.
+Textures are organized in subfolders by kind (`wood/`, `tiles/`, `paving/`, `transparent/`, `plain_named/` for plain colours named after what they depict, ...), and `.mtl` files refer to them with the folder, e.g. `map_Kd wood/pear_wood.jpg`. Each image exists once; several element types may share it (e.g. `generic_storage`, `storage40` and `storage60` use `wood/pear_wood.jpg`). The `.mtl` decides which image an element uses. File names must be unique across all folders (the glTF export copies textures into one flat folder).
 
 Example (`models/procedural/generic_storage/generic_storage.mtl`):
 
@@ -43,7 +43,7 @@ Ka 0.500000 0.300000 0.200000
 Kd 0.580000 0.380000 0.230000
 Ks 1.200000 1.200000 1.200000
 Ns 250.0
-map_Kd generic_storage.jpg
+map_Kd wood/pear_wood.jpg
 ```
 
 Transparent (glass) elements use a `.png` texture and a `d` (opacity) line, e.g. `models/procedural/solid_glass_door/solid_glass_door.mtl`:
@@ -55,7 +55,7 @@ Kd 0.85 0.90 1.00
 Ks 0.90 0.90 0.95
 Ns 150.0
 d 0.20
-map_Kd solid_glass_door.png
+map_Kd transparent/shower-plain.png
 ```
 
 ## Directory Structure
@@ -64,17 +64,17 @@ map_Kd solid_glass_door.png
 models/
 ├── procedural/                  # Materials of procedural element types
 │   ├── generic_storage/
-│   │   └── generic_storage.mtl  # map_Kd generic_storage.jpg
+│   │   └── generic_storage.mtl  # map_Kd wood/pear_wood.jpg
 │   ├── gable_end_glass_left/
-│   │   └── gable_end_glass_left.mtl   # map_Kd gable_end_glass_left.png
+│   │   └── gable_end_glass_left.mtl   # map_Kd transparent/shower-plain.png
 │   └── ...
 └── balcony_door/                # External model: model files + model.mtl
     ├── model.obj
-    └── model.mtl                # map_Kd balcony_door__frame.jpg
-textures/                        # All texture images, flat
-├── generic_storage.jpg
-├── gable_end_glass_left.png     # PNG for transparency
-├── balcony_door__frame.jpg
+    └── model.mtl                # map_Kd wood/exotic_wood_1.jpg
+textures/                        # All texture images, in subfolders (unique file names)
+├── wood/pear_wood.jpg                 # used by generic_storage, storage40, storage60
+├── transparent/shower-plain.png                   # PNG for transparency (shared glass texture)
+├── wood/exotic_wood_1.jpg
 └── ...
 ```
 

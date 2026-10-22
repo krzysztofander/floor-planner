@@ -1522,14 +1522,14 @@ elements:
     thickness: 0.3
     textures:
       default:
-        texture: wall_fallback.jpg
+        texture: plain_named/light-gray-wall.jpg
       front:
-        texture: patio.jpg
+        texture: plain_named/gray-brown-patio.jpg
         scale_meters: 0.5
       back:
-        texture: wall.jpg
+        texture: surface/white-grayish-plain.jpg
       extras:
-        inside_bottom: {texture: deck.jpg, scale_meters: 0.3}
+        inside_bottom: {texture: paving/small-pebbles.jpg, scale_meters: 0.3}
 
   # Cabinet: oak, separate top, untextured bottom
   - type: generic_storage
@@ -1537,9 +1537,9 @@ elements:
     length: 1.2
     thickness: 0.6
     textures:
-      default: {texture: wardrobe.jpg, scale_relative: 2}
+      default: {texture: wood/pear_wood.jpg, scale_relative: 2}
       sides:   {diffuse: [0.9, 0.85, 0.8]}
-      top:     {texture: tabletop.jpg, scale_meters: 0.3, shininess: 80}
+      top:     {texture: plain_named/brown-wood-table.jpg, scale_meters: 0.3, shininess: 80}
       bottom:  {texture: null, diffuse: [0.3, 0.3, 0.3]}
 ```
 

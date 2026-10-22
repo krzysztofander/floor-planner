@@ -25,7 +25,7 @@ def find_texture(texture_ref: str | Path, mtl_dir: Path, textures_dir: Path = TE
     Find a texture referenced from a .mtl file.
 
     Args:
-        texture_ref: Texture reference as written in the .mtl file (e.g. 'wall.jpg')
+        texture_ref: Texture reference as written in the .mtl file (e.g. 'wood/pear_wood.jpg')
         mtl_dir: Folder that contains the .mtl file
         textures_dir: Common texture folder
 

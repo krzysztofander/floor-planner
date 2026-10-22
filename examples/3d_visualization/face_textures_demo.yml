@@ -10,7 +10,7 @@ project:
 
 vars:
   brick_tile: 0.5        # metres per texture tile
-  plaster: wall.jpg
+  plaster: surface/white-grayish-plain.jpg
 
 default_layout:
   bottom_left_corner: [-1, -1]
@@ -36,18 +36,18 @@ floor_plans:
         color: gray
         textures:
           default:
-            texture: wall_fallback.jpg
+            texture: plain_named/light-gray-wall.jpg
           front:
-            texture: patio.jpg
+            texture: plain_named/gray-brown-patio.jpg
             scale_meters: brick_tile
             specular: [0.05, 0.05, 0.05]
           back:
             texture: "{plaster}"
           extras:
-            inside_left:   {texture: countertop.jpg}
-            inside_right:  {texture: countertop.jpg}
-            inside_top:    {texture: shelves.jpg}
-            inside_bottom: {texture: deck.jpg, scale_meters: 0.3}   # door: floor strip
+            inside_left:   {texture: plain_named/light-gray-countertop.jpg}
+            inside_right:  {texture: plain_named/light-gray-countertop.jpg}
+            inside_top:    {texture: plain_named/light-brown-light-wood-shelves.jpg}
+            inside_bottom: {texture: paving/small-pebbles.jpg, scale_meters: 0.3}   # door: floor strip
 
       - type: door
         anchor_point: [0.5, 0]
@@ -107,20 +107,20 @@ floor_plans:
         label: cabinet
         textures:
           default:
-            texture: wardrobe.jpg
+            texture: wood/pear_wood.jpg
             scale_relative: 2
             specular: [0.2, 0.2, 0.2]
           sides:
             diffuse: [0.9, 0.85, 0.8]
           top:
-            texture: tabletop.jpg
+            texture: plain_named/brown-wood-table.jpg
             scale_meters: 0.3
             shininess: 80
           bottom:
             texture: null
             diffuse: [0.3, 0.3, 0.3]
           extras:
-            decor: {texture: bench.jpg}
+            decor: {texture: plain_named/brown-wood-bench.jpg}
 
       # Resized pair: same `scale_relative`, so both look the same (2 x 2 tiles per face)
       - type: storage60
@@ -130,7 +130,7 @@ floor_plans:
         height: 0.8
         label: small
         textures:
-          default: {texture: drawer.jpg, scale_relative: 2}
+          default: {texture: plain_named/medium-brown-wood-drawer.jpg, scale_relative: 2}
 
       - type: storage60
         anchor_point: [3.2, 2.6]
@@ -139,7 +139,7 @@ floor_plans:
         height: 1.6
         label: big
         textures:
-          default: {texture: drawer.jpg, scale_relative: 2}
+          default: {texture: plain_named/medium-brown-wood-drawer.jpg, scale_relative: 2}
 
       # Orientation check: a different texture on every face, rotated by 90 degrees
       - type: generic_storage
@@ -150,11 +150,11 @@ floor_plans:
         height: 0.6
         label: faces
         textures:
-          front:  {texture: door.jpg}
-          back:   {texture: bench.jpg}
-          left:   {texture: stairs.jpg}
-          right:  {texture: cabinet.jpg}
-          top:    {texture: tabletop.jpg}
+          front:  {texture: wood/exotic_wood_1.jpg}
+          back:   {texture: plain_named/brown-wood-bench.jpg}
+          left:   {texture: plain_named/gray-concrete-stairs.jpg}
+          right:  {texture: plain_named/light-brown-wood-cabinet.jpg}
+          top:    {texture: plain_named/brown-wood-table.jpg}
           bottom: {texture: null}
 
       # Glass door with a half-transparent leaf (in the right-hand wall)

@@ -4,4 +4,4 @@ Ka 0.800000 0.800000 0.800000
 Kd 0.900000 0.900000 0.900000
 Ks 0.200000 0.200000 0.200000
 Ns 4.0
-map_Kd wall.jpg
+map_Kd surface/white-grayish-plain.jpg

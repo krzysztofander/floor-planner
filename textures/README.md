@@ -1,6 +1,6 @@
 # Textures
 
-Common folder for all texture images used by the 3D export. It is flat: every file is directly in `textures/`, and file names are unique.
+Common folder for all texture images used by the 3D export, organized in subfolders by kind (e.g. `wood/`, `tiles/`, `transparent/`, `plain_named/`). File names are unique across all subfolders.
 
 Textures are never picked by name alone. A material (`.mtl`) references them with `map_Kd`:
 
@@ -20,10 +20,10 @@ sed -i 's/^map_Kd .*/map_Kd generic_storage_oak.jpg/' models/procedural/generic_
 
 ## Naming
 
-- Each image exists once in `textures/`: identical files were merged, keeping the shortest name, so an element type's texture is often named after another type (e.g. `generic_storage`, `storage40` and `storage60` use `wardrobe.jpg`). The `.mtl` decides which image an element uses; the file name says nothing about it.
-- Names that differ only by origin keep a suffix, e.g. `door_fallback.jpg`.
-- Subfolders work when the reference includes them (`map_Kd wood/oak.jpg` → `textures/wood/oak.jpg`). File names must still be unique across all folders, because the glTF export copies textures into one flat output folder.
-- Files that no `.mtl` references (e.g. `armchair.jpg`, `driveway.jpg`, `floor_lamp.jpg`) are kept for future elements.
+- Textures are organized in subfolders by kind (`wood/`, `tiles/`, `paving/`, `transparent/`, `plain_named/` for plain colours named after what they depict, ...), and `.mtl` files refer to them with the folder, e.g. `map_Kd wood/pear_wood.jpg`. Each image exists once; several element types may share it (e.g. `generic_storage`, `storage40` and `storage60` use `wood/pear_wood.jpg`). The `.mtl` decides which image an element uses.
+- The reference includes the subfolder (`map_Kd wood/pear_wood.jpg` → `textures/wood/pear_wood.jpg`). File names must be unique across all folders, because the glTF export copies textures into one flat output folder.
+- Each image exists once: identical files were merged.
+- Files that no `.mtl` references (e.g. `plain_named/gray-armchair.jpg`, `plain_named/gray-dark-gray-driveway.jpg`, `plain_named/yellow-warm-white-floor-lamp.jpg`) are kept for future elements.
 
 ## Requirements
 

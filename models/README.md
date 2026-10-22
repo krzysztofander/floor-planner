@@ -21,7 +21,7 @@ Each model has its own folder, named after the element's `_registry_key` (set in
 models/
 ├── window_90x120/
 │   ├── model.obj              # 3D model
-│   ├── model.mtl              # OBJ materials (map_Kd window_90x120__frame.jpg, ...)
+│   ├── model.mtl              # OBJ materials (map_Kd wood/exotic_wood_1.jpg, ...)
 │   └── model.transform.json   # metadata (always required)
 ├── procedural/                # materials of procedural elements (not models)
 │   └── wall/wall.mtl

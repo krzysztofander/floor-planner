@@ -104,7 +104,7 @@ The faces rotate with the element. Animated doors generate their geometry in loc
     sides:                          # front, back, left, right
       diffuse: [0.9, 0.85, 0.8]
     top:
-      texture: tabletop.jpg
+      texture: plain_named/brown-wood-table.jpg
       scale_meters: 0.3             # one tile per 0.3 m
       shininess: 80
     bottom:
@@ -119,7 +119,7 @@ Keys of `textures`: `default`, `sides`, the six face names and `extras`.
 ```yaml
   textures:
     default:
-      texture: wall.jpg
+      texture: surface/white-grayish-plain.jpg
     extras:
       inside_left:   {texture: plaster.jpg}
       inside_right:  {texture: plaster.jpg}
@@ -274,17 +274,17 @@ Stretched is `r = 1`, which is today's `texture_scale = None` behaviour. `scale_
   thickness: 0.3
   textures:
     default:
-      texture: wall_fallback.jpg
+      texture: plain_named/light-gray-wall.jpg
     front:
       texture: brick.jpg
       scale_meters: 0.5
       specular: [0.05, 0.05, 0.05]
     back:
-      texture: wall.jpg
+      texture: surface/white-grayish-plain.jpg
     extras:
-      inside_left:   {texture: wall.jpg}
-      inside_right:  {texture: wall.jpg}
-      inside_top:    {texture: wall.jpg}
+      inside_left:   {texture: surface/white-grayish-plain.jpg}
+      inside_right:  {texture: surface/white-grayish-plain.jpg}
+      inside_top:    {texture: surface/white-grayish-plain.jpg}
       inside_bottom: {texture: window_sill.jpg, scale_meters: 0.3}
 
 # Glass door with a frosted, half-transparent leaf

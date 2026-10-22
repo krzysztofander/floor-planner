@@ -210,10 +210,10 @@ models/
 │   └── generic_storage/
 │       └── generic_storage.mtl
 └── balcony_door/      # External model with its own model.mtl
-textures/              # All texture images (flat, unique names)
-├── double_bed.jpg
-├── generic_storage.jpg
-└── balcony_door__frame.jpg
+textures/              # All texture images, in subfolders (unique file names)
+├── plain_named/white-cream-bed.jpg
+├── wood/pear_wood.jpg       # shared, e.g. by generic_storage and storage40/60
+└── wood/exotic_wood_1.jpg
 ```
 
 **Material Files (.mtl):**
@@ -224,7 +224,7 @@ Ka 0.500000 0.300000 0.200000    # Ambient color
 Kd 0.580000 0.380000 0.230000    # Diffuse color
 Ks 1.200000 1.200000 1.200000    # Specular color
 Ns 250.0                         # Shininess
-map_Kd generic_storage.jpg       # Texture reference
+map_Kd wood/pear_wood.jpg              # Texture reference
 ```
 
 **Texture lookup:** a `map_Kd` texture is searched in the folder of the `.mtl` file first, then in `textures/`. The same rule applies to procedural elements and external models, so they can share textures.

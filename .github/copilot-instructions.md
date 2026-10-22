@@ -175,7 +175,7 @@ Rooms have:
    - Material directory = `models/procedural/<registry_key>/` (WITH underscores): `'generic_storage'` → `models/procedural/generic_storage/`
    - Material file = `<registry_key>.mtl`: `generic_storage.mtl`
    - MTL newmtl = Registry key: `newmtl generic_storage`
-   - MTL map_Kd = name of a texture file in `textures/` (searched next to the `.mtl` first, then in `textures/`): `map_Kd generic_storage.jpg`
+   - MTL map_Kd = name of a texture file in `textures/` (searched next to the `.mtl` first, then in `textures/`): `map_Kd wood/pear_wood.jpg` (textures can be shared between element types)
    
    **Skip textures only for:**
    - Abstract/UI elements: `line`, `polygon`, `circle`, `dimension_arrow`, `text_box`, `room`

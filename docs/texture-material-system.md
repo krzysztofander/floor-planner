@@ -28,7 +28,7 @@ A texture referenced by `map_Kd <file>` in a `.mtl` is searched in this order (`
 
 The first rule keeps models that ship their own textures working unchanged (e.g. `models/models_3rd_party/<model>/`). The second one is used by everything in this repository: `models/procedural/*/` and `models/<model>/` contain only `.mtl` (and model) files, and their textures are in `textures/`.
 
-The reference is used as written, so `map_Kd wall.jpg` finds `textures/wall.jpg`, and a relative path such as `map_Kd ../other_model/x.png` is resolved from the `.mtl` folder first and then from `textures/`.
+The reference is used as written, so `map_Kd wood/pear_wood.jpg` finds `textures/wood/pear_wood.jpg`, and a relative path such as `map_Kd ../other_model/x.png` is resolved from the `.mtl` folder first and then from `textures/`.
 
 A `map_Kd` that cannot be found stops the export with an error. A procedural `.mtl` without `map_Kd` gives an untextured (colour only) material.
 
@@ -105,7 +105,7 @@ cp my_oak.jpg textures/generic_storage_oak.jpg
 sed -i 's/^map_Kd .*/map_Kd generic_storage_oak.jpg/' models/procedural/generic_storage/generic_storage.mtl
 ```
 
-Texture names in `textures/` must be unique. Where two sources had a file with the same name, the copy that is not used by default got a suffix naming its origin (e.g. `wall_fallback.jpg`, `deck_fallback.jpg`).
+Texture file names must be unique across all folders of `textures/`. Textures are organized in subfolders by kind (`wood/`, `tiles/`, `paving/`, `transparent/`, `plain_named/` for plain colours named after what they depict, ...), and `.mtl` files refer to them with the folder, e.g. `map_Kd wood/pear_wood.jpg`. Each image exists once; several element types may share it (e.g. `generic_storage`, `storage40` and `storage60` use `wood/pear_wood.jpg`). The `.mtl` decides which image an element uses.
 
 ## Common Issues
 

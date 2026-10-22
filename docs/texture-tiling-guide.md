@@ -54,15 +54,15 @@ elements:
     length: 5.0
     thickness: 0.3
     textures:
-      front: {texture: patio.jpg, scale_meters: 0.5}
-      back:  {texture: wall.jpg}
+      front: {texture: plain_named/gray-brown-patio.jpg, scale_meters: 0.5}
+      back:  {texture: surface/white-grayish-plain.jpg}
 
   # Cabinet that keeps its look when resized: 2 x 2 tiles on every face
   - type: storage60
     anchor_point: [2.2, 2.6]
     length: 0.8
     textures:
-      default: {texture: drawer.jpg, scale_relative: 2}
+      default: {texture: plain_named/medium-brown-wood-drawer.jpg, scale_relative: 2}
 
   # Window: 0.2 m tiles from the class default, no YAML needed
   - type: window
