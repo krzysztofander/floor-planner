@@ -41,6 +41,17 @@ To generate images of templates and other examples use make
 make all
 ```
 
+### Testing
+The pytest suite runs every scene project (in a temporary folder) and checks it: the run succeeds, the glTF files are consistent, and each PNG matches its golden image in `tests/golden/`. Contract tests check rules that all element types must follow.
+```bash
+pip install -r requirements/dev.txt
+make check          # full suite, in parallel (about 10 s)
+make check-fast     # contract tests only
+python -m pytest -m slow --scene vege          # selected scenes
+python -m pytest -m slow -n auto --update-golden   # refresh golden images after an intended visual change
+```
+See `docs/features/pytest-regression-suite.md`.
+
 The module uses the config in YAML where properties of each element are set. These properties include location, orientation, size, color and so on.
 There are also global properties that control appearance of some embedded elements line dimension lines, labels, room area, etc.
 

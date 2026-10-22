@@ -32,3 +32,10 @@ packages = [
     "floor_planner",
     "floor_planner.elements"
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]
+markers = [
+    "slow: runs whole YAML scene projects (deselect with -m \"not slow\")",
+]

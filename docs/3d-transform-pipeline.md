@@ -5,7 +5,7 @@ applied, and what is done by the Python floor-planner tool vs. the 3D player at
 runtime.
 
 glTF 2.0 is the only 3D exporter (`project.export_to_gltf()` in
-`floor_planner/__main__.py`).
+`run_project()`, `floor_planner/runner.py`).
 External models in `.glb`/`.gltf`, `.obj`, `.dae` or `.3ds` format are all
 converted into glTF meshes by `floor_planner/gltf_exporter.py`.
 

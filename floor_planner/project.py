@@ -40,37 +40,42 @@ class Project:
         self.dpi = dpi
         self.visualisation_dir = visualisation_dir
 
-    def render_to_pdf(self, output_path: str) -> None:
+    def render_to_pdf(self, output_path: str) -> Path:
         """
         Render floor plans to single PDF file with each floor plan on its page.
 
         :param output_path:
             path to output file
         :return:
-            None
+            path of the written PDF file
         """
         with PdfPages(output_path) as pdf:
             for floor_plan in self.floor_plans:
                 pdf.savefig(floor_plan.fig, dpi=self.dpi)
+        return Path(output_path)
 
-    def render_to_png(self, output_dir: str) -> None:
+    def render_to_png(self, output_dir: str) -> list[Path]:
         """
         Render floor plans to separate PNG files from the same directory.
 
         :param output_dir:
             path to output directory
         :return:
-            None
+            paths of the written PNG files, in floor-plan order
         """
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
+        written = []
         for i, floor_plan in enumerate(self.floor_plans):
             title = floor_plan.title or f"{i}.png"
             if not title.endswith('png'):
                 title += '.png'
-            floor_plan.fig.savefig(os.path.join(output_dir, title), dpi=self.dpi)
+            png_path = Path(output_dir) / title
+            floor_plan.fig.savefig(png_path, dpi=self.dpi)
+            written.append(png_path)
+        return written
     
-    def export_to_gltf(self) -> None:
+    def export_to_gltf(self) -> list[Path]:
         """
         Export floor plans to glTF 2.0 format for 3D visualization.
         
@@ -83,12 +88,15 @@ class Project:
         - Transform hierarchy (placement × normalization)
         - Materials and textures
         
+        An error while exporting a floor plan is printed and re-raised.
+        
         :return:
-            None
+            paths of the written glTF files, in floor-plan order
+            (empty if no visualisation_dir is set)
         """
         if self.visualisation_dir is None:
             # No visualisation directory specified, skip 3D export
-            return
+            return []
         
         output_dir = Path(self.visualisation_dir)
         
@@ -99,6 +107,7 @@ class Project:
         print(f"Floor plans: {len(self.floor_plans)}")
         print()
         
+        written = []
         for i, floor_plan in enumerate(self.floor_plans):
             try:
                 # Generate filename from floor plan title
@@ -112,11 +121,12 @@ class Project:
                 
                 output_path = floor_plan.export_to_gltf(output_dir, filename, v_anchor=floor_plan.v_anchor)
                 print(f"  ✓ Exported: {output_path.name}")
+                written.append(Path(output_path))
             except Exception as e:
                 print(f"  ✗ Error exporting floor plan '{floor_plan.title}': {e}")
-                import traceback
-                traceback.print_exc()
+                raise
         
         print(f"{'=' * 80}")
         print("glTF export complete")
         print(f"{'=' * 80}\n")
+        return written

@@ -32,6 +32,16 @@ make all
 ### Testing & Regression Tests
 **CRITICAL: After ANY source code changes, ALWAYS run:**
 ```bash
+make check
+```
+
+This runs the pytest suite (`tests/`): every scene project in a temporary folder with
+glTF invariants and a comparison of each PNG against `tests/golden/`, plus contract tests
+over the element registry. After an intended visual change, refresh the golden images with
+`.venv/bin/python -m pytest -m slow -n auto --update-golden` and review the image diffs.
+
+To also rebuild the images in the repository:
+```bash
 make clean; make tests
 ```
 
@@ -176,7 +186,8 @@ Rooms have:
    - Update or create example YAML files in `examples/`
 
 7. **Run regression tests**:
-   - Execute `make all` to ensure nothing broke
+   - Execute `make check` (and `make all`) to ensure nothing broke
+   - New scene projects: add them to `SCENES` in `tests/conftest.py` and generate their golden images
    - Verify new elements render correctly in 2D
    - Test 3D export with `visualisation_dir` to verify textures copy correctly
 

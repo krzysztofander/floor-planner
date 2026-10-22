@@ -1,6 +1,6 @@
 # Feature: pytest-regression-suite
 
-**Status:** Planning (decisions recorded, awaiting final review)  
+**Status:** Phase 1 complete (phase 2: 3D golden, pending)  
 **Priority:** Medium  
 **Estimated Effort:** 2–3 days (phase 1)
 
@@ -224,26 +224,37 @@ Not part of this feature. They are added mostly together with new code, and retr
 ## Implementation Plan
 
 ### Phase 1: Testability (code changes)
-- [ ] `FloorPlannerError(SystemExit)`; `WarnMsg` raises it
-- [ ] `Project.export_to_gltf` re-raises (CLI and `make` fail on export errors); `render_to_png` / `export_to_gltf` return written paths
-- [ ] `run_project(config_path, dpi=None) -> RunResult`; `main()` uses it
-- [ ] `reset_global_state()` (element counter, id counters, element options, group templates, `plt.close('all')`); `run_project` calls it
-- [ ] Rotation seeded per anchor point in `LeafyTree` / `LeafyShrub1`; local RNG in `GardenPath`
-- [ ] Check that `make all tests extras` still passes and that the 2D outputs are unchanged. Only tree rotations may change in 3D.
+- [x] `FloorPlannerError(SystemExit)`; `WarnMsg` raises it
+- [x] `Project.export_to_gltf` re-raises (CLI and `make` fail on export errors); `render_to_png` / `export_to_gltf` return written paths
+- [x] `run_project(config_path, dpi=None) -> RunResult`; `main()` uses it
+- [x] `reset_global_state()` (element counter, id counters, element options, group templates, `plt.close('all')`); `run_project` calls it
+- [x] Rotation seeded per anchor point in `LeafyTree` / `LeafyShrub1`; local RNG in `GardenPath`
+- [x] Check that `make all tests extras` still passes and that the 2D outputs are unchanged. Only tree rotations may change in 3D.
 
 ### Phase 1: Test suite
 - [x] `requirements/dev.txt` (`pytest`, `pytest-xdist`, pinned in `constraints.txt`) and installed in `.venv`
-- [ ] `pytest.ini` / `[tool.pytest.ini_options]` with markers and `testpaths = ["tests"]`
-- [ ] `tests/conftest.py`: options, explicit `SCENES` list (+ existence check), `copy_scene`, autouse reset fixture
-- [ ] `tests/scenes/gltf_checks.py`: accessor decoding, invariants (a)–(c), `gltf_summary()`
-- [ ] `tests/scenes/test_scenes.py`: scene test at 100 dpi with invariants and 2D golden; 3D golden behind `--golden-3d`
-- [ ] `tests/contract/test_registry.py`
-- [ ] `.gitignore`: `!tests/golden/**`; generate the 2D golden images with `--update-golden` and commit them
-- [ ] Makefile target `check` (`pytest`) and `check-fast` (`pytest -m "not slow"`)
-- [ ] Run all scenes; fix or document invariant failures found in existing scenes
+- [x] `pytest.ini` / `[tool.pytest.ini_options]` with markers and `testpaths = ["tests"]`
+- [x] `tests/conftest.py`: options, explicit `SCENES` list (+ existence check), `copy_scene`, autouse reset fixture
+- [x] `tests/scenes/gltf_checks.py`: accessor decoding, invariants (a)–(c), `gltf_summary()`
+- [x] `tests/scenes/test_scenes.py`: scene test at 100 dpi with invariants and 2D golden; 3D golden behind `--golden-3d`
+- [x] `tests/contract/test_registry.py`
+- [x] `.gitignore`: `!tests/golden/**`; generate the 2D golden images with `--update-golden` and commit them
+- [x] Makefile target `check` (`pytest`) and `check-fast` (`pytest -m "not slow"`)
+- [x] Run all scenes; fix or document invariant failures found in existing scenes
 
 ### Phase 2: 3D golden
 - [ ] After the planned changes: generate the 3D golden summaries, turn `--golden-3d` on by default
+
+## Implementation Notes (phase 1)
+
+- **Entry point** lives in `floor_planner/runner.py` (`run_project`, `RunResult`, plus the loading helpers moved from `__main__.py`); `__main__.py` only parses arguments.
+- **Room list order fixed.** `FloorPlan.draw_report` grouped rooms in a `set`, so the "room areas" list order followed memory addresses and changed between runs (seen in `tests/play_with_doors`). It now keeps the declaration order; without this the 2D golden comparison would fail at random.
+- **`copy_scene`** skips generated outputs (`*.png`, `*.pdf`, `*.gltf`, `*.bin`, `*.md`, `camera.json`) and dangling symlinks (e.g. a local `run_3d_walker_simling.sh` in `tests/test_invisible_openings/visualisation_3d/`).
+- **`GardenPath`** uses local `random.Random(42/43)`, which produces the same sequence as before, so its 2D pattern is unchanged.
+- **Golden images:** 37 PNGs at 100 dpi, 4.7 MB in `tests/golden/2d/`; file names follow the floor-plan titles (they may contain spaces).
+- **Speed:** contract tests about 1 s; the full suite with `-n auto` about 8 s.
+- **Commands:** `make check` (full suite, `-n auto`), `make check-fast` (`-m "not slow"`); refresh golden images with `python -m pytest -m slow -n auto --update-golden`.
+- **New scenes** must be added to `SCENES` in `tests/conftest.py`; a contract test fails for listed files that are missing or have no `floor_plans`.
 
 ## Testing Strategy (of the suite itself)
 

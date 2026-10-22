@@ -4,7 +4,7 @@ PYSRC += $(wildcard floor_planner/elements/*.py)
 PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
 PYSRC += $(wildcard floor_planner/elements/foundation/*.py)
 
-.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs glass_structures
+.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs glass_structures check check-fast
 
 all: room_templates group_templates elements furniture simple landscaping roofs glass_structures
 
@@ -186,6 +186,19 @@ $(word 7,$(TESTS_PNG)): tests/play_with_double_doors/project_main.yml tests/play
 $(word 8,$(TESTS_PNG)): tests/vege/project_main.yml tests/vege/*.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
+
+
+# PYTEST REGRESSION SUITE
+# -----------------------
+# Scene tests (invariants + 2D golden images) and contract tests, outputs in a temp dir.
+# Refresh golden images after an intended visual change:
+#   $(PYTHON) -m pytest -m slow -n auto --update-golden
+check:
+	$(PYTHON) -m pytest -n auto
+
+# Contract tests only (seconds)
+check-fast:
+	$(PYTHON) -m pytest -m "not slow"
 
 
 # Clean generated outputs
