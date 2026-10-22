@@ -297,11 +297,11 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         """Draw small dots to represent gravel."""
         import math
         import random
-        random.seed(42)  # Consistent pattern
+        rng = random.Random(42)  # Consistent pattern (local, does not reseed the global generator)
         num_dots = int(self.x_axis_size * self.z_axis_size * 50)  # density
         for _ in range(num_dots):
-            x_offset = random.uniform(0, self.x_axis_size)
-            y_offset = random.uniform(0, self.z_axis_size)
+            x_offset = rng.uniform(0, self.x_axis_size)
+            y_offset = rng.uniform(0, self.z_axis_size)
             point = rotate_point(
                 self.anchor_point,
                 x_offset,
@@ -372,14 +372,14 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         """Draw organic texture for mulch."""
         import math
         import random
-        random.seed(43)
+        rng = random.Random(43)  # Consistent pattern (local, does not reseed the global generator)
         # Draw short random lines for organic texture
         num_lines = int(self.x_axis_size * self.z_axis_size * 20)
         for _ in range(num_lines):
-            x1 = random.uniform(0, self.x_axis_size)
-            y1 = random.uniform(0, self.z_axis_size)
-            angle = random.uniform(0, 360)
-            length = random.uniform(0.05, 0.15)
+            x1 = rng.uniform(0, self.x_axis_size)
+            y1 = rng.uniform(0, self.z_axis_size)
+            angle = rng.uniform(0, 360)
+            length = rng.uniform(0.05, 0.15)
             x2 = x1 + length * math.cos(math.radians(angle))
             y2 = y1 + length * math.sin(math.radians(angle))
             # Clamp to path bounds
