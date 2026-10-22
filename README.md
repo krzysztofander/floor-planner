@@ -26,6 +26,10 @@ I found out the original module (base for this fork) but it turned out to be ins
 
 ## Usage
 Create Python virtual environment, download this module and install all requirements.
+```bash
+pip install -r requirements.txt            # runtime
+pip install -r requirements/dev.txt        # runtime + test tools (pytest, pytest-xdist)
+```
 
 To generate floor plans, run:
 ```bash

@@ -1,0 +1,5 @@
+# Development and test tools (pytest-regression-suite); runtime requirements included
+-c constraints.txt
+-r base.txt
+pytest==9.1.1
+pytest-xdist==3.8.0
