@@ -210,9 +210,10 @@ class FloorPlan:
         all_labeled_rooms = [room for room in rooms if room.label]
 
         # Grouped iteration over labeled rooms, the grouping element is room's purpose
-        purposed_room_group = defaultdict(set)
+        # (lists keep the declaration order, so the output is the same in every run)
+        purposed_room_group = defaultdict(list)
         for lroom in all_labeled_rooms:
-            purposed_room_group[lroom.purpose].add(lroom)
+            purposed_room_group[lroom.purpose].append(lroom)
 
         for purpose, labeled_rooms in purposed_room_group.items():
             title = f"{purpose if purpose is not None else 'Other'} room areas:"
