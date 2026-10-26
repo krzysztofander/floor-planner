@@ -2,6 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "test_textures",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "floor_planner",
+            "args": [
+                "-c",
+                "tests/play_with_textures/face_textures_test.yml"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
             "name": "test_wall_openings",
             "type": "debugpy",
             "request": "launch",

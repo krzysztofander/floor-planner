@@ -151,7 +151,7 @@ TESTS_PNG += tests/play_with_doors/output/some_floor.png
 TESTS_PNG += tests/all_elements/output/All_Elements.png
 TESTS_PNG += tests/play_with_double_doors/output/some_floor.png
 TESTS_PNG += tests/vege/output/vege.png
-
+TESTS_PNG += tests/play_with_textures/output/textures_test.png
 
 tests: $(TESTS_PNG)
 
@@ -187,6 +187,12 @@ $(word 8,$(TESTS_PNG)): tests/vege/project_main.yml tests/vege/*.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
+$(word 9,$(TESTS_PNG)): tests/play_with_textures/face_textures_test.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+
+TESTS_PNG += tests/play_with_textures/output/face_textures_test.png
 
 # PYTEST REGRESSION SUITE
 # -----------------------
