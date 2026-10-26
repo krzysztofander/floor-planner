@@ -191,9 +191,6 @@ $(word 9,$(TESTS_PNG)): tests/play_with_textures/face_textures_test.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
-
-TESTS_PNG += tests/play_with_textures/output/face_textures_test.png
-
 # PYTEST REGRESSION SUITE
 # -----------------------
 # Scene tests (invariants + 2D golden images) and contract tests, outputs in a temp dir.

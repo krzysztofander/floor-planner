@@ -18,7 +18,7 @@ from floor_planner.state import reset_global_state
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GOLDEN_DIR = REPO_ROOT / 'tests' / 'golden'
 
-# Scene projects run by the scene tests (the configs the Makefile builds).
+# Scene projects run by the scene tests (the configs the Makefile builds, plus test-only scenes).
 # Listed explicitly on purpose; automatic discovery may come later.
 SCENES = [
     # room templates
@@ -56,6 +56,7 @@ SCENES = [
     'tests/all_elements/project_main.yml',
     'tests/play_with_double_doors/project_main.yml',
     'tests/vege/project_main.yml',
+    'tests/play_with_textures/face_textures_test.yml',
 ]
 
 # Generated outputs that are not copied with a scene (inputs only)
