@@ -2,13 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "test_textures",
+            "name": "test_walls_textures",
             "type": "debugpy",
             "request": "launch",
             "module": "floor_planner",
             "args": [
                 "-c",
-                "tests/play_with_textures/face_textures_test.yml"
+                "tests/play_with_textures/face_textures_walls_test.yml"
             ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",

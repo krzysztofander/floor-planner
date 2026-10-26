@@ -1,0 +1,173 @@
+# Fine-grained textures for boxes (per-face textures, scale, lighting, opacity)
+# See docs/features/fine-grained-textures-for-boxes.md and the `textures`
+# parameter in docs/element-parameters-reference.md.
+
+project:
+  dpi: 100
+  pdf_file: null
+  png_dir: "output"
+  visualisation_dir: "output/3d"  # Enable 3D glTF export
+
+default_layout:
+  bottom_left_corner: [-1, -1]
+  top_right_corner: [19, 16]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+vars:
+  szklo: transparent/shower-plain.png
+  szklo2: transparent/green-glass-tile.png
+  szklo3: special/wither3_scene.jpg
+
+floor_plans:
+  - title:
+      text: "textures_walls_test"
+      font_size: 18
+
+    elements:
+      - type: wall
+        anchor_point: [0, 2]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 0.5
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          front:  {texture: plain_named/blue-pool-water.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          back:   {texture: plain_named/dark-gray-black-stove.jpg}
+          top:    {texture: plain_named/cyan-fountain-water.jpg}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+          extras:
+            inside_left:   {texture: special/wither3_scene.jpg, scale_relative: 6}
+            inside_right:  {texture: special/wither3_scene.jpg}
+            inside_top:    {texture: paving/flat-limestone.jpg}
+            inside_bottom: {texture: paving/small-pebbles.jpg, scale_meters: 0.5}   # door: floor strip
+      - type: window
+        anchor_point: [1.50, 2]
+        length: 1
+        overall_thickness: 0.5
+        orientation_angle: 0
+        color: invisible
+
+      - type: wall
+        anchor_point: [0, 5]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 0.5
+        textures:
+          default:   
+            texture: "{szklo}"
+            opacity: 0.01
+      - type: window
+        anchor_point: [1.50, 5]
+        length: 2
+        overall_thickness: 0.5
+        orientation_angle: 0
+        color: black
+
+
+      - type: wall
+        anchor_point: [4, 5]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 0.1
+        textures:
+          default:   {texture:  special/wither3_scene.jpg}
+      - type: wall
+        anchor_point: [4, 13]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 0.1
+        textures:
+          default:   {texture:  special/wither3_scene.jpg}
+
+      - type: wall
+        anchor_point: [4, 9]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo}"
+            opacity: 0.4
+      - type: window
+        anchor_point: [5, 9]
+        length: 1
+        overall_thickness: 1
+        orientation_angle: 0
+        color: black
+      - type: wall
+        anchor_point: [4, 14]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 0.2
+        textures:
+          default:   
+            texture: "{szklo}"
+            scale_meters: 0.25
+            opacity: 0.95
+
+      - type: wall
+        anchor_point: [9, 2]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo2}"
+            scale_meters: 0.5
+            opacity: 0.1
+      - type: wall
+        anchor_point: [9, 6]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo2}"
+            scale_meters: 0.5
+            opacity: 0.5
+      - type: wall
+        anchor_point: [9, 10]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo2}"
+            scale_meters: 0.5
+            opacity: 0.9
+    
+
+      - type: wall
+        anchor_point: [13.5, 2]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo3}"
+            scale_meters: 0.5
+            opacity: 0.1
+      - type: wall
+        anchor_point: [13.5, 6]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo3}"
+            scale_meters: 0.5
+            opacity: 0.5
+      - type: wall
+        anchor_point: [13.5, 10]
+        orientation_angle: 0
+        length: 4.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo3}"
+            scale_meters: 0.5
+            opacity: 0.9
