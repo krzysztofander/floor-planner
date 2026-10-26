@@ -169,5 +169,5 @@ floor_plans:
         textures:
           default:   
             texture: "{szklo3}"
-            scale_meters: 0.5
+            scale_meters: 1
             opacity: 0.9

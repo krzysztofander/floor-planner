@@ -57,6 +57,7 @@ SCENES = [
     'tests/play_with_double_doors/project_main.yml',
     'tests/vege/project_main.yml',
     'tests/play_with_textures/face_textures_test.yml',
+    'tests/play_with_textures/face_textures_walls_test.yml',
 ]
 
 # Generated outputs that are not copied with a scene (inputs only)
