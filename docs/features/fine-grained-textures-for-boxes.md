@@ -138,6 +138,7 @@ Keys of each entry (in `default`, `sides`, a face, or `extras`), all optional:
 | `specular` | [r, g, b], ≥ 0 | specular colour | `Ks` |
 | `shininess` | float ≥ 0 | specular exponent | `Ns` |
 | `opacity` | float 0–1 | 1.0 = opaque (100 %); < 0.99 enables blending | `d` (`Tr` = 1 − d) |
+| `double_sided` | bool | `true` = visible from both sides (glTF `doubleSided`); default `false` (added after the initial implementation) | — |
 
 Validation, done when the element is created, raises `ValueError` for:
 - unknown keys or face names (outside `extras`);
@@ -168,6 +169,7 @@ Extra faces skip `sides`, because `sides` means the four outer vertical faces of
 | `specular` | none |
 | `shininess` | roughness 0.8 |
 | `opacity` | 1.0 |
+| `double_sided` | `false` (single-sided) |
 
 Details:
 - **Explicit `null` stops the search.** A key that is present with value `null` counts as set. This is how `texture: null` overrides a `map_Kd` from the `.mtl`. For the other keys `null` is not allowed, so validation rejects it.

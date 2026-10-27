@@ -139,6 +139,7 @@ floor_plans:
             texture: "{szklo2}"
             scale_meters: 0.5
             opacity: 0.9
+            double_sided: true
     
 
       - type: wall
@@ -164,10 +165,22 @@ floor_plans:
       - type: wall
         anchor_point: [13.5, 10]
         orientation_angle: 0
-        length: 4.0
+        length: 2.0
         thickness: 1
         textures:
           default:   
             texture: "{szklo3}"
             scale_meters: 1
             opacity: 0.9
+            double_sided: false
+      - type: wall
+        anchor_point: [16, 10]
+        orientation_angle: 0
+        length: 2.0
+        thickness: 1
+        textures:
+          default:   
+            texture: "{szklo3}"
+            scale_meters: 1
+            opacity: 0.9
+            double_sided: true

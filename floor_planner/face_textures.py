@@ -69,6 +69,7 @@ class FaceSpec:
     specular: tuple[float, float, float] | _Unset = UNSET
     shininess: float | _Unset = UNSET
     opacity: float | _Unset = UNSET
+    double_sided: bool | _Unset = UNSET
 
     @classmethod
     def from_yaml(cls, data, where: str) -> 'FaceSpec':
@@ -117,6 +118,10 @@ class FaceSpec:
             values['shininess'] = _check_number(where, 'shininess', data['shininess'], minimum=0.0)
         if 'opacity' in data:
             values['opacity'] = _check_number(where, 'opacity', data['opacity'], minimum=0.0, maximum=1.0)
+        if 'double_sided' in data:
+            if not isinstance(data['double_sided'], bool):
+                raise ValueError(f"{where}.double_sided: expected true or false, got {data['double_sided']!r}")
+            values['double_sided'] = data['double_sided']
         return cls(**values)
 
     def scale(self) -> tuple[str, float] | _Unset:
@@ -219,12 +224,13 @@ class ResolvedFace:
     opacity: float | None
     scale_mode: str
     scale_value: float
+    double_sided: bool = False
 
     @property
     def material_key(self) -> tuple:
         """Everything that affects the material (i.e. all but the scale)."""
         return (self.texture_path, self.diffuse, self.diffuse_from_mtl,
-                self.specular, self.shininess, self.opacity)
+                self.specular, self.shininess, self.opacity, self.double_sided)
 
 
 def resolve_face(name: str, element_textures: FaceTextures, class_textures: FaceTextures,
@@ -285,8 +291,12 @@ def resolve_face(name: str, element_textures: FaceTextures, class_textures: Face
             break
     scale_mode, scale_value = scale if scale is not UNSET else ('relative', 1.0)
 
+    # No .mtl equivalent; glTF default is single-sided (back faces culled)
+    double_sided = first('double_sided')
+    double_sided = False if double_sided is UNSET else double_sided
+
     return ResolvedFace(texture_path, diffuse, diffuse_from_mtl, specular, shininess, opacity,
-                        scale_mode, scale_value)
+                        scale_mode, scale_value, double_sided)
 
 
 def uv_repeats(resolved: ResolvedFace, width: float, height: float) -> tuple[float, float]:

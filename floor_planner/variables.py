@@ -264,6 +264,8 @@ def _resolve_textures_entry(entry, values: dict):
     for key, value in entry.items():
         if key == 'texture':
             resolved[key] = resolve_string_param(value, values) if isinstance(value, (str, dict)) else value
+        elif isinstance(value, bool):
+            resolved[key] = value  # e.g. double_sided (resolve_constants would turn it into 1.0 / 0.0)
         else:
             resolved[key] = resolve_constants(value, values)
     return resolved

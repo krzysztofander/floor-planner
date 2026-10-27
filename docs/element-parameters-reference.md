@@ -1485,6 +1485,7 @@ Box elements (all types whose 3D shape is a box: `wall`, `wallnd`, `window`, `do
 | `specular` | [r, g, b], ≥ 0 | specular colour, as `Ks` |
 | `shininess` | float ≥ 0 | specular exponent, as `Ns` (roughness = `1 − min(Ns / 100, 1)`) |
 | `opacity` | 0–1 | 1 = opaque; < 0.99 enables blending, as `d` |
+| `double_sided` | `true` / `false` | `true` = the face is visible from both sides (glTF `doubleSided`); default `false`: back faces are culled. No `.mtl` equivalent |
 
 An entry may set only one of `scale_relative` / `scale_meters`. Unknown keys or faces, wrong values and an `extras` name equal to a face or group name raise `ValueError`.
 
@@ -1495,7 +1496,7 @@ box face:    face entry    → sides (vertical faces) → default → class defa
 extra face:  extras.<name>                          → default → class default → .mtl → built-in
 ```
 
-Explicit `texture: null` counts as set. The scale is one property: the most specific level that sets either scale key wins. Built-in values when nothing is set: stretched (one texture per face), no texture, colour from the `.mtl` or the built-in default, roughness 0.8, opacity 1.
+Explicit `texture: null` counts as set. The scale is one property: the most specific level that sets either scale key wins. Built-in values when nothing is set: stretched (one texture per face), no texture, colour from the `.mtl` or the built-in default, roughness 0.8, opacity 1, single-sided.
 
 **Class defaults** (same effect as the former fixed `texture_scale`):
 

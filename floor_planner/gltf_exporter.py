@@ -2010,6 +2010,10 @@ class GLTFExporter:
         if element_blend:
             material["alphaMode"] = "BLEND"
         
+        # Double-sided (back faces not culled); glTF default is single-sided, so only written when set
+        if resolved.double_sided:
+            material["doubleSided"] = True
+        
         # Add texture if available
         texture_path = resolved.texture_path
         if texture_path and texture_path.exists():

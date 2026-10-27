@@ -86,6 +86,7 @@ extra face:  extras.<name>                          → default → class defaul
 | `specular` | `Ks` |
 | `shininess` | `Ns` |
 | `opacity` | `d` |
+| `double_sided` | — (glTF `doubleSided`, default `false`; no `.mtl` equivalent) |
 | `scale_relative` / `scale_meters` | UVs only (not part of the material) |
 
 The class default is the class attribute `_default_textures` (same format as YAML), e.g. `Window` tiles every 0.2 m.

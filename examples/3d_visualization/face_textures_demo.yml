@@ -168,3 +168,4 @@ floor_plans:
           default:
             opacity: 0.5
             diffuse: [0.9, 0.95, 1.0]
+            double_sided: true      # glass seen from both sides
