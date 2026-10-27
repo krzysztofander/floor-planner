@@ -1,7 +1,7 @@
 # Auto-generated material for tree
 newmtl tree
 Ka 0.200000 0.400000 0.150000
-Kd 0.300000 0.600000 0.200000
+Kd 1.000000 1.000000 1.000000
 Ks 0.100000 0.100000 0.100000
 Ns 5.0
 map_Kd plain_named/green-forest-green-tree.jpg

@@ -10,7 +10,7 @@ Ns 200.0
 # Full-height glass wing (semi-transparent)
 newmtl glass_mat
 Ka 0.85 0.90 1.00
-Kd 0.85 0.90 1.00
+Kd 1.000000 1.000000 1.000000
 Ks 0.90 0.90 0.95
 Ns 150.0
 d 0.20

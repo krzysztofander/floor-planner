@@ -1,7 +1,7 @@
 # Auto-generated material for hedge
 newmtl hedge
 Ka 0.250000 0.400000 0.200000
-Kd 0.350000 0.550000 0.250000
+Kd 1.000000 1.000000 1.000000
 Ks 0.100000 0.100000 0.100000
 Ns 5.0
 map_Kd plain_named/green-bright-green-hedge.jpg

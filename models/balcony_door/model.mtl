@@ -21,7 +21,7 @@ map_Kd wood/exotic_wood_1.jpg
 # Door wing - upper glass panel (semi-transparent)
 newmtl glass_mat
 Ka 0.85 0.90 1.0
-Kd 0.85 0.90 1.0
+Kd 1.000000 1.000000 1.000000
 Ks 0.8  0.8  0.8
 Ns 100.0
 d 0.95

@@ -1,7 +1,7 @@
 # Auto-generated material for bathtub
 newmtl bathtub
 Ka 0.900000 0.900000 0.900000
-Kd 0.950000 0.950000 0.950000
+Kd 1.000000 1.000000 1.000000
 Ks 0.600000 0.600000 0.600000
 Ns 150.0
 map_Kd plain_named/white-bathtub.jpg

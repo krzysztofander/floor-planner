@@ -1,7 +1,7 @@
 # Auto-generated material for dishwasher
 newmtl dishwasher
 Ka 0.700000 0.700000 0.700000
-Kd 0.800000 0.800000 0.800000
+Kd 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ns 120.0
 map_Kd plain_named/light-gray-dishwasher.jpg
