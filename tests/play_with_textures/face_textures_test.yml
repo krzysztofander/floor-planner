@@ -9,8 +9,8 @@ project:
   visualisation_dir: "output/3d"  # Enable 3D glTF export
 
 default_layout:
-  bottom_left_corner: [-1, -1]
-  top_right_corner: [9, 13]
+  bottom_left_corner: [-1, 1]
+  top_right_corner: [14, 16]
   scale_numerator: 1
   scale_denominator: 50
   grid_major_step: 1
@@ -20,6 +20,9 @@ floor_plans:
   - title:
       text: "textures_test"
       font_size: 18
+    options:
+      Storage:
+        label_color: green
 
     elements:
       # Orientation check: a different texture on every face
@@ -259,3 +262,249 @@ floor_plans:
           back:   {scale_meters: 2}
           top:    {scale_meters: 0.33}
           bottom: {scale_meters: 0.66}
+
+      #test diffuse color and opacity
+      - type: generic_storage
+        anchor_point: [8, 2]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_use_textures
+        textures:
+          top: 
+            texture: plain_named/beige-stone-path.jpg
+            diffuse: [0.6, 0.9, 0.6]
+          sides:  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            diffuse: [0.4, 0.4, 0.6]
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+      - type: generic_storage
+        anchor_point: [8, 4]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors
+        textures:
+          default: 
+            texture: null
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+    # testing opaque colors
+      - type: generic_storage
+        anchor_point: [8, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors_opaque_03
+        textures:
+          default: 
+            texture: null
+            opacity: 0.3
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+
+      - type: generic_storage
+        anchor_point: [8, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors_opaque_03
+        textures:
+          default: 
+            texture: null
+            double_sided: true
+            opacity: 0.3
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+
+      - type: generic_storage
+        anchor_point: [10, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors_opaque_06
+        textures:
+          default: 
+            texture: null
+            opacity: 0.6
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+
+      - type: generic_storage
+        anchor_point: [10, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors_opaque_06
+        textures:
+          default: 
+            texture: null
+            double_sided: true
+            opacity: 0.6
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+    # testing opaque colors
+      - type: generic_storage
+        anchor_point: [12, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors_opaque_09
+        textures:
+          default: 
+            texture: null
+            opacity: 0.9
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+
+      - type: generic_storage
+        anchor_point: [12, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: test_coloring_diffuse_3_use_colors_opaque_09
+        textures:
+          default: 
+            texture: null
+            double_sided: true
+            opacity: 0.9
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+
+# Box with one side transparent
+      - type: generic_storage
+        anchor_point: [8, 12]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: semi_open_box_no_double_sides_cull
+        textures:
+          default: 
+            double_sided: false
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.05
+            texture: null
+
+      - type: generic_storage
+        anchor_point: [8, 14]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: semi_open_box
+        textures:
+          default: 
+            double_sided: true
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.05
+            texture: null
+      - type: generic_storage
+        anchor_point: [10, 12]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        label: semi_open_box_no_double_sides_cull_op05
+        textures:
+          default: 
+            double_sided: false
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.5
+            texture: null
+
+      - type: generic_storage
+        anchor_point: [10, 14]
+        orientation_angle: 0
+        length: 1.1
+        thickness: 1.1
+        height: 1.1
+        label: semi_open_box_op05
+        textures:
+          default: 
+            double_sided: true
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.5
+            texture: null
