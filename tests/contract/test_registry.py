@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import REPO_ROOT, SCENES
+from conftest import GOLDEN_3D_SCENES, REPO_ROOT, SCENES
 from floor_planner import elements
 from floor_planner.elements.element import ElementBase
 from floor_planner.elements.external_models import ExternalModelElement
@@ -136,3 +136,11 @@ def test_scene_list_entry_valid(scene_path):
     assert path.exists(), f"listed scene {scene_path} does not exist"
     settings = yaml.load(path.read_text(), Loader=yaml.FullLoader)
     assert isinstance(settings, dict) and 'floor_plans' in settings, f"{scene_path} has no floor_plans"
+
+
+@pytest.mark.parametrize('scene_path', GOLDEN_3D_SCENES)
+def test_golden_3d_scene_entry_valid(scene_path):
+    """Every 3D golden scene is also a listed scene and exports 3D (has a visualisation_dir)."""
+    assert scene_path in SCENES, f"{scene_path} is in GOLDEN_3D_SCENES but not in SCENES"
+    settings = yaml.load((REPO_ROOT / scene_path).read_text(), Loader=yaml.FullLoader)
+    assert settings.get('project', {}).get('visualisation_dir'), f"{scene_path} has no project.visualisation_dir"

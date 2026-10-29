@@ -42,13 +42,13 @@ make all
 ```
 
 ### Testing
-The pytest suite runs every scene project (in a temporary folder) and checks it: the run succeeds, the glTF files are consistent, and each PNG matches its golden image in `tests/golden/`. Contract tests check rules that all element types must follow.
+The pytest suite runs every scene project (in a temporary folder) and checks it: the run succeeds, the glTF files are consistent, and each PNG matches its golden image in `tests/golden/2d/`. For the scenes listed in `GOLDEN_3D_SCENES` (`tests/conftest.py`), the 3D output is also compared with a golden summary in `tests/golden/3d/` (materials, textures and geometry per element). Contract tests check rules that all element types must follow.
 ```bash
 pip install -r requirements/dev.txt
 make check          # full suite, in parallel (about 10 s)
 make check-fast     # contract tests only
 python -m pytest -m slow --scene vege          # selected scenes
-python -m pytest -m slow -n auto --update-golden   # refresh golden images after an intended visual change
+python -m pytest -m slow -n auto --update-golden   # refresh golden files (2D, and 3D for GOLDEN_3D_SCENES) after an intended change
 ```
 See `docs/features/pytest-regression-suite.md`.
 

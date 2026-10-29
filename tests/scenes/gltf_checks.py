@@ -100,37 +100,164 @@ def check_gltf_invariants(path: Path) -> None:
     assert not problems, f"{path.name}: " + "; ".join(problems)
 
 
+# Primitives with more triangle corners than this are summarized (count, bounding box, mean)
+# instead of listing every corner, to keep golden files small (e.g. detailed external models).
+_MAX_LISTED_CORNERS = 600
+
+
+def _round(value: float, decimals: int) -> float:
+    return round(float(value), decimals) + 0.0  # + 0.0 turns -0.0 into 0.0
+
+
+def _round_list(values, decimals: int) -> list:
+    return [_round(v, decimals) for v in values]
+
+
+def _node_matrix(node: dict) -> np.ndarray:
+    """Local 4x4 transform of a glTF node (``matrix`` or translation/rotation/scale)."""
+    if 'matrix' in node:
+        return np.array(node['matrix'], dtype=float).reshape(4, 4).T   # glTF stores column-major
+    t = np.array(node.get('translation', [0.0, 0.0, 0.0]), dtype=float)
+    x, y, z, w = node.get('rotation', [0.0, 0.0, 0.0, 1.0])
+    s = np.array(node.get('scale', [1.0, 1.0, 1.0]), dtype=float)
+    rotation = np.array([
+        [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+        [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+        [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+    ])
+    matrix = np.eye(4)
+    matrix[:3, :3] = rotation * s
+    matrix[:3, 3] = t
+    return matrix
+
+
+def _world_matrices(data: dict) -> dict[int, np.ndarray]:
+    """World transform of every node (parent chain composed)."""
+    nodes = data.get('nodes', [])
+    parent = {child: index for index, node in enumerate(nodes) for child in node.get('children', [])}
+    cache: dict[int, np.ndarray] = {}
+
+    def world(index: int) -> np.ndarray:
+        if index not in cache:
+            local = _node_matrix(nodes[index])
+            cache[index] = world(parent[index]) @ local if index in parent else local
+        return cache[index]
+
+    return {index: world(index) for index in range(len(nodes))}
+
+
+def _material_summary(gltf: Gltf, material: dict, decimals: int) -> dict:
+    pbr = material.get('pbrMetallicRoughness', {})
+    uri = gltf.texture_uri(material)
+    specular = material.get('extensions', {}).get('KHR_materials_specular')
+    return {
+        'texture': Path(uri).name if uri else None,
+        'baseColorFactor': _round_list(pbr.get('baseColorFactor', []), decimals),
+        'alphaMode': material.get('alphaMode', 'OPAQUE'),
+        'roughnessFactor': _round(pbr['roughnessFactor'], decimals) if 'roughnessFactor' in pbr else None,
+        'specular': None if specular is None else {
+            'specularFactor': _round(specular.get('specularFactor', 1.0), decimals),
+            'specularColorFactor': _round_list(specular.get('specularColorFactor', [1.0, 1.0, 1.0]), decimals),
+        },
+        'doubleSided': bool(material.get('doubleSided', False)),
+    }
+
+
+def _corner_summary(values: np.ndarray, decimals: int) -> list | dict:
+    """Per-corner values (rounded), or count/bbox/mean for very large primitives."""
+    if len(values) > _MAX_LISTED_CORNERS:
+        return {
+            'corners': int(len(values)),
+            'min': _round_list(values.min(axis=0), decimals),
+            'max': _round_list(values.max(axis=0), decimals),
+            'mean': _round_list(values.mean(axis=0), decimals),
+        }
+    return [_round_list(v, decimals) for v in values]
+
+
 def gltf_summary(path: Path, decimals: int = 5) -> dict:
     """
-    Meaning-level summary of a glTF for the 3D golden comparison, keyed by mesh name.
+    Meaning-level summary of a glTF for the 3D golden comparison.
 
-    Per primitive: material (texture file name, baseColorFactor, alphaMode,
-    roughnessFactor, specular extension) and POSITION / TEXCOORD_0 rounded to
-    ``decimals``. Paths, buffer layout and node matrices are not included.
+    Keyed by node name (for procedural elements equal to the mesh name; unique for
+    external models, whose meshes are all called ``model``). Per node: its world
+    transform (only if not identity) and per primitive:
+      - material: texture file name, baseColorFactor, alphaMode, roughnessFactor,
+        KHR_materials_specular, doubleSided
+      - triangles: number of triangles
+      - POSITION / TEXCOORD_0: the values at every triangle corner (via the indices,
+        so the summary records which faces each material covers), rounded to ``decimals``
+
+    Paths, buffer layout and ``extras`` are not included.
     """
     gltf = Gltf(path)
-    materials = gltf.data.get('materials', [])
-    summary: dict[str, list] = {}
-    for mesh, _, primitive in gltf.primitives():
-        entry = {}
-        material_index = primitive.get('material')
-        if material_index is not None:
-            material = materials[material_index]
-            pbr = material.get('pbrMetallicRoughness', {})
-            uri = gltf.texture_uri(material)
-            entry['material'] = {
-                'texture': Path(uri).name if uri else None,
-                'baseColorFactor': [round(c, decimals) for c in pbr.get('baseColorFactor', [])],
-                'alphaMode': material.get('alphaMode', 'OPAQUE'),
-                'roughnessFactor': round(pbr['roughnessFactor'], decimals) if 'roughnessFactor' in pbr else None,
-                'specular': material.get('extensions', {}).get('KHR_materials_specular'),
-            }
-        attributes = primitive.get('attributes', {})
-        for name in ('POSITION', 'TEXCOORD_0'):
-            if name in attributes:
-                entry[name] = np.round(gltf.accessor(attributes[name]).astype(float), decimals).tolist()
-        summary.setdefault(mesh, []).append(entry)
+    data = gltf.data
+    materials = data.get('materials', [])
+    meshes = data.get('meshes', [])
+    world = _world_matrices(data)
+    summary: dict[str, dict] = {}
+
+    for node_index, node in enumerate(data.get('nodes', [])):
+        if 'mesh' not in node:
+            continue
+        mesh = meshes[node['mesh']]
+        name = node.get('name') or mesh.get('name') or f'node_{node_index}'
+        key, n = name, 2
+        while key in summary:                       # keep entries for repeated names apart
+            key, n = f'{name}#{n}', n + 1
+
+        entry: dict = {}
+        if not np.allclose(world[node_index], np.eye(4)):
+            entry['world_matrix'] = [_round_list(row, decimals) for row in world[node_index]]
+        primitives = []
+        for primitive in mesh['primitives']:
+            attributes = primitive.get('attributes', {})
+            corners = (gltf.accessor(primitive['indices']).reshape(-1) if 'indices' in primitive
+                       else np.arange(gltf.data['accessors'][attributes['POSITION']]['count']))
+            item: dict = {}
+            if primitive.get('material') is not None:
+                item['material'] = _material_summary(gltf, materials[primitive['material']], decimals)
+            item['triangles'] = int(len(corners) // 3)
+            for attribute in ('POSITION', 'TEXCOORD_0'):
+                if attribute in attributes:
+                    values = gltf.accessor(attributes[attribute]).astype(float)[corners]
+                    item[attribute] = _corner_summary(values, decimals)
+            primitives.append(item)
+        entry['primitives'] = primitives
+        summary[key] = entry
     return summary
+
+
+def write_summary(summary: dict, path: Path) -> None:
+    """Write a summary as JSON (nodes in scene order, one vertex per line) for readable diffs."""
+
+    def dump(value, indent: int) -> str:
+        pad, inner = ' ' * indent, ' ' * (indent + 1)
+        if isinstance(value, dict):
+            if not value:
+                return '{}'
+            items = [f'{inner}{json.dumps(k)}: {dump(v, indent + 1)}' for k, v in value.items()]
+            return '{\n' + ',\n'.join(items) + '\n' + pad + '}'
+        if isinstance(value, list) and value and not all(isinstance(v, (int, float)) for v in value):
+            return '[\n' + ',\n'.join(inner + dump(v, indent + 1) for v in value) + '\n' + pad + ']'
+        return json.dumps(value)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dump(summary, 0) + '\n')
+
+
+def _numbers_differ(expected, actual, atol: float) -> str | None:
+    """Describe the difference of two equally shaped numeric lists, or None if within ``atol``."""
+    try:
+        a, b = np.asarray(expected, dtype=float), np.asarray(actual, dtype=float)
+    except ValueError:
+        return 'values differ'
+    if a.shape != b.shape:
+        return f'shape {a.shape} != {b.shape}'
+    deviation = np.abs(a - b)
+    if np.all(deviation <= atol):
+        return None
+    return f'{int(np.sum(deviation > atol))} of {deviation.size} values differ, max deviation {deviation.max():.6g}'
 
 
 def compare_summaries(expected, actual, path: str = '', atol: float = 2e-5) -> list[str]:
@@ -147,20 +274,23 @@ def compare_summaries(expected, actual, path: str = '', atol: float = 2e-5) -> l
         return diffs
     if isinstance(expected, list) and isinstance(actual, list):
         if len(expected) != len(actual):
-            return [f"{path}: length {len(expected)} != {len(actual)}"]
-        if expected and all(isinstance(v, (int, float, list)) for v in expected):
-            try:
-                a, b = np.asarray(expected, dtype=float), np.asarray(actual, dtype=float)
-                return [] if a.shape == b.shape and np.allclose(a, b, atol=atol) else [f"{path}: values differ"]
-            except ValueError:
-                pass
+            return [f"{path}: {len(expected)} entries expected, got {len(actual)}"]
+        numeric = expected and all(isinstance(v, (int, float, list)) for v in expected) \
+            and not any(isinstance(v, (dict, str, bool)) or v is None for v in expected)
+        if numeric:
+            problem = _numbers_differ(expected, actual, atol)
+            return [] if problem is None else [f"{path}: {problem}"]
         diffs = []
         for i, (e, a) in enumerate(zip(expected, actual)):
             diffs += compare_summaries(e, a, f"{path}[{i}]", atol)
         return diffs
-    if isinstance(expected, float) or isinstance(actual, float):
-        try:
-            return [] if abs(float(expected) - float(actual)) <= atol else [f"{path}: {expected} != {actual}"]
-        except (TypeError, ValueError):
-            pass
-    return [] if expected == actual else [f"{path}: {expected!r} != {actual!r}"]
+    if isinstance(expected, bool) or isinstance(actual, bool):
+        return [] if expected == actual else [f"{path}: {_short(expected)} != {_short(actual)}"]
+    if isinstance(expected, (int, float)) and isinstance(actual, (int, float)):
+        return [] if abs(float(expected) - float(actual)) <= atol else [f"{path}: {expected} != {actual}"]
+    return [] if expected == actual else [f"{path}: {_short(expected)} != {_short(actual)}"]
+
+
+def _short(value, limit: int = 80) -> str:
+    text = repr(value)
+    return text if len(text) <= limit else text[:limit] + '...'

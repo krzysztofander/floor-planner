@@ -1,6 +1,6 @@
 # Feature: pytest-regression-suite
 
-**Status:** Phase 1 complete (phase 2: 3D golden, pending)  
+**Status:** Phase 2 complete (3D golden for selected scenes)  
 **Priority:** Medium  
 **Estimated Effort:** 2–3 days (phase 1)
 
@@ -14,7 +14,7 @@ Layers:
 |-------|----------------|-------|
 | Contract tests | rules every registered element type must follow | seconds |
 | Scene tests | each YAML project: runs without error, glTF invariants, 2D image vs golden | minutes (marked `slow`) |
-| 3D golden (phase 2) | per-mesh summary of the glTF vs golden | minutes, **disabled in phase 1** |
+| 3D golden (phase 2) | per-node summary of the glTF vs golden, for the scenes in `GOLDEN_3D_SCENES` | part of the scene tests |
 
 ## Motivation
 
@@ -42,6 +42,7 @@ Layers:
 | 13 | Unit tests | **Not part of this feature.** They are added mostly with new code, and retrofitted case by case when needed. |
 | 14 | CI | **None for now** (no GitHub Actions); the suite runs locally. |
 | 15 | Scene list | **Explicit list** in `tests/conftest.py`, for flexibility at the start; automatic discovery may come later. |
+| 16 | 3D golden scope (phase 2) | **Selected scenes only:** an explicit `GOLDEN_3D_SCENES` list (subset of `SCENES`), extended scene by scene once a scene is stable. Starts with `tests/play_with_textures/face_textures_test.yml` and `face_textures_walls_test.yml`. Replaces the `--golden-3d` switch. |
 
 ## Current State
 
@@ -65,13 +66,13 @@ The `tests/` folder already holds the YAML scene projects. The pytest code goes 
 
 ```
 tests/
-├── conftest.py                 # fixtures, CLI options, explicit scene list
+├── conftest.py                 # fixtures, explicit SCENES / GOLDEN_3D_SCENES lists (CLI options: root conftest.py)
 ├── contract/test_registry.py   # contract tests
 ├── scenes/test_scenes.py       # scene tests (invariants, 2D golden, 3D golden)
 ├── scenes/gltf_checks.py       # glTF loading, invariants, summary
 ├── golden/
 │   ├── 2d/<scene_id>/<file>.png
-│   └── 3d/<scene_id>/<file>.json      # phase 2
+│   └── 3d/<scene_id>/<gltf name>.json   # scenes in GOLDEN_3D_SCENES only
 └── <existing scene folders>/project_main.yml
 ```
 
@@ -155,11 +156,11 @@ def test_scene(scene, tmp_path, golden_options):
     check_run_invariants(result)                     # (a)
     for gltf in result.gltf_files:
         check_gltf_invariants(gltf)                  # (b), (c)
-    for png in result.png_files:
-        assert_image_matches_golden(png, GOLDEN_2D / scene_id / png.name, golden_options)
-    if golden_options.compare_3d:                    # phase 2, off by default
-        for gltf in result.gltf_files:
-            assert_summary_matches_golden(gltf_summary(gltf), GOLDEN_3D / scene_id / f"{gltf.stem}.json", golden_options)
+    problems = [image_vs_golden(png, GOLDEN_2D / scene_id / png.name, update) for png in result.png_files]
+    if scene in GOLDEN_3D_SCENES:                    # selected scenes only
+        problems += [summary_vs_golden(gltf, GOLDEN_3D / scene_id / f"{gltf.stem}.json", update)
+                     for gltf in result.gltf_files]
+    # 2D and 3D differences are reported together
 ```
 
 `copy_scene` copies the scene's whole folder, so relative includes, `png_dir` and `visualisation_dir` all resolve inside `tmp_path`. The repository is never written to.
@@ -182,22 +183,23 @@ Accessors are decoded from the `.bin` with numpy (component type, type, byteOffs
 - A missing golden image fails, with a hint to run with `--update-golden`.
 - **Platform:** golden images depend on fonts and the matplotlib version. They are generated and checked locally in the same environment (the project's `.venv`, pinned via `requirements/constraints.txt`); there is no CI.
 
-### 3D golden comparison (phase 2, disabled in phase 1)
+### 3D golden comparison (phase 2)
 
-- **Summary per glTF, keyed by mesh name** (not index, so adding an element doesn't shift the others):
-  - primitive count;
-  - per primitive: material (texture file name, `baseColorFactor`, `alphaMode`, `roughnessFactor`, specular extension);
-  - POSITION and TEXCOORD_0 rounded to 1e-5.
-- **Excluded:** absolute paths (`extras.model_path`), buffer layout, node matrices of animations.
-- **Storage:** JSON, so a reviewed diff shows what changed.
-- **Phase 1:** the code is written and off by default. `--golden-3d` turns it on; then it compares, or with `--update-golden` writes the files.
+- **Scope:** only the scenes in `GOLDEN_3D_SCENES` (`tests/conftest.py`), a subset of `SCENES`. A scene is added once it is stable. A contract test checks that every entry is in `SCENES` and has a `visualisation_dir`.
+- **Summary per glTF, keyed by node name** (not index, so adding an element doesn't shift the others; node names are unique also for external models, whose meshes are all called `model`). Per node:
+  - `world_matrix`: the node's world transform (parent chain composed), only when it is not the identity. It covers the placement of external models and animated doors;
+  - per primitive: material (texture file name, `baseColorFactor`, `alphaMode`, `roughnessFactor`, `KHR_materials_specular`, `doubleSided`), number of triangles, and POSITION / TEXCOORD_0 **at every triangle corner** (via the indices, so the summary records which faces each material covers), rounded to 1e-5;
+  - primitives with more than 600 corners (detailed external models) are summarized by corner count, bounding box and mean instead.
+- **Comparison:** by key, numbers with a tolerance of 2e-5. A failure lists up to 15 differences by path, e.g. `/GenericStorage_x_1/primitives[1]/material/texture: 'a.jpg' != 'b.jpg'` or `.../POSITION: 6 of 18 values differ, max deviation 0.01`. 2D and 3D problems of a scene are reported together.
+- **Excluded:** absolute paths (`extras.model_path`), buffer layout, normals, `extras`.
+- **Storage:** JSON with nodes in scene order and one vertex per line, so a reviewed diff shows what changed.
+- **Third-party models:** scenes that use `models/models_3rd_party` should not be in `GOLDEN_3D_SCENES`; where those models are missing, the stubs are used and the summary differs.
 
 ### Options and markers
 
 | Option / marker | Effect |
 |-----------------|--------|
-| `--update-golden` | write golden files instead of comparing (2D, and 3D if enabled) |
-| `--golden-3d` | enable the 3D golden comparison (default off in phase 1) |
+| `--update-golden` | write golden files instead of comparing (2D; and 3D for the scenes in `GOLDEN_3D_SCENES`) |
 | `--scene <substring>` | run only matching scenes |
 | `@pytest.mark.slow` | scene tests; `pytest -m "not slow"` runs contract + unit tests only |
 
@@ -243,7 +245,10 @@ Not part of this feature. They are added mostly together with new code, and retr
 - [x] Run all scenes; fix or document invariant failures found in existing scenes
 
 ### Phase 2: 3D golden
-- [ ] After the planned changes: generate the 3D golden summaries, turn `--golden-3d` on by default
+- [x] `GOLDEN_3D_SCENES` (explicit subset of `SCENES`) replaces `--golden-3d`; contract check that each entry is in `SCENES` and exports 3D
+- [x] Summary keyed by node, with world transform, per-corner geometry, `doubleSided`; compact summary for large primitives; readable JSON writer
+- [x] Generate the 3D golden summaries for `tests/play_with_textures/face_textures_test.yml` and `face_textures_walls_test.yml`
+- [ ] Add further scenes to `GOLDEN_3D_SCENES` when they are stable
 
 ## Implementation Notes (phase 1)
 
@@ -255,6 +260,13 @@ Not part of this feature. They are added mostly together with new code, and retr
 - **Speed:** contract tests about 1 s; the full suite with `-n auto` about 8 s.
 - **Commands:** `make check` (full suite, `-n auto`), `make check-fast` (`-m "not slow"`); refresh golden images with `python -m pytest -m slow -n auto --update-golden`.
 - **New scenes** must be added to `SCENES` in `tests/conftest.py`; a contract test fails for listed files that are missing or have no `floor_plans`.
+
+## Implementation Notes (phase 2)
+
+- **Golden files:** `tests/golden/3d/tests/play_with_textures/face_textures_test/textures_test.json` (27 nodes, about 90 KB) and `.../face_textures_walls_test/textures_walls_test.json` (15 nodes, about 57 KB).
+- **Change detection checked** on a copy of `face_textures_test.yml`: a face's texture, opacity, `double_sided`, diffuse, texture scale (UVs only), moving an element by 1 cm, rotating it, and removing it each fail with a message naming the node, primitive and property; an unchanged run passes.
+- **All scenes checked:** the summary works for every scene's glTF (world transforms for doors and models, compact summary for large models); the JSON round-trips without differences. All scenes together would be about 1.9 MB of golden data.
+- **Adding a scene:** add it to `GOLDEN_3D_SCENES`, run `python -m pytest -m slow --scene <part of path> --update-golden`, review and commit the JSON.
 
 ## Testing Strategy (of the suite itself)
 

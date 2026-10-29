@@ -3,7 +3,8 @@ Scene tests: run each YAML scene project end to end and check the result.
 
 - invariants of the run and of every glTF (docs/features/pytest-regression-suite.md)
 - 2D: every rendered PNG (at 100 dpi) against tests/golden/2d/<scene_id>/
-- 3D (phase 2, only with --golden-3d): per-mesh summary against tests/golden/3d/<scene_id>/
+- 3D, for scenes in GOLDEN_3D_SCENES: per-node summary of every glTF against
+  tests/golden/3d/<scene_id>/<gltf name>.json
 
 Write/refresh golden files with ``--update-golden``.
 """
@@ -16,9 +17,9 @@ import pytest
 import yaml
 from matplotlib.testing.compare import compare_images
 
-from conftest import GOLDEN_DIR, copy_scene, scene_id
+from conftest import GOLDEN_3D_SCENES, GOLDEN_DIR, copy_scene, scene_id
 from floor_planner.runner import RunResult, run_project
-from scenes.gltf_checks import check_gltf_invariants, compare_summaries, gltf_summary
+from scenes.gltf_checks import check_gltf_invariants, compare_summaries, gltf_summary, write_summary
 
 
 TEST_DPI = 100
@@ -47,30 +48,39 @@ def check_run_invariants(config_path: Path, result: RunResult) -> None:
                     assert (gltf.parent / buffer['uri']).exists(), f"{gltf.name}: buffer {buffer['uri']} missing"
 
 
-def assert_image_matches_golden(actual: Path, golden: Path, update: bool) -> None:
-    """Compare a rendered PNG with its golden image (or write the golden image)."""
+def _repo_relative(path: Path) -> Path:
+    return path.relative_to(GOLDEN_DIR.parent.parent)
+
+
+def image_vs_golden(actual: Path, golden: Path, update: bool) -> str | None:
+    """Compare a rendered PNG with its golden image (or write it); return a problem or None."""
     if update:
         golden.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(actual, golden)
-        return
-    assert golden.exists(), f"no golden image {golden.relative_to(GOLDEN_DIR.parent.parent)}; run pytest with --update-golden"
+        return None
+    if not golden.exists():
+        return f"no golden image {_repo_relative(golden)}; run pytest with --update-golden"
     failure = compare_images(str(golden), str(actual), tol=IMAGE_TOLERANCE, in_decorator=True)
     if failure is not None:
-        pytest.fail(
-            f"{actual.name} differs from golden image (RMS {failure['rms']:.2f} > {IMAGE_TOLERANCE}); "
-            f"diff image: {failure['diff']}"
-        )
+        return (f"2D: {actual.name} differs from golden image (RMS {failure['rms']:.2f} > {IMAGE_TOLERANCE}); "
+                f"diff image: {failure['diff']}")
+    return None
 
 
-def assert_summary_matches_golden(summary: dict, golden: Path, update: bool) -> None:
-    """Compare a glTF summary with its golden JSON (or write it)."""
+def summary_vs_golden(gltf: Path, golden: Path, update: bool) -> str | None:
+    """Compare the 3D summary of a glTF with its golden JSON (or write it); return a problem or None."""
+    summary = gltf_summary(gltf)
     if update:
-        golden.parent.mkdir(parents=True, exist_ok=True)
-        golden.write_text(json.dumps(summary, indent=1, sort_keys=True))
-        return
-    assert golden.exists(), f"no golden summary {golden}; run pytest with --golden-3d --update-golden"
+        write_summary(summary, golden)
+        return None
+    if not golden.exists():
+        return f"no golden 3D summary {_repo_relative(golden)}; run pytest with --update-golden"
     diffs = compare_summaries(json.loads(golden.read_text()), summary)
-    assert not diffs, f"{golden.name}: {len(diffs)} differences, e.g. " + "; ".join(diffs[:10])
+    if diffs:
+        listed = '\n    '.join(diffs[:15])
+        more = f"\n    ... and {len(diffs) - 15} more" if len(diffs) > 15 else ''
+        return f"3D: {gltf.name} differs from {_repo_relative(golden)} in {len(diffs)} places:\n    {listed}{more}"
+    return None
 
 
 @pytest.mark.slow
@@ -83,10 +93,16 @@ def test_scene(scene, tmp_path, golden_options):
         check_gltf_invariants(gltf)
 
     sid = scene_id(scene)
+    problems = []
     for png in result.png_files:
-        assert_image_matches_golden(png, GOLDEN_DIR / '2d' / sid / png.name, golden_options.update)
+        problems.append(image_vs_golden(png, GOLDEN_DIR / '2d' / sid / png.name, golden_options.update))
 
-    if golden_options.compare_3d:                       # phase 2, off by default
+    if scene in GOLDEN_3D_SCENES:
+        assert result.gltf_files, f"{scene} is in GOLDEN_3D_SCENES but produced no glTF"
         for gltf in result.gltf_files:
-            assert_summary_matches_golden(gltf_summary(gltf), GOLDEN_DIR / '3d' / sid / f'{gltf.stem}.json',
-                                          golden_options.update)
+            problems.append(summary_vs_golden(gltf, GOLDEN_DIR / '3d' / sid / f'{gltf.stem}.json',
+                                              golden_options.update))
+
+    problems = [p for p in problems if p]
+    if problems:
+        pytest.fail('\n'.join(problems), pytrace=False)

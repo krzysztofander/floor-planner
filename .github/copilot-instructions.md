@@ -37,8 +37,10 @@ make check
 
 This runs the pytest suite (`tests/`): every scene project in a temporary folder with
 glTF invariants and a comparison of each PNG against `tests/golden/`, plus contract tests
-over the element registry. After an intended visual change, refresh the golden images with
-`.venv/bin/python -m pytest -m slow -n auto --update-golden` and review the image diffs.
+over the element registry. Scenes listed in `GOLDEN_3D_SCENES` (`tests/conftest.py`) also compare
+their glTF with a golden summary in `tests/golden/3d/`. After an intended visual or 3D change, refresh
+the golden files with `.venv/bin/python -m pytest -m slow -n auto --update-golden` and review the
+image and JSON diffs.
 
 To also rebuild the images in the repository:
 ```bash

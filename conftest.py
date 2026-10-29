@@ -11,8 +11,6 @@ the options would not be known yet.
 def pytest_addoption(parser):
     group = parser.getgroup('floor_planner')
     group.addoption('--update-golden', action='store_true', default=False,
-                    help='write golden files instead of comparing (2D, and 3D with --golden-3d)')
-    group.addoption('--golden-3d', action='store_true', default=False,
-                    help='enable the 3D golden comparison (off in phase 1)')
+                    help='write golden files instead of comparing (2D; 3D for GOLDEN_3D_SCENES)')
     group.addoption('--scene', action='append', default=[],
                     help='run only scenes whose path contains this substring (repeatable)')

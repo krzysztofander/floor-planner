@@ -60,6 +60,14 @@ SCENES = [
     'tests/play_with_textures/face_textures_walls_test.yml',
 ]
 
+# Scenes whose 3D output (glTF) is also compared with a golden summary in tests/golden/3d/.
+# A subset of SCENES, picked one by one once a scene is stable; each needs a visualisation_dir.
+# Avoid scenes that use models from models/models_3rd_party (not available everywhere).
+GOLDEN_3D_SCENES = [
+    'tests/play_with_textures/face_textures_test.yml',
+    'tests/play_with_textures/face_textures_walls_test.yml',
+]
+
 # Generated outputs that are not copied with a scene (inputs only)
 _OUTPUT_PATTERNS = ('*.png', '*.pdf', '*.gltf', '*.bin', '*.md', 'camera.json')
 
@@ -74,7 +82,6 @@ class GoldenOptions:
     """How golden files are used."""
 
     update: bool
-    compare_3d: bool
 
 
 def pytest_generate_tests(metafunc):
@@ -87,10 +94,7 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def golden_options(request) -> GoldenOptions:
-    return GoldenOptions(
-        update=request.config.getoption('--update-golden'),
-        compare_3d=request.config.getoption('--golden-3d'),
-    )
+    return GoldenOptions(update=request.config.getoption('--update-golden'))
 
 
 @pytest.fixture(autouse=True)
