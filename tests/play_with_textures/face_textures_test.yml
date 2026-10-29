@@ -25,7 +25,7 @@ floor_plans:
         label_color: green
 
     elements:
-      # Orientation check: a different texture on every face
+      # Check a different texture on every face
       - type: generic_storage
         anchor_point: [0, 2]
         orientation_angle: 0
@@ -39,6 +39,7 @@ floor_plans:
           back:   {texture: plain_named/dark-gray-black-stove.jpg}
           top:    {texture: plain_named/cyan-fountain-water.jpg}
           bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face
       - type: generic_storage
         anchor_point: [0, 4]
         orientation_angle: 45
@@ -52,6 +53,7 @@ floor_plans:
           back:   {texture: plain_named/dark-gray-black-stove.jpg}
           top:    {texture: plain_named/cyan-fountain-water.jpg}
           bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face_rotated_45
       - type: generic_storage
         anchor_point: [0, 6]
         orientation_angle: 90
@@ -65,7 +67,7 @@ floor_plans:
           back:   {texture: plain_named/dark-gray-black-stove.jpg}
           top:    {texture: plain_named/cyan-fountain-water.jpg}
           bottom: {texture: plain_named/ping-flower-bed.jpg}
-
+        label: different_texture_every_face_rotated_90
       - type: generic_storage
         anchor_point: [0, 9]
         orientation_angle: 180
@@ -79,7 +81,7 @@ floor_plans:
           back:   {texture: plain_named/dark-gray-black-stove.jpg}
           top:    {texture: plain_named/cyan-fountain-water.jpg}
           bottom: {texture: plain_named/ping-flower-bed.jpg}
-
+        label: different_texture_every_face_rotated_180
       - type: generic_storage
         anchor_point: [0, 11]
         orientation_angle: 270
@@ -93,9 +95,9 @@ floor_plans:
           back:   {texture: plain_named/dark-gray-black-stove.jpg}
           top:    {texture: plain_named/cyan-fountain-water.jpg}
           bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face_rotated_270
 
-
-      # Test of no textures somewhere, and other variations
+      # Test of no textures somewhere along with textures
       - type: generic_storage
         anchor_point: [2, 2]
         orientation_angle: 0
@@ -107,7 +109,7 @@ floor_plans:
           right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
           top:    {texture: null}
           bottom: {texture: null}
-
+        label: two_default_two_explicit_two_no_textures
       - type: generic_storage
         anchor_point: [2, 4]
         orientation_angle: 0
@@ -117,7 +119,8 @@ floor_plans:
         textures:
           sides:  {texture: null}
           bottom: {texture: plain_named/ping-flower-bed.jpg}
-
+        label: sides_no_texture_bottom_explicit
+      
       # Test coloring
       - type: generic_storage
         anchor_point: [2, 6]
@@ -125,19 +128,18 @@ floor_plans:
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse
         textures:
           sides:  
             texture: null
             diffuse: [0.1, 0.9, 0.1]
           bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: test_coloring_diffuse_on_no_texture
       - type: generic_storage
         anchor_point: [2, 10]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_specular
         # specular does not have color, just intensity
         textures:
           left:
@@ -152,13 +154,13 @@ floor_plans:
           back:
             specular: [3.0, 3.0, 3.0]  #max, above that is clamped
             texture: plain_named/brown-lighter-wood-sliding-door.jpg
+        label: test_coloring_specular_on_textures
       - type: generic_storage
         anchor_point: [2, 14]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_shininess
         textures:
           left:
             specular: [1.0, 1.0, 1.0]  
@@ -178,14 +180,13 @@ floor_plans:
             shininess: 400
           top:
             shininess: 10
-
+        label: test_shininess
       - type: generic_storage
         anchor_point: [2, 18]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_shininess_low_specular
         textures:
           left:
             specular: [0.1, 0.1, 0.1]  
@@ -205,7 +206,9 @@ floor_plans:
             shininess: 400
           top:
             shininess: 500
-      # tiling and texture scaling check
+        label: test_shininess_low_specular
+      
+      # Tiling and texture scaling check
       - type: generic_storage
         anchor_point: [6, 2]
         orientation_angle: 0
@@ -220,6 +223,7 @@ floor_plans:
           back:   {scale_relative: 1}
           top:    {scale_relative: 1.5}
           bottom: {scale_relative: 3.5}
+        label: scale_relative
       - type: generic_storage
         anchor_point: [6, 4]
         orientation_angle: 0
@@ -234,6 +238,7 @@ floor_plans:
           back:   {scale_relative: 1}
           top:    {scale_relative: 1.5}
           bottom: {scale_relative: 3.5}
+        label: scale_relative_on_non_cube
       - type: generic_storage
         anchor_point: [6, 6]
         orientation_angle: 0
@@ -248,6 +253,7 @@ floor_plans:
           back:   {scale_meters: 2}
           top:    {scale_meters: 0.33}
           bottom: {scale_meters: 0.66}
+        label: scale_meters
       - type: generic_storage
         anchor_point: [6, 8]
         orientation_angle: 0
@@ -262,15 +268,15 @@ floor_plans:
           back:   {scale_meters: 2}
           top:    {scale_meters: 0.33}
           bottom: {scale_meters: 0.66}
+        label: scale_meters_on_big_cube
 
-      #test diffuse color and opacity
+      # Test diffuse coloring
       - type: generic_storage
         anchor_point: [8, 2]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_use_textures
         textures:
           top: 
             texture: plain_named/beige-stone-path.jpg
@@ -279,13 +285,13 @@ floor_plans:
             texture: plain_named/brown-lighter-wood-sliding-door.jpg
             diffuse: [0.4, 0.4, 0.6]
           bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: test_coloring_diffuse_with_textures
       - type: generic_storage
         anchor_point: [8, 4]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors
         textures:
           default: 
             texture: null
@@ -301,14 +307,15 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
-    # testing opaque colors
+        label: test_coloring_diffuse_3_use_colors_no_tex
+
+      # Testing opaque colors
       - type: generic_storage
         anchor_point: [8, 6]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors_opaque_03
         textures:
           default: 
             texture: null
@@ -325,14 +332,13 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
-
+        label: coloring_diffuse_opaque_03
       - type: generic_storage
         anchor_point: [8, 10]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors_opaque_03
         textures:
           default: 
             texture: null
@@ -350,14 +356,13 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
-
+        label: coloring_diffuse_opaque_03_double_sided
       - type: generic_storage
         anchor_point: [10, 6]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors_opaque_06
         textures:
           default: 
             texture: null
@@ -374,14 +379,13 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
-
+        label: coloring_diffuse_opaque_06
       - type: generic_storage
         anchor_point: [10, 10]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors_opaque_06
         textures:
           default: 
             texture: null
@@ -399,14 +403,13 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
-    # testing opaque colors
+        label: coloring_diffuse_opaque_06_double_sided
       - type: generic_storage
         anchor_point: [12, 6]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors_opaque_09
         textures:
           default: 
             texture: null
@@ -423,14 +426,13 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
-
+        label: coloring_diffuse_opaque_09
       - type: generic_storage
         anchor_point: [12, 10]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: test_coloring_diffuse_3_use_colors_opaque_09
         textures:
           default: 
             texture: null
@@ -448,15 +450,15 @@ floor_plans:
             diffuse: [0.99, 0.99, 0.99]
           bottom: 
             diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_09_double_sided
 
-# Box with one side transparent
+      # Box with one side transparent
       - type: generic_storage
         anchor_point: [8, 12]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: semi_open_box_no_double_sides_cull
         textures:
           default: 
             double_sided: false
@@ -464,14 +466,13 @@ floor_plans:
             diffuse: [0.40, 0.99, 0.40]
             opacity: 0.05
             texture: null
-
+        label: top_open_box_no_double_sided_op005
       - type: generic_storage
         anchor_point: [8, 14]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: semi_open_box
         textures:
           default: 
             double_sided: true
@@ -479,13 +480,13 @@ floor_plans:
             diffuse: [0.40, 0.99, 0.40]
             opacity: 0.05
             texture: null
+        label: top_open_box_double_sided_op005
       - type: generic_storage
         anchor_point: [10, 12]
         orientation_angle: 0
         length: 1.0
         thickness: 1.0
         height: 1.0
-        label: semi_open_box_no_double_sides_cull_op05
         textures:
           default: 
             double_sided: false
@@ -493,14 +494,13 @@ floor_plans:
             diffuse: [0.40, 0.99, 0.40]
             opacity: 0.5
             texture: null
-
+        label: top_open_box_no_double_sided_op05
       - type: generic_storage
         anchor_point: [10, 14]
         orientation_angle: 0
         length: 1.1
         thickness: 1.1
         height: 1.1
-        label: semi_open_box_op05
         textures:
           default: 
             double_sided: true
@@ -508,3 +508,4 @@ floor_plans:
             diffuse: [0.40, 0.99, 0.40]
             opacity: 0.5
             texture: null
+        label: top_open_box_double_sided_op05
