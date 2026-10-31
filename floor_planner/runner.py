@@ -367,7 +367,14 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
         vis_dir_resolved = str(vis_dir_path)
 
     project_dpi = dpi if dpi is not None else settings['project']['dpi']
-    project = Project(floor_plans, project_dpi, vis_dir_resolved)
+    # Textures named in YAML are searched relative to the config, then to the reusable element files
+    yaml_dirs = [config_dir.resolve()]
+    for content in settings.get('reusable_elements', {}).values():
+        if isinstance(content, str):
+            file_dir = (config_dir / content).parent.resolve()
+            if file_dir not in yaml_dirs:
+                yaml_dirs.append(file_dir)
+    project = Project(floor_plans, project_dpi, vis_dir_resolved, yaml_dirs)
     result = RunResult(project=project)
     pdf_path = settings['project'].get('pdf_file')
     if pdf_path is not None:

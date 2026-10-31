@@ -1478,7 +1478,7 @@ Box elements (all types whose 3D shape is a box: `wall`, `wallnd`, `window`, `do
 
 | Key | Value | Meaning |
 |-----|-------|---------|
-| `texture` | file name or `null` | texture, searched next to the element type's `.mtl`, then in `textures/`; `null` = colour only |
+| `texture` | file name or `null` | texture, searched relative to the project's YAML files (the main config's folder, then the folders of its `reusable_elements` files, e.g. `../tekstury/glass.jpg`), then next to the element type's `.mtl`, then in `textures/`; `null` = colour only |
 | `scale_relative` | float > 0 | texture repeats along each face axis: `1` = stretched once, `2` = 2 × 2 tiles, regardless of the face size |
 | `scale_meters` | float > 0 | size of one texture tile in metres |
 | `diffuse` | [r, g, b], 0–1 | base colour (multiplies the texture), as `Kd` |

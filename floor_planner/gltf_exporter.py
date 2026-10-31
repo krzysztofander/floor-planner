@@ -155,12 +155,14 @@ class GLTFExporter:
     - buffers: Binary data (geometry, animations, etc.)
     """
     
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, yaml_dirs: Optional[List[Path]] = None):
         """
         Initialize glTF exporter.
         
         Args:
             output_dir: Directory to write glTF files and textures
+            yaml_dirs: Folders of the project's YAML files; textures named in
+                       YAML are searched relative to them first
         """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -170,7 +172,7 @@ class GLTFExporter:
         self.textures_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize texture manager (procedural materials and texture lookup)
-        self.texture_manager = TextureManager()
+        self.texture_manager = TextureManager(yaml_dirs=yaml_dirs)
         
         self.buffer_builder = BufferBuilder()
         self.nodes: List[Dict[str, Any]] = []
@@ -1913,9 +1915,10 @@ class GLTFExporter:
             element_textures = class_textures = FaceTextures()
 
         def find(texture_ref: str, source: str) -> Optional[Path]:
-            texture_path = self.texture_manager.find_texture(texture_ref, mtl_dir)
+            from_mtl = source == '.mtl map_Kd'
+            texture_path = self.texture_manager.find_texture(texture_ref, mtl_dir, from_yaml=not from_mtl)
             if texture_path is None:
-                where = mtl_path if source == '.mtl map_Kd' else f"{source} of element '{element.get_id()}'"
+                where = mtl_path if from_mtl else f"{source} of element '{element.get_id()}'"
                 WarnMsg(f"Texture '{texture_ref}' referenced by {where} not found")
             return texture_path
 
@@ -2302,7 +2305,8 @@ def export_floor_plan_to_gltf(
     elements: List[Element],
     output_dir: Path,
     filename: str = "floor_plan_3d.gltf",
-    v_anchor: float = 0.0
+    v_anchor: float = 0.0,
+    yaml_dirs: Optional[List[Path]] = None
 ) -> Path:
     """
     Export floor plan elements to glTF format.
@@ -2313,11 +2317,13 @@ def export_floor_plan_to_gltf(
         filename: Output filename
         v_anchor: Y-axis elevation for the entire floor plan (metres); adds a root
                   translation node so all geometry is offset by this amount on Y.
+        yaml_dirs: Folders of the project's YAML files; textures named in YAML
+                   are searched relative to them first
     
     Returns:
         Path to exported glTF file
     """
-    exporter = GLTFExporter(output_dir)
+    exporter = GLTFExporter(output_dir, yaml_dirs)
     
     # Store all elements for wall opening detection (includes invisible elements)
     exporter.all_elements = elements

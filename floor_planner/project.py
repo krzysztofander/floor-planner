@@ -21,7 +21,8 @@ class Project:
             self,
             floor_plans: list[FloorPlan],
             dpi: Union[float, Literal["figure"]] = "figure",
-            visualisation_dir: str | None = None
+            visualisation_dir: str | None = None,
+            yaml_dirs: list[Path] | None = None
     ):
         """
         Initialize an instance.
@@ -33,12 +34,16 @@ class Project:
         :param visualisation_dir:
             optional directory for 3D visualization assets; if specified, acts as a switch
             to enable 3D asset generation in the future
+        :param yaml_dirs:
+            folders of the project's YAML files; textures named in YAML are
+            searched relative to them first
         :return:
             freshly created instance of `Project` class
         """
         self.floor_plans = floor_plans
         self.dpi = dpi
         self.visualisation_dir = visualisation_dir
+        self.yaml_dirs = yaml_dirs
 
     def render_to_pdf(self, output_path: str) -> Path:
         """
@@ -119,7 +124,8 @@ class Project:
                 else:
                     filename = f"floor_plan_{i}.gltf"
                 
-                output_path = floor_plan.export_to_gltf(output_dir, filename, v_anchor=floor_plan.v_anchor)
+                output_path = floor_plan.export_to_gltf(output_dir, filename, v_anchor=floor_plan.v_anchor,
+                                                        yaml_dirs=self.yaml_dirs)
                 print(f"  ✓ Exported: {output_path.name}")
                 written.append(Path(output_path))
             except Exception as e:

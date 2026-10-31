@@ -8,6 +8,10 @@ lookup is used for procedurally generated elements and for external models:
    own textures, e.g. models/models_3rd_party/<model>/),
 2. the common texture folder ``textures/``.
 
+A ``texture`` set in an element's YAML ``textures`` structure is searched first
+relative to the project's YAML files (the main config's folder, then the folders
+of its ``reusable_elements`` files), then like a ``map_Kd`` reference.
+
 Procedural elements take their material from
 ``models/procedural/<element_type>/<element_type>.mtl``.
 Example: 'generic_storage' → models/procedural/generic_storage/generic_storage.mtl
@@ -51,7 +55,8 @@ class TextureManager:
     def __init__(
             self,
             procedural_models_dir: Path = PROCEDURAL_MODELS_DIR,
-            textures_dir: Path = TEXTURES_DIR
+            textures_dir: Path = TEXTURES_DIR,
+            yaml_dirs: list[Path] | None = None
     ):
         """
         Initialize texture manager.
@@ -59,9 +64,12 @@ class TextureManager:
         Args:
             procedural_models_dir: Folder with per-element-type material folders (models/procedural/)
             textures_dir: Common texture folder (textures/)
+            yaml_dirs: Folders of the project's YAML files, searched first for
+                textures named in YAML
         """
         self.procedural_models_dir = Path(procedural_models_dir)
         self.textures_dir = Path(textures_dir)
+        self.yaml_dirs = [Path(d) for d in yaml_dirs or []]
 
     def get_procedural_mtl(self, element_type: str) -> Path | None:
         """
@@ -76,12 +84,18 @@ class TextureManager:
         mtl_path = self.procedural_models_dir / element_type / f"{element_type}.mtl"
         return mtl_path if mtl_path.exists() else None
 
-    def find_texture(self, texture_ref: str | Path, mtl_dir: Path) -> Path | None:
+    def find_texture(self, texture_ref: str | Path, mtl_dir: Path, from_yaml: bool = False) -> Path | None:
         """
         Find a texture referenced from a .mtl file located in ``mtl_dir``.
 
-        Searches ``mtl_dir`` first, then the common texture folder.
+        Searches ``mtl_dir`` first, then the common texture folder. A reference
+        written in YAML (``from_yaml``) is searched relative to the YAML folders first.
         """
+        if from_yaml:
+            for yaml_dir in self.yaml_dirs:
+                candidate = yaml_dir / texture_ref
+                if candidate.exists():
+                    return candidate.resolve()
         return find_texture(texture_ref, mtl_dir, self.textures_dir)
 
 

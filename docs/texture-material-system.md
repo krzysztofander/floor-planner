@@ -30,6 +30,8 @@ The first rule keeps models that ship their own textures working unchanged (e.g.
 
 The reference is used as written, so `map_Kd wood/pear_wood.jpg` finds `textures/wood/pear_wood.jpg`, and a relative path such as `map_Kd ../other_model/x.png` is resolved from the `.mtl` folder first and then from `textures/`.
 
+A `texture` set in an element's YAML `textures` structure is searched relative to the project's YAML files first: the folder of the main config, then the folders of its `reusable_elements` files, in the order they are listed. This lets a project outside this repository keep its own textures, e.g. `texture: ../tekstury/glass.jpg` next to the project folder. If the file is not found there, the reference is searched like a `map_Kd` (next to the element type's `.mtl`, then in `textures/`).
+
 A `map_Kd` that cannot be found stops the export with an error. A procedural `.mtl` without `map_Kd` gives an untextured (colour only) material.
 
 ## Key Components
@@ -81,7 +83,7 @@ extra face:  extras.<name>                          → default → class defaul
 
 | `textures` key | Overrides |
 |----------------|-----------|
-| `texture` (or `null` = none) | `map_Kd`; searched next to the `.mtl`, then in `textures/` |
+| `texture` (or `null` = none) | `map_Kd`; searched relative to the project's YAML files (the main config's folder, then the folders of its `reusable_elements` files), then next to the `.mtl`, then in `textures/` |
 | `diffuse` | `Kd` (the black-`Kd`-with-texture → white rule applies only to `Kd` from the `.mtl`) |
 | `specular` | `Ks` |
 | `shininess` | `Ns` |

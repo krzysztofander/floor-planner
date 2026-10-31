@@ -270,6 +270,7 @@ class FloorPlan:
             output_dir: str | Path,
             filename: str = "floor_plan_3d.gltf",
             v_anchor: float | None = None,
+            yaml_dirs: list[Path] | None = None,
     ) -> Path:
         """
         Export floor plan to glTF 2.0 format for 3D visualization.
@@ -282,6 +283,8 @@ class FloorPlan:
         Args:
             output_dir: Directory to write glTF files and textures
             filename: Output filename (default: floor_plan_3d.gltf)
+            yaml_dirs: Folders of the project's YAML files; textures named in
+                       YAML are searched relative to them first
         
         Returns:
             Path to exported glTF file
@@ -295,7 +298,8 @@ class FloorPlan:
             elements=self.elements,
             output_dir=Path(output_dir),
             filename=filename,
-            v_anchor=self.v_anchor if v_anchor is None else v_anchor
+            v_anchor=self.v_anchor if v_anchor is None else v_anchor,
+            yaml_dirs=yaml_dirs
         )
         
         print(f"Exported glTF file: {output_path}")
