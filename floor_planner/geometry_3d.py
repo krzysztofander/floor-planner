@@ -138,6 +138,10 @@ class RectangularGeometry3D(Generate3DMixin):
             cls._default_face_textures_cache = cache
         return cache
     
+    def _get_3d_thickness(self) -> float:
+        """Depth of the 3D box (local Z); ``thickness`` unless a subclass needs a different one."""
+        return self.thickness
+
     def generate_vertices_and_indices(self) -> tuple[list[tuple[float, float, float]], 
                                                       list[tuple[int, int, int]], 
                                                       dict[str, list[int]]]:
@@ -160,6 +164,7 @@ class RectangularGeometry3D(Generate3DMixin):
         length_half = length_exp / 2
         thickness_half = thickness_exp / 2
         height_half = height_exp / 2
+        thickness = self._get_3d_thickness()
 
         # Get bottom corners in 2D (before rotation)
         # Rectangular elements: length along X, thickness along Z
@@ -167,8 +172,8 @@ class RectangularGeometry3D(Generate3DMixin):
         local_corners = [
             (-length_half, -thickness_half),                                          # bottom-left
             (self.length + length_half, -thickness_half),                             # bottom-right
-            (self.length + length_half, self.thickness + thickness_half),             # top-right
-            (-length_half, self.thickness + thickness_half)                           # top-left
+            (self.length + length_half, thickness + thickness_half),                  # top-right
+            (-length_half, thickness + thickness_half)                                # top-left
         ]
 
         # Rotate corners around anchor point

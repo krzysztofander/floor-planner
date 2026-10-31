@@ -101,6 +101,7 @@ Single door, either hinged (swinging) or sliding.
 - `opening_outside`: bool = False - if True, door opens outward (hinge/panel depth becomes `1 - hinges_point`); if False, door opens inward
 - `label`: str | None = None - optional label for the element
 - `door_type`: str = 'hinged' - `'hinged'` (swinging door with opening arc; 3D rotation animation) or `'sliding'` (2D: closed panel, dashed open position and slide-direction arrow; 3D slide animation by `door_width`); any other value raises `ValueError`
+- `wing_thickness`: float | None = None - thickness of the door wing (panel) in meters, used only in 3D; must be greater than 0 and not greater than `thickness`. The wing sits at depth `(thickness - wing_thickness) × hinges depth` inside the doorway and swings around its own face. If not set, the wing fills the whole `thickness`
 
 ---
 
@@ -1263,6 +1264,7 @@ A frameless glass door (procedural, no external model). It is drawn like [Door](
 **Parameters:** same as Door, except:
 - `thickness`: float = 0.01 - glass panel depth
 - `color`: str = '#C8E8F4'
+- `wing_thickness`: float | None = None - as in Door: a glass panel thinner than `thickness` (e.g. `thickness: 0.1`, `wing_thickness: 0.01`)
 
 ### Greenhouse
 **YAML type:** `greenhouse`
