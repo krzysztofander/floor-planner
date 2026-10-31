@@ -273,7 +273,8 @@ class Basin(VertInfoLvl03, RectangularElement):
             label: str | None = None,
             id: str | None = None,
             textures: dict | None = None,
-            
+            length=0.6,
+            thickness=0.5
     ):
         """
         Initialize an instance.
@@ -297,8 +298,8 @@ class Basin(VertInfoLvl03, RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=0.6,
-            thickness=0.5,
+            length=length,
+            thickness=thickness,
             height=height,
             color=color,
             label=label,
