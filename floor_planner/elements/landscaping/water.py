@@ -26,7 +26,8 @@ class Fountain(VertInfoLvl01, CircularElement):
             style: str = 'tiered',
             color: str = '#87CEEB',
             basin_color: str = '#A9A9A9',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a Fountain instance.
@@ -45,12 +46,15 @@ class Fountain(VertInfoLvl01, CircularElement):
             color for the basin/structure
         :param label:
             optional label for the fountain
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         super().__init__(
             anchor_point=anchor_point,
             diameter=diameter,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
         self.height = height
         self.style = style
@@ -197,7 +201,8 @@ class Pond(Element):
             shape: str = 'oval',
             color: str = '#4682B4',
             border_color: str = '#2F4F4F',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a Pond instance.
@@ -216,8 +221,10 @@ class Pond(Element):
             color for the pond edge/border
         :param label:
             optional label for the pond
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
-        super().__init__(anchor_point=anchor_point, label=label, color=color)
+        super().__init__(anchor_point=anchor_point, label=label, id=id, color=color)
         self.length = length
         self.width = width
         self.shape = shape
@@ -438,7 +445,9 @@ class RectPool(VertInfoLvl01, RectangularElement):
             show_lanes: bool = False,
             show_steps: bool = True,
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a RectPool instance.
@@ -461,6 +470,10 @@ class RectPool(VertInfoLvl01, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the pool
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -468,7 +481,9 @@ class RectPool(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=pool_color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.pool_color = pool_color
         self.border_color = border_color
@@ -597,7 +612,9 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             border_color: str = '#B0C4DE',
             show_steps: bool = True,
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an OvalPool instance.
@@ -618,6 +635,10 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the pool
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -625,7 +646,9 @@ class OvalPool(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=pool_color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.pool_color = pool_color
         self.border_color = border_color

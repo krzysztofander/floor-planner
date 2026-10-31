@@ -1,0 +1,7 @@
+# Auto-generated material for retaining_wall
+newmtl retaining_wall
+Ka 0.600000 0.600000 0.550000
+Kd 1.000000 1.000000 1.000000
+Ks 0.150000 0.150000 0.150000
+Ns 15.0
+map_Kd plain_named/light-gray-wall.jpg

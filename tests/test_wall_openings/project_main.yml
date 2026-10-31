@@ -4,7 +4,7 @@ project:
   dpi: 150
   pdf_file: null
   png_dir: "output"
-  visualisation_dir: "visualisation_3d"  # Enable 3D OBJ/MTL export
+  visualisation_dir: "visualisation_3d"  # Enable 3D glTF export
 
 default_options:
   Door:

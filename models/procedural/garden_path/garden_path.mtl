@@ -1,0 +1,7 @@
+# Auto-generated material for garden_path
+newmtl garden_path
+Ka 0.600000 0.550000 0.500000
+Kd 1.000000 1.000000 1.000000
+Ks 0.150000 0.150000 0.150000
+Ns 20.0
+map_Kd plain_named/beige-stone-path.jpg

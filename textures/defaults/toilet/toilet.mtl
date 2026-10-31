@@ -1,7 +1,0 @@
-# Auto-generated material for toilet
-newmtl toilet
-Ka 0.900000 0.900000 0.900000
-Kd 0.950000 0.950000 0.950000
-Ks 0.700000 0.700000 0.700000
-Ns 200.0
-map_Kd toilet.jpg

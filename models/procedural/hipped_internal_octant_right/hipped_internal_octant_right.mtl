@@ -1,0 +1,7 @@
+# Auto-generated material for hipped_internal_octant_right
+newmtl hipped_internal_octant_right
+Ka 0.450000 0.280000 0.150000
+Kd 1.000000 1.000000 1.000000
+Ks 1.150000 1.150000 1.150000
+Ns 20.0
+map_Kd tiles/roof_tiles_1.jpg

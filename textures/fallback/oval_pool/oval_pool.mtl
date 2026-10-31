@@ -1,7 +1,0 @@
-# Auto-generated material for oval_pool
-newmtl oval_pool
-Ka 0.400000 0.600000 0.800000
-Kd 0.500000 0.700000 0.900000
-Ks 0.800000 0.800000 0.800000
-Ns 180.0
-map_Kd oval_pool.jpg

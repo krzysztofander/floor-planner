@@ -201,6 +201,8 @@ tests/**/*.mtl
 tests/**/*.bin
 tests/**/*.sh
 tests/**/*.md
+# Golden files of the pytest regression suite are versioned
+!tests/golden/**
 camera.json
 
 # Generated md files

@@ -1,7 +1,0 @@
-# Auto-generated material for double_sink
-newmtl double_sink
-Ka 0.850000 0.850000 0.850000
-Kd 0.900000 0.900000 0.900000
-Ks 0.600000 0.600000 0.600000
-Ns 180.0
-map_Kd double_sink.jpg

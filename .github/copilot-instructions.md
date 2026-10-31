@@ -32,6 +32,18 @@ make all
 ### Testing & Regression Tests
 **CRITICAL: After ANY source code changes, ALWAYS run:**
 ```bash
+make check
+```
+
+This runs the pytest suite (`tests/`): every scene project in a temporary folder with
+glTF invariants and a comparison of each PNG against `tests/golden/`, plus contract tests
+over the element registry. Scenes listed in `GOLDEN_3D_SCENES` (`tests/conftest.py`) also compare
+their glTF with a golden summary in `tests/golden/3d/`. After an intended visual or 3D change, refresh
+the golden files with `.venv/bin/python -m pytest -m slow -n auto --update-golden` and review the
+image and JSON diffs.
+
+To also rebuild the images in the repository:
+```bash
 make clean; make tests
 ```
 
@@ -136,21 +148,21 @@ Rooms have:
    - **Registry key becomes the source of truth for texture/material naming**
 
 5. **Create textures and materials for 3D export** (MANDATORY for furniture/physical elements):
-   - **The registry key (WITH underscores) determines folder and file names**
-   - Create directory: `mkdir -p textures/fallback/<registry_key>/`
-   - Add texture file: `textures/fallback/<registry_key>/<registry_key>.jpg`
-   - Create material file: `textures/fallback/<registry_key>/<registry_key>.mtl`
+   - **The registry key (WITH underscores) determines the material folder and file names**
+   - Add texture file to the common folder: `textures/<registry_key>.jpg` (or reuse an existing texture)
+   - Create directory: `mkdir -p models/procedural/<registry_key>/`
+   - Create material file: `models/procedural/<registry_key>/<registry_key>.mtl` with `map_Kd` naming the texture
    
    **Example for registry key `'rect_pool'`:**
    ```bash
-   # Create directory (matches registry key exactly)
-   mkdir -p textures/fallback/rect_pool/
+   # Add texture (9.2KB placeholder or actual texture); names in textures/ must be unique
+   cp path/to/texture.jpg textures/rect_pool.jpg
    
-   # Add texture (9.2KB placeholder or actual texture)
-   cp path/to/texture.jpg textures/fallback/rect_pool/rect_pool.jpg
+   # Create material directory (matches registry key exactly)
+   mkdir -p models/procedural/rect_pool/
    
    # Create MTL file
-   cat > textures/fallback/rect_pool/rect_pool.mtl << 'EOF'
+   cat > models/procedural/rect_pool/rect_pool.mtl << 'EOF'
    # Material for rect_pool
    newmtl rect_pool
    Ka 0.700000 0.700000 0.700000
@@ -162,11 +174,10 @@ Rooms have:
    ```
    
    **Naming Rules:**
-   - Directory name = Registry key (WITH underscores): `'generic_storage'` → `generic_storage/`
-   - Texture file = `<registry_key>.jpg` or `.png`: `generic_storage.jpg`
+   - Material directory = `models/procedural/<registry_key>/` (WITH underscores): `'generic_storage'` → `models/procedural/generic_storage/`
    - Material file = `<registry_key>.mtl`: `generic_storage.mtl`
    - MTL newmtl = Registry key: `newmtl generic_storage`
-   - MTL map_Kd = Texture filename: `map_Kd generic_storage.jpg`
+   - MTL map_Kd = name of a texture file in `textures/` (searched next to the `.mtl` first, then in `textures/`): `map_Kd wood/pear_wood.jpg` (textures can be shared between element types)
    
    **Skip textures only for:**
    - Abstract/UI elements: `line`, `polygon`, `circle`, `dimension_arrow`, `text_box`, `room`
@@ -177,7 +188,8 @@ Rooms have:
    - Update or create example YAML files in `examples/`
 
 7. **Run regression tests**:
-   - Execute `make all` to ensure nothing broke
+   - Execute `make check` (and `make all`) to ensure nothing broke
+   - New scene projects: add them to `SCENES` in `tests/conftest.py` and generate their golden images
    - Verify new elements render correctly in 2D
    - Test 3D export with `visualisation_dir` to verify textures copy correctly
 
@@ -192,10 +204,8 @@ After adding a new element, verify:
 - [ ] Imported in subpackage `__init__.py`
 - [ ] Imported in `floor_planner/elements/__init__.py`
 - [ ] **Registered in `registry.py` with correct snake_case type name**
-- [ ] **Texture directory created: `textures/fallback/<registry_key>/`**
-- [ ] **Texture file exists: `textures/fallback/<registry_key>/<registry_key>.jpg`**
-- [ ] **Material file exists: `textures/fallback/<registry_key>/<registry_key>.mtl`**
-- [ ] **MTL file references correct texture filename**
+- [ ] **Material file exists: `models/procedural/<registry_key>/<registry_key>.mtl`**
+- [ ] **MTL `map_Kd` names a texture that exists in `textures/`**
 - [ ] Documented in appropriate guide
 - [ ] Example added to relevant demo YAML
 - [ ] `make all` runs without errors

@@ -107,6 +107,9 @@ class Window2D:
 class Window(VertInfoWindows, RectangularElement):
     """Window in a wall."""
 
+    # Windows use 0.2 m x 0.2 m texture tiles
+    _default_textures = {'default': {'scale_meters': 0.2}}
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -116,7 +119,10 @@ class Window(VertInfoWindows, RectangularElement):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
-            **kwargs
+            id: str | None = None,
+            textures: dict | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None
     ):
         """
         Initialize an instance.
@@ -138,9 +144,14 @@ class Window(VertInfoWindows, RectangularElement):
             color to use for drawing the window
         :param label:
             optional label for the element
-        :param kwargs:
-            additional parameters (e.g., texture_scale, v_anchor, height, id);
-            texture_scale defaults to 0.2 (0.2m x 0.2m tiles) for windows if not specified
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param v_anchor:
+            optional vertical anchor point in meters; if None, uses element's default vertical level
+        :param height:
+            optional height of the window in meters; if None, uses element's default height
         :return:
             freshly created instance of `Window` class
         """
@@ -152,10 +163,6 @@ class Window(VertInfoWindows, RectangularElement):
         self.overall_thickness = overall_thickness
         self.alpha_mode = "BLEND"  # Windows use alpha blending for transparency
 
-        # Set default texture_scale for windows to 0.2 (0.2m x 0.2m tiles)
-        if 'texture_scale' not in kwargs:
-            kwargs['texture_scale'] = 0.2
-
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
@@ -163,7 +170,10 @@ class Window(VertInfoWindows, RectangularElement):
             thickness=overall_thickness,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            textures=textures,
+            v_anchor=v_anchor,
+            height=height
         )
 
         self.window2d = Window2D(self)

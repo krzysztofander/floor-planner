@@ -469,6 +469,13 @@ def generate_wall_with_openings(wall: 'Element', openings: list['Element']) -> t
     face_groups['left'] = [side_tri_start_idx + 4, side_tri_start_idx + 5]
     face_groups['right'] = [side_tri_start_idx + 6, side_tri_start_idx + 7]
     face_groups['opening_edges'] = list(range(opening_edges_start_idx, len(indices)))
+    # Reveals of the openings, emitted per opening as bottom, top, left, right (2 triangles each)
+    for offset, name in enumerate(('inside_bottom', 'inside_top', 'inside_left', 'inside_right')):
+        face_groups[name] = [
+            tri_idx
+            for opening_start in range(opening_edges_start_idx, len(indices), 8)
+            for tri_idx in (opening_start + 2 * offset, opening_start + 2 * offset + 1)
+        ]
     face_groups['all'] = list(range(len(indices)))
     
     return vertices, indices, face_groups

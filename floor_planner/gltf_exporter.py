@@ -31,6 +31,7 @@ from floor_planner.elements.external_models import ExternalModelElement
 from floor_planner.geometry_3d import is_3d_eligible
 from floor_planner.elements.registry import get_element_type_from_instance
 from floor_planner.texture_manager import TextureManager
+from floor_planner.face_textures import BOX_FACES, FaceTextures, ResolvedFace, resolve_face, uv_repeats
 from floor_planner.elements.foundation.basic import WallND
 from floor_planner.wall_openings import find_embedded_openings, generate_wall_with_openings
 from floor_planner.utils import WarnMsg
@@ -164,15 +165,12 @@ class GLTFExporter:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create textures subdirectory (matching OBJ exporter structure)
+        # Create textures subdirectory
         self.textures_dir = self.output_dir / 'textures'
         self.textures_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize texture manager for procedural element textures
-        floor_planner_dir = Path(__file__).parent.parent
-        default_texture_dir = floor_planner_dir / 'textures' / 'defaults'
-        fallback_texture_dir = floor_planner_dir / 'textures' / 'fallback'
-        self.texture_manager = TextureManager(default_texture_dir, self.textures_dir, fallback_texture_dir)
+        # Initialize texture manager (procedural materials and texture lookup)
+        self.texture_manager = TextureManager()
         
         self.buffer_builder = BufferBuilder()
         self.nodes: List[Dict[str, Any]] = []
@@ -195,6 +193,10 @@ class GLTFExporter:
         
         # Material cache
         self.material_cache: Dict[str, int] = {}  # "model_dir/material_name" -> material index
+        # Procedural materials: (element_type, ResolvedFace.material_key, element blend) -> material index
+        self.procedural_material_cache: Dict[tuple, int] = {}
+        self._procedural_material_counts: Dict[str, int] = {}  # element_type -> materials created
+        self._procedural_mtl_cache: Dict[str, tuple] = {}  # element_type -> (props, mtl_dir, mtl_path)
         
         # Store all elements for wall opening detection
         self.all_elements: List[Element] = []
@@ -329,16 +331,16 @@ class GLTFExporter:
         
         Args:
             texture_path: Relative path to texture (from MTL file)
-            model_dir: Directory containing the model files
+            model_dir: Directory containing the model files (and the MTL file)
         
         Returns:
             Image index if successful, None if failed
         """
-        # Resolve texture path (can be just filename or relative path)
-        source_path = model_dir / texture_path
-        source_path = source_path.resolve()
-        if not source_path.exists():
-            WarnMsg(f"Texture file not found: {source_path}")
+        # Search next to the MTL file first, then the common texture folder
+        source_path = self.texture_manager.find_texture(texture_path, model_dir)
+        if source_path is None:
+            WarnMsg(f"Texture file not found: {texture_path} (searched {model_dir} and "
+                    f"{self.texture_manager.textures_dir})")
             return None
         
         # Check cache
@@ -347,7 +349,7 @@ class GLTFExporter:
             return self.texture_paths[cache_key]
         
         try:
-            # Copy texture to textures/ subdirectory (matching OBJ exporter structure)
+            # Copy texture to textures/ subdirectory
             dest_filename = source_path.name
             dest_path = self.textures_dir / dest_filename
             
@@ -1207,19 +1209,24 @@ class GLTFExporter:
             return None
     
     def _generate_box_geometry_with_uvs(self, element, vertices: list[tuple[float, float, float]], 
-                                         indices: list[tuple[int, int, int]]) -> tuple[list[tuple[float, float, float]], 
-                                                                                        list[tuple[int, int, int]], 
-                                                                                        list[tuple[float, float]]]:
+                                         indices: list[tuple[int, int, int]],
+                                         resolved_faces: Optional[Dict[str, ResolvedFace]] = None
+                                         ) -> tuple[list[tuple[float, float, float]], 
+                                                    list[tuple[int, int, int]], 
+                                                    list[tuple[float, float]]]:
         """
         Generate box geometry with proper per-face UV mapping.
         
         Expands 8 unique vertices to 24 vertices (4 per face × 6 faces) so each face
         can have independent texture coordinates. Remaps triangle indices accordingly.
+        The UV range of each face follows its resolved scale: stretched /
+        ``scale_relative: r`` → 0…r, ``scale_meters: m`` → 0…size/m.
         
         Args:
-            element: The floor plan element (to access dimensions and texture_scale)
+            element: The floor plan element
             vertices: List of 8 unique vertex positions
             indices: List of triangle indices referencing the 8 vertices
+            resolved_faces: Resolved look per box face (None = all faces stretched)
             
         Returns:
             Tuple of:
@@ -1241,82 +1248,61 @@ class GLTFExporter:
                     (vertices[3][2] - vertices[0][2])**2)**0.5
         height = abs(vertices[4][1] - vertices[0][1])
         
-        # Get texture scale parameter for tiling
-        texture_scale = getattr(element, 'texture_scale', None)
-        
-        # Calculate UV repeats based on physical size
-        if texture_scale and texture_scale > 0:
-            u_length = length / texture_scale
-            u_thickness = thickness / texture_scale
-            v_height = height / texture_scale
-        else:
-            u_length = 1.0
-            u_thickness = 1.0
-            v_height = 1.0
+        # UV range (u_max, v_max) of each face from its resolved scale and size
+        face_sizes = {
+            'bottom': (length, thickness),
+            'top': (length, thickness),
+            'front': (length, height),
+            'back': (length, height),
+            'right': (thickness, height),
+            'left': (thickness, height),
+        }
+        uv_max = {}
+        for face, (width, face_height) in face_sizes.items():
+            if resolved_faces and face in resolved_faces:
+                uv_max[face] = uv_repeats(resolved_faces[face], width, face_height)
+            else:
+                uv_max[face] = (1.0, 1.0)  # stretched
         
         # Build 24 expanded vertices (4 per face × 6 faces) with proper UVs
         expanded_vertices = []
         texcoords = []
         
         # Bottom face (vertices 0-3): Use original vertices 0,1,2,3
+        u, v = uv_max['bottom']
         for i in [0, 1, 2, 3]:
             expanded_vertices.append(vertices[i])
-        texcoords.extend([
-            (0.0, 0.0),
-            (u_length, 0.0),
-            (u_length, u_thickness),
-            (0.0, u_thickness),
-        ])
+        texcoords.extend([(0.0, 0.0), (u, 0.0), (u, v), (0.0, v)])
         
         # Top face (vertices 4-7): Use original vertices 4,5,6,7
+        u, v = uv_max['top']
         for i in [4, 5, 6, 7]:
             expanded_vertices.append(vertices[i])
-        texcoords.extend([
-            (0.0, 0.0),
-            (u_length, 0.0),
-            (u_length, u_thickness),
-            (0.0, u_thickness),
-        ])
+        texcoords.extend([(0.0, 0.0), (u, 0.0), (u, v), (0.0, v)])
         
         # Front face: Use original vertices 0,1,5,4
+        u, v = uv_max['front']
         for i in [0, 1, 5, 4]:
             expanded_vertices.append(vertices[i])
-        texcoords.extend([
-            (0.0, 0.0),
-            (u_length, 0.0),
-            (u_length, v_height),
-            (0.0, v_height),
-        ])
+        texcoords.extend([(0.0, 0.0), (u, 0.0), (u, v), (0.0, v)])
         
         # Back face: Use original vertices 2,3,7,6
+        u, v = uv_max['back']
         for i in [2, 3, 7, 6]:
             expanded_vertices.append(vertices[i])
-        texcoords.extend([
-            (u_length, 0.0),
-            (0.0, 0.0),
-            (0.0, v_height),
-            (u_length, v_height),
-        ])
+        texcoords.extend([(u, 0.0), (0.0, 0.0), (0.0, v), (u, v)])
         
         # Right face: Use original vertices 1,2,6,5
+        u, v = uv_max['right']
         for i in [1, 2, 6, 5]:
             expanded_vertices.append(vertices[i])
-        texcoords.extend([
-            (0.0, 0.0),
-            (u_thickness, 0.0),
-            (u_thickness, v_height),
-            (0.0, v_height),
-        ])
+        texcoords.extend([(0.0, 0.0), (u, 0.0), (u, v), (0.0, v)])
         
         # Left face: Use original vertices 3,0,4,7
+        u, v = uv_max['left']
         for i in [3, 0, 4, 7]:
             expanded_vertices.append(vertices[i])
-        texcoords.extend([
-            (u_thickness, 0.0),
-            (0.0, 0.0),
-            (0.0, v_height),
-            (u_thickness, v_height),
-        ])
+        texcoords.extend([(u, 0.0), (0.0, 0.0), (0.0, v), (u, v)])
         
         # Remap triangle indices to expanded vertex layout
         # Original indices reference vertices 0-7
@@ -1496,19 +1482,26 @@ class GLTFExporter:
         wall: 'WallND',
         vertices: list[tuple[float, float, float]],
         indices: list[tuple[int, int, int]],
-        face_groups: dict[str, list[int]]
+        face_groups: dict[str, list[int]],
+        resolved_faces: Optional[Dict[str, ResolvedFace]] = None
     ) -> list[tuple[float, float]]:
         """
         Generate proper UV coordinates for walls with openings.
         
         Each face type gets appropriate UV mapping based on its orientation.
         UVs are assigned per-triangle to handle shared vertices correctly.
+
+        Stretched / ``scale_relative: r``: UV = local position / wall size
+        (length, height, thickness), multiplied by ``r`` and clamped to 0…r.
+        ``scale_meters: m``: UV = local position in metres / m (continuous tiling).
+        The reveals (``inside_*``) use the same wall-based coordinates.
         
         Args:
             wall: Wall element
             vertices: List of vertex positions
             indices: List of triangle indices
             face_groups: Dict mapping face names to triangle indices
+            resolved_faces: Resolved look per face (None = all faces stretched)
             
         Returns:
             List of (u, v) texture coordinates for each vertex
@@ -1528,98 +1521,52 @@ class GLTFExporter:
         angle_rad = np.radians(wall_angle)
         # X-axis: along wall length
         x_axis = np.array([np.cos(angle_rad), 0, np.sin(angle_rad)])
-        # Y-axis: up (height)
-        y_axis = np.array([0, 1, 0])
         # Z-axis: along wall thickness (perpendicular to wall)
         z_axis = np.array([-np.sin(angle_rad), 0, np.cos(angle_rad)])
         
         # Wall anchor in 3D
         anchor_3d = np.array([wall_anchor[0], 0, wall_anchor[1]])
+
+        # Local axes used for (u, v) per face, and the wall size along each axis
+        face_axes = {
+            'front': ('x', 'y'), 'back': ('x', 'y'),
+            'top': ('x', 'z'), 'bottom': ('x', 'z'),
+            'left': ('z', 'y'), 'right': ('z', 'y'),
+            'inside_top': ('x', 'z'), 'inside_bottom': ('x', 'z'),
+            'inside_left': ('z', 'y'), 'inside_right': ('z', 'y'),
+        }
+        axis_size = {'x': wall_length, 'y': wall_height, 'z': wall_thickness}
         
         def assign_uvs_for_face(tri_idx: int, face_type: str):
             """Assign UVs to all vertices of a triangle based on face type."""
-            i1, i2, i3 = indices[tri_idx]
+            u_axis, v_axis = face_axes[face_type]
+            resolved = resolved_faces.get(face_type) if resolved_faces else None
+            if resolved is not None and resolved.scale_mode == 'meters':
+                mode, scale = 'meters', resolved.scale_value
+            else:
+                mode, scale = 'relative', (resolved.scale_value if resolved is not None else 1.0)
             
-            # For opening edges, determine orientation from triangle geometry
-            if face_type == 'opening_edges':
-                # Get all three vertex positions in local coordinates
-                local_positions = []
-                for v_idx in [i1, i2, i3]:
-                    vx, vy, vz = vertices[v_idx]
-                    v_pos = np.array([vx, vy, vz])
-                    relative = v_pos - anchor_3d
-                    local_x = np.dot(relative, x_axis)
-                    local_y = vy - wall_v_anchor
-                    local_z = np.dot(relative, z_axis)
-                    local_positions.append((local_x, local_y, local_z))
-                
-                # Check coordinate variation to determine edge type
-                x_coords = [p[0] for p in local_positions]
-                y_coords = [p[1] for p in local_positions]
-                
-                x_range = max(x_coords) - min(x_coords)
-                y_range = max(y_coords) - min(y_coords)
-                
-                # Determine if horizontal (Y constant) or vertical (X constant) edge
-                is_horizontal_edge = y_range < 0.01  # Y doesn't vary = horizontal edge
-                is_vertical_edge = x_range < 0.01    # X doesn't vary = vertical edge
-            
-            for v_idx in [i1, i2, i3]:
+            for v_idx in indices[tri_idx]:
                 vx, vy, vz = vertices[v_idx]
-                v_pos = np.array([vx, vy, vz])
-                
-                # Transform to wall's local coordinate system
-                relative = v_pos - anchor_3d
-                local_x = np.dot(relative, x_axis)  # Along wall length (0 to wall_length)
-                local_y = vy - wall_v_anchor  # Height from wall base (0 to wall_height)
-                local_z = np.dot(relative, z_axis)  # Along wall thickness (0 to wall_thickness)
-                
-                # Calculate UV based on face type
-                if face_type == 'front' or face_type == 'back':
-                    # Front/back faces: map to wall length × height
-                    u = local_x / wall_length
-                    v = local_y / wall_height
-                
-                elif face_type == 'top' or face_type == 'bottom':
-                    # Top/bottom faces: map to wall length × thickness
-                    u = local_x / wall_length
-                    v = local_z / wall_thickness
-                
-                elif face_type == 'left' or face_type == 'right':
-                    # Left/right edge faces: map to thickness × height
-                    u = local_z / wall_thickness
-                    v = local_y / wall_height
-                
-                elif face_type == 'opening_edges':
-                    # Opening edges connect front to back of wall
-                    if is_horizontal_edge:
-                        # Horizontal edge (top/bottom of opening): varies in X and Z
-                        u = local_x / wall_length
-                        v = local_z / wall_thickness
-                    elif is_vertical_edge:
-                        # Vertical edge (left/right of opening): varies in Y and Z
-                        u = local_z / wall_thickness
-                        v = local_y / wall_height
-                    else:
-                        # Fallback: use thickness and height
-                        u = local_z / wall_thickness
-                        v = local_y / wall_height
-                
+                relative = np.array([vx, vy, vz]) - anchor_3d
+                local = {
+                    'x': np.dot(relative, x_axis),  # Along wall length (0 to wall_length)
+                    'y': vy - wall_v_anchor,        # Height from wall base (0 to wall_height)
+                    'z': np.dot(relative, z_axis),  # Along wall thickness (0 to wall_thickness)
+                }
+                if mode == 'meters':
+                    u = local[u_axis] / scale
+                    v = local[v_axis] / scale
                 else:
-                    # Fallback for unknown face types
-                    u = local_x / wall_length
-                    v = local_y / wall_height
-                
-                # Clamp UVs to [0, 1] range
-                u = max(0.0, min(1.0, u))
-                v = max(0.0, min(1.0, v))
-                
+                    # Normalized to the wall size, clamped to 0…r
+                    u = max(0.0, min(1.0, local[u_axis] / axis_size[u_axis])) * scale
+                    v = max(0.0, min(1.0, local[v_axis] / axis_size[v_axis])) * scale
                 texcoords[v_idx] = (u, v)
         
-        # Process face groups in priority order
-        # Process outer faces first, then opening edges last to ensure they take precedence
-        # Skip 'sides' and 'all' as they're aggregate groups that overlap with specific face types
-        face_priority = ['bottom', 'top', 'left', 'right', 'front', 'back', 'opening_edges']
+        # Process face groups (outer faces first, then the reveals of the openings)
+        # Skip 'sides', 'all' and 'opening_edges': aggregate groups that overlap with these
+        face_priority = ['bottom', 'top', 'left', 'right', 'front', 'back',
+                         'inside_bottom', 'inside_top', 'inside_left', 'inside_right']
         
         for face_type in face_priority:
             if face_type in face_groups:
@@ -1712,10 +1659,18 @@ class GLTFExporter:
         is_simple_box = (len(vertices) == 8 and len(indices) == 12
                          and 'top' in face_groups and 'bottom' in face_groups)
         
+        # Per-face looks (textures structure → class default → MTL) for boxes and
+        # walls with openings; other geometry uses one material for the whole element
+        resolved_faces = None
+        if (is_simple_box or has_openings) and hasattr(element, 'get_face_textures'):
+            face_names = [name for name in BOX_FACES if name in face_groups]
+            face_names += [name for name in getattr(element, '_extra_faces', ()) if name in face_groups]
+            resolved_faces = self._resolve_element_faces(element, face_names + ['default'])
+        
         if is_simple_box:
             # Generate proper per-face UV mapping (expands 8 vertices to 24)
             expanded_vertices, remapped_indices, texcoords = self._generate_box_geometry_with_uvs(
-                element, vertices, indices
+                element, vertices, indices, resolved_faces
             )
         else:
             # Complex geometry
@@ -1724,7 +1679,7 @@ class GLTFExporter:
                 expanded_vertices = vertices
                 remapped_indices = indices
                 texcoords = self._generate_wall_opening_uvs(
-                    element, vertices, indices, face_groups
+                    element, vertices, indices, face_groups, resolved_faces
                 )
             else:
                 # Roofs and other slope geometry: per-face UV expansion
@@ -1735,7 +1690,6 @@ class GLTFExporter:
         
         # Convert to numpy arrays
         vertices_array = np.array(expanded_vertices, dtype=np.float32)
-        indices_array = np.array(remapped_indices, dtype=np.uint32).flatten()
         texcoords_array = np.array(texcoords, dtype=np.float32)
         
         # Generate normals from triangle geometry
@@ -1754,11 +1708,39 @@ class GLTFExporter:
             target=34962  # ARRAY_BUFFER
         )
         
-        # Create face indices accessor
-        indices_accessor = self.buffer_builder.add_data(
-            indices_array,
-            target=34963  # ELEMENT_ARRAY_BUFFER
-        )
+        # Material per triangle: per-face looks, or one material for the whole element
+        if resolved_faces is not None:
+            triangle_materials = [None] * len(remapped_indices)
+            for name, resolved in resolved_faces.items():
+                if name == 'default':
+                    continue
+                material_index = self._get_procedural_material(element, resolved)
+                for tri_idx in face_groups[name]:
+                    triangle_materials[tri_idx] = material_index
+            # Triangles outside the named faces use the 'default' look
+            default_material = None
+            for tri_idx, material_index in enumerate(triangle_materials):
+                if material_index is None:
+                    if default_material is None:
+                        default_material = self._get_procedural_material(element, resolved_faces['default'])
+                    triangle_materials[tri_idx] = default_material
+        else:
+            triangle_materials = [self._get_default_material(element)] * len(remapped_indices)
+        
+        # Group triangles by material (in triangle order), one primitive per group
+        material_groups: Dict[int, list] = {}
+        for tri, material_index in zip(remapped_indices, triangle_materials):
+            material_groups.setdefault(material_index, []).append(tri)
+        
+        # Create face indices accessors (one per material group)
+        group_index_accessors = []
+        for material_index, group_triangles in material_groups.items():
+            group_indices_array = np.array(group_triangles, dtype=np.uint32).flatten()
+            accessor = self.buffer_builder.add_data(
+                group_indices_array,
+                target=34963  # ELEMENT_ARRAY_BUFFER
+            )
+            group_index_accessors.append((material_index, accessor))
         
         # Create texture coordinate accessor
         texcoord_accessor = self.buffer_builder.add_data(
@@ -1772,27 +1754,27 @@ class GLTFExporter:
             target=34962  # ARRAY_BUFFER
         )
         
-        # Create primitive
-        primitive = {
-            "attributes": {
-                "POSITION": position_accessor,
-                "NORMAL": normal_accessor,
-                "TEXCOORD_0": texcoord_accessor
-            },
-            "indices": indices_accessor,
-            "mode": 4  # TRIANGLES
-        }
-        
-        # Apply default material based on element type
-        material_index = self._get_default_material(element)
-        if material_index is not None:
-            primitive["material"] = material_index
+        # Create primitives (shared vertex attributes, one index list per material)
+        primitives = []
+        for material_index, indices_accessor in group_index_accessors:
+            primitive = {
+                "attributes": {
+                    "POSITION": position_accessor,
+                    "NORMAL": normal_accessor,
+                    "TEXCOORD_0": texcoord_accessor
+                },
+                "indices": indices_accessor,
+                "mode": 4  # TRIANGLES
+            }
+            if material_index is not None:
+                primitive["material"] = material_index
+            primitives.append(primitive)
         
         # Create mesh
         element_type = element.__class__.__name__
         gltf_mesh = {
             "name": f"{element_type}_{element.get_id()}",
-            "primitives": [primitive]
+            "primitives": primitives
         }
         
         mesh_index = len(self.meshes)
@@ -1884,72 +1866,122 @@ class GLTFExporter:
         
         return node_index
     
+    def _read_procedural_mtl(self, element_type: str) -> tuple[dict, Path, Optional[Path]]:
+        """
+        Read the MTL file of a procedural element type (cached per type).
+
+        Args:
+            element_type: Registry key of the element
+
+        Returns:
+            (properties of the best material in models/procedural/<type>/<type>.mtl,
+             folder where its texture references are searched first, path of the MTL
+             or None if the type has no MTL)
+        """
+        if element_type not in self._procedural_mtl_cache:
+            mtl_props: Dict[str, Any] = {}
+            mtl_dir = self.texture_manager.textures_dir
+            mtl_path = self.texture_manager.get_procedural_mtl(element_type)
+            if mtl_path:
+                mtl_dir = mtl_path.parent
+                best_material = self._select_best_mtl_material(self._parse_mtl_file(mtl_path))
+                if best_material:
+                    mtl_props = best_material[1]
+            self._procedural_mtl_cache[element_type] = (mtl_props, mtl_dir, mtl_path)
+        return self._procedural_mtl_cache[element_type]
+
+    def _resolve_element_faces(self, element: Element, names: List[str]) -> Dict[str, ResolvedFace]:
+        """
+        Resolve the look of the given faces of a procedural element.
+
+        Box elements use their ``textures`` structure and class default; other elements
+        resolve from the MTL file only (see floor_planner.face_textures).
+
+        Args:
+            element: Procedural element
+            names: Face names (box faces, extra faces, or 'default' for the whole element)
+
+        Returns:
+            Dict mapping face name to ResolvedFace
+        """
+        element_type = get_element_type_from_instance(element)
+        mtl_props, mtl_dir, mtl_path = self._read_procedural_mtl(element_type)
+        if hasattr(element, 'get_face_textures'):
+            element_textures = element.get_face_textures()
+            class_textures = type(element).get_default_face_textures()
+        else:
+            element_textures = class_textures = FaceTextures()
+
+        def find(texture_ref: str, source: str) -> Optional[Path]:
+            texture_path = self.texture_manager.find_texture(texture_ref, mtl_dir)
+            if texture_path is None:
+                where = mtl_path if source == '.mtl map_Kd' else f"{source} of element '{element.get_id()}'"
+                WarnMsg(f"Texture '{texture_ref}' referenced by {where} not found")
+            return texture_path
+
+        return {name: resolve_face(name, element_textures, class_textures, mtl_props, find) for name in names}
+
     def _get_default_material(self, element: Element) -> Optional[int]:
         """
-        Get or create default material for element type with texture support.
-        
-        Uses TextureManager to resolve textures from fallback directory.
-        Reads MTL files for material properties (Kd, Ks, Ns).
-        Falls back to solid colors if no MTL found.
-        
+        Get or create the material of a procedural element as a whole.
+
+        Used for geometry without per-face materials (roofs, circular elements, ...):
+        the material comes from the element type's MTL file
+        (models/procedural/<type>/<type>.mtl) and its map_Kd texture.
+
         Args:
             element: Element to get material for
-        
-        Returns:
-            Material index, or None if no material needed
-        """
-        # Get element type from registry (snake_case)
-        element_type = get_element_type_from_instance(element)
-        
-        # Check cache (per element type, not per material name)
-        if element_type in self.material_cache:
-            return self.material_cache[element_type]
-        
-        # Resolve textures using TextureManager
-        texture_paths = self.texture_manager.resolve_element_textures(
-            element_type, Path.cwd()
-        )
-        
-        # Try to find and parse MTL file for this element type
-        mtl_properties = None
-        texture_path = texture_paths.get('all') or next(iter(texture_paths.values()), None)
-        
-        if texture_path:
-            texture_path = Path(texture_path)
-            # MTL file should be in same directory as texture
-            mtl_path = texture_path.parent / f"{element_type}.mtl"
-            
-            if mtl_path.exists():
-                mtl_materials = self._parse_mtl_file(mtl_path)
 
-                best_material = self._select_best_mtl_material(mtl_materials)
-                if best_material:
-                    mtl_properties = best_material[1]
-        
-        # Create material using MTL properties or defaults
-        material_name = f"{element_type}_material"
+        Returns:
+            Material index
+        """
+        resolved = self._resolve_element_faces(element, ['default'])['default']
+        return self._get_procedural_material(element, resolved)
+
+    def _get_procedural_material(self, element: Element, resolved: ResolvedFace) -> int:
+        """
+        Get or create the glTF material for one resolved face look of a procedural element.
+
+        Materials are shared by all faces/elements of the same type with the same look.
+        The first material of a type is named ``<type>_material``, further variants
+        ``<type>_material_<n>``. Falls back to built-in colours for values that are
+        set neither in YAML nor in the MTL file.
+
+        Args:
+            element: Element the face belongs to
+            resolved: Resolved face look (texture, Kd, Ks, Ns, opacity)
+
+        Returns:
+            Material index
+        """
+        element_type = get_element_type_from_instance(element)
+        element_blend = getattr(element, 'alpha_mode', None) == "BLEND"
+        cache_key = (element_type, resolved.material_key, element_blend)
+        if cache_key in self.procedural_material_cache:
+            return self.procedural_material_cache[cache_key]
+
+        variant = self._procedural_material_counts.get(element_type, 0)
+        self._procedural_material_counts[element_type] = variant + 1
+        material_name = f"{element_type}_material" if variant == 0 else f"{element_type}_material_{variant}"
         material = {
             "name": material_name,
             "pbrMetallicRoughness": {}
         }
-        
-       # Handle transparency from MTL 'd' value (d=1.0 = opaque, d=0.0 = fully transparent)
-        alpha = 1.0
-        if 'transparency' in mtl_properties:
-            alpha = float(mtl_properties['transparency'])
-            if alpha < 0.99:
-                material["alphaMode"] = "BLEND"
-  
 
-        # Set base color from MTL diffuse (Kd) or default
-        if mtl_properties and 'diffuse' in mtl_properties:
-            diffuse = mtl_properties['diffuse']
-            # If diffuse is black but we have a texture, use white to show texture
-            if 'diffuse_texture' in mtl_properties and sum(diffuse) < 0.01:
+        # Opacity (MTL 'd': 1.0 = opaque, 0.0 = fully transparent)
+        alpha = resolved.opacity if resolved.opacity is not None else 1.0
+        if alpha < 0.99:
+            material["alphaMode"] = "BLEND"
+
+        # Base color from diffuse (Kd) or default
+        if resolved.diffuse is not None:
+            diffuse = list(resolved.diffuse)
+            # If the MTL diffuse is black but there is a texture, use white to show the texture
+            if resolved.diffuse_from_mtl and resolved.texture_path is not None and sum(diffuse) < 0.01:
                 diffuse = [1.0, 1.0, 1.0]
             material["pbrMetallicRoughness"]["baseColorFactor"] = diffuse + [alpha]
         else:
-            # Fallback colors if no MTL found
+            # Fallback colors if no diffuse is set
             default_colors = {
                 'wall': [0.95, 0.95, 0.95],
                 'wall_nd': [0.95, 0.95, 0.95],
@@ -1959,32 +1991,35 @@ class GLTFExporter:
             base_color = default_colors.get(element_type, [0.8, 0.8, 0.8])
             material["pbrMetallicRoughness"]["baseColorFactor"] = base_color + [alpha]
         
-        # Set roughness from MTL shininess (Ns) or default
-        if mtl_properties and 'shininess' in mtl_properties:
+        # Roughness from shininess (Ns) or default
+        if resolved.shininess is not None:
             # Convert Phong shininess to roughness (inverse relationship)
-            shininess = mtl_properties['shininess']
-            roughness = 1.0 - min(shininess / 100.0, 1.0)
+            roughness = 1.0 - min(resolved.shininess / 100.0, 1.0)
             material["pbrMetallicRoughness"]["roughnessFactor"] = roughness
         else:
-            # Default roughness
             material["pbrMetallicRoughness"]["roughnessFactor"] = 0.8
         
         # Metallic factor (typically non-metallic for architectural elements)
         material["pbrMetallicRoughness"]["metallicFactor"] = 0.0
         
-        # Add specular extension if specular color is present in MTL
-        if mtl_properties and 'specular' in mtl_properties:
-            self._add_specular_extension(material, mtl_properties['specular'])
+        # Specular extension if a specular color is set
+        if resolved.specular is not None:
+            self._add_specular_extension(material, list(resolved.specular))
         
         # Add alphaMode if element has transparency
-        if hasattr(element, 'alpha_mode') and element.alpha_mode == "BLEND":
+        if element_blend:
             material["alphaMode"] = "BLEND"
         
+        # Double-sided (back faces not culled); glTF default is single-sided, so only written when set
+        if resolved.double_sided:
+            material["doubleSided"] = True
+        
         # Add texture if available
+        texture_path = resolved.texture_path
         if texture_path and texture_path.exists():
             # Check cache to avoid copying same texture multiple times
-            cache_key = str(texture_path)
-            if cache_key not in self.texture_paths:
+            cache_key_tex = str(texture_path)
+            if cache_key_tex not in self.texture_paths:
                 try:
                     # Copy to textures/ subdirectory
                     dest_filename = texture_path.name
@@ -2003,13 +2038,13 @@ class GLTFExporter:
                     self.images.append(image)
                     
                     # Cache
-                    self.texture_paths[cache_key] = image_index
+                    self.texture_paths[cache_key_tex] = image_index
                     
                 except Exception as e:
                     WarnMsg(f"Failed to copy texture {texture_path}: {e}")
                     image_index = None
             else:
-                image_index = self.texture_paths[cache_key]
+                image_index = self.texture_paths[cache_key_tex]
             
             # Create texture and link to material
             if image_index is not None:
@@ -2024,9 +2059,7 @@ class GLTFExporter:
         
         material_index = len(self.materials)
         self.materials.append(material)
-        
-        # Cache
-        self.material_cache[element_type] = material_index
+        self.procedural_material_cache[cache_key] = material_index
         
         return material_index
     

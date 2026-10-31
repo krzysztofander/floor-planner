@@ -1,7 +1,0 @@
-# Auto-generated material for fish_tank
-newmtl fish_tank
-Ka 0.300000 0.600000 0.700000
-Kd 0.400000 0.700000 0.800000
-Ks 0.800000 0.800000 0.800000
-Ns 250.0
-map_Kd fish_tank.jpg

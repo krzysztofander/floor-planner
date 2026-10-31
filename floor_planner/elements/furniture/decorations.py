@@ -30,7 +30,9 @@ class FishTank(VertInfoLvl03, RectangularElement):
             thickness: float = 0.3,
             v_anchor: float = 0.6,
             color: str = 'blue',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize an instance.
@@ -50,6 +52,10 @@ class FishTank(VertInfoLvl03, RectangularElement):
             color to use for drawing the fish tank
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :return:
             freshly created instance of `FishTank` class
         """
@@ -60,7 +66,9 @@ class FishTank(VertInfoLvl03, RectangularElement):
             thickness=thickness,
             v_anchor=v_anchor,
             color=color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.alpha_mode = "BLEND"  # Fish tank glass uses alpha blending
 

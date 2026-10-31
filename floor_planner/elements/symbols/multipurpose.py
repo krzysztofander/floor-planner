@@ -25,6 +25,7 @@ class Line(Element):
             style: str = 'solid',
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
             append_len: bool = False
     ):
         """
@@ -42,10 +43,12 @@ class Line(Element):
             color to use for drawing the line
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :param append_len
             adds length to label
         """
-        super().__init__(label=label, color=color, anchor_point=first_point)
+        super().__init__(label=label, id=id, color=color, anchor_point=first_point)
         self.first_point = first_point
         self.second_point = second_point
         self.width = width
@@ -81,7 +84,8 @@ class Polygon(Element):
             vertices: list[tuple[float, float]],
             line_width: float = 0.1,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -94,10 +98,12 @@ class Polygon(Element):
             color to use for drawing the line
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         :return:
             freshly created instance of `Polygon` class
         """
-        super().__init__(label=label, color=color, anchor_point=(0, 0))
+        super().__init__(label=label, id=id, color=color, anchor_point=(0, 0))
         self.vertices = vertices
         self.line_width = line_width
 
@@ -121,7 +127,8 @@ class Circle(Element):
             anchor_point: tuple[float, float],
             radius: float,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize an instance.
@@ -134,8 +141,10 @@ class Circle(Element):
             color to use for drawing the circle
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
-        super().__init__(label=label, color=color, anchor_point=anchor_point)
+        super().__init__(label=label, id=id, color=color, anchor_point=anchor_point)
         self.center = anchor_point
         self.radius = radius
 

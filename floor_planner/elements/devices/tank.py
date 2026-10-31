@@ -24,7 +24,8 @@ class GenericTank(VertInfoLvl03, CircularElement):
             height: float = 1.32,
             v_anchor: float = 0.05,
             color: str = "#7B7060",
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -32,7 +33,8 @@ class GenericTank(VertInfoLvl03, CircularElement):
             height=height,
             v_anchor=v_anchor, 
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
 
     def _default_height(self) -> float:

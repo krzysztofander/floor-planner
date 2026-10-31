@@ -1,0 +1,7 @@
+# Auto-generated material for wall
+newmtl wall
+Ka 0.800000 0.800000 0.800000
+Kd 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ns 4.0
+map_Kd plain_named/light-gray-wall.jpg

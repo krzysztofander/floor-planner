@@ -4,7 +4,7 @@ PYSRC += $(wildcard floor_planner/elements/*.py)
 PYSRC += $(wildcard floor_planner/elements/landscaping/*.py)
 PYSRC += $(wildcard floor_planner/elements/foundation/*.py)
 
-.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs glass_structures
+.PHONY: all clean room_templates group_templates elements furniture simple landscaping extras tests roofs glass_structures check check-fast
 
 all: room_templates group_templates elements furniture simple landscaping roofs glass_structures
 
@@ -121,6 +121,7 @@ $(GLASS_PNG): examples/glass_structures/glass_demo.yml $(PYSRC)
 EXTRAS_PNG = examples/landscaping/Comprehensive_Landscaping_Site_Plan.png 
 EXTRAS_PNG += examples/3d_visualization/Simple_Room_-_3D_Export_Demo.png
 EXTRAS_PNG += examples/3d_visualization/Furnished_Room_-_3D_Visualization.png
+EXTRAS_PNG += examples/3d_visualization/Face_Textures_Demo.png
 extras: $(EXTRAS_PNG)
 
 $(word 1,$(EXTRAS_PNG)): examples/landscaping/site_plan_complete.yml $(PYSRC)
@@ -135,6 +136,10 @@ $(word 3,$(EXTRAS_PNG)): examples/3d_visualization/furnished_room.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 
+$(word 4,$(EXTRAS_PNG)): examples/3d_visualization/face_textures_demo.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
 
 # TESTS
 # -----
@@ -146,7 +151,8 @@ TESTS_PNG += tests/play_with_doors/output/some_floor.png
 TESTS_PNG += tests/all_elements/output/All_Elements.png
 TESTS_PNG += tests/play_with_double_doors/output/some_floor.png
 TESTS_PNG += tests/vege/output/vege.png
-
+TESTS_PNG += tests/play_with_textures/output/textures_test.png
+TESTS_PNG += tests/play_with_textures/output/textures_walls_test.png
 
 tests: $(TESTS_PNG)
 
@@ -181,6 +187,26 @@ $(word 7,$(TESTS_PNG)): tests/play_with_double_doors/project_main.yml tests/play
 $(word 8,$(TESTS_PNG)): tests/vege/project_main.yml tests/vege/*.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
+
+$(word 9,$(TESTS_PNG)): tests/play_with_textures/face_textures_test.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(word 10,$(TESTS_PNG)): tests/play_with_textures/face_textures_walls_test.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+# PYTEST REGRESSION SUITE
+# -----------------------
+# Scene tests (invariants + 2D golden images) and contract tests, outputs in a temp dir.
+# Refresh golden images after an intended visual change:
+#   $(PYTHON) -m pytest -m slow -n auto --update-golden
+check:
+	$(PYTHON) -m pytest -n auto
+
+# Contract tests only (seconds)
+check-fast:
+	$(PYTHON) -m pytest -m "not slow"
 
 
 # Clean generated outputs

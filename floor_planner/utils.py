@@ -297,10 +297,19 @@ def renderDim2pts(ax: matplotlib.axes.Axes,
 
     renderDim(ax,anchor_point1,text,length,angle_deg, font_size, text_elevation, color, bgcolor)
 
+class FloorPlannerError(SystemExit):
+    """
+    Fatal problem in a floor plan project (invalid input, missing asset, ...).
+
+    Subclasses ``SystemExit``: the CLI prints the message and exits with code 1,
+    and ``except Exception`` blocks do not swallow it. Tests can catch it with
+    ``pytest.raises(FloorPlannerError)``.
+    """
+
+
 def WarnMsg(msg: str) -> None:
-    """Print warning message."""
-    #print(f"WARNING: {msg}")
-    exit("WARNING: " + msg)
+    """Stop with a fatal warning message (raises FloorPlannerError)."""
+    raise FloorPlannerError("WARNING: " + msg)
     
 
 

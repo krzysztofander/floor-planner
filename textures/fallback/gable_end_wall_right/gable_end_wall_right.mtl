@@ -1,7 +1,0 @@
-# Gable end wall material
-newmtl gable_end_wall_right
-Ka 0.80 0.78 0.75
-Kd 0.90 0.88 0.85
-Ks 0.10 0.10 0.10
-Ns 10.0
-map_Kd gable_end_wall_right.jpg

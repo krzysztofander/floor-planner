@@ -1,7 +1,0 @@
-# Auto-generated material for window
-newmtl window
-Ka 0.700000 0.800000 0.900000
-Kd 0.800000 0.900000 1.000000
-Ks 4.900000 4.900000 4.900000
-Ns 500.0
-map_Kd window.png

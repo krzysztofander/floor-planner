@@ -21,14 +21,19 @@ Each model has its own folder, named after the element's `_registry_key` (set in
 models/
 ├── window_90x120/
 │   ├── model.obj              # 3D model
-│   ├── model.mtl              # OBJ materials
-│   ├── *.jpg / *.png          # textures referenced by model.mtl
+│   ├── model.mtl              # OBJ materials (map_Kd wood/exotic_wood_1.jpg, ...)
 │   └── model.transform.json   # metadata (always required)
+├── procedural/                # materials of procedural elements (not models)
+│   └── wall/wall.mtl
 ├── models_3rd_party/
-│   └── leafy_tree/ ...
+│   └── leafy_tree/            # may keep its textures next to model.mtl
 └── stubs/
     └── leafy_tree/ ...
 ```
+
+Textures referenced by `model.mtl` (`map_Kd`) are searched in the model folder first, then in the common [`textures/`](../textures/README.md) folder. Models in this repository keep their textures in `textures/`, so models and procedural elements can share them; third-party models can keep theirs next to `model.mtl`.
+
+`procedural/` is not a model folder: it holds `<element_type>/<element_type>.mtl` for procedurally generated elements (walls, furniture boxes, roofs, ...). See [docs/texture-material-system.md](../docs/texture-material-system.md).
 
 ## Model Formats
 

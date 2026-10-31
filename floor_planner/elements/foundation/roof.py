@@ -66,19 +66,19 @@ class _RoofBase(Element):
             orientation_angle: float | None = None,
             color: str = '#8B4513',
             label: str | None = None,
+            id: str | None = None,
             draw_edge_a: bool = True,
             draw_edge_b: bool = True,
             draw_x_axis_edge: bool = True,
-            **kwargs,
     ):
         super().__init__(
             anchor_point=anchor_point,
             color=color,
             label=label,
+            id=id,
             v_anchor=v_anchor,
             height=height if height is not None else self._default_height(),
             texture_scale=3,
-            **kwargs,
         )
         self.x_axis_size = size[0]
         self.z_axis_size = size[1]
@@ -190,13 +190,13 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             orientation_angle: float | None = None,
             color: str = '#8B4513',
             label: str | None = None,
+            id: str | None = None,
             extension_a: float = 0,
             extension_b: float = 0,
             roof_thickness: float = 0.4,
             draw_edge_a: bool = True,
             draw_edge_b: bool = True,
             draw_ridge: bool = True,
-            **kwargs,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -206,10 +206,10 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
             draw_edge_a=draw_edge_a,
             draw_edge_b=draw_edge_b,
             draw_x_axis_edge=True,  # outline edge at lz=z must always be drawn; the ridge is drawn separately below
-            **kwargs,
         )
         self.draw_ridge = draw_ridge
         self.extension_a = extension_a or 0
@@ -293,8 +293,8 @@ class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
             orientation_angle: float = 0,
             color: str = '#8B4513',
             label: str | None = None,
+            id: str | None = None,
             roof_thickness: float = 0.4,
-            **kwargs,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -304,7 +304,7 @@ class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
-            **kwargs,
+            id=id,
         )
         self.roof_thickness = roof_thickness or 0.4
 
@@ -338,12 +338,12 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             orientation_angle: float = 0,
             color: str = '#8B4513',
             label: str | None = None,
+            id: str | None = None,
             extension: float = 0,
             roof_thickness: float = 0.4,
             draw_edge_a: bool = True,
             draw_edge_b: bool = True,
             draw_ridge: bool = True,
-            **kwargs,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -353,10 +353,10 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
             draw_edge_a=draw_edge_a,
             draw_edge_b=draw_edge_b,
             draw_x_axis_edge=draw_ridge,
-            **kwargs,
         )
         self.extension = extension or 0
         self.roof_thickness = roof_thickness or 0.4
@@ -423,11 +423,11 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
             orientation_angle: float = 0,
             color: str = '#8B4513',
             label: str | None = None,
+            id: str | None = None,
             extension: float = 0,
             roof_thickness: float = 0.4,
             draw_long_edge: bool = True,
             draw_short_edge: bool = False,
-            **kwargs,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -437,7 +437,7 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
             orientation_angle=orientation_angle,
             color=color,
             label=label,
-            **kwargs,
+            id=id,
         )
         self.extension = extension or 0
         self.roof_thickness = roof_thickness or 0.4
@@ -573,12 +573,12 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
             orientation_angle: float = 0,
             color: str = '#8B4513',
             label: str | None = None,
+            id: str | None = None,
             extension: float = 0,
             roof_thickness: float = 0.4,
             draw_long_edge: bool = True,
             draw_short_edge: bool = False,
             draw_ridge: bool = True,
-            **kwargs,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -588,7 +588,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
             orientation_angle=orientation_angle,
             color=color,
             label=label,
-            **kwargs,
+            id=id,
         )
         self.extension = extension or 0
         self.roof_thickness = roof_thickness or 0.4
@@ -690,6 +690,7 @@ class _GableEndBase(VertInfoRoof, GableEndWallGeometry3D, Element):
         orientation_angle – rotation in degrees (default 0)
         color             – unused in 2D; kept for API consistency
         label             – optional label string
+        id                – optional explicit ID
     """
 
     def __init__(
@@ -701,7 +702,7 @@ class _GableEndBase(VertInfoRoof, GableEndWallGeometry3D, Element):
             orientation_angle: float = 0,
             color: str = '#D3D3D3',
             label: str | None = None,
-            **kwargs,
+            id: str | None = None,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -709,7 +710,7 @@ class _GableEndBase(VertInfoRoof, GableEndWallGeometry3D, Element):
             label=label,
             v_anchor=v_anchor,
             height=height if height is not None else self._default_height(),
-            **kwargs,
+            id=id,
         )
         self.x_axis_size       = size[0]
         self.z_axis_size       = size[1]

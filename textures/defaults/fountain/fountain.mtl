@@ -1,7 +1,0 @@
-# Auto-generated material for fountain
-newmtl fountain
-Ka 0.500000 0.650000 0.800000
-Kd 0.600000 0.750000 0.850000
-Ks 0.700000 0.700000 0.700000
-Ns 150.0
-map_Kd fountain.jpg

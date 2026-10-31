@@ -5,7 +5,8 @@ Author: Krzysztof Bartczak
 """
 
 # Global configuration for element-specific options
-# Structure: {element_type: {option_name: value}}
+# Structure: {element_type: {option_name: value}}, keys stored in lowercase
+# (element types and option names are matched case-insensitively)
 _element_options = {}
 
 # Global counter for element IDs
@@ -37,17 +38,38 @@ _CANONICAL_FALLBACK: dict[frozenset[str], str] = {
     _ROOF_TYPES: 'Roof',
 }
 
+# The same, in lowercase, for case-insensitive matching
+_CANONICAL_FALLBACK_LOWER: dict[frozenset[str], str] = {
+    frozenset(t.lower() for t in family): canonical.lower()
+    for family, canonical in _CANONICAL_FALLBACK.items()
+}
+
 
 def set_element_options(options: dict) -> None:
     """
     Set options for element types.
+
+    Element types and option names are stored in lowercase, so they match
+    regardless of case. Entries whose names differ only by case are merged;
+    a later entry wins.
     
     :param options:
         dictionary with element type as key and option dict as value
         Example: {'Wall': {'label_color': 'blue', 'dimensions': True}, 'Door': {'id_color': 'red'}}
     """
     global _element_options
-    _element_options = options or {}
+    normalized = {}
+    for element_type, type_options in (options or {}).items():
+        key = str(element_type).lower()
+        if isinstance(type_options, dict):
+            target = normalized.get(key)
+            if not isinstance(target, dict):
+                target = normalized[key] = {}
+            for option_name, value in type_options.items():
+                target[str(option_name).lower()] = value
+        else:
+            normalized[key] = type_options
+    _element_options = normalized
 
 
 def get_element_option(element_type: str, option_name: str, default=None):
@@ -55,28 +77,31 @@ def get_element_option(element_type: str, option_name: str, default=None):
     Get specific option value for an element type.
 
     Lookup order:
-      1. Exact ``element_type`` key in the options dict.
+      1. Exact ``element_type`` key in the options dict, case insensitive
       2. The canonical family key (``'Door'`` for all door variants,
          ``'Window'`` for all window variants) if the exact key is absent
          or has no entry for ``option_name``.
       3. ``default``.
 
     :param element_type:
-        type of the element (e.g., 'Wall', 'Door', 'BalconyDoor')
+        type of the element (e.g., 'Wall', 'Door', 'BalconyDoor'); case insensitive
     :param option_name:
-        name of the option (e.g., 'label_color', 'dimensions')
+        name of the option (e.g., 'label_color', 'dimensions'); case insensitive
     :param default:
         default value if option not found
     :return:
         option value or default
     """
-    # 1. Exact match
+    element_type = element_type.lower()
+    option_name = option_name.lower()
+
+    # 1. Exact match (case insensitive)
     type_options = _element_options.get(element_type)
     if isinstance(type_options, dict) and option_name in type_options:
         return type_options[option_name]
 
-    # 2. Canonical family fallback
-    for family, canonical in _CANONICAL_FALLBACK.items():
+    # 2. Canonical family fallback (case insensitive)
+    for family, canonical in _CANONICAL_FALLBACK_LOWER.items():
         if element_type in family and element_type != canonical:
             canonical_options = _element_options.get(canonical)
             if isinstance(canonical_options, dict) and option_name in canonical_options:

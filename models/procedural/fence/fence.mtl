@@ -1,0 +1,7 @@
+# Auto-generated material for fence
+newmtl fence
+Ka 0.500000 0.350000 0.250000
+Kd 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ns 10.0
+map_Kd plain_named/brown-wood-fence.jpg

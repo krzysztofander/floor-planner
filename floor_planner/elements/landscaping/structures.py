@@ -25,7 +25,9 @@ class Pergola(SurfaceElement):
             post_size: float = 0.2,
             orientation_angle: float = 0,
             color: str = '#8B4513',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a Pergola instance.
@@ -42,13 +44,19 @@ class Pergola(SurfaceElement):
             color for the structure
         :param label:
             optional label for the pergola
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             size=size,
             color=color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.post_size = post_size
 
@@ -195,7 +203,9 @@ class RaisedBed(SurfaceElement):
             fill_color: str = '#654321',
             border_color: str = '#8B4513',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a RaisedBed instance.
@@ -216,13 +226,19 @@ class RaisedBed(SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the raised bed
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             size=size,
             color=fill_color,  # Use fill_color as the main color for SurfaceElement
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.height = height
         self.border_thickness = border_thickness
@@ -319,7 +335,8 @@ class Gazebo(VertInfoLvl01, CircularElement):
             diameter: float,
             color: str = '#DEB887',
             roof_color: str = '#8B4513',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
     ):
         """
         Initialize a Gazebo instance.
@@ -334,12 +351,15 @@ class Gazebo(VertInfoLvl01, CircularElement):
             color for the roof
         :param label:
             optional label for the gazebo
+        :param id:
+            optional explicit ID; if None, generated from class name and label
         """
         super().__init__(
             anchor_point=anchor_point,
             diameter=diameter,
             color=color,
-            label=label
+            label=label,
+            id=id,
         )
         self.roof_color = roof_color
 
@@ -440,6 +460,9 @@ class Gazebo(VertInfoLvl01, CircularElement):
 class GenericSurface(VertInfoLvl01, SurfaceElement):
     """generic surface e.g. concrete element."""
 
+    # Texture tiles of 1 m x 1 m
+    _default_textures = {'default': {'scale_meters': 1.0}}
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -447,6 +470,8 @@ class GenericSurface(VertInfoLvl01, SurfaceElement):
             color: str = "#6D645E",
             orientation_angle: float = 0,
             label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
     ):
@@ -463,6 +488,10 @@ class GenericSurface(VertInfoLvl01, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the deck
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -470,7 +499,8 @@ class GenericSurface(VertInfoLvl01, SurfaceElement):
             size=size,
             color=color,
             label=label,
-            texture_scale=1.0 # Default texture scale 
+            id=id,
+            textures=textures,
         )
         self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
         self.height = height if height is not None else self._default_height()
@@ -525,6 +555,9 @@ class GenericSurface(VertInfoLvl01, SurfaceElement):
 class Deck(VertInfoLvl01, SurfaceElement):
     """Deck/patio platform element."""
 
+    # Texture tiles of 0.6 m x 0.6 m
+    _default_textures = {'default': {'scale_meters': 0.6}}
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -532,6 +565,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
             color: str = '#D2691E',
             orientation_angle: float = 0,
             label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
     ):
@@ -548,6 +583,10 @@ class Deck(VertInfoLvl01, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the deck
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -555,7 +594,8 @@ class Deck(VertInfoLvl01, SurfaceElement):
             size=size,
             color=color,
             label=label,
-            texture_scale=0.6  # Default texture scale for deck (0.2m x 0.2m tiles)
+            id=id,
+            textures=textures,
         )
         self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
         self.height = height if height is not None else self._default_height()
@@ -663,7 +703,9 @@ class GardenHouse(SurfaceElement):
             color: str = '#DEB887',
             roof_color: str = '#8B4513',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a GardenHouse instance.
@@ -682,13 +724,19 @@ class GardenHouse(SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the garden house
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             size=size,
             color=color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.height = height
         self.color = color
@@ -883,6 +931,7 @@ class Greenhouse(VertInfoLvl01, GreenhouseGeometry3D, SurfaceElement):
             color: str = '#D3D3D3',
             orientation_angle: float = 0,
             label: str | None = None,
+            id: str | None = None,
             v_anchor: float | None = None,
     ):
         super().__init__(
@@ -891,6 +940,7 @@ class Greenhouse(VertInfoLvl01, GreenhouseGeometry3D, SurfaceElement):
             size=size,
             color=color,
             label=label,
+            id=id,
         )
         self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
         self.height = height if height is not None else self._default_height()

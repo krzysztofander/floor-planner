@@ -2,6 +2,7 @@
 
 """
 import random
+import zlib
 
 from matplotlib.axes import Axes
 
@@ -10,6 +11,17 @@ from floor_planner.elements.landscaping import CircularVegetation2D
 from floor_planner.elements.landscaping.species_db import resolve_species_params
 from floor_planner.elements.vertical_levels import VertInfoLvl01
 
+
+
+def _rotation_for(anchor_point: tuple[float, float]) -> float:
+    """
+    Rotation (degrees) around the vertical axis for a tree/shrub model.
+
+    Seeded per anchor point: trees at different places look varied, while the
+    result is the same in every run and does not depend on other elements.
+    """
+    seed = zlib.crc32(repr(tuple(float(c) for c in anchor_point)).encode())
+    return random.Random(seed).uniform(0, 360)
 
 
 class LeafyTree(ExternalModelElement, VertInfoLvl01):
@@ -29,8 +41,9 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
         bloom_season_start: str | None = None,
         bloom_season_end: str | None = None,
         bloom_color: str | None = None,
-        texture_scale: float | None = None,
-        **kwargs
+        id: str | None = None,
+        v_anchor: float | None = None,
+        models_dir: str | None = None
     ):
         resolved = resolve_species_params(
             species,
@@ -56,8 +69,9 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
             anchor_point=anchor_point,
             color=color,
             label=label,
-            texture_scale=texture_scale,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
             )
         self.veg2d = CircularVegetation2D(
             anchor_point=anchor_point,
@@ -81,7 +95,7 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
         
         self.secondary_normalization = {
                 'scale':       [scale_h, scale_v, scale_h],
-                'rotation':    [0, random.uniform(0, 360), 0], # Random rotation around vertical axis for natural variation
+                'rotation':    [0, _rotation_for(anchor_point), 0], # Varied rotation around vertical axis, stable per anchor point
                 'translation': [0, 0, 0],
             }
 
@@ -120,8 +134,9 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
         bloom_season_start: str | None = None,
         bloom_season_end: str | None = None,
         bloom_color: str | None = None,
-        texture_scale: float | None = None,
-        **kwargs
+        id: str | None = None,
+        v_anchor: float | None = None,
+        models_dir: str | None = None
     ):
         resolved = resolve_species_params(
             species,
@@ -143,8 +158,9 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
             anchor_point=anchor_point,
             color=color,
             label=label,
-            texture_scale=texture_scale,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
             )
         self.veg2d = CircularVegetation2D(
             anchor_point=anchor_point,
@@ -168,7 +184,7 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
 
         self.secondary_normalization = {
                 'scale':       [scale_h, scale_v, scale_h],
-                'rotation':    [0, random.uniform(0, 360), 0], # Random rotation around vertical axis for natural variation
+                'rotation':    [0, _rotation_for(anchor_point), 0], # Varied rotation around vertical axis, stable per anchor point
                 'translation': [0, 0, 0],
             }
 

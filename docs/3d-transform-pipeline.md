@@ -4,8 +4,8 @@ This document describes how each transform is computed, in which order they are
 applied, and what is done by the Python floor-planner tool vs. the 3D player at
 runtime.
 
-glTF 2.0 is the only active 3D exporter (`project.export_to_gltf()` in
-`floor_planner/__main__.py`; the legacy OBJ export call is commented out).
+glTF 2.0 is the only 3D exporter (`project.export_to_gltf()` in
+`run_project()`, `floor_planner/runner.py`).
 External models in `.glb`/`.gltf`, `.obj`, `.dae` or `.3ds` format are all
 converted into glTF meshes by `floor_planner/gltf_exporter.py`.
 
@@ -128,7 +128,7 @@ self.secondary_normalization = {
 }
 ```
 
-(`ExternalModelElement.__init__` rejects `width` / `length` / `height` kwargs;
+(`ExternalModelElement.__init__` does not take `width` / `length` / `height`;
 elements that support resizing take their own parameters and scale here.)
 
 ### Step 3 — AnchorOffset

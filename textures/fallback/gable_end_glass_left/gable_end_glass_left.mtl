@@ -1,8 +1,0 @@
-# Gable end glass material
-newmtl gable_end_glass_left
-Ka 0.85 0.90 1.00
-Kd 0.85 0.90 1.00
-Ks 0.90 0.90 0.95
-Ns 150.0
-d 0.20
-map_Kd gable_end_glass_left.png

@@ -31,9 +31,10 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
             height: float | None = None,
-            v_anchor: float | None = None,
-            texture_scale: float | None = None
+            v_anchor: float | None = None
     ):
         """
         Initialize an instance.
@@ -53,13 +54,15 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             color to use for drawing the storage box
         :param label:
             optional label for the element
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         :param height:
             height of the storage box in meters; if None, uses default (2.0m)
         :param v_anchor:
             optional vertical anchor point in meters (height above floor/ground);
             if None, uses element's default vertical level
-         :param texture_scale:
-            texture tiling scale in meters; if set, texture repeats every N meters
         :return:
             freshly created instance of `GenericStorage` class
         """
@@ -70,9 +73,10 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
             thickness=thickness,
             color=color,
             label=label,
+            id=id,
+            textures=textures,
             height=height,
-            v_anchor=v_anchor,
-            texture_scale=texture_scale
+            v_anchor=v_anchor
         )
 
         # Room properties (set by Room class if this storage box is part of a room)
@@ -173,9 +177,10 @@ class Storage60(GenericStorage):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
             height: float | None = None,
-            v_anchor: float | None = None,
-             texture_scale: float | None = None
+            v_anchor: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -184,9 +189,10 @@ class Storage60(GenericStorage):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
+            textures=textures,
             height=height,
-            v_anchor=v_anchor,
-            texture_scale=texture_scale
+            v_anchor=v_anchor
         )
 
 class Storage40(GenericStorage):
@@ -201,9 +207,10 @@ class Storage40(GenericStorage):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
             height: float | None = None,
-            v_anchor: float | None = None,
-             texture_scale: float | None = None
+            v_anchor: float | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -212,9 +219,10 @@ class Storage40(GenericStorage):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
+            id=id,
+            textures=textures,
             height=height,
-            v_anchor=v_anchor,
-             texture_scale=texture_scale
+            v_anchor=v_anchor
         )
 
 
@@ -231,7 +239,9 @@ class Tabletop(VertInfoLvl03, RectangularElement):
             thickness: float = 0.6,
             orientation_angle: float = 0,
             color: str = 'black',
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
      
         super().__init__(
@@ -240,7 +250,9 @@ class Tabletop(VertInfoLvl03, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
 
         # Room properties (set by Room class if this storage box is part of a room)

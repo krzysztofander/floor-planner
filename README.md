@@ -26,6 +26,10 @@ I found out the original module (base for this fork) but it turned out to be ins
 
 ## Usage
 Create Python virtual environment, download this module and install all requirements.
+```bash
+pip install -r requirements.txt            # runtime
+pip install -r requirements/dev.txt        # runtime + test tools (pytest, pytest-xdist)
+```
 
 To generate floor plans, run:
 ```bash
@@ -36,6 +40,17 @@ To generate images of templates and other examples use make
 ```bash
 make all
 ```
+
+### Testing
+The pytest suite runs every scene project (in a temporary folder) and checks it: the run succeeds, the glTF files are consistent, and each PNG matches its golden image in `tests/golden/2d/`. For the scenes listed in `GOLDEN_3D_SCENES` (`tests/conftest.py`), the 3D output is also compared with a golden summary in `tests/golden/3d/` (materials, textures and geometry per element). Contract tests check rules that all element types must follow.
+```bash
+pip install -r requirements/dev.txt
+make check          # full suite, in parallel (about 10 s)
+make check-fast     # contract tests only
+python -m pytest -m slow --scene vege          # selected scenes
+python -m pytest -m slow -n auto --update-golden   # refresh golden files (2D, and 3D for GOLDEN_3D_SCENES) after an intended change
+```
+See `docs/features/pytest-regression-suite.md`.
 
 The module uses the config in YAML where properties of each element are set. These properties include location, orientation, size, color and so on.
 There are also global properties that control appearance of some embedded elements line dimension lines, labels, room area, etc.
@@ -140,7 +155,7 @@ See `examples/landscaping/` for demonstrations of each element type and `docs/la
 
 ## 3D Visualization
 
-This fork includes 3D export capabilities to generate glTF 2.0 scenes with textures (the older OBJ/MTL exporter is still in the code but disabled):
+This fork includes 3D export capabilities to generate glTF 2.0 scenes with textures:
 
 ### Features
 - **Automatic 3D geometry generation** - 2D floor plan elements are automatically extruded to 3D
@@ -148,7 +163,7 @@ This fork includes 3D export capabilities to generate glTF 2.0 scenes with textu
 - **Animations** - doors can be exported with opening animations
 - **Phong material properties** - Ka (ambient), Kd (diffuse), Ks (specular), Ns (shininess) for realistic materials
 - **Texture support** - PNG (with alpha channel) and JPG textures with automatic fallback
-- **Texture tiling** - Control texture repeat with `texture_scale` parameter
+- **Per-face textures** - Texture, tiling (`scale_relative` / `scale_meters`), lighting and opacity per face of box elements with the `textures` parameter
 - **Wall opening detection** - Doors and windows automatically create cutouts in walls for realistic visualization
 - **Multi-texture elements** - Different textures for different faces (e.g., door vs door frame)
 
@@ -184,48 +199,42 @@ See `docs/element-parameters-reference.md` — *Floor Plan v_anchor (3D Elevatio
 ### Texture and Material System
 The 3D export uses a registry-based texture/material system:
 
-**Key Principle:** Element types from the registry determine folder and file names exactly.
+**Key Principle:** Element types from the registry determine material folder and file names exactly. Materials (`.mtl`) reference textures by file name; all textures live in one common folder.
 
 **Directory Structure:**
 ```
-textures/
-├── fallback/          # System default textures
+models/
+├── procedural/        # Materials of procedural elements
 │   ├── double_bed/
-│   │   ├── double_bed.jpg
 │   │   └── double_bed.mtl
-│   ├── generic_storage/
-│   │   ├── generic_storage.jpg
-│   │   └── generic_storage.mtl
-│   └── door/
-│       ├── door.jpg
-│       ├── door_frame.jpg      # Supplemental texture
-│       └── door.mtl
-└── defaults/          # User custom textures (optional overrides)
-    └── ...
+│   └── generic_storage/
+│       └── generic_storage.mtl
+└── balcony_door/      # External model with its own model.mtl
+textures/              # All texture images, in subfolders (unique file names)
+├── plain_named/white-cream-bed.jpg
+├── wood/pear_wood.jpg       # shared, e.g. by generic_storage and storage40/60
+└── wood/exotic_wood_1.jpg
 ```
 
-**Naming Convention:**
-- Registry key (WITH underscores) = folder name = base texture name
-- Example: `'generic_storage'` → `generic_storage/` → `generic_storage.jpg`
-- Multi-texture elements use: `<element_type>_<descriptor>.jpg` (e.g., `door_frame.jpg`)
-
 **Material Files (.mtl):**
-Each texture has a corresponding `.mtl` file defining material properties:
+Each procedural element type has `models/procedural/<element_type>/<element_type>.mtl` defining material properties and its texture:
 ```mtl
 newmtl generic_storage
 Ka 0.500000 0.300000 0.200000    # Ambient color
 Kd 0.580000 0.380000 0.230000    # Diffuse color
 Ks 1.200000 1.200000 1.200000    # Specular color
 Ns 250.0                         # Shininess
-map_Kd generic_storage.jpg       # Texture reference
+map_Kd wood/pear_wood.jpg              # Texture reference
 ```
 
+**Texture lookup:** a `map_Kd` texture is searched in the folder of the `.mtl` file first, then in `textures/`. The same rule applies to procedural elements and external models, so they can share textures.
+
 **Custom Textures:**
-Place custom textures in `textures/defaults/<element_type>/` to override system defaults.
+Add the image to `textures/` and change `map_Kd` in the element's `.mtl`.
 
 See:
 - `docs/NAMING_CONVENTION.md` - Complete naming convention specification
-- `scripts/validate_texture_material_structure.py` - Validation tool
+- `docs/texture-material-system.md` - Texture lookup and material rules
 
 ### External Models
 External models live in `models/<registry_key>/` (`model.glb` or `model.obj` + `model.mtl`, plus `model.transform.json`). Models are looked up in this order:
@@ -239,7 +248,7 @@ See `models/README.md` for details.
 See:
 - `examples/3d_visualization/` - Demos of 3D export with textures and wall openings
 - `docs/features/wall-opening-detection.md` - Detailed documentation of wall opening feature
-- `docs/texture-tiling-guide.md` - Guide to texture tiling and `texture_scale` parameter
+- `docs/texture-tiling-guide.md` - Guide to texture tiling (`scale_relative` / `scale_meters`, `texture_scale` for roofs)
 
 ## Capabilities
 There are no build in limitations. With this module it is possible to draw a complex plans like below.

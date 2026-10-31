@@ -1,0 +1,511 @@
+# Fine-grained textures for boxes (per-face textures, scale, lighting, opacity)
+# See docs/features/fine-grained-textures-for-boxes.md and the `textures`
+# parameter in docs/element-parameters-reference.md.
+
+project:
+  dpi: 100
+  pdf_file: null
+  png_dir: "output"
+  visualisation_dir: "output/3d"  # Enable 3D glTF export
+
+default_layout:
+  bottom_left_corner: [-1, 1]
+  top_right_corner: [14, 16]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+  grid_minor_step: 0.1
+
+floor_plans:
+  - title:
+      text: "textures_test"
+      font_size: 18
+    options:
+      Storage:
+        label_color: green
+
+    elements:
+      # Check a different texture on every face
+      - type: generic_storage
+        anchor_point: [0, 2]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          front:  {texture: plain_named/blue-pool-water.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          back:   {texture: plain_named/dark-gray-black-stove.jpg}
+          top:    {texture: plain_named/cyan-fountain-water.jpg}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face
+      - type: generic_storage
+        anchor_point: [0, 4]
+        orientation_angle: 45
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          front:  {texture: plain_named/blue-pool-water.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          back:   {texture: plain_named/dark-gray-black-stove.jpg}
+          top:    {texture: plain_named/cyan-fountain-water.jpg}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face_rotated_45
+      - type: generic_storage
+        anchor_point: [0, 6]
+        orientation_angle: 90
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          front:  {texture: plain_named/blue-pool-water.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          back:   {texture: plain_named/dark-gray-black-stove.jpg}
+          top:    {texture: plain_named/cyan-fountain-water.jpg}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face_rotated_90
+      - type: generic_storage
+        anchor_point: [0, 9]
+        orientation_angle: 180
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          front:  {texture: plain_named/blue-pool-water.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          back:   {texture: plain_named/dark-gray-black-stove.jpg}
+          top:    {texture: plain_named/cyan-fountain-water.jpg}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face_rotated_180
+      - type: generic_storage
+        anchor_point: [0, 11]
+        orientation_angle: 270
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          front:  {texture: plain_named/blue-pool-water.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          back:   {texture: plain_named/dark-gray-black-stove.jpg}
+          top:    {texture: plain_named/cyan-fountain-water.jpg}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: different_texture_every_face_rotated_270
+
+      # Test of no textures somewhere along with textures
+      - type: generic_storage
+        anchor_point: [2, 2]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:   {texture: plain_named/beige-stone-path.jpg}
+          right:  {texture: plain_named/brown-lighter-wood-sliding-door.jpg}
+          top:    {texture: null}
+          bottom: {texture: null}
+        label: two_default_two_explicit_two_no_textures
+      - type: generic_storage
+        anchor_point: [2, 4]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          sides:  {texture: null}
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: sides_no_texture_bottom_explicit
+      
+      # Test coloring
+      - type: generic_storage
+        anchor_point: [2, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          sides:  
+            texture: null
+            diffuse: [0.1, 0.9, 0.1]
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: test_coloring_diffuse_on_no_texture
+      - type: generic_storage
+        anchor_point: [2, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        # specular does not have color, just intensity
+        textures:
+          left:
+            specular: [0.1, 0.1, 0.2]  # intensity actually influence shininess
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+          front:
+            specular: [0.6, 0.6, 0.6]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+          right:
+            specular: [1.3, 1.3, 1.3]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+          back:
+            specular: [3.0, 3.0, 3.0]  #max, above that is clamped
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+        label: test_coloring_specular_on_textures
+      - type: generic_storage
+        anchor_point: [2, 14]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:
+            specular: [1.0, 1.0, 1.0]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 10
+          front:
+            specular: [1.0, 1.0, 1.0]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 50
+          right:
+            specular: [1.0, 1.0, 1.0]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 100
+          back:
+            specular: [1.0, 1.0, 1.0]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 400
+          top:
+            shininess: 10
+        label: test_shininess
+      - type: generic_storage
+        anchor_point: [2, 18]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          left:
+            specular: [0.1, 0.1, 0.1]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 1
+          front:
+            specular: [0.1, 0.1, 0.1]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 50
+          right:
+            specular: [0.1, 0.1, 0.1]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 100
+          back:
+            specular: [0.1, 0.1, 0.1]  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            shininess: 400
+          top:
+            shininess: 500
+        label: test_shininess_low_specular
+      
+      # Tiling and texture scaling check
+      - type: generic_storage
+        anchor_point: [6, 2]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: {texture: special/wither3_scene.jpg}
+          left:   {scale_relative: 2}
+          front:  {scale_relative: 3}
+          right:  {scale_relative: 4}
+          back:   {scale_relative: 1}
+          top:    {scale_relative: 1.5}
+          bottom: {scale_relative: 3.5}
+        label: scale_relative
+      - type: generic_storage
+        anchor_point: [6, 4]
+        orientation_angle: 0
+        length: 1.6
+        thickness: 0.9
+        height: 1.0
+        textures:
+          default: {texture: special/wither3_scene.jpg}
+          left:   {scale_relative: 2}
+          front:  {scale_relative: 3}
+          right:  {scale_relative: 4}
+          back:   {scale_relative: 1}
+          top:    {scale_relative: 1.5}
+          bottom: {scale_relative: 3.5}
+        label: scale_relative_on_non_cube
+      - type: generic_storage
+        anchor_point: [6, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: {texture: special/wither3_scene.jpg}
+          left:   {scale_meters: 0.25}
+          front:  {scale_meters: 0.5}
+          right:  {scale_meters: 1}
+          back:   {scale_meters: 2}
+          top:    {scale_meters: 0.33}
+          bottom: {scale_meters: 0.66}
+        label: scale_meters
+      - type: generic_storage
+        anchor_point: [6, 8]
+        orientation_angle: 0
+        length: 2.0
+        thickness: 2.0
+        height: 2.0
+        textures:
+          default: {texture: special/wither3_scene.jpg}
+          left:   {scale_meters: 0.25}
+          front:  {scale_meters: 0.5}
+          right:  {scale_meters: 1}
+          back:   {scale_meters: 2}
+          top:    {scale_meters: 0.33}
+          bottom: {scale_meters: 0.66}
+        label: scale_meters_on_big_cube
+
+      # Test diffuse coloring
+      - type: generic_storage
+        anchor_point: [8, 2]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          top: 
+            texture: plain_named/beige-stone-path.jpg
+            diffuse: [0.6, 0.9, 0.6]
+          sides:  
+            texture: plain_named/brown-lighter-wood-sliding-door.jpg
+            diffuse: [0.4, 0.4, 0.6]
+          bottom: {texture: plain_named/ping-flower-bed.jpg}
+        label: test_coloring_diffuse_with_textures
+      - type: generic_storage
+        anchor_point: [8, 4]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: test_coloring_diffuse_3_use_colors_no_tex
+
+      # Testing opaque colors
+      - type: generic_storage
+        anchor_point: [8, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+            opacity: 0.3
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_03
+      - type: generic_storage
+        anchor_point: [8, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+            double_sided: true
+            opacity: 0.3
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_03_double_sided
+      - type: generic_storage
+        anchor_point: [10, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+            opacity: 0.6
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_06
+      - type: generic_storage
+        anchor_point: [10, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+            double_sided: true
+            opacity: 0.6
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_06_double_sided
+      - type: generic_storage
+        anchor_point: [12, 6]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+            opacity: 0.9
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_09
+      - type: generic_storage
+        anchor_point: [12, 10]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            texture: null
+            double_sided: true
+            opacity: 0.9
+          left:   
+            diffuse: [0.99, 0.0, 0.0]
+          front:
+            diffuse: [0.0, 0.99, 0.0]
+          right:
+            diffuse: [0.0, 0.0, 0.99]
+          back:
+            diffuse: [0.5, 0.5, 0.1]
+          top:
+            diffuse: [0.99, 0.99, 0.99]
+          bottom: 
+            diffuse: [0.01, 0.01, 0.01]
+        label: coloring_diffuse_opaque_09_double_sided
+
+      # Box with one side transparent
+      - type: generic_storage
+        anchor_point: [8, 12]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            double_sided: false
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.05
+            texture: null
+        label: top_open_box_no_double_sided_op005
+      - type: generic_storage
+        anchor_point: [8, 14]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            double_sided: true
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.05
+            texture: null
+        label: top_open_box_double_sided_op005
+      - type: generic_storage
+        anchor_point: [10, 12]
+        orientation_angle: 0
+        length: 1.0
+        thickness: 1.0
+        height: 1.0
+        textures:
+          default: 
+            double_sided: false
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.5
+            texture: null
+        label: top_open_box_no_double_sided_op05
+      - type: generic_storage
+        anchor_point: [10, 14]
+        orientation_angle: 0
+        length: 1.1
+        thickness: 1.1
+        height: 1.1
+        textures:
+          default: 
+            double_sided: true
+          top:
+            diffuse: [0.40, 0.99, 0.40]
+            opacity: 0.5
+            texture: null
+        label: top_open_box_double_sided_op05

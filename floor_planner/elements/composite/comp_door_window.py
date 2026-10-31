@@ -24,7 +24,9 @@ class Composite_WindowDoorDouble(ElementBase):
             hinges_point: float = 0.95,
             opening_outside: bool = False,
             label: str | None = None,
-            **kwargs
+            id: str | None = None,
+            v_anchor: float | None = None,
+            models_dir: str | None = None
     ):
         super().__init__()
 
@@ -50,7 +52,8 @@ class Composite_WindowDoorDouble(ElementBase):
                 door_orientation_in_doorway = 1,
                 door_type='hinged',
                 label=label,
-                **kwargs)
+                v_anchor=v_anchor,
+                models_dir=models_dir)
         )
         if True:  
             self.addToList(
@@ -67,10 +70,11 @@ class Composite_WindowDoorDouble(ElementBase):
                     door_orientation_in_doorway = 0,
                     door_type='hinged',
                     label=label,
-                    **kwargs)
+                    v_anchor=v_anchor,
+                    models_dir=models_dir)
             )
         # Generate unique ID based on class name and label, or use provided ID
-        self.id = generate_element_id(self.__class__.__name__, label)
+        self.id = id if id else generate_element_id(self.__class__.__name__, label)
  
     
     def draw(self, ax: matplotlib.axes.Axes) -> None:

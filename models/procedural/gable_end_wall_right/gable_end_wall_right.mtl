@@ -1,0 +1,7 @@
+# Gable end wall material
+newmtl gable_end_wall_right
+Ka 0.80 0.78 0.75
+Kd 1.000000 1.000000 1.000000
+Ks 0.10 0.10 0.10
+Ns 10.0
+map_Kd plain_named/light-gray-wall.jpg

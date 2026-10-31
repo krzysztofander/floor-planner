@@ -45,7 +45,9 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
         orientation_angle: float = 0,
         color: str = 'black',
         label: str | None = None,
-        **kwargs
+        id: str | None = None,
+        v_anchor: float | None = None,
+        models_dir: str | None = None
     ):
         """
         Args:
@@ -56,6 +58,9 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
             orientation_angle: CCW rotation from X-axis (degrees).
             color: 2D drawing colour.
             label: Optional text label.
+            id: Optional explicit ID; generated when omitted.
+            v_anchor: Optional 3D elevation of the base (metres).
+            models_dir: Optional base model directory.
         """
         if single_line_thickness <= 0:
             single_line_thickness = overall_thickness / 10
@@ -70,7 +75,9 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
         )
 
         self.window2d = Window2D(self)
@@ -102,7 +109,9 @@ class WindowSingleAny(_FixedWindow):
         orientation_angle: float = 0,
         color: str = 'black',
         label: str | None = None,
-        **kwargs
+        id: str | None = None,
+        v_anchor: float | None = None,
+        models_dir: str | None = None
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -111,7 +120,9 @@ class WindowSingleAny(_FixedWindow):
             orientation_angle=orientation_angle,
             color=color,
             label=label,
-            **kwargs
+            id=id,
+            v_anchor=v_anchor,
+            models_dir=models_dir
         )
         self.length = length
         self.height = height
@@ -145,7 +156,9 @@ class Composite_WindowDouble(ElementBase):
             orientation_angle: float = 0,
             color: str = 'black',
             label: str | None = None,
-            **kwargs
+            id: str | None = None,
+            v_anchor: float | None = None,
+            models_dir: str | None = None
     ):
         super().__init__()
 
@@ -167,7 +180,8 @@ class Composite_WindowDouble(ElementBase):
                 orientation_angle = orientation_angle,
                 color = color,
                 label=label,
-                **kwargs)
+                v_anchor=v_anchor,
+                models_dir=models_dir)
         )
         self.addToList(
                 WindowSingleAny(
@@ -179,10 +193,11 @@ class Composite_WindowDouble(ElementBase):
                 orientation_angle = orientation_angle,
                 color = color,
                 label=label,
-                **kwargs)
+                v_anchor=v_anchor,
+                models_dir=models_dir)
         )
         # Generate unique ID based on class name and label, or use provided ID
-        self.id = generate_element_id(self.__class__.__name__, label)
+        self.id = id if id else generate_element_id(self.__class__.__name__, label)
  
     
     def draw(self, ax: matplotlib.axes.Axes) -> None:

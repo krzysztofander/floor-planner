@@ -25,7 +25,9 @@ class Fence(VertInfoLvl01, RectangularElement):
             thickness: float = 0.1,
             color: str = '#8B4513',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a Fence instance.
@@ -46,6 +48,10 @@ class Fence(VertInfoLvl01, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the fence
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -53,7 +59,9 @@ class Fence(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.style = style
         self.height = height
@@ -201,6 +209,9 @@ class Fence(VertInfoLvl01, RectangularElement):
 class GardenPath(VertInfoLvl00, SurfaceElement):
     """Garden path with material patterns."""
 
+    # Texture tiles of 1.5 m x 1.5 m
+    _default_textures = {'default': {'scale_meters': 1.5}}
+
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
@@ -208,7 +219,9 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             material: str = 'gravel',
             color: str = '#D3D3D3',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a GardenPath instance.
@@ -225,16 +238,20 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the path
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         self.material = material
-        self.texture_scale = 1.5
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             size=size,
             color=color,
             label=label,
-            texture_scale=self.texture_scale
+            id=id,
+            textures=textures,
         )
 
     def _default_height(self) -> float:
@@ -280,11 +297,11 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         """Draw small dots to represent gravel."""
         import math
         import random
-        random.seed(42)  # Consistent pattern
+        rng = random.Random(42)  # Consistent pattern (local, does not reseed the global generator)
         num_dots = int(self.x_axis_size * self.z_axis_size * 50)  # density
         for _ in range(num_dots):
-            x_offset = random.uniform(0, self.x_axis_size)
-            y_offset = random.uniform(0, self.z_axis_size)
+            x_offset = rng.uniform(0, self.x_axis_size)
+            y_offset = rng.uniform(0, self.z_axis_size)
             point = rotate_point(
                 self.anchor_point,
                 x_offset,
@@ -355,14 +372,14 @@ class GardenPath(VertInfoLvl00, SurfaceElement):
         """Draw organic texture for mulch."""
         import math
         import random
-        random.seed(43)
+        rng = random.Random(43)  # Consistent pattern (local, does not reseed the global generator)
         # Draw short random lines for organic texture
         num_lines = int(self.x_axis_size * self.z_axis_size * 20)
         for _ in range(num_lines):
-            x1 = random.uniform(0, self.x_axis_size)
-            y1 = random.uniform(0, self.z_axis_size)
-            angle = random.uniform(0, 360)
-            length = random.uniform(0.05, 0.15)
+            x1 = rng.uniform(0, self.x_axis_size)
+            y1 = rng.uniform(0, self.z_axis_size)
+            angle = rng.uniform(0, 360)
+            length = rng.uniform(0.05, 0.15)
             x2 = x1 + length * math.cos(math.radians(angle))
             y2 = y1 + length * math.sin(math.radians(angle))
             # Clamp to path bounds
@@ -434,7 +451,9 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             thickness: float = 0.3,
             color: str = '#696969',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a RetainingWall instance.
@@ -453,6 +472,10 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             rotation angle in degrees
         :param label:
             optional label for the wall
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -460,7 +483,9 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
             length=length,
             thickness=thickness,
             color=color,
-            label=label
+            label=label,
+            id=id,
+            textures=textures,
         )
         self.height = height
 
@@ -564,13 +589,18 @@ class RetainingWall(VertInfoLvl01, RectangularElement):
 
 class Ground(VertInfoLvlGround, SurfaceElement):
     """Literal ground/earth surface"""
+
+    # Texture tiles of 0.5 m x 0.5 m
+    _default_textures = {'default': {'scale_meters': 0.5}}
     def __init__(
             self,
             anchor_point: tuple[float, float],
             size: tuple[float, float],
             color: str = '#D2691E',
             orientation_angle: float = 0,
-            label: str | None = None
+            label: str | None = None,
+            id: str | None = None,
+            textures: dict | None = None,
     ):
         """
         Initialize a Ground instance.
@@ -585,17 +615,19 @@ class Ground(VertInfoLvlGround, SurfaceElement):
             rotation angle in degrees
         :param label:
             optional label for the ground
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        :param textures:
+            optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
         """
-        # Set default texture_scale for Ground to 0.5 (0.5m x 0.5m tiles)
-        texture_scale = 0.5
-
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
             size=size,
             color=color,
             label=label,
-            texture_scale=texture_scale 
+            id=id,
+            textures=textures,
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:

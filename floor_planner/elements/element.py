@@ -186,7 +186,7 @@ class RectangularElement(RectangularGeometry3D, Element):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            texture_scale: float | None = None
+            textures: dict | None = None
     ):
         """
         Initialize an instance.
@@ -211,8 +211,9 @@ class RectangularElement(RectangularGeometry3D, Element):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
-        :param texture_scale:
-            optional texture tiling scale in meters; if set, texture repeats every N meters
+        :param textures:
+            optional per-face textures and lighting for the 3D export
+            (see ``floor_planner.face_textures``); None = class defaults and .mtl
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -220,9 +221,9 @@ class RectangularElement(RectangularGeometry3D, Element):
             label=label,
             id=id,
             v_anchor=v_anchor,
-            height=height,
-            texture_scale=texture_scale
+            height=height
         )
+        self._init_face_textures(textures)
         self.orientation_angle = orientation_angle
         self.length = length
         self.thickness = thickness
@@ -275,7 +276,7 @@ class SurfaceElement(RectangularElement):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            texture_scale: float | None = None
+            textures: dict | None = None
     ):
         """
         Initialize an instance.
@@ -299,8 +300,9 @@ class SurfaceElement(RectangularElement):
             optional vertical anchor point in meters; if None, uses default
         :param height:
             optional physical height in meters; if None, uses default
-        :param texture_scale:
-            optional texture tiling scale in meters; if set, texture repeats every N meters
+        :param textures:
+            optional per-face textures and lighting for the 3D export
+            (see ``floor_planner.face_textures``); None = class defaults and .mtl
         """
         # Pass width as thickness to parent for geometry calculations
         super().__init__(
@@ -313,7 +315,7 @@ class SurfaceElement(RectangularElement):
             id=id,
             v_anchor=v_anchor,
             height=height,
-            texture_scale=texture_scale
+            textures=textures
         )
         # Expose as semantic properties for clarity
         self.x_axis_size = size[0]  # Primary dimension along X axis
