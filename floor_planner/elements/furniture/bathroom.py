@@ -416,13 +416,13 @@ class Toilet(VertInfoLvl03, RectangularElement):
         super().__init__(
             anchor_point=anchor_point,
             orientation_angle=orientation_angle,
-            length=0.7,
-            thickness=0.4,
+            length=0.4,
+            thickness=0.7,
             color=color,
             label=label,
             id=id,
             textures=textures,
-        )  # Standard toilet length (front to back)  # Standard toilet width
+        )  # Standard toilet width  # Standard toilet length (front to back)
 
     def _default_height(self) -> float:
         """Return default height for toilet."""
@@ -435,8 +435,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
             return
 
         # Draw toilet with tank facing down at orientation 0
-        center_x = self.thickness / 2
-        center_y = self.length / 2
+        center_x = self.length / 2
+        center_y = self.thickness / 2
         
         center = rotate_point(
             self.anchor_point,
@@ -448,8 +448,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
         # Main outer ellipse
         outer_ellipse = Ellipse(
             center,
-            width=self.thickness,
-            height=self.length,
+            width=self.length,
+            height=self.thickness,
             angle=self.orientation_angle,
             facecolor='none',
             edgecolor=draw_color,
@@ -459,9 +459,9 @@ class Toilet(VertInfoLvl03, RectangularElement):
         ax.add_patch(outer_ellipse)
        
         # Tank
-        tank_width = self.thickness * 0.84
+        tank_width = self.length * 0.84
         tank_height = 0.18
-        tank_x = (self.thickness - tank_width) / 2
+        tank_x = (self.length - tank_width) / 2
         tank_y = 0
         
         tank_anchor = rotate_point(
@@ -484,8 +484,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
         ax.add_patch(tank)
        
         # Inner ellipse (toilet bowl opening)
-        bowl_center_x = self.thickness / 2
-        bowl_center_y = self.length * 0.65
+        bowl_center_x = self.length / 2
+        bowl_center_y = self.thickness * 0.65
         
         bowl_center = rotate_point(
             self.anchor_point,
@@ -496,7 +496,7 @@ class Toilet(VertInfoLvl03, RectangularElement):
         
         inner_ellipse = Ellipse(
             bowl_center,
-            width=self.thickness - 0.15,
+            width=self.length - 0.15,
             height=0.35,
             angle=self.orientation_angle,
             facecolor='none',

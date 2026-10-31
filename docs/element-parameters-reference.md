@@ -919,7 +919,7 @@ Toilet.
 - `color`: str = 'black' - color to use for drawing the fixture
 - `label`: str | None = None - optional label for the element
 
-**Note:** Dimensions are fixed at length=0.7m, thickness=0.4m, height=0.5m.
+**Note:** Dimensions are fixed at length=0.4m (width), thickness=0.7m (depth, front to back), height=0.5m.
 
 ---
 
