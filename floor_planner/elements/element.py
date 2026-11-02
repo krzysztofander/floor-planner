@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 import matplotlib.axes
 
 from ..options import generate_element_id, get_show_invisible
-from ..geometry_3d import RectangularGeometry3D, CircularGeometry3D
+from ..geometry_3d import RectangularGeometry3D, CircularGeometry3D, VesselGeometry3D
 
 from ..utils import rotate_point
 import math
@@ -258,6 +258,71 @@ class RectangularElement(RectangularGeometry3D, Element):
             ))
 
         return corners
+
+
+class VesselElement(VesselGeometry3D, RectangularElement):
+    """Rectangular element that is hollow at the top (bathtub, basin, sink, pool).
+
+    Same as RectangularElement in 2D. In 3D the box gets a cavity open at the top
+    (see VesselGeometry3D); its faces take the extra textures
+    ``inside_front``, ``inside_back``, ``inside_left``, ``inside_right``, ``inside_bottom``.
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            orientation_angle: float,
+            length: float,
+            thickness: float,
+            color:  str | None = None,
+            label: str | None = None,
+            id: str | None = None,
+            v_anchor: float | None = None,
+            height: float | None = None,
+            textures: dict | None = None,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None
+    ):
+        """
+        Initialize an instance.
+
+        Parameters as RectangularElement, plus:
+
+        :param depth:
+            depth of the cavity in meters, measured down from the top;
+            must be greater than 0 and smaller than the height;
+            if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            thickness of the walls around the cavity in meters;
+            must be greater than 0 and smaller than half of the smaller of length and thickness;
+            if None, 0.1 of the smaller of length and thickness
+        """
+        super().__init__(
+            anchor_point=anchor_point,
+            orientation_angle=orientation_angle,
+            length=length,
+            thickness=thickness,
+            color=color,
+            label=label,
+            id=id,
+            v_anchor=v_anchor,
+            height=height,
+            textures=textures
+        )
+        self.depth = depth if depth is not None else 0.8 * self.height
+        if not 0 < self.depth < self.height:
+            raise ValueError(
+                f"{self.__class__.__name__}: depth must be greater than 0 and smaller than "
+                f"height ({self.height}), got {self.depth}"
+            )
+        smaller_side = min(self.length, self.thickness)
+        self.vessel_wall_thickness = (vessel_wall_thickness if vessel_wall_thickness is not None
+                                      else 0.1 * smaller_side)
+        if not 0 < self.vessel_wall_thickness < smaller_side / 2:
+            raise ValueError(
+                f"{self.__class__.__name__}: vessel_wall_thickness must be greater than 0 and smaller "
+                f"than half of min(length, thickness) ({smaller_side / 2}), got {self.vessel_wall_thickness}"
+            )
 
 
 class SurfaceElement(RectangularElement):

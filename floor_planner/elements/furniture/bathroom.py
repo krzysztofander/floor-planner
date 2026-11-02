@@ -12,7 +12,7 @@ from matplotlib.patches import Arc, Rectangle, Circle, Ellipse
 from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
-from ..element import Element, RectangularElement
+from ..element import Element, RectangularElement, VesselElement
 from ..vertical_levels import VertInfoLvl03
 
 
@@ -154,7 +154,7 @@ class Shower(VertInfoLvl03, RectangularElement):
         )
 
 
-class Bathtub(VertInfoLvl03, RectangularElement):
+class Bathtub(VertInfoLvl03, VesselElement):
     """
     Bathtub
 
@@ -171,6 +171,8 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             label: str | None = None,
             id: str | None = None,
             textures: dict | None = None,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None,
     ):
         """
         Initialize an instance.
@@ -188,6 +190,11 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             optional explicit ID; if None, generated from class name and label
         :param textures:
             optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param depth:
+            optional depth of the cavity (3D only) in meters; if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            optional thickness of the cavity walls (3D only) in meters;
+            if None, 0.1 of the smaller of length and thickness
         :return:
             freshly created instance of `Bathtub` class
         """
@@ -200,7 +207,9 @@ class Bathtub(VertInfoLvl03, RectangularElement):
             label=label,
             id=id,
             textures=textures,
-            height = height
+            height=height,
+            depth=depth,
+            vessel_wall_thickness=vessel_wall_thickness,
         )
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -258,7 +267,7 @@ class Bathtub(VertInfoLvl03, RectangularElement):
         )
 
 
-class Basin(VertInfoLvl03, RectangularElement):
+class Basin(VertInfoLvl03, VesselElement):
     """
     Bathroom basin/sink
 
@@ -274,7 +283,9 @@ class Basin(VertInfoLvl03, RectangularElement):
             id: str | None = None,
             textures: dict | None = None,
             length=0.6,
-            thickness=0.5
+            thickness=0.5,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None,
     ):
         """
         Initialize an instance.
@@ -292,6 +303,11 @@ class Basin(VertInfoLvl03, RectangularElement):
             optional explicit ID; if None, generated from class name and label
         :param textures:
             optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param depth:
+            optional depth of the cavity (3D only) in meters; if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            optional thickness of the cavity walls (3D only) in meters;
+            if None, 0.1 of the smaller of length and thickness
         :return:
             freshly created instance of `Basin` class
         """
@@ -305,6 +321,8 @@ class Basin(VertInfoLvl03, RectangularElement):
             label=label,
             id=id,
             textures=textures,
+            depth=depth,
+            vessel_wall_thickness=vessel_wall_thickness,
         )  # Basin width  # Basin depth
 
     def draw(self, ax: matplotlib.axes.Axes) -> None:
@@ -380,7 +398,7 @@ class Basin(VertInfoLvl03, RectangularElement):
         )
 
 
-class Toilet(VertInfoLvl03, RectangularElement):
+class Toilet(VertInfoLvl03, VesselElement):
     """
     Toilet
 
@@ -394,6 +412,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
             label: str | None = None,
             id: str | None = None,
             textures: dict | None = None,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None,
     ):
         """
         Initialize an instance.
@@ -411,6 +431,11 @@ class Toilet(VertInfoLvl03, RectangularElement):
             optional explicit ID; if None, generated from class name and label
         :param textures:
             optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param depth:
+            optional depth of the cavity (3D only) in meters; if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            optional thickness of the cavity walls (3D only) in meters;
+            if None, 0.1 of the smaller of length and thickness
         :return:
             freshly created instance of `Toilet` class
         """
@@ -423,6 +448,8 @@ class Toilet(VertInfoLvl03, RectangularElement):
             label=label,
             id=id,
             textures=textures,
+            depth=depth,
+            vessel_wall_thickness=vessel_wall_thickness,
         )  # Standard toilet width  # Standard toilet length (front to back)
 
     def _default_height(self) -> float:

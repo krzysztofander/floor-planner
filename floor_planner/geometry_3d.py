@@ -142,15 +142,14 @@ class RectangularGeometry3D(Generate3DMixin):
         """Depth of the 3D box (local Z); ``thickness`` unless a subclass needs a different one."""
         return self.thickness
 
-    def generate_vertices_and_indices(self) -> tuple[list[tuple[float, float, float]], 
-                                                      list[tuple[int, int, int]], 
-                                                      dict[str, list[int]]]:
-        """Generate box geometry with 8 vertices and 12 triangles."""
-        
-        # Get expansion for z-fighting prevention.
-        # Preferred interface: _get_3d_expansion() returns (length_exp, thickness_exp, height_exp)
-        # each value is the total expansion; half is applied on each side.
-        # Legacy fallback: _get_geometric_offset() returns one value for both length and thickness.
+    def _get_expansion_halves(self) -> tuple[float, float, float]:
+        """
+        Expansion for z-fighting prevention applied on each side: (length, thickness, height).
+
+        Preferred interface: _get_3d_expansion() returns (length_exp, thickness_exp, height_exp)
+        each value is the total expansion; half is applied on each side.
+        Legacy fallback: _get_geometric_offset() returns one value for both length and thickness.
+        """
         if hasattr(self, '_get_3d_expansion'):
             length_exp, thickness_exp, height_exp = self._get_3d_expansion()
         elif hasattr(self, '_get_geometric_offset'):
@@ -160,10 +159,14 @@ class RectangularGeometry3D(Generate3DMixin):
             height_exp = 0.0
         else:
             length_exp = thickness_exp = height_exp = 0.0
+        return length_exp / 2, thickness_exp / 2, height_exp / 2
 
-        length_half = length_exp / 2
-        thickness_half = thickness_exp / 2
-        height_half = height_exp / 2
+    def generate_vertices_and_indices(self) -> tuple[list[tuple[float, float, float]], 
+                                                      list[tuple[int, int, int]], 
+                                                      dict[str, list[int]]]:
+        """Generate box geometry with 8 vertices and 12 triangles."""
+        
+        length_half, thickness_half, height_half = self._get_expansion_halves()
         thickness = self._get_3d_thickness()
 
         # Get bottom corners in 2D (before rotation)
@@ -284,6 +287,96 @@ class RectangularGeometry3D(Generate3DMixin):
         rotated = [rotate_point(anchor, x, z, angle_rad) for x, z in corners]
         
         return rotated
+
+
+# Cavity faces of a vessel, named like the box faces they are parallel to
+VESSEL_INSIDE_FACES = ('inside_front', 'inside_back', 'inside_left', 'inside_right', 'inside_bottom')
+
+
+class VesselGeometry3D(RectangularGeometry3D):
+    """
+    3D geometry of an open vessel (bathtub, basin, sink, pool): the element's box
+    with a rectangular cavity open at the top.
+
+    Uses the box properties (anchor_point, length, thickness, orientation_angle,
+    v_anchor, height) and:
+        - depth - depth of the cavity, measured down from the top
+        - vessel_wall_thickness - thickness of the walls around the cavity
+
+    Faces (``face_groups``):
+        - ``front``, ``back``, ``left``, ``right``, ``bottom`` - outside of the box
+        - ``top`` - the rim around the opening
+        - ``inside_front``, ``inside_back``, ``inside_left``, ``inside_right`` - walls
+          of the cavity, named after the outer face they are parallel to
+        - ``inside_bottom`` - bottom of the cavity
+
+    Every face has its own vertices (flat normals, independent UVs). Triangles are
+    wound so that normals point out of the material: outwards for the outer faces
+    and into the cavity for the inside faces (the player culls back faces).
+    """
+
+    _extra_faces = VESSEL_INSIDE_FACES
+
+    def generate_vertices_and_indices(self) -> tuple[list[tuple[float, float, float]],
+                                                      list[tuple[int, int, int]],
+                                                      dict[str, list[int]]]:
+        """Generate the vessel geometry (5 outer faces, rim of 4 strips, 5 cavity faces)."""
+        length_half, thickness_half, height_half = self._get_expansion_halves()
+        wall = self.vessel_wall_thickness
+
+        # Local frame: x along length, z along thickness, y up
+        x0, x1 = -length_half, self.length + length_half
+        z0, z1 = -thickness_half, self.thickness + thickness_half
+        y0 = self.v_anchor - height_half
+        y1 = self.v_anchor + self.height + height_half
+        ix0, ix1 = wall, self.length - wall
+        iz0, iz1 = wall, self.thickness - wall
+        iy = self.v_anchor + self.height - self.depth
+
+        vertices = []
+        indices = []
+        face_groups = {}
+
+        def add_quad(name: str, corners: list[tuple[float, float, float]],
+                     normal: tuple[float, float, float]) -> None:
+            """Add a convex planar quad (local corners in order around it) facing ``normal``."""
+            (ax_, ay, az), (bx, by, bz), (cx, cy, cz) = corners[:3]
+            e1 = (bx - ax_, by - ay, bz - az)
+            e2 = (cx - ax_, cy - ay, cz - az)
+            cross = (e1[1] * e2[2] - e1[2] * e2[1],
+                     e1[2] * e2[0] - e1[0] * e2[2],
+                     e1[0] * e2[1] - e1[1] * e2[0])
+            if sum(c * n for c, n in zip(cross, normal)) < 0:
+                corners = corners[::-1]
+            # Rotation around the vertical axis keeps the winding, so orient in the local frame
+            rotated = self._rotate_corners([(x, z) for x, _, z in corners], self.anchor_point,
+                                           self.orientation_angle)
+            base = len(vertices)
+            vertices.extend((wx, y, wz) for (wx, wz), (_, y, _) in zip(rotated, corners))
+            face_groups.setdefault(name, []).extend([len(indices), len(indices) + 1])
+            indices.extend([(base, base + 1, base + 2), (base, base + 2, base + 3)])
+
+        # Outside of the box
+        add_quad('bottom', [(x0, y0, z0), (x1, y0, z0), (x1, y0, z1), (x0, y0, z1)], (0, -1, 0))
+        add_quad('front', [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0)], (0, 0, -1))
+        add_quad('back', [(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)], (0, 0, 1))
+        add_quad('left', [(x0, y0, z0), (x0, y0, z1), (x0, y1, z1), (x0, y1, z0)], (-1, 0, 0))
+        add_quad('right', [(x1, y0, z0), (x1, y0, z1), (x1, y1, z1), (x1, y1, z0)], (1, 0, 0))
+
+        # Rim: four trapezoids between the outer edge and the opening
+        add_quad('top', [(x0, y1, z0), (x1, y1, z0), (ix1, y1, iz0), (ix0, y1, iz0)], (0, 1, 0))
+        add_quad('top', [(x1, y1, z0), (x1, y1, z1), (ix1, y1, iz1), (ix1, y1, iz0)], (0, 1, 0))
+        add_quad('top', [(x1, y1, z1), (x0, y1, z1), (ix0, y1, iz1), (ix1, y1, iz1)], (0, 1, 0))
+        add_quad('top', [(x0, y1, z1), (x0, y1, z0), (ix0, y1, iz0), (ix0, y1, iz1)], (0, 1, 0))
+
+        # Cavity: normals point into the cavity
+        add_quad('inside_front', [(ix0, iy, iz0), (ix1, iy, iz0), (ix1, y1, iz0), (ix0, y1, iz0)], (0, 0, 1))
+        add_quad('inside_back', [(ix0, iy, iz1), (ix1, iy, iz1), (ix1, y1, iz1), (ix0, y1, iz1)], (0, 0, -1))
+        add_quad('inside_left', [(ix0, iy, iz0), (ix0, iy, iz1), (ix0, y1, iz1), (ix0, y1, iz0)], (1, 0, 0))
+        add_quad('inside_right', [(ix1, iy, iz0), (ix1, iy, iz1), (ix1, y1, iz1), (ix1, y1, iz0)], (-1, 0, 0))
+        add_quad('inside_bottom', [(ix0, iy, iz0), (ix1, iy, iz0), (ix1, iy, iz1), (ix0, iy, iz1)], (0, 1, 0))
+
+        return vertices, indices, face_groups
 
 
 class CircularGeometry3D(Generate3DMixin):
