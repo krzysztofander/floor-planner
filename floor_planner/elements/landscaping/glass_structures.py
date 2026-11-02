@@ -371,7 +371,7 @@ class SolidGlassDoor(Door):
             thickness: float = 0.01,
             orientation_angle: float = 0,
             to_the_right: bool = False,
-            color: str = '#C8E8F4',
+            color: str = "#2681A2",
             hinges_point: float = 0.95,
             opening_outside: bool = False,
             label: str | None = None,
