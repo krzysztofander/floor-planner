@@ -11,7 +11,7 @@ import math
 import random
 
 from ...utils import rotate_point, render_label_and_id
-from ..element import Element, CircularElement, SurfaceElement, RectangularElement
+from ..element import Element, CircularElement, SurfaceElement, RectangularElement, VesselElement
 from ..vertical_levels import VertInfoLvl01
 
 
@@ -432,7 +432,7 @@ class Pond(Element):
         return " ".join(parts) if parts else ""
 
 
-class RectPool(VertInfoLvl01, RectangularElement):
+class RectPool(VertInfoLvl01, VesselElement):
     """Rectangular swimming pool element for garden/summer use."""
 
     def __init__(
@@ -448,6 +448,8 @@ class RectPool(VertInfoLvl01, RectangularElement):
             label: str | None = None,
             id: str | None = None,
             textures: dict | None = None,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None,
     ):
         """
         Initialize a RectPool instance.
@@ -474,6 +476,11 @@ class RectPool(VertInfoLvl01, RectangularElement):
             optional explicit ID; if None, generated from class name and label
         :param textures:
             optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param depth:
+            optional depth of the cavity (3D only) in meters; if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            optional thickness of the cavity walls (3D only) in meters;
+            if None, 0.1 of the smaller of length and thickness
         """
         super().__init__(
             anchor_point=anchor_point,
@@ -484,6 +491,8 @@ class RectPool(VertInfoLvl01, RectangularElement):
             label=label,
             id=id,
             textures=textures,
+            depth=depth,
+            vessel_wall_thickness=vessel_wall_thickness,
         )
         self.pool_color = pool_color
         self.border_color = border_color

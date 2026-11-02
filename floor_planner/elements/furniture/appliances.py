@@ -12,7 +12,7 @@ from matplotlib.patches import Arc, Rectangle, Circle
 from matplotlib.lines import Line2D
 
 from ...utils import rotate_point, render_label_and_id, text_readability_rotation
-from ..element import RectangularElement
+from ..element import RectangularElement, VesselElement
 from ..vertical_levels import VertInfoLvl03, VertInfoLvl04
 
 
@@ -816,7 +816,7 @@ class Stovetop(VertInfoLvl03, RectangularElement):
         )
 
 
-class SingleSink(VertInfoLvl03, RectangularElement):
+class SingleSink(VertInfoLvl03, VesselElement):
     """
     Single sink appliance
 
@@ -830,6 +830,8 @@ class SingleSink(VertInfoLvl03, RectangularElement):
             label: str | None = None,
             id: str | None = None,
             textures: dict | None = None,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None,
     ):
         """
         Initialize an instance.
@@ -847,6 +849,11 @@ class SingleSink(VertInfoLvl03, RectangularElement):
             optional explicit ID; if None, generated from class name and label
         :param textures:
             optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param depth:
+            optional depth of the cavity (3D only) in meters; if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            optional thickness of the cavity walls (3D only) in meters;
+            if None, 0.1 of the smaller of length and thickness
         :return:
             freshly created instance of `SingleSink` class
         """
@@ -859,6 +866,8 @@ class SingleSink(VertInfoLvl03, RectangularElement):
             label=label,
             id=id,
             textures=textures,
+            depth=depth,
+            vessel_wall_thickness=vessel_wall_thickness,
         )  # Single sink length  # Single sink width
 
     def _default_height(self) -> float:
@@ -950,7 +959,7 @@ class SingleSink(VertInfoLvl03, RectangularElement):
         )
 
 
-class DoubleSink(VertInfoLvl03, RectangularElement):
+class DoubleSink(VertInfoLvl03, VesselElement):
     """
     Double sink appliance
 
@@ -964,6 +973,8 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             label: str | None = None,
             id: str | None = None,
             textures: dict | None = None,
+            depth: float | None = None,
+            vessel_wall_thickness: float | None = None,
     ):
         """
         Initialize an instance.
@@ -981,6 +992,11 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             optional explicit ID; if None, generated from class name and label
         :param textures:
             optional per-face textures and lighting for the 3D export (see ``floor_planner.face_textures``)
+        :param depth:
+            optional depth of the cavity (3D only) in meters; if None, 0.8 of the height
+        :param vessel_wall_thickness:
+            optional thickness of the cavity walls (3D only) in meters;
+            if None, 0.1 of the smaller of length and thickness
         :return:
             freshly created instance of `DoubleSink` class
         """
@@ -993,6 +1009,8 @@ class DoubleSink(VertInfoLvl03, RectangularElement):
             label=label,
             id=id,
             textures=textures,
+            depth=depth,
+            vessel_wall_thickness=vessel_wall_thickness,
         )  # Double sink length (wider than single)  # Double sink width
 
     def _default_height(self) -> float:

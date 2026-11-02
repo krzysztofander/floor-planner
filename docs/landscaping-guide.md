@@ -197,6 +197,10 @@ Water rectangle with a 0.15 m border; the label shows `length×thickness`. Defau
 - `show_steps`: bool = True - entry steps in the bottom-left corner
 - `orientation_angle`: float = 0
 - `label`: str | None = None
+- `depth`: float | None = None - depth of the cavity in 3D (in meters), measured down from the top; must be greater than 0 and smaller than the height; default 0.8 of the height
+- `vessel_wall_thickness`: float | None = None - thickness of the walls around the cavity in 3D (in meters); must be greater than 0 and smaller than half of min(length, thickness); default 0.1 of min(length, thickness)
+
+In 3D the pool is a [vessel](element-parameters-reference.md#vessel-elements-hollow-3d-shape): a box with a cavity open at the top, whose faces take the `inside_*` extra textures.
 
 ### OvalPool
 **YAML type:** `oval_pool`

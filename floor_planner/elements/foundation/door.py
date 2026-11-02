@@ -770,7 +770,8 @@ class Door(VertInfoDoor, RectangularElement):
             id: str | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
-            textures: dict | None = None
+            textures: dict | None = None,
+            wing_thickness: float | None = None
     ):
         """
         Initialize an instance.
@@ -810,9 +811,20 @@ class Door(VertInfoDoor, RectangularElement):
         :param textures:
             optional per-face textures and lighting for the 3D export
             (see ``floor_planner.face_textures``); None = class defaults and .mtl
+        :param wing_thickness:
+            optional thickness of the door wing (panel) in meters, 3D only;
+            must be greater than 0 and not greater than `thickness`;
+            if None, the wing fills the whole `thickness`
         :return:
             freshly created instance of `Door` class
         """
+        if wing_thickness is not None and not 0 < wing_thickness <= thickness:
+            raise ValueError(
+                f"wing_thickness must be greater than 0 and not greater than thickness ({thickness}), "
+                f"got {wing_thickness}"
+            )
+        self.wing_thickness = wing_thickness if wing_thickness is not None else thickness
+
         self.door2d = Door2D(anchor_point, doorway_width, door_width, thickness,
                         door_type, orientation_angle, to_the_right, hinges_point,
                         opening_outside)
@@ -837,10 +849,12 @@ class Door(VertInfoDoor, RectangularElement):
         #
         # model_door_width = doorway_width  → stretch = 1 (geometry is already
         #                                     at actual scale, no mesh distortion)
-        # wing_width_on_model = T × H       → correct Z pre-translation so the
-        #                                     hinge sits at origin before rotation
-        # model_depth = thickness            → fixes z_shift = W+(T-depth)×H
-        #                                     = T×H (not T×H×(2-H))
+        # wing_width_on_model = model_depth = wing thickness (WT)
+        #                                   → the 3D box is WT deep, like the wing of
+        #                                     an external model; the animation places
+        #                                     it at depth (T - WT) × H inside the
+        #                                     doorway and pivots it on its face.
+        #                                     WT = T (default) fills the whole doorway.
         #
         # The X hinge position (pre_translation[0]) defaults to 0 in Door3D
         # (external models have their hinge at x=0).  For procedural geometry
@@ -856,10 +870,14 @@ class Door(VertInfoDoor, RectangularElement):
             to_the_right=to_the_right,
             hinges_depth=hinges_depth,
             model_door_width=doorway_width,                 # stretch = 1
-            wing_width_on_model=thickness,
-            model_depth=thickness,                          # full wall depth
+            wing_width_on_model=self.wing_thickness,
+            model_depth=self.wing_thickness,
         )
         self.animation = door3d.getAnimation()
+
+    def _get_3d_thickness(self) -> float:
+        """The 3D box is the door wing, ``wing_thickness`` deep."""
+        return self.wing_thickness
 
     def get_to_the_right(self) -> bool:
         """Return whether the door opens to the right."""

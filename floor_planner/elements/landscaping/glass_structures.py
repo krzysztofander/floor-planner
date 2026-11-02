@@ -359,7 +359,8 @@ class SolidGlassDoor(Door):
 
     YAML type: ``solid_glass_door``
 
-    YAML parameters: same as Door, but ``thickness`` defaults to 0.01 m.
+    YAML parameters: same as Door (including ``wing_thickness``), but
+    ``thickness`` defaults to 0.01 m.
     """
 
     def __init__(
@@ -379,6 +380,7 @@ class SolidGlassDoor(Door):
             textures: dict | None = None,
             v_anchor: float | None = None,
             height: float | None = None,
+            wing_thickness: float | None = None,
     ):
         super().__init__(
             anchor_point=anchor_point,
@@ -396,6 +398,7 @@ class SolidGlassDoor(Door):
             textures=textures,
             v_anchor=v_anchor,
             height=height,
+            wing_thickness=wing_thickness,
         )
 
 

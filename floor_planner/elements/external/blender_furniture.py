@@ -88,21 +88,21 @@ class Armchair(ExternalModelElement):
         # Outline
         _rect(ax, self.anchor_point, w, l, angle_rad, color)
 
-        # Backrest: thick line at far Y edge
-        bl = _rotated_corner(self.anchor_point, 0, l * 0.85, angle_rad)
-        br = _rotated_corner(self.anchor_point, w, l * 0.85, angle_rad)
+        # Backrest at the anchor (Y = 0) edge, matching the 3D model
+        bl = _rotated_corner(self.anchor_point, 0, l * 0.15, angle_rad)
+        br = _rotated_corner(self.anchor_point, w, l * 0.15, angle_rad)
         _thick_line(ax, bl, br, color, lw=4)
 
         # Armrests: thick lines along both X sides
-        la0 = _rotated_corner(self.anchor_point, 0, 0, angle_rad)
-        la1 = _rotated_corner(self.anchor_point, 0, l * 0.9, angle_rad)
-        ra0 = _rotated_corner(self.anchor_point, w, 0, angle_rad)
-        ra1 = _rotated_corner(self.anchor_point, w, l * 0.9, angle_rad)
+        la0 = _rotated_corner(self.anchor_point, 0, l * 0.1, angle_rad)
+        la1 = _rotated_corner(self.anchor_point, 0, l, angle_rad)
+        ra0 = _rotated_corner(self.anchor_point, w, l * 0.1, angle_rad)
+        ra1 = _rotated_corner(self.anchor_point, w, l, angle_rad)
         _thick_line(ax, la0, la1, color, lw=3)
         _thick_line(ax, ra0, ra1, color, lw=3)
 
         # Seat cushion area (inner rectangle)
-        pad_x, pad_y = w * 0.12, l * 0.07
+        pad_x, pad_y = w * 0.12, l * 0.23
         seat = Rectangle(
             _rotated_corner(self.anchor_point, pad_x, pad_y, angle_rad),
             w * 0.76, l * 0.7,
@@ -149,14 +149,14 @@ class Chair20(ExternalModelElement):
 
         _rect(ax, self.anchor_point, w, l, angle_rad, color)
 
-        # Backrest at far Y edge
-        bl = _rotated_corner(self.anchor_point, 0, l * 0.82, angle_rad)
-        br = _rotated_corner(self.anchor_point, w, l * 0.82, angle_rad)
+        # Backrest at the anchor (Y = 0) edge, matching the 3D model
+        bl = _rotated_corner(self.anchor_point, 0, l * 0.18, angle_rad)
+        br = _rotated_corner(self.anchor_point, w, l * 0.18, angle_rad)
         _thick_line(ax, bl, br, color, lw=4)
 
         # Seat
         seat = Rectangle(
-            _rotated_corner(self.anchor_point, w * 0.1, l * 0.05, angle_rad),
+            _rotated_corner(self.anchor_point, w * 0.1, l * 0.25, angle_rad),
             w * 0.8, l * 0.7,
             linewidth=0.5, edgecolor=color, facecolor='none',
             angle=math.degrees(angle_rad), rotation_point='xy',
@@ -207,9 +207,9 @@ class ChaiseLongue1(ExternalModelElement):
         p1 = _rotated_corner(self.anchor_point, 0, l, angle_rad)
         _thick_line(ax, p0, p1, color, lw=4)
 
-        # Headrest bump at far Y end
-        hr0 = _rotated_corner(self.anchor_point, 0, l * 0.85, angle_rad)
-        hr1 = _rotated_corner(self.anchor_point, w * 0.55, l * 0.85, angle_rad)
+        # Headrest bump at the anchor (Y = 0) end, matching the 3D model
+        hr0 = _rotated_corner(self.anchor_point, 0, l * 0.15, angle_rad)
+        hr1 = _rotated_corner(self.anchor_point, w * 0.55, l * 0.15, angle_rad)
         _thick_line(ax, hr0, hr1, color, lw=3)
 
         render_label_and_id(ax, self, 'ChaiseLongue1', self.anchor_point, self.orientation_angle)
@@ -279,7 +279,7 @@ class Sofa22(ExternalModelElement):
 
     Anchor: bottom-left-front corner.
     Long axis runs in X at orientation_angle=0.
-    Backrest is at the far Y edge (place against a wall with orientation 0).
+    Backrest is at the anchor (Y = 0) edge; the seat faces +Y.
     """
 
     _registry_key = 'sofa_22'
@@ -301,22 +301,22 @@ class Sofa22(ExternalModelElement):
 
         _rect(ax, self.anchor_point, w, l, angle_rad, color)
 
-        # Backrest at far Y
-        bl = _rotated_corner(self.anchor_point, 0, l * 0.80, angle_rad)
-        br = _rotated_corner(self.anchor_point, w, l * 0.80, angle_rad)
+        # Backrest at the anchor (Y = 0) edge, matching the 3D model
+        bl = _rotated_corner(self.anchor_point, 0, l * 0.20, angle_rad)
+        br = _rotated_corner(self.anchor_point, w, l * 0.20, angle_rad)
         _thick_line(ax, bl, br, color, lw=5)
 
         # Three cushion dividers
         for frac in (1/3, 2/3):
-            p0 = _rotated_corner(self.anchor_point, w * frac, 0, angle_rad)
-            p1 = _rotated_corner(self.anchor_point, w * frac, l * 0.78, angle_rad)
+            p0 = _rotated_corner(self.anchor_point, w * frac, l * 0.22, angle_rad)
+            p1 = _rotated_corner(self.anchor_point, w * frac, l, angle_rad)
             _thick_line(ax, p0, p1, color, lw=0.8)
 
         # Armrests
-        la0 = _rotated_corner(self.anchor_point, 0, 0, angle_rad)
-        la1 = _rotated_corner(self.anchor_point, 0, l * 0.88, angle_rad)
-        ra0 = _rotated_corner(self.anchor_point, w, 0, angle_rad)
-        ra1 = _rotated_corner(self.anchor_point, w, l * 0.88, angle_rad)
+        la0 = _rotated_corner(self.anchor_point, 0, l * 0.12, angle_rad)
+        la1 = _rotated_corner(self.anchor_point, 0, l, angle_rad)
+        ra0 = _rotated_corner(self.anchor_point, w, l * 0.12, angle_rad)
+        ra1 = _rotated_corner(self.anchor_point, w, l, angle_rad)
         _thick_line(ax, la0, la1, color, lw=3)
         _thick_line(ax, ra0, ra1, color, lw=3)
 
@@ -359,21 +359,21 @@ class Sofa23(ExternalModelElement):
 
         _rect(ax, self.anchor_point, w, l, angle_rad, color)
 
-        # Backrest
-        bl = _rotated_corner(self.anchor_point, 0, l * 0.80, angle_rad)
-        br = _rotated_corner(self.anchor_point, w, l * 0.80, angle_rad)
+        # Backrest at the anchor (Y = 0) edge, matching the 3D model
+        bl = _rotated_corner(self.anchor_point, 0, l * 0.20, angle_rad)
+        br = _rotated_corner(self.anchor_point, w, l * 0.20, angle_rad)
         _thick_line(ax, bl, br, color, lw=5)
 
         # Two cushion divider
-        p0 = _rotated_corner(self.anchor_point, w * 0.5, 0, angle_rad)
-        p1 = _rotated_corner(self.anchor_point, w * 0.5, l * 0.78, angle_rad)
+        p0 = _rotated_corner(self.anchor_point, w * 0.5, l * 0.22, angle_rad)
+        p1 = _rotated_corner(self.anchor_point, w * 0.5, l, angle_rad)
         _thick_line(ax, p0, p1, color, lw=0.8)
 
         # Armrests
-        la0 = _rotated_corner(self.anchor_point, 0, 0, angle_rad)
-        la1 = _rotated_corner(self.anchor_point, 0, l * 0.88, angle_rad)
-        ra0 = _rotated_corner(self.anchor_point, w, 0, angle_rad)
-        ra1 = _rotated_corner(self.anchor_point, w, l * 0.88, angle_rad)
+        la0 = _rotated_corner(self.anchor_point, 0, l * 0.12, angle_rad)
+        la1 = _rotated_corner(self.anchor_point, 0, l, angle_rad)
+        ra0 = _rotated_corner(self.anchor_point, w, l * 0.12, angle_rad)
+        ra1 = _rotated_corner(self.anchor_point, w, l, angle_rad)
         _thick_line(ax, la0, la1, color, lw=3)
         _thick_line(ax, ra0, ra1, color, lw=3)
 

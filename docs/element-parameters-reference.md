@@ -101,6 +101,7 @@ Single door, either hinged (swinging) or sliding.
 - `opening_outside`: bool = False - if True, door opens outward (hinge/panel depth becomes `1 - hinges_point`); if False, door opens inward
 - `label`: str | None = None - optional label for the element
 - `door_type`: str = 'hinged' - `'hinged'` (swinging door with opening arc; 3D rotation animation) or `'sliding'` (2D: closed panel, dashed open position and slide-direction arrow; 3D slide animation by `door_width`); any other value raises `ValueError`
+- `wing_thickness`: float | None = None - thickness of the door wing (panel) in meters, used only in 3D; must be greater than 0 and not greater than `thickness`. The wing sits at depth `(thickness - wing_thickness) × hinges depth` inside the doorway and swings around its own face. If not set, the wing fills the whole `thickness`
 
 ---
 
@@ -829,8 +830,10 @@ Single sink appliance.
 - `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the appliance
 - `color`: str = 'grey' - color to use for drawing the appliance
 - `label`: str | None = None - optional label for the element
+- `depth`: float | None = None - depth of the cavity in 3D (in meters), measured down from the top; must be greater than 0 and smaller than the height; default 0.8 of the height
+- `vessel_wall_thickness`: float | None = None - thickness of the walls around the cavity in 3D (in meters); must be greater than 0 and smaller than half of min(length, thickness); default 0.1 of min(length, thickness)
 
-**Note:** Dimensions are fixed at length=0.9m, thickness=0.6m, height=0.9m.
+**Note:** Dimensions are fixed at length=0.9m, thickness=0.6m, height=0.9m. See [Vessel elements](#vessel-elements-hollow-3d-shape) for the 3D shape and the `inside_*` textures.
 
 ### DoubleSink
 Double sink appliance.
@@ -842,8 +845,10 @@ Double sink appliance.
 - `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the appliance
 - `color`: str = 'grey' - color to use for drawing the appliance
 - `label`: str | None = None - optional label for the element
+- `depth`: float | None = None - depth of the cavity in 3D (in meters), measured down from the top; must be greater than 0 and smaller than the height; default 0.8 of the height
+- `vessel_wall_thickness`: float | None = None - thickness of the walls around the cavity in 3D (in meters); must be greater than 0 and smaller than half of min(length, thickness); default 0.1 of min(length, thickness)
 
-**Note:** Dimensions are fixed at length=1.2m, thickness=0.6m, height=0.9m.
+**Note:** Dimensions are fixed at length=1.2m, thickness=0.6m, height=0.9m. See [Vessel elements](#vessel-elements-hollow-3d-shape) for the 3D shape and the `inside_*` textures.
 
 ### TV
 Flat TV set with a 16:9 screen; length and height are derived from the screen diagonal.
@@ -893,6 +898,10 @@ Bathtub.
 - `height`: float = 0.6 - height of the bathtub (in meters)
 - `color`: str = 'black' - color to use for drawing the fixture
 - `label`: str | None = None - optional label for the element
+- `depth`: float | None = None - depth of the cavity in 3D (in meters), measured down from the top; must be greater than 0 and smaller than the height; default 0.8 of the height
+- `vessel_wall_thickness`: float | None = None - thickness of the walls around the cavity in 3D (in meters); must be greater than 0 and smaller than half of min(length, thickness); default 0.1 of min(length, thickness)
+
+See [Vessel elements](#vessel-elements-hollow-3d-shape) for the 3D shape and the `inside_*` textures.
 
 ### Basin
 Bathroom basin/sink.
@@ -905,8 +914,10 @@ Bathroom basin/sink.
 - `height`: float = 0.85 - height of the basin (in meters)
 - `color`: str = 'black' - color to use for drawing the fixture
 - `label`: str | None = None - optional label for the element
+- `depth`: float | None = None - depth of the cavity in 3D (in meters), measured down from the top; must be greater than 0 and smaller than the height; default 0.8 of the height
+- `vessel_wall_thickness`: float | None = None - thickness of the walls around the cavity in 3D (in meters); must be greater than 0 and smaller than half of min(length, thickness); default 0.1 of min(length, thickness)
 
-**Note:** Dimensions are fixed at length=0.6m, thickness=0.5m.
+**Note:** Dimensions are fixed at length=0.6m, thickness=0.5m. See [Vessel elements](#vessel-elements-hollow-3d-shape) for the 3D shape and the `inside_*` textures.
 
 ### Toilet
 Toilet.
@@ -918,8 +929,10 @@ Toilet.
 - `orientation_angle`: float = 0 - angle (in degrees) that specifies orientation of the fixture
 - `color`: str = 'black' - color to use for drawing the fixture
 - `label`: str | None = None - optional label for the element
+- `depth`: float | None = None - depth of the cavity in 3D (in meters), measured down from the top; must be greater than 0 and smaller than the height; default 0.8 of the height
+- `vessel_wall_thickness`: float | None = None - thickness of the walls around the cavity in 3D (in meters); must be greater than 0 and smaller than half of min(length, thickness); default 0.1 of min(length, thickness)
 
-**Note:** Dimensions are fixed at length=0.7m, thickness=0.4m, height=0.5m.
+**Note:** Dimensions are fixed at length=0.4m (width), thickness=0.7m (depth, front to back), height=0.5m. See [Vessel elements](#vessel-elements-hollow-3d-shape) for the 3D shape and the `inside_*` textures.
 
 ---
 
@@ -1263,6 +1276,7 @@ A frameless glass door (procedural, no external model). It is drawn like [Door](
 **Parameters:** same as Door, except:
 - `thickness`: float = 0.01 - glass panel depth
 - `color`: str = '#C8E8F4'
+- `wing_thickness`: float | None = None - as in Door: a glass panel thinner than `thickness` (e.g. `thickness: 0.1`, `wing_thickness: 0.01`)
 
 ### Greenhouse
 **YAML type:** `greenhouse`
@@ -1458,6 +1472,31 @@ The 3D model is exported only when `project.visualisation_dir` is set: one glTF 
 
 Box elements (all types whose 3D shape is a box: `wall`, `wallnd`, `window`, `door`, `solid_glass_door`, `floor`, `ceiling`, the furniture boxes, `fish_tank`, `ground`, `deck`, `surface`, `garden_path`, `lawn`, `hedge`, `fence`, `retaining_wall`, `pergola`, `raised_bed`, `garden_house`, `rect_pool`, `oval_pool`, …) accept a `textures` structure that sets texture, scale and lighting per face. `composite_glass_door` passes it to its glass leaf. Without `textures` an element looks as defined by its `.mtl`.
 
+#### Vessel elements (hollow 3D shape)
+
+`bathtub`, `basin`, `toilet`, `single_sink`, `double_sink` and `rect_pool` are drawn in 2D as before, but in 3D their box has a rectangular cavity open at the top: `depth` deep (default 0.8 of the height) with walls `vessel_wall_thickness` thick (default 0.1 of min(length, thickness)). Their faces:
+
+| Face | Position |
+|------|----------|
+| `front`, `back`, `left`, `right`, `bottom` | outside of the box, as for any box |
+| `top` | the rim around the opening |
+| `inside_front` / `inside_back` | cavity walls parallel to `front` / `back` (extra faces) |
+| `inside_left` / `inside_right` | cavity walls parallel to `left` / `right` (extra faces) |
+| `inside_bottom` | bottom of the cavity (extra face) |
+
+The cavity faces are set under `extras` and fall back to `default`, the class default and the `.mtl` like any extra face. All normals point out of the material (into the cavity for the `inside_*` faces), so the faces are visible with back-face culling.
+
+```yaml
+- type: bathtub
+  anchor_point: [0.5, 0.5]
+  depth: 0.45
+  vessel_wall_thickness: 0.08
+  textures:
+    sides: {texture: plain_named/beige-stone-path.jpg, scale_meters: 0.5}
+    extras:
+      inside_bottom: {diffuse: [0.9, 0.95, 1.0]}
+```
+
 **Faces** are named in the element's own frame (as with `orientation_angle = 0`; X along `length`, Z along `thickness`) and rotate with it:
 
 | Face | Position | In the 2D plan (angle 0) |
@@ -1472,13 +1511,13 @@ Box elements (all types whose 3D shape is a box: `wall`, `wallnd`, `window`, `do
 - `default` – all faces (including extra faces)
 - `sides` – `front`, `back`, `left`, `right`
 - `front`, `back`, `left`, `right`, `top`, `bottom` – one face
-- `extras` – faces with free names, read by elements whose geometry has more faces. `wall` / `wallnd` read `inside_left`, `inside_right` (jambs at the start / end of an opening), `inside_top` (head) and `inside_bottom` (sill; for doors the strip at floor level); all openings of a wall share them. Names an element does not read are ignored.
+- `extras` – faces with free names, read by elements whose geometry has more faces. `wall` / `wallnd` read `inside_left`, `inside_right` (jambs at the start / end of an opening), `inside_top` (head) and `inside_bottom` (sill; for doors the strip at floor level); all openings of a wall share them. [Vessel elements](#vessel-elements-hollow-3d-shape) read `inside_front`, `inside_back`, `inside_left`, `inside_right` and `inside_bottom` (the cavity). Names an element does not read are ignored.
 
 **Keys of each entry** (all optional):
 
 | Key | Value | Meaning |
 |-----|-------|---------|
-| `texture` | file name or `null` | texture, searched next to the element type's `.mtl`, then in `textures/`; `null` = colour only |
+| `texture` | file name or `null` | texture, searched relative to the project's YAML files (the main config's folder, then the folders of its `reusable_elements` files, e.g. `../tekstury/glass.jpg`), then next to the element type's `.mtl`, then in `textures/`; `null` = colour only |
 | `scale_relative` | float > 0 | texture repeats along each face axis: `1` = stretched once, `2` = 2 × 2 tiles, regardless of the face size |
 | `scale_meters` | float > 0 | size of one texture tile in metres |
 | `diffuse` | [r, g, b], 0–1 | base colour (multiplies the texture), as `Kd` |

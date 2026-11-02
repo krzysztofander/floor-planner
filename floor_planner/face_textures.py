@@ -111,7 +111,7 @@ class FaceSpec:
             values['scale_meters'] = _check_number(where, 'scale_meters', data['scale_meters'],
                                                    minimum=0.0, exclusive_minimum=True)
         if 'diffuse' in data:
-            values['diffuse'] = _check_color(where, 'diffuse', data['diffuse'], maximum=1.0)
+            values['diffuse'] = _check_color(where, 'diffuse', data['diffuse'], maximum=3.0)
         if 'specular' in data:
             values['specular'] = _check_color(where, 'specular', data['specular'], maximum=None)
         if 'shininess' in data:

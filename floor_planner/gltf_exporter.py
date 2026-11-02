@@ -28,7 +28,7 @@ from floor_planner.transform import (
 )
 from floor_planner.elements.element import Element
 from floor_planner.elements.external_models import ExternalModelElement
-from floor_planner.geometry_3d import is_3d_eligible
+from floor_planner.geometry_3d import is_3d_eligible, VesselGeometry3D
 from floor_planner.elements.registry import get_element_type_from_instance
 from floor_planner.texture_manager import TextureManager
 from floor_planner.face_textures import BOX_FACES, FaceTextures, ResolvedFace, resolve_face, uv_repeats
@@ -155,12 +155,14 @@ class GLTFExporter:
     - buffers: Binary data (geometry, animations, etc.)
     """
     
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, yaml_dirs: Optional[List[Path]] = None):
         """
         Initialize glTF exporter.
         
         Args:
             output_dir: Directory to write glTF files and textures
+            yaml_dirs: Folders of the project's YAML files; textures named in
+                       YAML are searched relative to them first
         """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -170,7 +172,7 @@ class GLTFExporter:
         self.textures_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize texture manager (procedural materials and texture lookup)
-        self.texture_manager = TextureManager()
+        self.texture_manager = TextureManager(yaml_dirs=yaml_dirs)
         
         self.buffer_builder = BufferBuilder()
         self.nodes: List[Dict[str, Any]] = []
@@ -1575,6 +1577,65 @@ class GLTFExporter:
         
         return texcoords
     
+    def _generate_planar_face_uvs(
+        self,
+        element: Element,
+        vertices: list[tuple[float, float, float]],
+        indices: list[tuple[int, int, int]],
+        face_groups: dict[str, list[int]],
+        resolved_faces: Optional[Dict[str, ResolvedFace]] = None
+    ) -> list[tuple[float, float]]:
+        """
+        Generate UV coordinates for planar faces that do not share vertices (vessels).
+
+        Each face is projected onto its own plane. Vertical faces: U runs to the right
+        when looking at the face from outside (normal × up), V runs up. Horizontal
+        faces: U along the element's length, V along its thickness (as the box top).
+        The face's bounding rectangle in that plane gives its size: stretched /
+        ``scale_relative: r`` → 0…r, ``scale_meters: m`` → 0…size/m.
+
+        Args:
+            element: Element (orientation_angle gives the horizontal U/V axes)
+            vertices: List of vertex positions
+            indices: List of triangle indices
+            face_groups: Dict mapping face names to triangle indices
+            resolved_faces: Resolved look per face (None = all faces stretched)
+
+        Returns:
+            List of (u, v) texture coordinates for each vertex
+        """
+        texcoords = [(0.0, 0.0) for _ in vertices]
+        angle_rad = np.radians(element.orientation_angle)
+        length_axis = np.array([np.cos(angle_rad), 0.0, np.sin(angle_rad)])
+        thickness_axis = np.array([-np.sin(angle_rad), 0.0, np.cos(angle_rad)])
+        up = np.array([0.0, 1.0, 0.0])
+
+        for name, triangles in face_groups.items():
+            if not triangles:
+                continue
+            v0, v1, v2 = (np.array(vertices[i], dtype=np.float64) for i in indices[triangles[0]])
+            normal = np.cross(v1 - v0, v2 - v0)
+            normal /= np.linalg.norm(normal)
+            if abs(normal[1]) > 0.5:
+                u_axis, v_axis = length_axis, thickness_axis
+            else:
+                u_axis, v_axis = np.cross(normal, up), up
+
+            face_vertices = sorted({i for tri in triangles for i in indices[tri]})
+            coords = {i: (float(np.dot(vertices[i], u_axis)), float(np.dot(vertices[i], v_axis)))
+                      for i in face_vertices}
+            u_min = min(u for u, _ in coords.values())
+            v_min = min(v for _, v in coords.values())
+            width = max(u for u, _ in coords.values()) - u_min
+            height = max(v for _, v in coords.values()) - v_min
+
+            resolved = resolved_faces.get(name) if resolved_faces else None
+            u_max, v_max = uv_repeats(resolved, width, height) if resolved is not None else (1.0, 1.0)
+            for i, (u, v) in coords.items():
+                texcoords[i] = ((u - u_min) / width * u_max if width > 1e-9 else 0.0,
+                                (v - v_min) / height * v_max if height > 1e-9 else 0.0)
+        return texcoords
+
     def _generate_local_geometry(self, element: Element):
         """
         Generate element geometry in local space for animated procedural elements.
@@ -1658,11 +1719,12 @@ class GLTFExporter:
         # e.g. a single-slope roof shell also has exactly 8 vertices.
         is_simple_box = (len(vertices) == 8 and len(indices) == 12
                          and 'top' in face_groups and 'bottom' in face_groups)
+        is_vessel = isinstance(element, VesselGeometry3D)
         
-        # Per-face looks (textures structure → class default → MTL) for boxes and
+        # Per-face looks (textures structure → class default → MTL) for boxes, vessels and
         # walls with openings; other geometry uses one material for the whole element
         resolved_faces = None
-        if (is_simple_box or has_openings) and hasattr(element, 'get_face_textures'):
+        if (is_simple_box or is_vessel or has_openings) and hasattr(element, 'get_face_textures'):
             face_names = [name for name in BOX_FACES if name in face_groups]
             face_names += [name for name in getattr(element, '_extra_faces', ()) if name in face_groups]
             resolved_faces = self._resolve_element_faces(element, face_names + ['default'])
@@ -1672,6 +1734,11 @@ class GLTFExporter:
             expanded_vertices, remapped_indices, texcoords = self._generate_box_geometry_with_uvs(
                 element, vertices, indices, resolved_faces
             )
+        elif is_vessel:
+            # Vessels: every face has its own vertices, UVs projected onto each face
+            expanded_vertices = vertices
+            remapped_indices = indices
+            texcoords = self._generate_planar_face_uvs(element, vertices, indices, face_groups, resolved_faces)
         else:
             # Complex geometry
             if has_openings and isinstance(element, WallND):
@@ -1913,9 +1980,10 @@ class GLTFExporter:
             element_textures = class_textures = FaceTextures()
 
         def find(texture_ref: str, source: str) -> Optional[Path]:
-            texture_path = self.texture_manager.find_texture(texture_ref, mtl_dir)
+            from_mtl = source == '.mtl map_Kd'
+            texture_path = self.texture_manager.find_texture(texture_ref, mtl_dir, from_yaml=not from_mtl)
             if texture_path is None:
-                where = mtl_path if source == '.mtl map_Kd' else f"{source} of element '{element.get_id()}'"
+                where = mtl_path if from_mtl else f"{source} of element '{element.get_id()}'"
                 WarnMsg(f"Texture '{texture_ref}' referenced by {where} not found")
             return texture_path
 
@@ -2302,7 +2370,8 @@ def export_floor_plan_to_gltf(
     elements: List[Element],
     output_dir: Path,
     filename: str = "floor_plan_3d.gltf",
-    v_anchor: float = 0.0
+    v_anchor: float = 0.0,
+    yaml_dirs: Optional[List[Path]] = None
 ) -> Path:
     """
     Export floor plan elements to glTF format.
@@ -2313,11 +2382,13 @@ def export_floor_plan_to_gltf(
         filename: Output filename
         v_anchor: Y-axis elevation for the entire floor plan (metres); adds a root
                   translation node so all geometry is offset by this amount on Y.
+        yaml_dirs: Folders of the project's YAML files; textures named in YAML
+                   are searched relative to them first
     
     Returns:
         Path to exported glTF file
     """
-    exporter = GLTFExporter(output_dir)
+    exporter = GLTFExporter(output_dir, yaml_dirs)
     
     # Store all elements for wall opening detection (includes invisible elements)
     exporter.all_elements = elements

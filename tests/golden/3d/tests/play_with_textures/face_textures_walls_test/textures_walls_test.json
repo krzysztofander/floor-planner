@@ -4,7 +4,7 @@
    {
     "material": {
      "texture": "blue-pool-water.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -118,7 +118,7 @@
    {
     "material": {
      "texture": "dark-gray-black-stove.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -232,7 +232,7 @@
    {
     "material": {
      "texture": "ping-flower-bed.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -262,7 +262,7 @@
    {
     "material": {
      "texture": "cyan-fountain-water.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -292,7 +292,7 @@
    {
     "material": {
      "texture": "beige-stone-path.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -322,7 +322,7 @@
    {
     "material": {
      "texture": "brown-lighter-wood-sliding-door.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -352,7 +352,7 @@
    {
     "material": {
      "texture": "small-pebbles.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -382,7 +382,7 @@
    {
     "material": {
      "texture": "flat-limestone.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -412,7 +412,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -458,7 +458,7 @@
    {
     "material": {
      "texture": "shower-plain.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.1],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.1],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -696,7 +696,7 @@
    {
     "material": {
      "texture": "shower-plain.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.1],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.1],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -934,7 +934,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -1028,7 +1028,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+     "baseColorFactor": [1.1, 1.1, 1.13, 1.0],
      "alphaMode": "OPAQUE",
      "roughnessFactor": 0.96,
      "specular": {
@@ -1338,7 +1338,7 @@
    {
     "material": {
      "texture": "shower-plain.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.4],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.4],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -1742,7 +1742,7 @@
    {
     "material": {
      "texture": "shower-plain.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.95],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.95],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -1836,7 +1836,7 @@
    {
     "material": {
      "texture": "green-glass-tile.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.1],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.1],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -1930,7 +1930,7 @@
    {
     "material": {
      "texture": "green-glass-tile.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.5],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.5],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -2024,7 +2024,7 @@
    {
     "material": {
      "texture": "green-glass-tile.png",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.9],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.9],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -2118,7 +2118,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.1],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.1],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -2212,7 +2212,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.5],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.5],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -2306,7 +2306,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.9],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.9],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {
@@ -2400,7 +2400,7 @@
    {
     "material": {
      "texture": "wither3_scene.jpg",
-     "baseColorFactor": [1.0, 1.0, 1.0, 0.9],
+     "baseColorFactor": [1.1, 1.1, 1.13, 0.9],
      "alphaMode": "BLEND",
      "roughnessFactor": 0.96,
      "specular": {

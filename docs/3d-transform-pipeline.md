@@ -280,7 +280,8 @@ trigger is emitted.
 
 Activation: `point = (doorway_width / 2, 1.2, -0.5 if opening_outside else 0.5)`,
 `distance = (2.0, 1)`.  Procedural `Door` passes `model_door_width = doorway_width`
-(stretch = 1) and `wing_width_on_model = model_depth = thickness`; external
+(stretch = 1) and `wing_width_on_model = model_depth = wing_thickness` (defaults to
+`thickness`; the procedural box is `wing_thickness` deep); external
 doors use the defaults `0.9` / `0.12`.
 
 How `pre_* → delta → post_*` is combined with the child rest TRS and
