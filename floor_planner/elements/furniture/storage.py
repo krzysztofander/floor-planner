@@ -23,6 +23,8 @@ class GenericStorage(VertInfoLvl04, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -231,6 +233,8 @@ class Tabletop(VertInfoLvl03, RectangularElement):
     Storage box
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,

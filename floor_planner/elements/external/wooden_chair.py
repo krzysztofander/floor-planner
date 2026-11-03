@@ -25,6 +25,8 @@ class WoodenChair(ExternalModelElement):
     - Loads chair.obj with 100x scale reduction
     - Uses dimensions from model.transform.json
     """
+
+    default_layer = 'furniture'
     
     _registry_key = 'wooden_chair'
     _requires_external_model = True  # External model is required, abort if missing

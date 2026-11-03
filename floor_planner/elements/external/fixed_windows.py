@@ -35,6 +35,7 @@ class _FixedWindow(VertInfoWindows, ExternalModelElement):
     Subclasses must set _registry_key to match their model directory name.
     """
 
+    default_layer = 'construction'
     _requires_external_model = True
 
     def __init__(
@@ -146,6 +147,8 @@ class WindowSingleAny(_FixedWindow):
         return 1.20
 
 class Composite_WindowDouble(ElementBase):
+    default_layer = 'construction'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],

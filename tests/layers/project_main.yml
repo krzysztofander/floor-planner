@@ -1,0 +1,42 @@
+# Layers: the same elements on four floor plans with different layers (see docs/features/layers.md)
+project:
+  dpi: 100
+  pdf_file: null
+  png_dir: "."
+  visualisation_dir: "visualisation_3d"
+
+default_layout:
+  bottom_left_corner: [0, 0]
+  top_right_corner: [6, 5]
+  scale_numerator: 1
+  scale_denominator: 50
+  grid_major_step: 1
+
+reusable_elements:
+  house: "house.yml"
+
+floor_plans:
+  # No layers: everything, as without the feature
+  - title: {text: "All elements", font_size: 14}
+    inherited_elements: [house]
+
+  # Construction only (the wardrobe door is on furniture: no hole in its wall)
+  - title: {text: "Construction", font_size: 14}
+    inherited_elements: [house]
+    layers:
+      - name: construction
+
+  # Shaded construction under red electric installation
+  - title: {text: "Electric", font_size: 14}
+    inherited_elements: [house]
+    layers:
+      - {name: construction, force_color: grey, alpha: 0.3}
+      - {name: electric, z_order: 1, force_color: red}
+
+  # Furniture drawn below the walls; custom layer on top
+  - title: {text: "Furniture and measurements", font_size: 14}
+    inherited_elements: [house]
+    layers:
+      - {name: furniture}
+      - {name: construction, z_order: 2, force_color: [0.2, 0.2, 0.6]}
+      - {name: measurements, z_order: 8, force_color: green}

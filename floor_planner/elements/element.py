@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 import matplotlib.axes
 
 from ..options import generate_element_id, get_show_invisible
+from ..layers import DEFAULT_LAYER
 from ..geometry_3d import RectangularGeometry3D, CircularGeometry3D, VesselGeometry3D
 
 from ..utils import rotate_point
@@ -17,8 +18,23 @@ import math
 
 class ElementBase(ABC):
 
+    # Layer of the element type (see floor_planner.layers); subclasses override it
+    default_layer: str = DEFAULT_LAYER
+    # Layer set in YAML (``layer`` parameter); None = default_layer
+    layer: str | None = None
+
     def __init__(self):
         self._elList: list[ElementBase] = []
+
+    def get_layer(self) -> str:
+        """Return the layer the element belongs to."""
+        return self.layer if self.layer is not None else self.default_layer
+
+    def set_layer(self, layer: str | None) -> None:
+        """Put the element (and the sub-elements of a composite) on ``layer``; None = default."""
+        self.layer = layer
+        for sub_element in self.getList():
+            sub_element.set_layer(layer)
 
     def addToList(self, element: 'ElementBase') -> None:
         self._elList.append(element)

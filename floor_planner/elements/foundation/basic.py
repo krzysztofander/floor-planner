@@ -24,6 +24,8 @@ class WallND(VertInfoLvl01, RectangularElement):
     For corners of acute or obtuse angles please consider `renovation.elements.Polygon` class.
     """
 
+    default_layer = 'construction'
+
     # Extra faces read from ``textures.extras``: reveals of embedded doors/windows
     _extra_faces = ('inside_left', 'inside_right', 'inside_top', 'inside_bottom')
 

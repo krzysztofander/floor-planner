@@ -14,6 +14,7 @@ import numpy as np
 
 from .constants import METERS_PER_INCH
 from .elements import ElementBase, Room
+from .layers import LayerSpec, apply_layer
 
 class FloorPlan:
     """Floor plan."""
@@ -103,6 +104,8 @@ class FloorPlan:
         self.title = None
         self.elements: list[ElementBase] = []
         self.v_anchor: float = 0.0  # Y-axis elevation for 3D export (set from YAML)
+        # Layers to draw and export (see floor_planner.layers); None = everything, no restyling
+        self.layers: dict[str, LayerSpec] | None = None
 
     def add_title(
             self, text: str, font_size: int, rel_x: float = 0.5, rel_y: float = 0.95, **kwargs
@@ -153,8 +156,32 @@ class FloorPlan:
         """
         print (f"Drawing floor plan {self.title} elements...")
 
-        for element in self.elements:
+        if self.layers is None:
+            for element in self.elements:
+                element.draw(self.ax)
+            return
+
+        for element in self.get_shown_elements():
+            before = set(self.ax.get_children())
             element.draw(self.ax)
+            drawn = [artist for artist in self.ax.get_children() if artist not in before]
+            spec = None if self._is_container(element) else self.layers[element.get_layer()]
+            apply_layer(drawn, spec)
+
+    @staticmethod
+    def _is_container(element: ElementBase) -> bool:
+        """Group and Room do not belong to a layer."""
+        return getattr(element, 'IS_CONTAINER', False)
+
+    def get_shown_elements(self) -> list[ElementBase]:
+        """
+        Elements to draw and export: all of them without layers, else containers
+        and the elements of the listed layers.
+        """
+        if self.layers is None:
+            return list(self.elements)
+        return [element for element in self.elements
+                if self._is_container(element) or element.get_layer() in self.layers]
 
     def draw_report(
             self, 
@@ -295,11 +322,12 @@ class FloorPlan:
         from floor_planner.gltf_exporter import export_floor_plan_to_gltf
         
         output_path = export_floor_plan_to_gltf(
-            elements=self.elements,
+            elements=self.get_shown_elements(),
             output_dir=Path(output_dir),
             filename=filename,
             v_anchor=self.v_anchor if v_anchor is None else v_anchor,
-            yaml_dirs=yaml_dirs
+            yaml_dirs=yaml_dirs,
+            openings_from_same_layer=self.layers is not None
         )
         
         print(f"Exported glTF file: {output_path}")

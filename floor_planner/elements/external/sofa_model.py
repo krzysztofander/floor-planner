@@ -35,6 +35,7 @@ class SofaModel(ExternalModelElement):
           orientation_angle: 180   # sofa faces South (front toward viewer)
     """
 
+    default_layer = 'furniture'
     _registry_key = 'sofa_model'
     _requires_external_model = True
 

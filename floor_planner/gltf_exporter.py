@@ -202,6 +202,8 @@ class GLTFExporter:
         
         # Store all elements for wall opening detection
         self.all_elements: List[Element] = []
+        # Floor plans with layers: walls get openings only from elements on their own layer
+        self.openings_from_same_layer = False
     
     def _select_best_mtl_material(
         self, mtl_materials: Dict[str, Dict[str, Any]]
@@ -1695,7 +1697,10 @@ class GLTFExporter:
         has_openings = False
         if isinstance(element, WallND) and self.all_elements:
             # Check if this wall has embedded doors/windows
-            embedded_openings = find_embedded_openings(element, self.all_elements)
+            candidates = self.all_elements
+            if self.openings_from_same_layer:
+                candidates = [e for e in candidates if e.get_layer() == element.get_layer()]
+            embedded_openings = find_embedded_openings(element, candidates)
             
             if embedded_openings:
                 # Generate wall geometry with holes (returns full 3D mesh)
@@ -2371,7 +2376,8 @@ def export_floor_plan_to_gltf(
     output_dir: Path,
     filename: str = "floor_plan_3d.gltf",
     v_anchor: float = 0.0,
-    yaml_dirs: Optional[List[Path]] = None
+    yaml_dirs: Optional[List[Path]] = None,
+    openings_from_same_layer: bool = False
 ) -> Path:
     """
     Export floor plan elements to glTF format.
@@ -2384,11 +2390,14 @@ def export_floor_plan_to_gltf(
                   translation node so all geometry is offset by this amount on Y.
         yaml_dirs: Folders of the project's YAML files; textures named in YAML
                    are searched relative to them first
+        openings_from_same_layer: Walls get openings only from doors/windows on
+                   their own layer (floor plans with layers)
     
     Returns:
         Path to exported glTF file
     """
     exporter = GLTFExporter(output_dir, yaml_dirs)
+    exporter.openings_from_same_layer = openings_from_same_layer
     
     # Store all elements for wall opening detection (includes invisible elements)
     exporter.all_elements = elements

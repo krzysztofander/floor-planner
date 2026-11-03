@@ -107,6 +107,8 @@ class Window2D:
 class Window(VertInfoWindows, RectangularElement):
     """Window in a wall."""
 
+    default_layer = 'construction'
+
     # Windows use 0.2 m x 0.2 m texture tiles
     _default_textures = {'default': {'scale_meters': 0.2}}
 

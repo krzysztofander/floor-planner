@@ -68,6 +68,7 @@ class Armchair(ExternalModelElement):
     Long axis runs in Y (depth) direction at orientation_angle=0.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'armchair'
     _requires_external_model = True
 
@@ -130,6 +131,7 @@ class Chair20(ExternalModelElement):
     Anchor: bottom-left-front corner.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'chair_20'
     _requires_external_model = True
 
@@ -183,6 +185,7 @@ class ChaiseLongue1(ExternalModelElement):
     Long axis runs in Y at orientation_angle=0.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'chaise_longue_1'
     _requires_external_model = True
 
@@ -232,6 +235,7 @@ class Desk1(ExternalModelElement):
     Long axis runs in X at orientation_angle=0.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'desk_1'
     _requires_external_model = True
 
@@ -282,6 +286,7 @@ class Sofa22(ExternalModelElement):
     Backrest is at the anchor (Y = 0) edge; the seat faces +Y.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'sofa_22'
     _requires_external_model = True
 
@@ -340,6 +345,7 @@ class Sofa23(ExternalModelElement):
     Long axis runs in X at orientation_angle=0.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'sofa_23'
     _requires_external_model = True
 
@@ -396,6 +402,7 @@ class Stool7(ExternalModelElement):
     Anchor: bottom-left-front corner.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'stool_7'
     _requires_external_model = True
 
@@ -442,6 +449,7 @@ class Table01(ExternalModelElement):
     Long axis runs in X at orientation_angle=0.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'table_01'
     _requires_external_model = True
 
@@ -487,6 +495,7 @@ class Well(ExternalModelElement):
 
     """
 
+    default_layer = 'water'
     _registry_key = 'well'
     _requires_external_model = True
 

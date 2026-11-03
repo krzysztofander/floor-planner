@@ -28,6 +28,7 @@ class MasterBed(ExternalModelElement):
     places the origin at the anchor point.
     """
 
+    default_layer = 'furniture'
     _registry_key = 'master_bed'
     _requires_external_model = True
 

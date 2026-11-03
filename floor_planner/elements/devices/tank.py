@@ -17,6 +17,8 @@ from ..vertical_levels import VertInfoLvl03
 class GenericTank(VertInfoLvl03, CircularElement):
     """Generic water tank"""
 
+    default_layer = 'water'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],

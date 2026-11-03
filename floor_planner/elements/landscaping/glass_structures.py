@@ -521,6 +521,7 @@ class Composite_GlassDoor(ElementBase):
                             (see floor_planner.face_textures); the frame is an external model
     """
 
+    default_layer = 'construction'
     _MARGIN     = 0.005       # z-fighting / clearance margin (m) on every side
     _GLASS_T    = 0.01        # glass panel thickness (m)
     _BAR_H_FRAC = 0.03 / 2.1  # top/bottom bar height fraction from AluFrame base model

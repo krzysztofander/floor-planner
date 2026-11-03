@@ -57,6 +57,8 @@ class _RoofBase(Element):
     always drawn.
     """
 
+    default_layer = 'roof'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -692,6 +694,8 @@ class _GableEndBase(VertInfoRoof, GableEndWallGeometry3D, Element):
         label             – optional label string
         id                – optional explicit ID
     """
+
+    default_layer = 'roof'
 
     def __init__(
             self,

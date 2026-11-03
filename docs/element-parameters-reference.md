@@ -31,6 +31,7 @@ Parameter reference for the YAML element types of floor_planner, except landscap
 26. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
 27. [3D Visualization Parameters](#3d-visualization-parameters)
 28. [Floor Plan v_anchor (3D Elevation)](#floor-plan-v_anchor-3d-elevation)
+29. [Floor Plan Layers](#floor-plan-layers)
 
 ---
 
@@ -1329,6 +1330,9 @@ A glass greenhouse (procedural): four glass walls with a gable glass roof. In 2D
 - String variables are not substituted inside arithmetic expressions
 - Inside `textures`, numeric keys (`scale_relative`, `scale_meters`, `shininess`, `opacity`, colour components) accept variables and expressions, and `texture` accepts `{var}` references
 
+### Layer
+- Every element (not `group` / `room`) accepts an optional `layer`: the layer it belongs to, a built-in one or any custom name; without it the element type's default layer is used. See [Floor Plan Layers](#floor-plan-layers)
+
 ### Container Integration
 - `Room` and `Group` are containers; child `anchor_point` values are relative to the container's own `anchor_point`
 - `Room` validates that exactly 4 child walls have `room_edge=True` forming an axis-aligned rectangle; `Group` has no such requirement
@@ -1453,7 +1457,7 @@ The physical height of the element. It is not used for 2D drawing; in the 3D exp
 
 ## 3D Visualization Parameters
 
-The 3D model is exported only when `project.visualisation_dir` is set: one glTF 2.0 file per floor plan (named after the floor-plan title), with textures copied to `<visualisation_dir>/textures/`, plus a `camera.json` viewer file.
+The 3D model is exported only when `project.visualisation_dir` is set: each floor plan goes to its own folder `<visualisation_dir>/<name>/` with `<name>.gltf` (and `.bin`), its textures in `textures/` and a `camera.json` viewer file. `<name>` is the floor-plan title with spaces and `/` replaced by `_` (`floor_plan_<index>` without a title); floor-plan names must be unique. A floor plan with [layers](#floor-plan-layers) exports only the elements of its layers.
 
 ### Textures and Materials
 
@@ -1638,5 +1642,29 @@ floor_plans:
 ### Notes
 
 - `v_anchor: 0.0` (or omitting the key) produces no wrapper node.
+- Each floor plan is a separate glTF in its own folder (`<visualisation_dir>/<name>/`); load the files of several floor plans together to see the storeys stacked.
 - The value is independent of the element-level `v_anchor`: element-level `v_anchor` positions an element within its floor plan (and sets its 2D draw order); this key positions the whole floor plan on the Y axis in 3D.
 - Element `v_anchor` values are therefore relative to the floor plan origin. A `ceiling` at `v_anchor: 2.69` in a floor plan with `v_anchor: 3.0` appears at Y = 5.69 m in the merged 3D scene.
+
+---
+
+## Floor Plan Layers
+
+Each entry in `floor_plans:` accepts an optional `layers` list. Without it the floor plan draws and exports all its elements. With it, only the elements of the listed layers are drawn and exported to 3D, restyled per layer.
+
+```yaml
+floor_plans:
+  - title: {text: "Electric", font_size: 14}
+    inherited_elements: [house]
+    layers:
+      - {name: construction, force_color: grey, alpha: 0.3}
+      - {name: electric, z_order: 1, force_color: red}
+```
+
+- `name`: str - layer name (required, unique within the floor plan)
+- `z_order`: int = 0 - 0 to 8; higher layers are drawn on top, within one value elements keep their `v_anchor` order; texts of all layers are drawn above everything (level 9)
+- `force_color`: colour | None = None - colour for all lines, edges, fills and texts of the layer; white and transparent colours are kept
+- `alpha`: float = 1.0 - 0 to 1, multiplies the opacity of the layer
+
+Built-in layers: `construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`. Each element type has one of them as default; the `layer` parameter of an element overrides it. In 3D, walls of a floor plan with layers get openings only from doors and windows on their own layer. Details and the default layer of each element type: [docs/features/layers.md](features/layers.md).
+

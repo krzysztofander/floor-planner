@@ -45,6 +45,7 @@ class BalconyDoor(VertInfoDoor, ExternalModelElement):
         models_dir       – optional base model directory
     """
 
+    default_layer = 'construction'
     _registry_key = 'balcony_door'
     _requires_external_model = True
 

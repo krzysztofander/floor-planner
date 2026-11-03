@@ -18,6 +18,8 @@ from ..vertical_levels import VertInfoCeiling, VertInfoWallLamps, VertInfoSwitch
 class CeilingLamp(VertInfoCeiling, Element):
     """Ceiling lamp represented by a circle and a cross inside."""
 
+    default_layer = 'electric'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -94,6 +96,8 @@ class CeilingLamp(VertInfoCeiling, Element):
 
 class WallLamp(VertInfoWallLamps, Element):
     """Wall lamp (e.g., sconce)."""
+
+    default_layer = 'electric'
 
     def __init__(
             self,
@@ -215,6 +219,8 @@ class WallLamp(VertInfoWallLamps, Element):
 class LEDStrip(Element):
     """LED strip."""
 
+    default_layer = 'electric'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -297,6 +303,8 @@ class LEDStrip(Element):
 
 class Switch(Element):
     """Lighting switch."""
+
+    default_layer = 'electric'
 
     def __init__(
             self,

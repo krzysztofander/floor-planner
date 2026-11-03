@@ -17,6 +17,7 @@ Author: Krzysztof Bartczak
 import copy
 import matplotlib.axes
 
+from ...layers import pop_layer
 from ...variables import resolve_constants, resolve_element_params
 from ..element import Element
 
@@ -244,6 +245,7 @@ class Group(Element):
 
             else:
                 # Regular element: resolve vars then translate coordinate keys
+                layer = pop_layer(element_def, element_type)
                 element_def = resolve_element_params(element_def, global_vars, container_vars)
 
                 for coord_key in ('anchor_point', 'first_point', 'second_point'):
@@ -261,6 +263,7 @@ class Group(Element):
                     element_def['color'] = color
 
                 child = element_class(**element_def)
+                child.set_layer(layer)
 
             floor_plan.add_element(child)
             all_elements.append(child)

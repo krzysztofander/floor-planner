@@ -751,6 +751,7 @@ class Door3D:
             return None
 
 class Door(VertInfoDoor, RectangularElement):
+    default_layer = 'construction'
     door_schematic_line_thickness = 0.04
     """Single door."""
 

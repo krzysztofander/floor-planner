@@ -9,6 +9,7 @@ Author: Krzysztof Bartczak
 import math
 import matplotlib.axes
 
+from ...layers import pop_layer
 from ...variables import resolve_element_params
 from ..symbols.info import DimensionArrow, TextBox
 from ...options import get_label_color, get_element_option
@@ -157,12 +158,14 @@ class Room(Group):
             surface_def = dict(surface_def)
             surface_type = surface_def.pop('type')
             surface_class = _SURFACE_TYPES[surface_type]
+            layer = pop_layer(surface_def, surface_type)
 
             surface_def = resolve_element_params(surface_def, global_vars, room_vars)
             surface_def['anchor_point'] = inner_anchor
             surface_def['size'] = inner_size
 
             element = surface_class(**surface_def)
+            element.set_layer(layer)
             floor_plan.add_element(element)
             all_elements.append(element)
             elements_by_id[element.get_id()] = element
