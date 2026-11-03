@@ -100,9 +100,13 @@ def test_floor_plan_shows_listed_layers_and_containers():
 def test_composite_passes_layer_to_sub_elements():
     reg = elements.create_elements_registry()
     door = reg['composite_glass_door']((0, 0), doorway_width=1.6, door_width=1.5, thickness=0.1)
+    # The parts (glass doors and an AluFrame, whose own default is 'default') follow the composite
     assert door.get_layer() == 'construction'
+    assert {sub.get_layer() for sub in door.getList()} == {'construction'}
     door.set_layer('furniture')
     assert {sub.get_layer() for sub in door.getList()} == {'furniture'}
+    door.set_layer(None)
+    assert {sub.get_layer() for sub in door.getList()} == {'construction'}
 
 
 def test_floor_plan_names_must_be_unique():

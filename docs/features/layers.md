@@ -61,7 +61,7 @@ Any element takes an optional `layer` parameter that puts it on another layer, b
   layer: measurements          # custom layer
 ```
 
-`group` and `room` are containers and have no layer (a `layer` key on them is ignored); their children have their own layers. A container is always drawn (e.g. the room label), its texts at level 9. A composite element (`composite_*`) puts all its parts on its layer.
+`group` and `room` are containers and have no layer (a `layer` key on them is ignored); their children have their own layers. A container is always drawn (e.g. the room label), its texts at level 9. A composite element (`composite_*`) puts all its parts on its own layer (`addToList()` sets it), whatever their own default.
 
 ### 3D export
 

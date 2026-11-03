@@ -31,12 +31,14 @@ class ElementBase(ABC):
         return self.layer if self.layer is not None else self.default_layer
 
     def set_layer(self, layer: str | None) -> None:
-        """Put the element (and the sub-elements of a composite) on ``layer``; None = default."""
+        """Put the element on ``layer`` (None = default_layer); the sub-elements of a composite follow it."""
         self.layer = layer
         for sub_element in self.getList():
-            sub_element.set_layer(layer)
+            sub_element.set_layer(self.get_layer())
 
     def addToList(self, element: 'ElementBase') -> None:
+        """Add a sub-element to a composite; it is put on the composite's layer."""
+        element.set_layer(self.get_layer())
         self._elList.append(element)
 
     def getList(self) -> list['ElementBase']:
