@@ -10,29 +10,43 @@ from matplotlib.patches import Rectangle
 from floor_planner import elements
 from floor_planner.elements.foundation.group import Group
 from floor_planner.floor_plan import FloorPlan
-from floor_planner.layers import (BUILTIN_LAYERS, TEXT_Z_ORDER, Z_ORDER_STEP, LayerSpec, apply_layer,
-                                  parse_layers, pop_layer)
+from floor_planner.layers import (BUILTIN_LAYERS, TEXT_Z_ORDER, Z_ORDER_STEP, FloorPlanLayers, LayerSpec,
+                                  apply_layer, parse_layers, pop_layer)
 from floor_planner.project import Project
 
 
-def test_parse_layers_defaults_and_order():
-    layers = parse_layers([{'name': 'electric', 'z_order': 1, 'force_color': [1, 0, 0]}, {'name': 'construction'}])
-    assert list(layers) == ['electric', 'construction']
-    assert layers['electric'] == LayerSpec('electric', 1, (1, 0, 0), 1.0)
-    assert layers['construction'] == LayerSpec('construction')
-    assert parse_layers(None) is None
+def test_parse_layers_sections():
+    layers = parse_layers({'2d': {'electric': {'z_order': 1, 'force_color': [1, 0, 0]}, 'construction': None},
+                           '3d': ['construction', 'doors']})
+    assert list(layers.layers_2d) == ['electric', 'construction']
+    assert layers.layers_2d['electric'] == LayerSpec('electric', 1, (1, 0, 0), 1.0)
+    assert layers.layers_2d['construction'] == LayerSpec('construction')
+    assert layers.layers_3d == {'construction', 'doors'}
+
+    assert parse_layers({'3d': ['furniture']}) == FloorPlanLayers(None, frozenset({'furniture'}))
+    assert parse_layers({'2d': {'furniture': None}}).layers_3d is None
+    assert parse_layers(None) == FloorPlanLayers(None, None)
 
 
 @pytest.mark.parametrize('data', [
-    {'layers': 'construction'},
-    [{'z_order': 1}],
-    [{'name': 'a', 'z_order': 9}],
-    [{'name': 'a', 'z_order': -1}],
-    [{'name': 'a', 'z_order': 1.5}],
-    [{'name': 'a', 'alpha': 1.5}],
-    [{'name': 'a', 'force_color': 'no-such-colour'}],
-    [{'name': 'a', 'colour': 'red'}],
-    [{'name': 'a'}, {'name': 'a'}],
+    [{'name': 'construction'}],                         # the former list form
+    {},
+    {'2D': {'a': None}},
+    {'2d': None},
+    {'2d': {}},
+    {'2d': ['a']},
+    {'2d': {'a': {'z_order': 9}}},
+    {'2d': {'a': {'z_order': -1}}},
+    {'2d': {'a': {'z_order': 1.5}}},
+    {'2d': {'a': {'alpha': 1.5}}},
+    {'2d': {'a': {'force_color': 'no-such-colour'}}},
+    {'2d': {'a': {'colour': 'red'}}},
+    {'2d': {'a': 'red'}},
+    {'3d': []},
+    {'3d': 'construction'},
+    {'3d': {'construction': None}},
+    {'3d': ['a', 'a']},
+    {'3d': [3]},
 ])
 def test_parse_layers_invalid(data):
     with pytest.raises(ValueError):
@@ -80,7 +94,13 @@ def test_apply_layer_container_moves_only_texts():
     plt.close(fig)
 
 
-def test_floor_plan_shows_listed_layers_and_containers():
+@pytest.mark.parametrize('layers, drawn, exported', [
+    (None, 'all', 'all'),
+    ({'2d': {'construction': None}}, 'construction', 'all'),
+    ({'3d': ['construction']}, 'all', 'construction'),
+    ({'2d': {'furniture': None}, '3d': ['construction']}, 'furniture', 'construction'),
+])
+def test_floor_plan_filters_2d_and_3d_separately(layers, drawn, exported):
     reg = elements.create_elements_registry()
     floor_plan = FloorPlan((0, 0), (5, 5))
     wall = reg['wall']((0, 0), 0, 2, 0.2)
@@ -90,10 +110,15 @@ def test_floor_plan_shows_listed_layers_and_containers():
     group = Group(child_elements=[], anchor_point=(0, 0), color='black', label=None)
     for element in (wall, storage, chimney, group):
         floor_plan.add_element(element)
+    expected = {
+        'all': [wall, storage, chimney, group],
+        'construction': [wall, chimney, group],      # containers are always included
+        'furniture': [storage, group],
+    }
 
-    assert floor_plan.get_shown_elements() == [wall, storage, chimney, group]
-    floor_plan.layers = parse_layers([{'name': 'construction'}])
-    assert floor_plan.get_shown_elements() == [wall, chimney, group]
+    floor_plan.layers = parse_layers(layers)
+    assert floor_plan.get_drawn_elements() == expected[drawn]
+    assert floor_plan.get_exported_elements() == expected[exported]
     plt.close(floor_plan.fig)
 
 

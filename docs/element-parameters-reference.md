@@ -1457,7 +1457,7 @@ The physical height of the element. It is not used for 2D drawing; in the 3D exp
 
 ## 3D Visualization Parameters
 
-The 3D model is exported only when `project.visualisation_dir` is set: each floor plan goes to its own folder `<visualisation_dir>/<name>/` with `<name>.gltf` (and `.bin`), its textures in `textures/` and a `camera.json` viewer file. `<name>` is the floor-plan title with spaces and `/` replaced by `_` (`floor_plan_<index>` without a title); floor-plan names must be unique. A floor plan with [layers](#floor-plan-layers) exports only the elements of its layers.
+The 3D model is exported only when `project.visualisation_dir` is set: each floor plan goes to its own folder `<visualisation_dir>/<name>/` with `<name>.gltf` (and `.bin`), its textures in `textures/` and a `camera.json` viewer file. `<name>` is the floor-plan title with spaces and `/` replaced by `_` (`floor_plan_<index>` without a title); floor-plan names must be unique. A floor plan with a [`layers.3d`](#floor-plan-layers) section exports only the elements of those layers; one with `export_3d: false` is not exported.
 
 ### Textures and Materials
 
@@ -1650,21 +1650,26 @@ floor_plans:
 
 ## Floor Plan Layers
 
-Each entry in `floor_plans:` accepts an optional `layers` list. Without it the floor plan draws and exports all its elements. With it, only the elements of the listed layers are drawn and exported to 3D, restyled per layer.
+Each entry in `floor_plans:` accepts an optional `layers` mapping with a `2d` and/or a `3d` section. `2d` lists the layers drawn, each with optional 2D modifiers; `3d` lists the layers exported to the glTF. A missing section (or no `layers` at all) means everything, without restyling. `layers` without `2d` and `3d`, an empty section or any other key raises `ValueError`.
 
 ```yaml
 floor_plans:
   - title: {text: "Electric", font_size: 14}
     inherited_elements: [house]
     layers:
-      - {name: construction, force_color: grey, alpha: 0.3}
-      - {name: electric, z_order: 1, force_color: red}
+      2d:
+        construction: {force_color: grey, alpha: 0.3}
+        electric: {z_order: 1, force_color: red}
+        furniture:                      # no modifiers
+      3d: [construction, electric]
 ```
 
-- `name`: str - layer name (required, unique within the floor plan)
+2D modifiers of a `2d` entry:
 - `z_order`: int = 0 - 0 to 8; higher layers are drawn on top, within one value elements keep their `v_anchor` order; texts of all layers are drawn above everything (level 9)
 - `force_color`: colour | None = None - colour for all lines, edges, fills and texts of the layer; white and transparent colours are kept
 - `alpha`: float = 1.0 - 0 to 1, multiplies the opacity of the layer
 
-Built-in layers: `construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`. Each element type has one of them as default; the `layer` parameter of an element overrides it. In 3D, walls of a floor plan with layers get openings only from doors and windows on their own layer. Details and the default layer of each element type: [docs/features/layers.md](features/layers.md).
+A floor plan also accepts `export_3d`: bool = true; `false` skips its 3D export.
+
+Built-in layers: `construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`. Each element type has one of them as default; the `layer` parameter of an element overrides it. In 3D, a wall gets openings from the doors and windows exported with it, whatever their layer. Details and the default layer of each element type: [docs/features/layers.md](features/layers.md).
 

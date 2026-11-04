@@ -184,7 +184,7 @@ project:
 Each floor plan is written to `<visualisation_dir>/<name>/<name>.gltf` with its own `textures/` and `camera.json` (`<name>`: the title with spaces replaced by `_`; titles must be unique).
 
 ### Layers
-A floor plan may list `layers` to draw and export only some elements (e.g. only the walls, or shaded walls under the electrical installation), with per-layer `z_order`, `force_color` and `alpha`. Every element has a default layer (`construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`) and accepts a `layer` parameter to change it. See [docs/features/layers.md](docs/features/layers.md).
+A floor plan's `layers` selects which layers are drawn in 2D (`2d`, with per-layer `z_order`, `force_color` and `alpha`) and which are exported to 3D (`3d`), e.g. only the walls, or shaded walls under the electrical installation; `export_3d: false` skips a floor plan's 3D export. Every element has a default layer (`construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`) and accepts a `layer` parameter to change it. See [docs/features/layers.md](docs/features/layers.md).
 
 Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` on individual elements to control vertical positioning within a floor plan.
 

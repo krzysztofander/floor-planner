@@ -1,13 +1,21 @@
 """
-Layers: filter and restyle elements per floor plan.
+Layers: filter and restyle elements per floor plan, separately in 2D and 3D.
 
 Every element belongs to one layer: its YAML ``layer`` parameter, or else the
 class default (``default_layer``, one of ``BUILTIN_LAYERS``). Group and Room are
-containers and do not belong to a layer; they are always drawn.
+containers and do not belong to a layer; they are always drawn and exported.
 
-A floor plan without ``layers`` draws and exports everything as before. A floor
-plan with ``layers`` draws (and exports to 3D) only the elements of the listed
-layers. Each layer may set:
+A floor plan's ``layers`` mapping has a ``2d`` and/or a ``3d`` section:
+
+    layers:
+      2d:                                   # layer name -> 2D modifiers (or nothing)
+        construction: {force_color: grey, alpha: 0.3}
+        electric: {z_order: 1, force_color: red}
+        furniture:
+      3d: [construction, electric]          # layers exported to the glTF
+
+Without a section, everything is drawn (2D, not restyled) or exported (3D). 2D
+modifiers of a layer:
 
 - ``z_order`` (0-8, default 0): layers with a higher value are drawn on top;
   within one value the elements keep their own order (``v_anchor``);
@@ -41,12 +49,13 @@ TEXT_Z_ORDER = MAX_Z_ORDER + 1
 # its artists (elements use their v_anchor, i.e. a few metres at most)
 Z_ORDER_STEP = 1000
 
-_LAYER_KEYS = ('name', 'z_order', 'force_color', 'alpha')
+_SECTIONS = ('2d', '3d')
+_MODIFIER_KEYS = ('z_order', 'force_color', 'alpha')
 
 
 @dataclass(frozen=True)
 class LayerSpec:
-    """One entry of a floor plan's ``layers`` list."""
+    """One layer of a floor plan's ``layers.2d`` section and its 2D modifiers."""
 
     name: str
     z_order: int = 0
@@ -54,26 +63,27 @@ class LayerSpec:
     alpha: float = 1.0
 
     @classmethod
-    def from_yaml(cls, data, where: str) -> 'LayerSpec':
+    def from_yaml(cls, name, data, where: str) -> 'LayerSpec':
         """
-        Validate one ``layers`` entry and build a ``LayerSpec``.
+        Validate one ``layers.2d`` entry and build a ``LayerSpec``.
 
+        :param name:
+            layer name (the key of the entry)
         :param data:
-            mapping from YAML
+            modifiers from YAML, or None for none
         :param where:
-            location used in error messages, e.g. ``'layers[0]'``
+            location used in error messages, e.g. ``'layers.2d.construction'``
         :raises ValueError:
             if a key is unknown or a value has a wrong type or range
         """
+        _check_name(name, where)
+        if data is None:
+            data = {}
         if not isinstance(data, dict):
-            raise ValueError(f"{where}: expected a mapping with 'name', got {data!r}")
-        unknown = set(data) - set(_LAYER_KEYS)
+            raise ValueError(f"{where}: expected a mapping of modifiers or nothing, got {data!r}")
+        unknown = set(data) - set(_MODIFIER_KEYS)
         if unknown:
-            raise ValueError(f"{where}: unknown key(s) {sorted(unknown)}; allowed: {list(_LAYER_KEYS)}")
-
-        name = data.get('name')
-        if not isinstance(name, str) or not name:
-            raise ValueError(f"{where}.name: expected a layer name, got {name!r}")
+            raise ValueError(f"{where}: unknown key(s) {sorted(unknown)}; allowed: {list(_MODIFIER_KEYS)}")
 
         z_order = data.get('z_order', 0)
         if isinstance(z_order, bool) or not isinstance(z_order, int) or not 0 <= z_order <= MAX_Z_ORDER:
@@ -92,28 +102,61 @@ class LayerSpec:
         return cls(name=name, z_order=z_order, force_color=force_color, alpha=float(alpha))
 
 
-def parse_layers(data, where: str = 'layers') -> dict[str, LayerSpec] | None:
+@dataclass(frozen=True)
+class FloorPlanLayers:
+    """A floor plan's ``layers``: None in a section = everything, no filtering."""
+
+    layers_2d: dict[str, LayerSpec] | None = None
+    layers_3d: frozenset[str] | None = None
+
+
+def _check_name(name, where: str) -> None:
+    if not isinstance(name, str) or not name:
+        raise ValueError(f"{where}: expected a layer name, got {name!r}")
+
+
+def parse_layers(data, where: str = 'layers') -> FloorPlanLayers:
     """
-    Validate a floor plan's ``layers`` list.
+    Validate a floor plan's ``layers`` mapping.
 
     :param data:
-        list from YAML, or None for a floor plan without layers
+        mapping from YAML with ``2d`` and/or ``3d``, or None for a floor plan without layers
     :return:
-        layer specs by name (in YAML order), or None if ``data`` is None
+        the 2D layer specs by name (in YAML order) and the 3D layer names;
+        a section that is not given is None
     :raises ValueError:
-        if the list or one of its entries is invalid, or a name is repeated
+        if the mapping, a section or an entry is invalid
     """
     if data is None:
-        return None
-    if not isinstance(data, list):
-        raise ValueError(f"{where}: expected a list of layers, got {data!r}")
-    layers = {}
-    for i, entry in enumerate(data):
-        spec = LayerSpec.from_yaml(entry, f"{where}[{i}]")
-        if spec.name in layers:
-            raise ValueError(f"{where}[{i}].name: layer {spec.name!r} is listed twice")
-        layers[spec.name] = spec
-    return layers
+        return FloorPlanLayers()
+    if not isinstance(data, dict):
+        raise ValueError(f"{where}: expected a mapping with '2d' and/or '3d', got {data!r}")
+    unknown = set(data) - set(_SECTIONS)
+    if unknown:
+        raise ValueError(f"{where}: unknown key(s) {sorted(unknown)}; allowed: {list(_SECTIONS)}")
+    if not data:
+        raise ValueError(f"{where}: set '2d' and/or '3d'")
+
+    layers_2d = None
+    if '2d' in data:
+        section = data['2d']
+        if not isinstance(section, dict) or not section:
+            raise ValueError(f"{where}.2d: expected a mapping of layer names to modifiers, got {section!r}")
+        layers_2d = {name: LayerSpec.from_yaml(name, modifiers, f"{where}.2d.{name}")
+                     for name, modifiers in section.items()}
+
+    layers_3d = None
+    if '3d' in data:
+        section = data['3d']
+        if not isinstance(section, list) or not section:
+            raise ValueError(f"{where}.3d: expected a list of layer names, got {section!r}")
+        for i, name in enumerate(section):
+            _check_name(name, f"{where}.3d[{i}]")
+            if name in section[:i]:
+                raise ValueError(f"{where}.3d[{i}]: layer {name!r} is listed twice")
+        layers_3d = frozenset(section)
+
+    return FloorPlanLayers(layers_2d, layers_3d)
 
 
 def pop_layer(params: dict, where: str) -> str | None:
@@ -211,6 +254,7 @@ __all__ = [
     'TEXT_Z_ORDER',
     'Z_ORDER_STEP',
     'LayerSpec',
+    'FloorPlanLayers',
     'parse_layers',
     'pop_layer',
     'apply_layer',

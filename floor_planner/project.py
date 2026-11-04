@@ -102,8 +102,9 @@ class Project:
         
         Only exports if visualisation_dir is set. Each floor plan is exported to its own
         folder ``<visualisation_dir>/<name>/`` as ``<name>.gltf`` (with its ``.bin`` and
-        ``textures/``), ``name`` from ``floor_plan_name()``. A floor plan with layers
-        exports only the elements of its layers.
+        ``textures/``), ``name`` from ``floor_plan_name()``. A floor plan with a ``layers.3d``
+        section exports only the elements of those layers; one with ``export_3d: false``
+        is not exported.
         
         Creates glTF files with:
         - External model references (from models/ directory)
@@ -114,8 +115,8 @@ class Project:
         An error while exporting a floor plan is printed and re-raised.
         
         :return:
-            paths of the written glTF files, in floor-plan order
-            (empty if no visualisation_dir is set)
+            paths of the written glTF files, in floor-plan order (floor plans with
+            ``export_3d: false`` are skipped; empty if no visualisation_dir is set)
         """
         if self.visualisation_dir is None:
             # No visualisation directory specified, skip 3D export
@@ -132,6 +133,9 @@ class Project:
         
         written = []
         for i, floor_plan in enumerate(self.floor_plans):
+            if not floor_plan.export_3d:
+                print(f"  - Skipped (export_3d: false): {self.floor_plan_names[i]}")
+                continue
             try:
                 name = self.floor_plan_names[i]
                 output_path = floor_plan.export_to_gltf(output_dir / name, f"{name}.gltf",

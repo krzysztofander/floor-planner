@@ -199,13 +199,12 @@ def _write_camera_json(
 
 def _warn_unused_layers(floor_plan: FloorPlan, index: int) -> None:
     """Warn about listed layers that are not built-in and that no element of the floor plan uses (typos)."""
-    if floor_plan.layers is None:
-        return
     used = {element.get_layer() for element in floor_plan.elements}
-    for name in floor_plan.layers:
-        if name not in BUILTIN_LAYERS and name not in used:
-            print(f"WARNING: floor_plans[{index}].layers: no element is on layer {name!r} "
-                  f"(built-in layers: {', '.join(BUILTIN_LAYERS)})")
+    for section, names in (('2d', floor_plan.layers.layers_2d), ('3d', floor_plan.layers.layers_3d)):
+        for name in names or ():
+            if name not in BUILTIN_LAYERS and name not in used:
+                print(f"WARNING: floor_plans[{index}].layers.{section}: no element is on layer {name!r} "
+                      f"(built-in layers: {', '.join(BUILTIN_LAYERS)})")
 
 
 @dataclass
@@ -341,10 +340,15 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
 
         layout_params = floor_plan_params.get('layout') or settings['default_layout']
         floor_plan = FloorPlan(**layout_params)
-        floor_plan_layouts.append(layout_params)
         floor_plan.v_anchor = float(floor_plan_params.get('v_anchor', 0.0))
         floor_plan.layers = parse_layers(floor_plan_params.get('layers'),
                                          f"floor_plans[{floor_plan_index}].layers")
+        export_3d = floor_plan_params.get('export_3d', True)
+        if not isinstance(export_3d, bool):
+            raise ValueError(f"floor_plans[{floor_plan_index}].export_3d: expected true or false, got {export_3d!r}")
+        floor_plan.export_3d = export_3d
+        if export_3d:
+            floor_plan_layouts.append(layout_params)
         title_params = floor_plan_params.get('title')
         if title_params:
             floor_plan.add_title(**title_params)
@@ -409,7 +413,8 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
         result.gltf_files = project.export_to_gltf()  # glTF 2.0 (modern, feature-rich)
 
         # Write camera.json with initial viewer position next to each floor plan's glTF
-        for gltf_file, layout in zip(result.gltf_files, floor_plan_layouts):
+        # (floor_plan_layouts has the layouts of the exported floor plans, in the same order)
+        for gltf_file, layout in zip(result.gltf_files, floor_plan_layouts, strict=True):
             _write_camera_json(settings['project'].get('visualisation_camera'), layout, gltf_file.parent)
 
     # Generate elements report

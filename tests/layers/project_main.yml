@@ -16,27 +16,48 @@ reusable_elements:
   house: "house.yml"
 
 floor_plans:
-  # No layers: everything, as without the feature
+  # No layers: everything in 2D and 3D, as without the feature
   - title: {text: "All elements", font_size: 14}
     inherited_elements: [house]
 
-  # Construction only (the wardrobe door is on furniture: no hole in its wall)
+  # Construction only, in 2D and 3D: the wardrobe door is on furniture, so its wall
+  # has no hole in either
   - title: {text: "Construction", font_size: 14}
     inherited_elements: [house]
     layers:
-      - name: construction
+      2d:
+        construction:
+      3d: [construction]
 
-  # Shaded construction under red electric installation
+  # 2D: shaded construction under red electric installation; no 3d section: full 3D
   - title: {text: "Electric", font_size: 14}
     inherited_elements: [house]
     layers:
-      - {name: construction, force_color: grey, alpha: 0.3}
-      - {name: electric, z_order: 1, force_color: red}
+      2d:
+        construction: {force_color: grey, alpha: 0.3}
+        electric: {z_order: 1, force_color: red}
 
-  # Furniture drawn below the walls; custom layer on top
+  # 2D: furniture drawn below the walls, custom layer on top. 3D: construction and
+  # furniture, so the wardrobe door (furniture) cuts its hole in the construction wall
   - title: {text: "Furniture and measurements", font_size: 14}
     inherited_elements: [house]
     layers:
-      - {name: furniture}
-      - {name: construction, z_order: 2, force_color: [0.2, 0.2, 0.6]}
-      - {name: measurements, z_order: 8, force_color: green}
+      2d:
+        furniture:
+        construction: {z_order: 2, force_color: [0.2, 0.2, 0.6]}
+        measurements: {z_order: 8, force_color: green}
+      3d: [construction, furniture]
+
+  # 3d section only: everything drawn in 2D, only furniture exported
+  - title: {text: "Furniture 3D", font_size: 14}
+    inherited_elements: [house]
+    layers:
+      3d: [furniture]
+
+  # No 3D export
+  - title: {text: "Electric sketch", font_size: 14}
+    inherited_elements: [house]
+    export_3d: false
+    layers:
+      2d:
+        electric:
