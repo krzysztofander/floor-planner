@@ -224,6 +224,8 @@ class GlassSlope(VertInfoRoof, ExternalModelElement):
         label             – optional label string
     """
 
+    default_layer = 'roof'
+
     _registry_key = 'glass_slope'
     _requires_external_model = True
 

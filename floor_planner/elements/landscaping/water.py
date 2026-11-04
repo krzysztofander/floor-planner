@@ -18,8 +18,6 @@ from ..vertical_levels import VertInfoLvl01
 class Fountain(VertInfoLvl01, CircularElement):
     """Fountain element with water spray pattern."""
 
-    default_layer = 'water'
-
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
@@ -194,8 +192,6 @@ class Fountain(VertInfoLvl01, CircularElement):
 
 class Pond(Element):
     """Pond element with organic shape and water texture."""
-
-    default_layer = 'water'
 
     def __init__(
             self,
@@ -439,8 +435,6 @@ class Pond(Element):
 class RectPool(VertInfoLvl01, VesselElement):
     """Rectangular swimming pool element for garden/summer use."""
 
-    default_layer = 'water'
-
     def __init__(
             self,
             anchor_point: tuple[float, float] | None = None,
@@ -617,8 +611,6 @@ class RectPool(VertInfoLvl01, VesselElement):
 
 class OvalPool(VertInfoLvl01, RectangularElement):
     """Oval swimming pool element for garden/summer use."""
-
-    default_layer = 'water'
 
     def __init__(
             self,

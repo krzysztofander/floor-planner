@@ -46,9 +46,9 @@ Each element type has a default layer:
 | `furniture` | furniture, appliances, beds, storage (`generic_storage`, `storage40/60`, `tabletop`), kitchen and bathroom fixtures, `tv`, `fish_tank`, external furniture models |
 | `vegetation` | `tree`, `shrub`, `hedge`, `lawn`, `model_leafy_tree`, `model_leafy_shrub_1` |
 | `electric` | `power_outlet`, `electrical_cable`, `ground_cable`, `switch`, lamps, `led_strip` |
-| `water` | `generic_tank`, `model_well`, `fountain`, `pond`, `rect_pool`, `oval_pool` |
+| `water` | `generic_tank` |
 | `roof` | roofs, roof octants, gable ends |
-| `default` | everything else: landscaping (paths, fences, decks, ground, structures, glass panels, greenhouse), annotations (`dimension_arrow`, `text_box`), `line`, `polygon`, `circle` |
+| `default` | everything else: landscaping (paths, fences, decks, ground, structures, glass panels, greenhouse), annotations (`dimension_arrow`, `text_box`), `line`, `polygon`, `circle` , other elements |
 
 Any element takes an optional `layer` parameter that puts it on another layer, built-in or custom:
 
