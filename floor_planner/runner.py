@@ -338,7 +338,11 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
             # Use default options
             elements.set_element_options(default_options)
 
-        layout_params = floor_plan_params.get('layout') or settings['default_layout']
+        # A floor plan's layout overrides single keys of default_layout (e.g. only scale_denominator)
+        floor_plan_layout = floor_plan_params.get('layout') or {}
+        if not isinstance(floor_plan_layout, dict):
+            raise ValueError(f"floor_plans[{floor_plan_index}].layout: expected a mapping, got {floor_plan_layout!r}")
+        layout_params = {**(settings.get('default_layout') or {}), **floor_plan_layout}
         floor_plan = FloorPlan(**layout_params)
         floor_plan.v_anchor = float(floor_plan_params.get('v_anchor', 0.0))
         floor_plan.layers = parse_layers(floor_plan_params.get('layers'),

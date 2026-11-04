@@ -60,7 +60,7 @@ The section named `project` defines properties of output such as:
 * Location
 * DPI (dots-per-inch, resolution)
 
-In the section named `default_layout`, below parameters are set for floor plans that do not override them in their `layout` sections:
+In the section named `default_layout`, below parameters are set for all floor plans. A floor plan's `layout` section overrides single parameters of it, e.g. `layout: {scale_denominator: 50}` keeps the area and grid of `default_layout` and changes only the scale:
 * Dimensions of area to be drawn (in real-world meters, i.e., meters prior to scaling)
 * Scale
 * Grid settings
