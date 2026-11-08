@@ -501,9 +501,9 @@ class GenericSurface(VertInfoLvl01, SurfaceElement):
             label=label,
             id=id,
             textures=textures,
+            v_anchor=v_anchor,
+            height=height,
         )
-        self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
-        self.height = height if height is not None else self._default_height()
 
     def _default_height(self) -> float:
         """Return default height for surface element."""
@@ -596,9 +596,9 @@ class Deck(VertInfoLvl01, SurfaceElement):
             label=label,
             id=id,
             textures=textures,
+            v_anchor=v_anchor,
+            height=height,
         )
-        self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
-        self.height = height if height is not None else self._default_height()
 
     def _default_height(self) -> float:
         """Return default height for deck."""
@@ -941,9 +941,9 @@ class Greenhouse(VertInfoLvl01, GreenhouseGeometry3D, SurfaceElement):
             color=color,
             label=label,
             id=id,
+            v_anchor=v_anchor,
+            height=height,
         )
-        self.v_anchor = v_anchor if v_anchor is not None else self._default_v_anchor()
-        self.height = height if height is not None else self._default_height()
         self.roof_height = roof_height
        # self.alpha_mode = "BLEND" 
 
