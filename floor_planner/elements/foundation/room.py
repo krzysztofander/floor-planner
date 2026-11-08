@@ -38,7 +38,8 @@ class Room(Group):
             color: str = 'black',
             label: str | None = None,
             purpose: str | None = None,
-            id: str | None = None
+            id: str | None = None,
+            embedded_dimensions: bool = True,
     ):
         """
         Initialize a room from walls and optional other elements.
@@ -57,11 +58,16 @@ class Room(Group):
             optional purpose of a room e.g. living space, outdoor, storage, etc.
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param embedded_dimensions:
+            if False, dimension arrows defined within this room (and any nested
+            container) are skipped (never created), so they are not rendered;
+            the room's own ``dimensions`` display option is not affected
         :raises ValueError:
             if walls don't form a valid rectangle or exactly 4 walls don't have room_edge=True
         """
         all_children = list(walls) + list(other_elements or [])
-        super().__init__(child_elements=all_children, anchor_point=anchor_point, color=color, label=label, id=id)
+        super().__init__(child_elements=all_children, anchor_point=anchor_point, color=color, label=label, id=id,
+                         embedded_dimensions=embedded_dimensions)
 
         self.walls = walls
         self.other_elements = other_elements or []
@@ -90,7 +96,7 @@ class Room(Group):
 
         :param params:
             dictionary with 'elements' list containing wall/window/door definitions,
-            optional 'anchor_point', 'color', 'label', and 'vars'
+            optional 'anchor_point', 'color', 'label', 'vars' and 'embedded_dimensions'
         :param elements_registry:
             registry mapping element type names to classes
         :param floor_plan:
@@ -109,6 +115,7 @@ class Room(Group):
 
         room_vars, anchor, color, label = cls._resolve_params(params, global_vars)
         purpose = params.get('purpose',None)
+        embedded_dimensions = cls._resolve_embedded_dimensions(params)
 
         element_defs = params.get('elements', [])
         if not element_defs:
@@ -122,7 +129,7 @@ class Room(Group):
         children = cls._create_children(
             regular_defs,
             elements_registry, floor_plan, all_elements, elements_by_id,
-            global_vars, room_vars, anchor, color,
+            global_vars, room_vars, anchor, color, embedded_dimensions,
         )
 
         walls = [c for c in children if c.__class__.__name__ in ('Wall', 'WallND')]
@@ -131,7 +138,8 @@ class Room(Group):
         if not walls:
             raise ValueError("Room must contain at least one wall")
 
-        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color, label=label, purpose = purpose, id=params.get('id'))
+        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color, label=label, purpose = purpose, id=params.get('id'),
+                   embedded_dimensions=embedded_dimensions)
 
         if surface_defs:
             cls._create_surface_elements(

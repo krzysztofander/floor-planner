@@ -301,6 +301,7 @@ Room defined by 4 walls forming a rectangle, with optional other elements. A roo
 - `label`: str | None = None - optional label; drawn at the inner bottom-left corner when `Room.label_color` is set, and required for the room to be listed in the floor plan `report`
 - `purpose`: str | None = None - optional purpose (e.g. living space, outdoor, storage); the `report` area list groups labeled rooms by `purpose` under the heading "`<purpose>` room areas:" (rooms without a purpose go under "Other"), each group with its own total
 - `vars`: dict = {} - scoped variables (alias: `constants`), same rules as for [Group](#group)
+- `embedded_dimensions`: bool = True - if `false`, `dimension_arrow` elements defined within the room (including nested groups/rooms) are not rendered; same rules as for [Group](#group). Does not affect the `dimensions` display option below
 
 **Display options** (`default_options.Room` or per-floor-plan `options.Room`):
 - `label_color`: str - color of the room label
@@ -308,6 +309,7 @@ Room defined by 4 walls forming a rectangle, with optional other elements. A roo
 - `inner_area`: bool = False - show inner area (m²) in the room centre
 - `inner_corner_label_color`: str - color for inner corner coordinate labels
 - `outer_corner_label_color`: str - color for outer corner coordinate labels
+- `embedded_dimensions`: bool = True - default for the `embedded_dimensions` parameter of every room on the floor plan; a value set on the room itself wins
 
 **Floor plan report** (`report` key of a floor plan): `anchor_point`, `areas` (list labeled room inner areas), `total_area` (sum per purpose group), `notes` (list of strings), `fontsize` = 11.
 
@@ -390,6 +392,7 @@ A lightweight container that positions child elements relative to a shared `anch
 - `vars`: dict = {} — scoped variables (alias: `constants`); evaluated in order after global vars; each can reference global vars, parent-container vars and previously defined vars of this group using arithmetic expressions; nested containers inherit them
 - `elements`: list = [] — child element definitions; each must have a `type` key
 - `from_template`: str | None = None — name of a registered group template; see [Group Templates](#group-templates)
+- `embedded_dimensions`: bool = True — if `false`, `dimension_arrow` elements defined within the group are not rendered (they are skipped when the group is built). Applies to nested groups and rooms too: a nested container cannot set it back to `true`, but a nested container may set it to `false` while its parent keeps its own arrows. Can also be set in a template and overridden by the instance. When the group does not set it, the default comes from the floor plan option `options.Group.embedded_dimensions` (or `default_options.Group`), then `true`. `options.Group` applies to groups only; rooms use `options.Room`
 
 **Merge rules when `from_template` is used:**
 - template `vars` supply defaults; instance `vars` override them

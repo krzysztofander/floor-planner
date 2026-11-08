@@ -18,8 +18,10 @@ import copy
 import matplotlib.axes
 
 from ...layers import pop_layer
+from ...options import get_element_option
 from ...variables import resolve_constants, resolve_element_params
 from ..element import Element
+from ..symbols.info import DimensionArrow
 
 
 class Group(Element):
@@ -39,6 +41,9 @@ class Group(Element):
     * template ``vars`` provide defaults; instance ``vars`` override them
     * template ``elements`` are the base list; instance ``elements`` are appended
     * instance ``anchor_point``, ``color``, ``label`` override template values
+
+    ``embedded_dimensions: false`` skips every ``dimension_arrow`` defined
+    within the container, including those inside nested groups and rooms.
 
     Templates are registered once per config load (``__main__.py``) and are
     stored as a class-level dict, making them available to all nested
@@ -126,6 +131,7 @@ class Group(Element):
             color: str = 'black',
             label: str | None = None,
             id: str | None = None,
+            embedded_dimensions: bool = True,
     ):
         """
         Initialize a group.
@@ -141,9 +147,13 @@ class Group(Element):
             optional label (informational only)
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param embedded_dimensions:
+            if False, dimension arrows defined within this container (and any
+            nested container) are skipped (never created), so they are not rendered
         """
         super().__init__(anchor_point=anchor_point, label=label, color=color, id=id)
         self.child_elements = child_elements or []
+        self.embedded_dimensions = embedded_dimensions
 
     # ------------------------------------------------------------------
     # draw – Group itself draws nothing; children are already drawn as
@@ -185,6 +195,19 @@ class Group(Element):
         return container_vars, anchor, color, label
 
     @classmethod
+    def _resolve_embedded_dimensions(cls, params: dict) -> bool:
+        """
+        Return the container's ``embedded_dimensions`` flag.
+
+        Lookup order: the container's own ``embedded_dimensions`` param, then
+        the floor plan option of the same name for this class (``Group`` or
+        ``Room``), then True.
+        """
+        if 'embedded_dimensions' in params:
+            return bool(params['embedded_dimensions'])
+        return bool(get_element_option(cls.__name__, 'embedded_dimensions', True))
+
+    @classmethod
     def _create_children(
             cls,
             element_defs: list,
@@ -196,6 +219,7 @@ class Group(Element):
             container_vars: dict,
             anchor_point: tuple[float, float],
             color: str,
+            embedded_dimensions: bool = True,
     ) -> list:
         """
         Instantiate child elements from a list of definition dicts.
@@ -205,6 +229,11 @@ class Group(Element):
         this container's anchor before the recursive call.  All other elements
         are resolved with variable substitution and translated coordinate keys,
         then instantiated directly.
+
+        When ``embedded_dimensions`` is False, ``DimensionArrow`` definitions
+        are skipped and nested containers are forced to
+        ``embedded_dimensions: false`` too, so the setting covers everything
+        defined within this container.
 
         :return:
             flat list of created child element instances
@@ -223,7 +252,13 @@ class Group(Element):
             if element_class is None:
                 raise ValueError(f"Unknown element type: {element_type!r}")
 
+            if not embedded_dimensions and issubclass(element_class, DimensionArrow):
+                continue
+
             if getattr(element_class, 'IS_CONTAINER', False):
+                if not embedded_dimensions:
+                    element_def['embedded_dimensions'] = False
+
                 # Pre-translate the nested container's anchor before recursion
                 if 'anchor_point' in element_def:
                     rel_x, rel_y = resolve_constants(
@@ -291,7 +326,7 @@ class Group(Element):
 
         :param params:
             dict with optional keys: ``elements``, ``anchor_point``, ``color``,
-            ``label``, ``vars``
+            ``label``, ``vars``, ``embedded_dimensions``
         :param elements_registry:
             registry mapping element type names to classes
         :param floor_plan:
@@ -311,6 +346,7 @@ class Group(Element):
         params = cls._apply_template(params)
 
         container_vars, anchor, color, label = cls._resolve_params(params, global_vars)
+        embedded_dimensions = cls._resolve_embedded_dimensions(params)
 
         children = cls._create_children(
             params.get('elements', []),
@@ -322,6 +358,8 @@ class Group(Element):
             container_vars,
             anchor,
             color,
+            embedded_dimensions,
         )
 
-        return cls(child_elements=children, anchor_point=anchor, color=color, label=label, id=params.get('id'))
+        return cls(child_elements=children, anchor_point=anchor, color=color, label=label, id=params.get('id'),
+                   embedded_dimensions=embedded_dimensions)
