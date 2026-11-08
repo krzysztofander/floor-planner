@@ -59,6 +59,13 @@ class _RoofBase(Element):
 
     default_layer = 'roof'
 
+    # 2D line styles shared by all roof elements
+    EDGE_LINEWIDTH = 1.5           # footprint / ridge / hip edges
+    EDGE_LINESTYLE = '--'
+    VALLEY_EDGE_LINESTYLE = '-.'   # internal (valley) octant edges
+    EXTENSION_LINEWIDTH = 1.5      # overhang (extension) indicator lines
+    EXTENSION_LINESTYLE = ':'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -132,7 +139,7 @@ class _RoofBase(Element):
             p0 = w(*start)
             p1 = w(*end)
             ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                    color=draw_color, linewidth=1.5, linestyle='--',
+                    color=draw_color, linewidth=self.EDGE_LINEWIDTH, linestyle=self.EDGE_LINESTYLE,
                     zorder=self.get_zorder())
 
         if self.label:
@@ -240,7 +247,7 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
             else:
                 r0, r1 = w(x / 2, 0), w(x / 2, z)
             ax.plot([r0[0], r1[0]], [r0[1], r1[1]],
-                    color=draw_color, linewidth=1.5, linestyle='--', zorder=self.get_zorder())
+                    color=draw_color, linewidth=self.EDGE_LINEWIDTH, linestyle=self.EDGE_LINESTYLE, zorder=self.get_zorder())
 
         if (self.orientation_angle is not None) or x >= z:
             # Ridge along X; extensions in the z direction
@@ -249,24 +256,24 @@ class GableRoof(VertInfoRoof, GableRoofGeometry3D, _RoofBase):
                 p0 = w(0, -self.extension_a)
                 p1 = w(x, -self.extension_a)
                 ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+                        color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE, zorder=self.get_zorder())
             if self.extension_b > 0:
                 p0 = w(0, z + self.extension_b)
                 p1 = w(x, z + self.extension_b)
                 ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+                        color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE, zorder=self.get_zorder())
         else:
             # Ridge along Z; extensions in the x direction
             if self.extension_a > 0:
                 p0 = w(-self.extension_a, 0)
                 p1 = w(-self.extension_a, z)
                 ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+                        color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE, zorder=self.get_zorder())
             if self.extension_b > 0:
                 p0 = w(x + self.extension_b, 0)
                 p1 = w(x + self.extension_b, z)
                 ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                        color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+                        color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE, zorder=self.get_zorder())
 
 
 class HippedRoof(VertInfoRoof, HippedRoofGeometry3D, _RoofBase):
@@ -381,7 +388,7 @@ class SingleSlopeRoof(VertInfoRoof, SingleSlopeRoofGeometry3D, _RoofBase):
         p0 = w(0,               -self.extension)
         p1 = w(self.x_axis_size, -self.extension)
         ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                color=draw_color, linewidth=0.8, linestyle=':', zorder=self.get_zorder())
+                color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE, zorder=self.get_zorder())
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -471,7 +478,7 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
         for p0, p1, enabled in edges:
             if enabled:
                 ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                        color=draw_color, linewidth=1.5, linestyle='--',
+                        color=draw_color, linewidth=self.EDGE_LINEWIDTH, linestyle=self.EDGE_LINESTYLE,
                         zorder=self.get_zorder())
 
         if self.extension > 0:
@@ -480,7 +487,7 @@ class _HippedRoofOctantBase(VertInfoRoof, HippedRoofOctantGeometry3D, _RoofBase)
             p0 = w(0,                                        z_ext)
             p1 = w(-x_ext if self._octant_left else x_ext,  z_ext)
             ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                    color=draw_color, linewidth=0.8, linestyle=':',
+                    color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE,
                     zorder=self.get_zorder())
 
         if self.label:
@@ -623,7 +630,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
         for p0, p1, enabled in edges:
             if enabled:
                 ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                        color=draw_color, linewidth=1.5, linestyle='-.',
+                        color=draw_color, linewidth=self.EDGE_LINEWIDTH, linestyle=self.VALLEY_EDGE_LINESTYLE,
                         zorder=self.get_zorder())
 
         if self.extension > 0:
@@ -632,7 +639,7 @@ class _HippedInternalOctantBase(VertInfoRoof, HippedInternalOctantGeometry3D, _R
             p0 = w(0,                                        z_ext)
             p1 = w(-x_ext if self._octant_left else x_ext,  z_ext)
             ax.plot([p0[0], p1[0]], [p0[1], p1[1]],
-                    color=draw_color, linewidth=0.8, linestyle=':',
+                    color=draw_color, linewidth=self.EXTENSION_LINEWIDTH, linestyle=self.EXTENSION_LINESTYLE,
                     zorder=self.get_zorder())
 
         if self.label:
