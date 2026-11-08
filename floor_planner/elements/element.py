@@ -117,9 +117,10 @@ class Element(ElementBase):
         Element._element_counter += 1
         self._element_instance_number = Element._element_counter
         
-        # Add tiny offset to ensure unique v_anchor for deterministic ordering
+        # Add tiny offset to ensure unique v_anchor for deterministic ordering of 2D
         # 0.0001 per element ensures no collisions while keeping semantic meaning
-        self.v_anchor = base_v_anchor + (0.0001 * self._element_instance_number)
+        # The side effect may be on 3D, especially with large number of elements.
+        self.v_anchor = base_v_anchor + (0.00001 * self._element_instance_number)
         
         # Physical height
         self.height = height if height is not None else self._default_height()
