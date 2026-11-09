@@ -159,6 +159,7 @@ class FloorPlan:
         print (f"Drawing floor plan {self.title} elements...")
 
         layers_2d = self.layers.layers_2d
+        self._print_excluded_layers(layers_2d)
         if layers_2d is None:
             for element in self.elements:
                 element.draw(self.ax)
@@ -182,6 +183,25 @@ class FloorPlan:
             return list(self.elements)
         return [element for element in self.elements
                 if self._is_container(element) or element.get_layer() in layer_names]
+
+    def excluded_layers(self, layer_names) -> list[str]:
+        """
+        Layers that elements of this floor plan are on but that ``layer_names`` does not list.
+
+        :param layer_names:
+            the layers drawn (``layers.2d``) or exported (``layers.3d``); None = no filtering
+        :return:
+            sorted layer names; empty if nothing is filtered out
+        """
+        if layer_names is None:
+            return []
+        used = {element.get_layer() for element in self.elements if not self._is_container(element)}
+        return sorted(used - set(layer_names))
+
+    def _print_excluded_layers(self, layer_names) -> None:
+        """Tell which layers of this floor plan are left out of the 2D drawing / 3D export."""
+        for name in self.excluded_layers(layer_names):
+            print(f"    Elements of layer '{name}' not included")
 
     def get_drawn_elements(self) -> list[ElementBase]:
         """Elements drawn in 2D (``layers.2d``)."""
@@ -338,4 +358,5 @@ class FloorPlan:
         )
         
         print(f"Exported glTF file: {output_path}")
+        self._print_excluded_layers(self.layers.layers_3d)
         return output_path

@@ -145,3 +145,29 @@ def test_floor_plan_names_must_be_unique():
 @pytest.mark.parametrize('type_name', sorted(elements.create_elements_registry()))
 def test_default_layer_is_builtin(type_name):
     assert elements.create_elements_registry()[type_name].default_layer in BUILTIN_LAYERS
+
+
+@pytest.mark.parametrize('layers, excluded_2d, excluded_3d', [
+    (None, [], []),
+    ({'2d': {'construction': None}}, ['furniture'], []),
+    ({'3d': ['furniture']}, [], ['construction']),
+    ({'2d': {'construction': None, 'furniture': None}, '3d': ['electric']}, [], ['construction', 'furniture']),
+])
+def test_floor_plan_reports_excluded_layers(layers, excluded_2d, excluded_3d, capsys):
+    reg = elements.create_elements_registry()
+    floor_plan = FloorPlan((0, 0), (5, 5))
+    floor_plan.add_title('Plan', font_size=12)
+    for element in (reg['wall']((0, 0), 0, 2, 0.2),                      # construction
+                    reg['generic_storage']((1, 1), 0, 0.5, 0.5),          # furniture
+                    Group(child_elements=[], anchor_point=(0, 0))):      # containers have no layer
+        floor_plan.add_element(element)
+    floor_plan.layers = parse_layers(layers)
+
+    assert floor_plan.excluded_layers(floor_plan.layers.layers_2d) == excluded_2d
+    assert floor_plan.excluded_layers(floor_plan.layers.layers_3d) == excluded_3d
+
+    floor_plan.draw_elements()
+    lines = capsys.readouterr().out.splitlines()
+    assert lines == ['Drawing floor plan Plan elements...'] + [
+        f"    Elements of layer '{name}' not included" for name in excluded_2d]
+    plt.close(floor_plan.fig)

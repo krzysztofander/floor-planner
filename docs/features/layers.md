@@ -39,6 +39,16 @@ floor_plans:
 
 `layers` must contain `2d` and/or `3d`; an empty `layers`, `2d` or `3d`, any other key and the former list form (`- name: ...`) raise `ValueError`. Only the `2d` layers are restyled: to restyle every layer, list them all under `2d`.
 
+When a section filters elements out, the run prints each left-out layer (sorted) under the floor plan's line, both for the 2D drawing (after `Drawing floor plan <title> elements...`) and for the 3D export (after `Exported glTF file: ...`):
+
+```text
+Drawing floor plan MyFloorPlan elements...
+    Elements of layer 'custom' not included
+    Elements of layer 'furniture' not included
+```
+
+`FloorPlan.excluded_layers(layer_names)` returns those names.
+
 `export_3d: false` on a floor plan skips its 3D export (default `true`), e.g. for 2D-only sheets that would otherwise write another copy of the same model.
 
 Floor plans that show the same elements with different layers share them through `reusable_elements` / `inherited_elements`. Example: [tests/layers/project_main.yml](../../tests/layers/project_main.yml).
