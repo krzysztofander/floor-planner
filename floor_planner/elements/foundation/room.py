@@ -91,7 +91,8 @@ class Room(Group):
     def create_from_params(cls, params: dict, elements_registry: dict, floor_plan,
                            all_elements: list, elements_by_id: dict,
                            global_vars: dict = None,
-                           parent_offset: tuple[float, float] = (0, 0)):
+                           parent_offset: tuple[float, float] = (0, 0),
+                           iter_suffix: str = ""):
         """
         Create a Room from YAML parameters with nested elements.
 
@@ -110,11 +111,26 @@ class Room(Group):
             variables visible from outside the room (optional)
         :param parent_offset:
             absolute anchor of the enclosing container; ``(0, 0)`` at top level
+        :param iter_suffix:
+            iteration suffix of the enclosing repetitions (e.g. ``"_i2"``); it is
+            appended to the room's own ``label`` / ``id`` and to those of its
+            children, floor and ceiling
         :return:
             Room instance
+        :raises ValueError:
+            if the room contains ``repeat_count`` or ``repeat_next`` (rooms do
+            not repeat; wrap the room in a repeating group instead)
         """
         if global_vars is None:
             global_vars = {}
+
+        repeat_keys = [key for key in ('repeat_count', 'repeat_next') if key in params]
+        if repeat_keys:
+            raise ValueError(
+                f"Room {params.get('label') or params.get('id') or ''}: {' and '.join(repeat_keys)} "
+                "not supported in a room. To repeat a room, put it in a group with "
+                "repeat_count / repeat_next"
+            )
 
         room_vars, anchor, color, label = cls._resolve_params(params, global_vars, parent_offset)
         purpose = params.get('purpose',None)
@@ -133,6 +149,7 @@ class Room(Group):
             regular_defs,
             elements_registry, floor_plan, all_elements, elements_by_id,
             global_vars, room_vars, anchor, color, embedded_dimensions,
+            iter_suffix=iter_suffix,
         )
 
         walls = [c for c in children if c.__class__.__name__ in ('Wall', 'WallND')]
@@ -141,13 +158,15 @@ class Room(Group):
         if not walls:
             raise ValueError("Room must contain at least one wall")
 
-        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color, label=label, purpose = purpose, id=params.get('id'),
+        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color,
+                   label=cls._with_suffix(label, iter_suffix), purpose=purpose,
+                   id=cls._with_suffix(params.get('id'), iter_suffix),
                    embedded_dimensions=embedded_dimensions)
 
         if surface_defs:
             cls._create_surface_elements(
                 room, surface_defs, floor_plan, all_elements, elements_by_id,
-                global_vars, room_vars
+                global_vars, room_vars, iter_suffix
             )
 
         return room
@@ -158,7 +177,8 @@ class Room(Group):
 
     @classmethod
     def _create_surface_elements(cls, room, surface_defs, floor_plan,
-                                 all_elements, elements_by_id, global_vars, room_vars):
+                                 all_elements, elements_by_id, global_vars, room_vars,
+                                 iter_suffix: str = ""):
         """Create Floor/Ceiling elements after the Room is built."""
         inner_bl = room.internal_corners[0]   # bottom-left
         inner_tr = room.internal_corners[2]   # top-right
@@ -172,6 +192,9 @@ class Room(Group):
             layer = pop_layer(surface_def, surface_type)
 
             surface_def = resolve_element_params(surface_def, global_vars, room_vars)
+            for name_key in ('label', 'id'):
+                if name_key in surface_def:
+                    surface_def[name_key] = cls._with_suffix(surface_def[name_key], iter_suffix)
             surface_def['anchor_point'] = inner_anchor
             surface_def['size'] = inner_size
 

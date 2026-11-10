@@ -386,18 +386,21 @@ A lightweight container that positions child elements relative to a shared `anch
 **YAML type:** `group`
 
 **Parameters:**
-- `anchor_point`: tuple[float, float] = (0, 0) — origin for all child coordinates; child `anchor_point`, `first_point` and `second_point` values are expressed relative to this point
+- `anchor_point`: tuple[float, float] = (0, 0) — origin for all child coordinates; child `anchor_point`, `first_point` and `second_point` values are expressed relative to this point. It is resolved in the group's own scope (it can use the group's `vars`) and, for a nested group, is relative to the parent's anchor; without it, a nested group sits at the parent's anchor
 - `color`: str = 'black' — default wall color inherited by child `wall` / `wallnd` elements that have no explicit `color`
 - `label`: str | None = None — optional informational label
 - `vars`: dict = {} — scoped variables (alias: `constants`); evaluated in order after global vars; each can reference global vars, parent-container vars and previously defined vars of this group using arithmetic expressions; nested containers inherit them
 - `elements`: list = [] — child element definitions; each must have a `type` key
 - `from_template`: str | None = None — name of a registered group template; see [Group Templates](#group-templates)
 - `embedded_dimensions`: bool = True — if `false`, `dimension_arrow` elements defined within the group are not rendered (they are skipped when the group is built). Applies to nested groups and rooms too: a nested container cannot set it back to `true`, but a nested container may set it to `false` while its parent keeps its own arrows. Can also be set in a template and overridden by the instance. When the group does not set it, the default comes from the floor plan option `options.Group.embedded_dimensions` (or `default_options.Group`), then `true`. `options.Group` applies to groups only; rooms use `options.Room`
+- `repeat_count`: int | str = 1 — how many times the group's elements are created: a whole number ≥ 0, a variable or an expression (`5`, `n`, `n - 1`; `5.0` is accepted). Evaluated once, after `vars`. `0` creates nothing, so a count taken from a `0`/`1` variable works as a condition. Limit: 10 000 per group. See [Repetition](#repetition)
+- `repeat_next`: dict = {} — `variable: expression` pairs giving the values of the group's own `vars` for the next iteration; see [Repetition](#repetition)
 
 **Merge rules when `from_template` is used:**
 - template `vars` supply defaults; instance `vars` override them
+- template `repeat_next` entries come first; instance `repeat_next` entries override or are added (per variable, like `vars`)
 - template `elements` come first; instance `elements` are appended after
-- any other instance key (`anchor_point`, `color`, `label`, …) overrides the template value
+- any other instance key (`anchor_point`, `color`, `label`, `repeat_count`, …) overrides the template value
 
 **Example — standalone group:**
 ```yaml
@@ -437,6 +440,40 @@ A lightweight container that positions child elements relative to a shared `anch
 ```
 
 **Note:** `Group` itself draws nothing — only its children are rendered. A `group` can contain a `room` as a child. String fields of children (e.g. `color`, `label`) can reference string vars with `{var_name}`.
+
+### Repetition
+
+A group creates its `elements` `repeat_count` times. The first iteration uses the values from `vars`; after each iteration except the last, `repeat_next` computes the next values:
+
+```yaml
+- type: group
+  vars:
+    anchor_x: 100
+  repeat_next:
+    anchor_x: anchor_x + 10      # 100, 110, 120, ..., 190
+  repeat_count: 10
+  anchor_point: [anchor_x, 0]    # resolved again on every iteration
+  elements:
+    - type: tree
+      anchor_point: [0, 0]
+      diameter: 1.2
+      label: tree                # tree_i1 ... tree_i10
+```
+
+Rules:
+- `repeat_next` can only change variables defined in the group's own `vars`; a variable that exists only outside the group, or nowhere, raises an error. To step an outer value, cover it locally first: `vars: {x: x}`
+- the right-hand side can use any visible variable (the group's, outer containers', global)
+- entries are applied in order: a later entry sees the new value of an earlier one
+- `vars` that depend on a changed variable are not recomputed; recompute them in `repeat_next` if needed: `repeat_next: {x: x + 1, x2: x + 1}`
+- an expression that does not give a number for a numeric variable (e.g. a typo: `x + ofset`) raises an error
+- there is no built-in loop index; use an ordinary variable (`vars: {i: 1}`, `repeat_next: {i: i + 1}`)
+- with `repeat_count` above 1, the `label` and explicit `id` of everything created in iteration N (elements, nested groups and rooms, walls, floors) get `_i<N>` appended (N from 1). Nested repetitions append the outer one first: `apple_i2_i3`. The repeating group's own `label` / `id` is not changed. With a count of 0 or 1 nothing is appended
+- a warning is printed for `repeat_next` without `repeat_count`, and for `repeat_count` above 1 without `repeat_next` (all copies on top of each other)
+- **nesting:** an inner repeating group is created again, with fresh `vars`, on every outer iteration, so its counters start over and its `repeat_count` may depend on outer variables
+- **templates:** a template and its instance form one group with one repetition; an instance can change the repetition by overriding `vars` (e.g. the count or the step), and its own `elements` are repeated too. For two levels, put a template instance inside a repeating group
+- **rooms** cannot repeat: `repeat_count` / `repeat_next` on a `room` raises an error. Put the room in a repeating group instead
+
+Example with all cases: `examples/templates/groups/repeat_demo/project_main.yml`.
 
 ---
 

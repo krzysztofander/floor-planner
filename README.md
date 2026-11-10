@@ -102,6 +102,24 @@ Reusable blueprints can be defined in the top-level `group_templates` section an
   vars:
     w: 4   # wider variant
 ```
+
+A group can repeat its elements: `repeat_count` says how many times, and `repeat_next` gives the next values of the group's own `vars`. Useful for lamp posts, stair treads, trees in an orchard. Repetitions can be nested, also with templates:
+```yaml
+- type: group
+  vars:
+    lamp_x: 0
+  repeat_count: 6                 # 0 draws nothing: works as a condition
+  repeat_next:
+    lamp_x: lamp_x + 4            # computed from the previous iteration
+  anchor_point: [lamp_x, 1.5]
+  elements:
+    - type: wall_lamp
+      anchor_point: [0, 0]
+      symbol_diameter: 0.4
+      label: lamp                 # lamp_i1 ... lamp_i6
+```
+With a count above 1, labels and IDs inside get `_i<N>` appended. Example: `examples/templates/groups/repeat_demo`.
+
 See `examples/templates/groups` and the *Groups* section of `docs/element-parameters-reference.md`.
 
 ## Element Categories

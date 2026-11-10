@@ -36,6 +36,7 @@ GROUP_TEMPLATES_ROOT = examples/templates/groups
 ## Output PNGs for each group template (title must match the png filename)
 GROUP_TEMPLATE_OUTPUTS = $(GROUP_TEMPLATES_ROOT)/group_east/output/group_east.png
 GROUP_TEMPLATE_OUTPUTS += $(GROUP_TEMPLATES_ROOT)/group_template_demo/output/group_template_demo.png
+GROUP_TEMPLATE_OUTPUTS += $(GROUP_TEMPLATES_ROOT)/repeat_demo/output/repeat_demo.png
 
 group_templates: $(GROUP_TEMPLATE_OUTPUTS)
 
@@ -44,6 +45,10 @@ $(GROUP_TEMPLATES_ROOT)/group_east/output/group_east.png: $(GROUP_TEMPLATES_ROOT
 	$(PYTHON) -m floor_planner -c $<
 
 $(GROUP_TEMPLATES_ROOT)/group_template_demo/output/group_template_demo.png: $(GROUP_TEMPLATES_ROOT)/group_template_demo/project_main.yml $(PYSRC)
+	@echo "Processing $<"
+	$(PYTHON) -m floor_planner -c $<
+
+$(GROUP_TEMPLATES_ROOT)/repeat_demo/output/repeat_demo.png: $(GROUP_TEMPLATES_ROOT)/repeat_demo/project_main.yml $(PYSRC)
 	@echo "Processing $<"
 	$(PYTHON) -m floor_planner -c $<
 

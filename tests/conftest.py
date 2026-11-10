@@ -30,6 +30,7 @@ SCENES = [
     # group templates
     'examples/templates/groups/group_east/project_main.yml',
     'examples/templates/groups/group_template_demo/project_main.yml',
+    'examples/templates/groups/repeat_demo/project_main.yml',
     # elements, furniture, simple
     'examples/elements/all_elements.yml',
     'examples/elements/furniture_demo.yml',

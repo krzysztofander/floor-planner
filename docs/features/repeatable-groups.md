@@ -1,6 +1,6 @@
 # Feature: Repeatable Groups
 
-**Status:** In Progress (Phase 1 done)
+**Status:** Complete
 **Priority:** Medium
 **Estimated Effort:** 1–2 days (about 0.5 day of it is the anchor-resolution refactor in Phase 1)
 
@@ -399,13 +399,16 @@ and `iter_suffix` unchanged otherwise.
 
 Who adds the suffix, so that it is never added twice:
 
-* **`_create_children` adds it to every element definition it creates**, regular elements
-  and nested containers alike. It is appended to `label` and `id` only when the key is
-  present and not `None`. For regular elements this happens after
-  `resolve_element_params` (so after `{var}` substitution). For a nested container it is
-  appended to `label` / `id` in the definition before `create_from_params` is called.
-* **A container never adds the suffix to its own `label` / `id`.** It only passes the
-  suffix it received (plus its own `_i<N>`, if it repeats) on to its children.
+* **`_create_children` adds it to every regular element it creates.** It is appended to
+  `label` and `id` only when the key is present and not `None`, after
+  `resolve_element_params` (so after `{var}` substitution).
+* **A nested container adds the suffix it received to its own `label` / `id`**, inside
+  its `create_from_params`, after its template is merged. (Implementation note: the plan
+  had the parent add it to the container's definition, but then a label that comes only
+  from a template would miss the suffix.) The container passes the received suffix,
+  plus its own `_i<N>` when it repeats, on to its children. The result is the same as
+  planned: the repeating group's own label gets only the suffixes of the repetitions
+  around it, never its own.
 * `Room.create_from_params` passes the suffix it received to `_create_children` and to
   `_create_surface_elements` (floor/ceiling `label` / `id`). A room has no own iterations.
 * The top-level call from `runner._add_element` uses the default `""`.
@@ -444,22 +447,23 @@ anchor in **its own** scope (`global + parent + own vars`) and adds `parent_offs
 - [x] An `anchor_point` that cannot be resolved now raises `ValueError` naming the container (was `TypeError` for nested containers)
 
 ### Phase 2: Repetition core
-- [ ] `variables.resolve_repeat_count()`: evaluate, check that the value is a whole number, ≥ 0 and ≤ `MAX_REPEAT_COUNT`; clear error messages
-- [ ] `Group.create_from_params`: loop over iterations; anchor resolved per iteration; `repeat_next` applied in order after every iteration except the last
-- [ ] `MAX_REPEAT_COUNT = 10_000` in `constants.py` (limit per group, not per total)
-- [ ] Check that `repeat_next` is a mapping and that its keys are defined in the group's own `vars` (or `constants`) (an outer-only or undefined name raises `ValueError`); check that numeric variables stay numeric
-- [ ] Warnings: `repeat_next` without a `repeat_count` key; `repeat_count` > 1 without `repeat_next` (copies on top of each other); no warning for a count of 0 or 1
-- [ ] `_apply_template`: merge `repeat_next` per variable; `repeat_count` instance-wins (existing generic rule)
-- [ ] `Room.create_from_params`: reject `repeat_count` / `repeat_next` with a message pointing to a wrapping group
-- [ ] `make check` and the real-plan regression check: nothing changes (no existing config uses the new keys)
-- [ ] Iteration suffix: `iter_suffix` keyword on `create_from_params` / `_create_children` (Group and Room); `_i<N>` (N from 1, whole number) appended to `label` and explicit `id` only when the count is above 1; nested repetitions append outer first; Room floor/ceiling included
+- [x] `variables.resolve_repeat_count()`: evaluate, check that the value is a whole number, ≥ 0 and ≤ `MAX_REPEAT_COUNT`; clear error messages
+- [x] `Group.create_from_params`: loop over iterations; anchor resolved per iteration; `repeat_next` applied in order after every iteration except the last
+- [x] `MAX_REPEAT_COUNT = 10_000` in `constants.py` (limit per group, not per total)
+- [x] Check that `repeat_next` is a mapping and that its keys are defined in the group's own `vars` (or `constants`) (an outer-only or undefined name raises `ValueError`); check that numeric variables stay numeric
+- [x] Warnings: `repeat_next` without a `repeat_count` key; `repeat_count` > 1 without `repeat_next` (copies on top of each other); no warning for a count of 0 or 1
+- [x] `_apply_template`: merge `repeat_next` per variable; `repeat_count` instance-wins (existing generic rule)
+- [x] `Room.create_from_params`: reject `repeat_count` / `repeat_next` with a message pointing to a wrapping group
+- [x] `make check` and the real-plan regression check: nothing changes (no existing config uses the new keys)
+- [x] Iteration suffix: `iter_suffix` keyword on `create_from_params` / `_create_children` (Group and Room); `_i<N>` (N from 1, whole number) appended to `label` and explicit `id` only when the count is above 1; nested repetitions append outer first; Room floor/ceiling included
 
 ### Phase 3: Tests, example, docs
-- [ ] Unit tests in `tests/unit/test_repeatable_groups.py` (in the style of `test_embedded_dimensions.py`, with a collecting floor plan stand-in)
-- [ ] Example `examples/templates/groups/repeat_demo/project_main.yml`: lamp row (pattern A), stairs (pattern B), staggered orchard (nested), tree-row template with two instances, rooms repeated through a wrapping group
-- [ ] Add the example to `SCENES` in `tests/conftest.py`, generate its golden PNG with `--update-golden`, review it
-- [ ] Update the `Group` docstring, the README (feature list), `docs/element-parameters-reference.md` (group keys)
-- [ ] Set this document's status to Complete; update the list in [README.md](README.md)
+- [x] Unit tests in `tests/unit/test_repeatable_groups.py` (in the style of `test_embedded_dimensions.py`, with a collecting floor plan stand-in)
+- [x] Example `examples/templates/groups/repeat_demo/project_main.yml`: lamp row (pattern A), stairs (pattern B), staggered orchard (nested), tree-row template with two instances, rooms repeated through a wrapping group
+- [x] Add the example to `SCENES` in `tests/conftest.py`, generate its golden PNG with `--update-golden`, review it
+- [x] Update the `Group` docstring, the README (feature list), `docs/element-parameters-reference.md` (group keys, new "Repetition" section)
+- [x] Add the example to the `group_templates` target of the `Makefile`
+- [x] Set this document's status to Complete; update the list in [README.md](README.md)
 
 ## Testing Strategy
 

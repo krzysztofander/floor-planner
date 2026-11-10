@@ -19,7 +19,7 @@ import matplotlib.axes
 
 from ...layers import pop_layer
 from ...options import get_element_option
-from ...variables import resolve_constants, resolve_element_params
+from ...variables import resolve_constants, resolve_element_params, resolve_repeat_count
 from ..element import Element
 from ..symbols.info import DimensionArrow
 
@@ -39,11 +39,20 @@ class Group(Element):
     merged into the group params before instantiation:
 
     * template ``vars`` provide defaults; instance ``vars`` override them
+    * template ``repeat_next`` entries are merged per variable with the instance's
     * template ``elements`` are the base list; instance ``elements`` are appended
-    * instance ``anchor_point``, ``color``, ``label`` override template values
+    * instance ``anchor_point``, ``color``, ``label``, ``repeat_count`` override
+      template values
 
     ``embedded_dimensions: false`` skips every ``dimension_arrow`` defined
     within the container, including those inside nested groups and rooms.
+
+    Groups can repeat their elements: ``repeat_count`` (a whole number ≥ 0, a
+    variable or an expression) says how many times, and ``repeat_next`` maps
+    variables of the group's own ``vars`` to expressions giving their values in
+    the next iteration.  See ``create_from_params`` and
+    ``docs/features/repeatable-groups.md``.  A repetition nests naturally: an
+    inner group is created again, with fresh vars, on every outer iteration.
 
     Templates are registered once per config load (``__main__.py``) and are
     stored as a class-level dict, making them available to all nested
@@ -80,8 +89,11 @@ class Group(Element):
         Merge rules
         -----------
         * ``vars``        – template vars are the base; instance vars override
+        * ``repeat_next`` – merged per variable like ``vars``: template entries
+          first, instance entries override or are added
         * ``elements``    – template elements first, instance elements appended
-        * everything else – instance value wins (``anchor_point``, ``color``, …)
+        * everything else – instance value wins (``anchor_point``, ``color``,
+          ``repeat_count``, …)
 
         :raises ValueError:
             if the referenced template name is not registered
@@ -111,6 +123,14 @@ class Group(Element):
         # vars: template defaults, instance overrides
         merged['vars'] = {**template.get('vars', {}), **params.get('vars', {})}
 
+        # repeat_next: merged per variable, like vars
+        if 'repeat_next' in template or 'repeat_next' in params:
+            where = f"group from template {template_name!r}"
+            merged['repeat_next'] = {
+                **cls._repeat_next_mapping(template.get('repeat_next'), f"template {template_name!r}"),
+                **cls._repeat_next_mapping(params.get('repeat_next'), where),
+            }
+
         # elements: template list first, instance additions appended
         merged['elements'] = (
             list(template.get('elements', [])) +
@@ -119,10 +139,73 @@ class Group(Element):
 
         # All other scalar keys from instance override template
         for key, value in params.items():
-            if key not in ('vars', 'elements', 'from_template'):
+            if key not in ('vars', 'repeat_next', 'elements', 'from_template'):
                 merged[key] = value
 
         return merged
+
+    # ------------------------------------------------------------------
+    # Repetition helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _repeat_next_mapping(value, where: str) -> dict:
+        """
+        Return ``repeat_next`` as a dict (``None`` / missing → empty dict).
+
+        :raises ValueError:
+            if ``repeat_next`` is not a mapping ``var: expression``
+        """
+        if value is None:
+            return {}
+        if not isinstance(value, dict):
+            raise ValueError(
+                f"{where}: repeat_next must be a mapping 'variable: expression', "
+                f"got {type(value).__name__} {value!r}"
+            )
+        return value
+
+    @staticmethod
+    def _describe(params: dict, label) -> str:
+        """Short description of a container for messages: its label or ID."""
+        name = label if label is not None else params.get('id')
+        return f"group {name!r}" if name is not None else "group (no label or id)"
+
+    @staticmethod
+    def _with_suffix(value, suffix: str):
+        """Append the iteration suffix to a label / id; ``None`` stays ``None``."""
+        if value is None or not suffix:
+            return value
+        return f"{value}{suffix}"
+
+    @classmethod
+    def _step_repeat_vars(
+            cls,
+            repeat_next: dict,
+            global_vars: dict,
+            container_vars: dict,
+            where: str,
+    ) -> None:
+        """
+        Apply ``repeat_next`` to ``container_vars`` in place, entry by entry.
+
+        Each expression sees the outer scopes and the current values of the
+        container's vars, including entries of ``repeat_next`` already applied
+        in this step.
+
+        :raises ValueError:
+            if a variable that held a number gets a non-numeric result
+            (usually a typo in the expression)
+        """
+        for name, expr in repeat_next.items():
+            old_value = container_vars[name]
+            new_value = resolve_constants(expr, {**global_vars, **container_vars})
+            if isinstance(old_value, (int, float)) and not isinstance(new_value, (int, float)):
+                raise ValueError(
+                    f"{where}: repeat_next {name}: {expr!r} does not give a number "
+                    f"(got {new_value!r}); check the variable names in the expression"
+                )
+            container_vars[name] = new_value
 
     def __init__(
             self,
@@ -204,18 +287,33 @@ class Group(Element):
 
         color = params.get('color', 'black')
         label = params.get('label')
-        rel_x, rel_y = resolve_constants(
-            params.get('anchor_point', (0, 0)), {**global_vars, **container_vars}
-        )
-        try:
-            anchor = (rel_x + parent_offset[0], rel_y + parent_offset[1])
-        except TypeError:
-            raise ValueError(
-                f"{cls.__name__} {label or ''}: cannot resolve anchor_point "
-                f"{params.get('anchor_point')!r}, the problem seems to be '{rel_x}' or '{rel_y}'"
-            )
+        anchor = cls._resolve_anchor(params, {**global_vars, **container_vars}, parent_offset)
 
         return container_vars, anchor, color, label
+
+    @classmethod
+    def _resolve_anchor(
+            cls,
+            params: dict,
+            scope_vars: dict,
+            parent_offset: tuple[float, float],
+    ) -> tuple[float, float]:
+        """
+        Resolve the container's ``anchor_point`` in ``scope_vars`` and translate
+        it by ``parent_offset``.  Without ``anchor_point`` the container
+        assumes ``(0, 0)`` relative to its parent.
+
+        :raises ValueError:
+            if the anchor does not resolve to two numbers
+        """
+        rel_x, rel_y = resolve_constants(params.get('anchor_point', (0, 0)), scope_vars)
+        try:
+            return (rel_x + parent_offset[0], rel_y + parent_offset[1])
+        except TypeError:
+            raise ValueError(
+                f"{cls.__name__} {params.get('label') or ''}: cannot resolve anchor_point "
+                f"{params.get('anchor_point')!r}, the problem seems to be '{rel_x}' or '{rel_y}'"
+            )
 
     @classmethod
     def _resolve_embedded_dimensions(cls, params: dict) -> bool:
@@ -243,6 +341,7 @@ class Group(Element):
             anchor_point: tuple[float, float],
             color: str,
             embedded_dimensions: bool = True,
+            iter_suffix: str = "",
     ) -> list:
         """
         Instantiate child elements from a list of definition dicts.
@@ -258,6 +357,11 @@ class Group(Element):
         are skipped and nested containers are forced to
         ``embedded_dimensions: false`` too, so the setting covers everything
         defined within this container.
+
+        ``iter_suffix`` (e.g. ``"_i2"`` or ``"_i2_i3"``) is appended to the
+        ``label`` and explicit ``id`` of every regular element, after variable
+        substitution.  Nested containers receive it and append it to their own
+        ``label`` / ``id`` themselves (after their template is merged).
 
         :return:
             flat list of created child element instances
@@ -293,12 +397,16 @@ class Group(Element):
                     elements_by_id,
                     global_vars=merged_vars,
                     parent_offset=anchor_point,
+                    iter_suffix=iter_suffix,
                 )
 
             else:
                 # Regular element: resolve vars then translate coordinate keys
                 layer = pop_layer(element_def, element_type)
                 element_def = resolve_element_params(element_def, global_vars, container_vars)
+                for name_key in ('label', 'id'):
+                    if name_key in element_def:
+                        element_def[name_key] = cls._with_suffix(element_def[name_key], iter_suffix)
 
                 for coord_key in ('anchor_point', 'first_point', 'second_point'):
                     if coord_key in element_def:
@@ -338,13 +446,24 @@ class Group(Element):
             elements_by_id: dict,
             global_vars: dict | None = None,
             parent_offset: tuple[float, float] = (0, 0),
+            iter_suffix: str = "",
     ) -> 'Group':
         """
         Create a Group from YAML parameters.
 
+        Repetition: the group's elements are created ``repeat_count`` times
+        (default 1; 0 creates none).  The first iteration uses the values from
+        ``vars``; after each iteration except the last, ``repeat_next`` computes
+        the next values of the group's own vars, in order.  The group's
+        ``anchor_point`` is resolved again on every iteration.  With a count
+        above 1, the ``label`` and explicit ``id`` of everything created in
+        iteration N get ``_i<N>`` appended (N from 1).  All iterations' children
+        belong to the one returned Group.
+
         :param params:
             dict with optional keys: ``elements``, ``anchor_point``, ``color``,
-            ``label``, ``vars``, ``embedded_dimensions``
+            ``label``, ``id``, ``vars``, ``embedded_dimensions``,
+            ``from_template``, ``repeat_count``, ``repeat_next``
         :param elements_registry:
             registry mapping element type names to classes
         :param floor_plan:
@@ -357,8 +476,14 @@ class Group(Element):
             variables visible from outside the group (optional)
         :param parent_offset:
             absolute anchor of the enclosing container; ``(0, 0)`` at top level
+        :param iter_suffix:
+            iteration suffix of the enclosing repetitions (e.g. ``"_i2"``); it is
+            appended to this group's own ``label`` / ``id`` and passed on to
+            the children
         :return:
             Group instance
+        :raises ValueError:
+            for an invalid ``repeat_count`` or ``repeat_next``
         """
         if global_vars is None:
             global_vars = {}
@@ -367,19 +492,50 @@ class Group(Element):
 
         container_vars, anchor, color, label = cls._resolve_params(params, global_vars, parent_offset)
         embedded_dimensions = cls._resolve_embedded_dimensions(params)
+        where = cls._describe(params, label)
 
-        children = cls._create_children(
-            params.get('elements', []),
-            elements_registry,
-            floor_plan,
-            all_elements,
-            elements_by_id,
-            global_vars,
-            container_vars,
-            anchor,
-            color,
-            embedded_dimensions,
-        )
+        repeat_next = cls._repeat_next_mapping(params.get('repeat_next'), where)
+        undeclared = [name for name in repeat_next if name not in container_vars]
+        if undeclared:
+            raise ValueError(
+                f"{where}: repeat_next can only change variables defined in the group's own vars; "
+                f"not defined there: {undeclared}. To step a variable from outside, "
+                f"define it in vars first, e.g. 'vars: {{{undeclared[0]}: {undeclared[0]}}}'"
+            )
 
-        return cls(child_elements=children, anchor_point=anchor, color=color, label=label, id=params.get('id'),
+        if 'repeat_count' in params:
+            count = resolve_repeat_count(params['repeat_count'], {**global_vars, **container_vars}, where)
+        else:
+            count = 1
+            if repeat_next:
+                print(f"WARNING: {where}: repeat_next without repeat_count is never applied")
+        if count > 1 and not repeat_next:
+            print(f"WARNING: {where}: repeat_count {count} without repeat_next "
+                  "draws all copies on top of each other")
+
+        children: list = []
+        for i in range(count):
+            if i > 0:
+                anchor_i = cls._resolve_anchor(params, {**global_vars, **container_vars}, parent_offset)
+            else:
+                anchor_i = anchor
+            children += cls._create_children(
+                params.get('elements', []),
+                elements_registry,
+                floor_plan,
+                all_elements,
+                elements_by_id,
+                global_vars,
+                container_vars,
+                anchor_i,
+                color,
+                embedded_dimensions,
+                iter_suffix=f"{iter_suffix}_i{i + 1}" if count > 1 else iter_suffix,
+            )
+            if i < count - 1:
+                cls._step_repeat_vars(repeat_next, global_vars, container_vars, where)
+
+        return cls(child_elements=children, anchor_point=anchor, color=color,
+                   label=cls._with_suffix(label, iter_suffix),
+                   id=cls._with_suffix(params.get('id'), iter_suffix),
                    embedded_dimensions=embedded_dimensions)
