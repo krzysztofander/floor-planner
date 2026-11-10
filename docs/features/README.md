@@ -53,7 +53,7 @@ Then tell the agent:
 ## Active Feature Documents
 
 - [Markdown Report Refactor](markdown-report-refactor.md) - Categorised, per-floor elements report (Planning)
-- [Repeatable Groups](repeatable-groups.md) - `repeat_count` / `repeat_next` on groups, nesting and templates (Ready for implementation)
+- [Repeatable Groups](repeatable-groups.md) - `repeat_count` / `repeat_next` on groups, nesting and templates (In Progress: Phase 1 done)
 
 
 ## When to Use Each Approach

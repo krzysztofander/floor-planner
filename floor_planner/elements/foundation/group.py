@@ -169,16 +169,32 @@ class Group(Element):
     # ------------------------------------------------------------------
 
     @classmethod
-    def _resolve_params(cls, params: dict, global_vars: dict) -> tuple:
+    def _resolve_params(
+            cls,
+            params: dict,
+            global_vars: dict,
+            parent_offset: tuple[float, float] = (0, 0),
+    ) -> tuple:
         """
         Resolve scoped vars, anchor_point, color and label from container params.
+
+        The container's ``anchor_point`` is resolved in the container's own
+        scope (``global_vars`` plus this container's vars, which cover outer
+        names) and then translated by ``parent_offset``.  This is the same for
+        top-level containers (offset ``(0, 0)``) and nested ones (offset = the
+        parent's absolute anchor).  A container without ``anchor_point`` sits
+        at ``parent_offset``.
 
         :param params:
             raw YAML parameter dict for this container
         :param global_vars:
-            already-resolved global variables
+            variables visible from outside the container (global vars plus the
+            vars of all enclosing containers)
+        :param parent_offset:
+            absolute anchor of the enclosing container; ``(0, 0)`` at top level
         :return:
-            (container_vars, anchor_point, color, label)
+            (container_vars, anchor_point, color, label); ``anchor_point`` is
+            an absolute ``(x, y)`` tuple
         """
         container_vars: dict = {}
         for var_name, var_expr in params.get('vars', params.get('constants', {})).items():
@@ -188,9 +204,16 @@ class Group(Element):
 
         color = params.get('color', 'black')
         label = params.get('label')
-        anchor = params.get('anchor_point', (0, 0))
-        if 'anchor_point' in params:
-            anchor = resolve_constants(anchor, {**global_vars, **container_vars})
+        rel_x, rel_y = resolve_constants(
+            params.get('anchor_point', (0, 0)), {**global_vars, **container_vars}
+        )
+        try:
+            anchor = (rel_x + parent_offset[0], rel_y + parent_offset[1])
+        except TypeError:
+            raise ValueError(
+                f"{cls.__name__} {label or ''}: cannot resolve anchor_point "
+                f"{params.get('anchor_point')!r}, the problem seems to be '{rel_x}' or '{rel_y}'"
+            )
 
         return container_vars, anchor, color, label
 
@@ -225,10 +248,11 @@ class Group(Element):
         Instantiate child elements from a list of definition dicts.
 
         Elements whose class has ``IS_CONTAINER = True`` are created via
-        ``create_from_params``; their ``anchor_point`` is pre-translated by
-        this container's anchor before the recursive call.  All other elements
-        are resolved with variable substitution and translated coordinate keys,
-        then instantiated directly.
+        ``create_from_params`` with ``parent_offset`` set to this container's
+        anchor; the nested container resolves its own ``anchor_point`` in its
+        own scope and adds that offset.  All other elements are resolved with
+        variable substitution and translated coordinate keys, then
+        instantiated directly.
 
         When ``embedded_dimensions`` is False, ``DimensionArrow`` definitions
         are skipped and nested containers are forced to
@@ -259,16 +283,8 @@ class Group(Element):
                 if not embedded_dimensions:
                     element_def['embedded_dimensions'] = False
 
-                # Pre-translate the nested container's anchor before recursion
-                if 'anchor_point' in element_def:
-                    rel_x, rel_y = resolve_constants(
-                        element_def['anchor_point'], merged_vars
-                    )
-                    element_def['anchor_point'] = (
-                        rel_x + anchor_point[0],
-                        rel_y + anchor_point[1],
-                    )
-
+                # The nested container resolves its own anchor_point (in its
+                # own scope) and translates it by this container's anchor.
                 child = element_class.create_from_params(
                     element_def,
                     elements_registry,
@@ -276,6 +292,7 @@ class Group(Element):
                     all_elements,
                     elements_by_id,
                     global_vars=merged_vars,
+                    parent_offset=anchor_point,
                 )
 
             else:
@@ -320,6 +337,7 @@ class Group(Element):
             all_elements: list,
             elements_by_id: dict,
             global_vars: dict | None = None,
+            parent_offset: tuple[float, float] = (0, 0),
     ) -> 'Group':
         """
         Create a Group from YAML parameters.
@@ -336,7 +354,9 @@ class Group(Element):
         :param elements_by_id:
             dict to track elements by ID
         :param global_vars:
-            global variables dictionary (optional)
+            variables visible from outside the group (optional)
+        :param parent_offset:
+            absolute anchor of the enclosing container; ``(0, 0)`` at top level
         :return:
             Group instance
         """
@@ -345,7 +365,7 @@ class Group(Element):
 
         params = cls._apply_template(params)
 
-        container_vars, anchor, color, label = cls._resolve_params(params, global_vars)
+        container_vars, anchor, color, label = cls._resolve_params(params, global_vars, parent_offset)
         embedded_dimensions = cls._resolve_embedded_dimensions(params)
 
         children = cls._create_children(

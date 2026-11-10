@@ -1,6 +1,6 @@
 # Feature: Repeatable Groups
 
-**Status:** Ready for implementation
+**Status:** In Progress (Phase 1 done)
 **Priority:** Medium
 **Estimated Effort:** 1–2 days (about 0.5 day of it is the anchor-resolution refactor in Phase 1)
 
@@ -433,13 +433,15 @@ anchor in **its own** scope (`global + parent + own vars`) and adds `parent_offs
 ## Implementation Plan
 
 ### Phase 1: Anchor-resolution refactor (no new feature yet)
-- [ ] Add a `parent_offset: tuple = (0, 0)` keyword to `Group.create_from_params` and `Room.create_from_params`
-- [ ] `_resolve_params` resolves `anchor_point` in the container's scope and adds `parent_offset`
-- [ ] `_create_children`: stop resolving and translating the nested anchor; pass `parent_offset=anchor_point`
-- [ ] Unit tests: a nested group/room whose `anchor_point` uses its own `vars` (raises `TypeError` today); a nested group that redefines an outer name and uses it in `anchor_point` (uses the outer value today)
-- [ ] Unit tests that pin the existing scoping rules (rule 3 in [Variable scoping](#variable-scoping-decided)): `X: X + 1` uses the outer `X`, a later `Y: X` uses the inner one, inner names cover outer names in elements and nested containers
-- [ ] `make check`: golden images must not change
-- [ ] Real-plan regression (see [Real-plan regression check](#real-plan-regression-check)): PNGs of the `../../rzuty` plans identical before and after
+- [x] Add a `parent_offset: tuple = (0, 0)` keyword to `Group.create_from_params` and `Room.create_from_params`
+- [x] `_resolve_params` resolves `anchor_point` in the container's scope and adds `parent_offset`
+- [x] `_create_children`: stop resolving and translating the nested anchor; pass `parent_offset=anchor_point`
+- [x] Unit tests: a nested group/room whose `anchor_point` uses its own `vars` (raises `TypeError` today); a nested group that redefines an outer name and uses it in `anchor_point` (uses the outer value today) — in `tests/unit/test_container_anchor_scope.py`
+- [x] Unit tests that pin the existing scoping rules (rule 3 in [Variable scoping](#variable-scoping-decided)): `X: X + 1` uses the outer `X`, a later `Y: X` uses the inner one, inner names cover outer names in elements and nested containers
+- [x] `make check`: golden images must not change
+- [x] Real-plan regression (see [Real-plan regression check](#real-plan-regression-check)): PNGs of the `../../rzuty` plans identical before and after
+- [x] Also fixed: a nested container **without** `anchor_point` was placed at `(0, 0)`, ignoring the parent's anchor; it now sits at the parent's anchor. No config in the repo or in `../../rzuty` has such a container, so no output changes
+- [x] An `anchor_point` that cannot be resolved now raises `ValueError` naming the container (was `TypeError` for nested containers)
 
 ### Phase 2: Repetition core
 - [ ] `variables.resolve_repeat_count()`: evaluate, check that the value is a whole number, ≥ 0 and ≤ `MAX_REPEAT_COUNT`; clear error messages

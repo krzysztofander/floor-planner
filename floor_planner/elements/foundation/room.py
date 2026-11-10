@@ -90,7 +90,8 @@ class Room(Group):
     @classmethod
     def create_from_params(cls, params: dict, elements_registry: dict, floor_plan,
                            all_elements: list, elements_by_id: dict,
-                           global_vars: dict = None):
+                           global_vars: dict = None,
+                           parent_offset: tuple[float, float] = (0, 0)):
         """
         Create a Room from YAML parameters with nested elements.
 
@@ -106,14 +107,16 @@ class Room(Group):
         :param elements_by_id:
             dictionary to track elements by ID
         :param global_vars:
-            global variables dictionary (optional)
+            variables visible from outside the room (optional)
+        :param parent_offset:
+            absolute anchor of the enclosing container; ``(0, 0)`` at top level
         :return:
             Room instance
         """
         if global_vars is None:
             global_vars = {}
 
-        room_vars, anchor, color, label = cls._resolve_params(params, global_vars)
+        room_vars, anchor, color, label = cls._resolve_params(params, global_vars, parent_offset)
         purpose = params.get('purpose',None)
         embedded_dimensions = cls._resolve_embedded_dimensions(params)
 
