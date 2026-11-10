@@ -115,6 +115,7 @@ def create_elements_registry() -> dict[str, type['ElementBase']]:
         'hedge': Hedge,
         'lawn': Lawn,
         'fence': Fence,
+        'fence_post': FencePost,
         'garden_path': GardenPath,
         'ground': Ground,
         'retaining_wall': RetainingWall,

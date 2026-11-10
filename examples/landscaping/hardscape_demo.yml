@@ -58,7 +58,31 @@ reusable_elements:
       color: '#8B4513'
       orientation_angle: 0
       label: 'Rail Fence'
-    
+
+    # Chain-link fence with round posts (fence_post: diameter 0.07, height 1.8, green by default)
+    - type: fence
+      anchor_point: [2.0, 14.0]
+      length: 5.0
+      style: 'chain-link'
+      height: 1.8
+      thickness: 0.05
+      color: '#C0C0C0'
+      orientation_angle: 0
+      label: 'Fence with posts'
+
+    # One post every 1.25 m: a repeating group (repeat_count / repeat_next)
+    - type: group
+      label: 'fence posts'
+      anchor_point: [2.0, 14.025]       # on the fence centre line
+      vars:
+        post_x: 0
+      repeat_count: 5
+      repeat_next:
+        post_x: post_x + 1.25
+      elements:
+        - type: fence_post
+          anchor_point: [post_x, 0]
+
     # Garden paths with different materials
     - type: garden_path
       anchor_point: [10.0, 2.0]
@@ -169,7 +193,7 @@ floor_plans:
         anchor_point: [2.0, 16.5]
         lines:
           - 'Hardscaping Elements Overview:'
-          - 'Left: 4 fence styles (solid, picket, chain-link, rail)'
+          - 'Left: fences (solid, picket, chain-link, rail, posts)'
           - 'Middle: 5 path materials (gravel, stone, paving, wood, mulch)'
           - 'Right: 3 retaining walls with different orientations'
         font_size: 10

@@ -9,6 +9,7 @@ Author: Krzysztof Bartczak
 import math
 import matplotlib.axes
 
+from ...layers import pop_layer
 from ...variables import resolve_element_params
 from ..symbols.info import DimensionArrow, TextBox
 from ...options import get_label_color, get_element_option
@@ -37,7 +38,8 @@ class Room(Group):
             color: str = 'black',
             label: str | None = None,
             purpose: str | None = None,
-            id: str | None = None
+            id: str | None = None,
+            embedded_dimensions: bool = True,
     ):
         """
         Initialize a room from walls and optional other elements.
@@ -56,11 +58,16 @@ class Room(Group):
             optional purpose of a room e.g. living space, outdoor, storage, etc.
         :param id:
             optional explicit ID; if None, generated from class name and label
+        :param embedded_dimensions:
+            if False, dimension arrows defined within this room (and any nested
+            container) are skipped (never created), so they are not rendered;
+            the room's own ``dimensions`` display option is not affected
         :raises ValueError:
             if walls don't form a valid rectangle or exactly 4 walls don't have room_edge=True
         """
         all_children = list(walls) + list(other_elements or [])
-        super().__init__(child_elements=all_children, anchor_point=anchor_point, color=color, label=label, id=id)
+        super().__init__(child_elements=all_children, anchor_point=anchor_point, color=color, label=label, id=id,
+                         embedded_dimensions=embedded_dimensions)
 
         self.walls = walls
         self.other_elements = other_elements or []
@@ -83,13 +90,15 @@ class Room(Group):
     @classmethod
     def create_from_params(cls, params: dict, elements_registry: dict, floor_plan,
                            all_elements: list, elements_by_id: dict,
-                           global_vars: dict = None):
+                           global_vars: dict = None,
+                           parent_offset: tuple[float, float] = (0, 0),
+                           iter_suffix: str = ""):
         """
         Create a Room from YAML parameters with nested elements.
 
         :param params:
             dictionary with 'elements' list containing wall/window/door definitions,
-            optional 'anchor_point', 'color', 'label', and 'vars'
+            optional 'anchor_point', 'color', 'label', 'vars' and 'embedded_dimensions'
         :param elements_registry:
             registry mapping element type names to classes
         :param floor_plan:
@@ -99,15 +108,33 @@ class Room(Group):
         :param elements_by_id:
             dictionary to track elements by ID
         :param global_vars:
-            global variables dictionary (optional)
+            variables visible from outside the room (optional)
+        :param parent_offset:
+            absolute anchor of the enclosing container; ``(0, 0)`` at top level
+        :param iter_suffix:
+            iteration suffix of the enclosing repetitions (e.g. ``"_i2"``); it is
+            appended to the room's own ``label`` / ``id`` and to those of its
+            children, floor and ceiling
         :return:
             Room instance
+        :raises ValueError:
+            if the room contains ``repeat_count`` or ``repeat_next`` (rooms do
+            not repeat; wrap the room in a repeating group instead)
         """
         if global_vars is None:
             global_vars = {}
 
-        room_vars, anchor, color, label = cls._resolve_params(params, global_vars)
+        repeat_keys = [key for key in ('repeat_count', 'repeat_next') if key in params]
+        if repeat_keys:
+            raise ValueError(
+                f"Room {params.get('label') or params.get('id') or ''}: {' and '.join(repeat_keys)} "
+                "not supported in a room. To repeat a room, put it in a group with "
+                "repeat_count / repeat_next"
+            )
+
+        room_vars, anchor, color, label = cls._resolve_params(params, global_vars, parent_offset)
         purpose = params.get('purpose',None)
+        embedded_dimensions = cls._resolve_embedded_dimensions(params)
 
         element_defs = params.get('elements', [])
         if not element_defs:
@@ -121,7 +148,8 @@ class Room(Group):
         children = cls._create_children(
             regular_defs,
             elements_registry, floor_plan, all_elements, elements_by_id,
-            global_vars, room_vars, anchor, color,
+            global_vars, room_vars, anchor, color, embedded_dimensions,
+            iter_suffix=iter_suffix,
         )
 
         walls = [c for c in children if c.__class__.__name__ in ('Wall', 'WallND')]
@@ -130,12 +158,15 @@ class Room(Group):
         if not walls:
             raise ValueError("Room must contain at least one wall")
 
-        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color, label=label, purpose = purpose, id=params.get('id'))
+        room = cls(walls=walls, other_elements=other, anchor_point=anchor, color=color,
+                   label=cls._with_suffix(label, iter_suffix), purpose=purpose,
+                   id=cls._with_suffix(params.get('id'), iter_suffix),
+                   embedded_dimensions=embedded_dimensions)
 
         if surface_defs:
             cls._create_surface_elements(
                 room, surface_defs, floor_plan, all_elements, elements_by_id,
-                global_vars, room_vars
+                global_vars, room_vars, iter_suffix
             )
 
         return room
@@ -146,7 +177,8 @@ class Room(Group):
 
     @classmethod
     def _create_surface_elements(cls, room, surface_defs, floor_plan,
-                                 all_elements, elements_by_id, global_vars, room_vars):
+                                 all_elements, elements_by_id, global_vars, room_vars,
+                                 iter_suffix: str = ""):
         """Create Floor/Ceiling elements after the Room is built."""
         inner_bl = room.internal_corners[0]   # bottom-left
         inner_tr = room.internal_corners[2]   # top-right
@@ -157,12 +189,17 @@ class Room(Group):
             surface_def = dict(surface_def)
             surface_type = surface_def.pop('type')
             surface_class = _SURFACE_TYPES[surface_type]
+            layer = pop_layer(surface_def, surface_type)
 
             surface_def = resolve_element_params(surface_def, global_vars, room_vars)
+            for name_key in ('label', 'id'):
+                if name_key in surface_def:
+                    surface_def[name_key] = cls._with_suffix(surface_def[name_key], iter_suffix)
             surface_def['anchor_point'] = inner_anchor
             surface_def['size'] = inner_size
 
             element = surface_class(**surface_def)
+            element.set_layer(layer)
             floor_plan.add_element(element)
             all_elements.append(element)
             elements_by_id[element.get_id()] = element

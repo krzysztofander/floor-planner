@@ -19,6 +19,8 @@ from .multipurpose import Line
 class PowerOutlet(VertInfoOutlets, Element):
     """Power outlet."""
 
+    default_layer = 'electric'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -179,6 +181,8 @@ class PowerOutlet(VertInfoOutlets, Element):
 class ElectricalCable(Element):
     """Electrical cable for direct power supply without any outlets."""
 
+    default_layer = 'electric'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -254,6 +258,8 @@ class ElectricalCable(Element):
 
 class GroundCable(Line):
     """Ground electrical cable"""
+
+    default_layer = 'electric'
 
     def __init__(
             self,

@@ -7,7 +7,7 @@ Examples: [examples/landscaping/](../examples/landscaping/) (`vegetation_demo.ym
 ## Common Notes
 
 - Positions are given with `anchor_point: [x, y]` in meters. Rectangular elements use the bottom-left corner (rotation via `orientation_angle`, degrees, counterclockwise around the anchor); circular elements and `pond` use the center.
-- Rectangular *surface* elements (`lawn`, `garden_path`, `ground`, `pergola`, `raised_bed`, `deck`, `surface`, `garden_house`) take `size: [x_size, z_size]`. Linear elements (`hedge`, `fence`, `retaining_wall`, `rect_pool`, `oval_pool`) take `length` and `thickness`.
+- Rectangular *surface* elements (`lawn`, `garden_path`, `ground`, `pergola`, `raised_bed`, `deck`, `surface`, `garden_house`) take `size: [x_size, z_size]`. Linear elements (`hedge`, `fence`, `retaining_wall`, `rect_pool`, `oval_pool`) take `length` and `thickness`. `fence_post` takes `diameter`.
 - `color: 'invisible'` hides an element (drawn red when `Wall: show_invisible: true` is set).
 - Only `deck` and `surface` accept `v_anchor` and `height` overrides (see [Vertical Positioning](element-parameters-reference.md#vertical-positioning-v_anchor-and-height)). All landscaping elements accept `id`. Box-shaped ones (`garden_path`, `ground`, `deck`, `surface`, `lawn`, `hedge`, `fence`, `retaining_wall`, `pergola`, `raised_bed`, `garden_house`, `rect_pool`, `oval_pool`) also accept per-face [`textures`](element-parameters-reference.md#textures-per-face-textures-box-elements). Some tile by default (class default `scale_meters`): `garden_path` 1.5, `ground` 0.5, `deck` 0.6, `surface` 1.0.
 - Drawing order: every element, including its patterns (grass, gravel, planks, ripples, bloom overlays), is drawn at its own zorder = `v_anchor`, plus a tiny per-element offset. Default `v_anchor`: `ground` -0.10; `lawn`, `garden_path` -0.01; `pond`, `pergola`, `raised_bed`, `garden_house` 0.0; all others 0.01.
@@ -98,7 +98,7 @@ Options are set per element class in `default_options` and can be overridden for
 - `show_bloom`: bool = false - draw the bloom period text, and the bloom overlay when `bloom_color` and both bloom dates are set (Tree, Shrub, Hedge)
 - `label_color` / `id_color` - color of the label / ID text. A label is drawn only when `label_color` is set for its class.
 
-Keys: `Tree`, `Shrub`, `Hedge`, `Lawn`, or `Vegetation`. `Vegetation` is used for any of these that has no setting of its own. `model_leafy_tree` / `model_leafy_shrub_1` are drawn in 2D as a Tree / Shrub and use those keys. The other landscaping keys are `Fence`, `GardenPath`, `RetainingWall`, `Fountain`, `Pond`, `Pool` (both `rect_pool` and `oval_pool`), `Pergola`, `RaisedBed`, `Gazebo`, `Deck`, `GenericSurface` (`surface`) and `GardenHouse`. `ground` never draws a label or ID.
+Keys: `Tree`, `Shrub`, `Hedge`, `Lawn`, or `Vegetation`. `Vegetation` is used for any of these that has no setting of its own. `model_leafy_tree` / `model_leafy_shrub_1` are drawn in 2D as a Tree / Shrub and use those keys. The other landscaping keys are `Fence`, `FencePost`, `GardenPath`, `RetainingWall`, `Fountain`, `Pond`, `Pool` (both `rect_pool` and `oval_pool`), `Pergola`, `RaisedBed`, `Gazebo`, `Deck`, `GenericSurface` (`surface`) and `GardenHouse`. `ground` never draws a label or ID.
 
 ```yaml
 default_options:
@@ -130,6 +130,27 @@ Note: options must be nested under a class key. A bare `label_color` placed dire
 - `color`: str = '#8B4513'
 - `orientation_angle`: float = 0
 - `label`: str | None = None
+
+### FencePost
+**YAML type:** `fence_post`
+
+Round fence post: a filled circle in 2D, a vertical cylinder in 3D (texture `plain_named/green-medium-green-shrub.jpg`). Stands on the same level as `fence` (`v_anchor` 0.01) and is on the `default` layer, like `fence`.
+- `anchor_point`: tuple[float, float] - center of the post
+- `diameter`: float = 0.07
+- `height`: float = 1.8 - 3D height
+- `color`: str = 'green' - fill color in 2D
+- `label`: str | None = None - drawn above the post when `FencePost: label_color` is set
+
+Posts at regular steps along a fence are easiest with a [repeating group](element-parameters-reference.md#repetition):
+```yaml
+- type: group
+  anchor_point: [2.0, 14.025]     # fence centre line
+  vars: {post_x: 0}
+  repeat_count: 5
+  repeat_next: {post_x: post_x + 1.25}
+  elements:
+    - {type: fence_post, anchor_point: [post_x, 0]}
+```
 
 ### GardenPath
 **YAML type:** `garden_path`

@@ -22,6 +22,8 @@ class Desk(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -139,6 +141,8 @@ class DiningTable(VertInfoLvl03, RectangularElement):
     Dining table with configurable dimensions
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,
@@ -262,6 +266,8 @@ class Chair(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -367,6 +373,8 @@ class Sofa(VertInfoLvl03, RectangularElement):
     N-element sofa with configurable number of seats
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,

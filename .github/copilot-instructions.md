@@ -211,4 +211,3 @@ After adding a new element, verify:
 - [ ] `make all` runs without errors
 - [ ] Element renders correctly in generated 2D images
 - [ ] Element exports correctly to 3D (textures copy to `visualisation_dir`)
-- [ ] Validation passes: `python scripts/validate_texture_material_structure.py`

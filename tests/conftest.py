@@ -30,6 +30,7 @@ SCENES = [
     # group templates
     'examples/templates/groups/group_east/project_main.yml',
     'examples/templates/groups/group_template_demo/project_main.yml',
+    'examples/templates/groups/repeat_demo/project_main.yml',
     # elements, furniture, simple
     'examples/elements/all_elements.yml',
     'examples/elements/furniture_demo.yml',
@@ -58,6 +59,7 @@ SCENES = [
     'tests/vege/project_main.yml',
     'tests/play_with_textures/face_textures_test.yml',
     'tests/play_with_textures/face_textures_walls_test.yml',
+    'tests/layers/project_main.yml',
 ]
 
 # Scenes whose 3D output (glTF) is also compared with a golden summary in tests/golden/3d/.
@@ -66,6 +68,7 @@ SCENES = [
 GOLDEN_3D_SCENES = [
     'tests/play_with_textures/face_textures_test.yml',
     'tests/play_with_textures/face_textures_walls_test.yml',
+    'tests/layers/project_main.yml',
 ]
 
 # Generated outputs that are not copied with a scene (inputs only)

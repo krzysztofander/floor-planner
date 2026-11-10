@@ -117,7 +117,7 @@ Which texture is used is set by `textures` or, by default, by the `map_Kd` of `m
 python -m floor_planner -c my_floor_plan.yml
 ```
 
-Each floor plan is written to `<visualisation_dir>/<Title_With_Underscores>.gltf` (plus `.bin`), with textures copied to `<visualisation_dir>/textures/`. Open it in Blender (File → Import → glTF 2.0) or an online viewer such as [https://gltf-viewer.donmccurdy.com](https://gltf-viewer.donmccurdy.com).
+Each floor plan is written to `<visualisation_dir>/<Title_With_Underscores>/<Title_With_Underscores>.gltf` (plus `.bin`), with textures copied to `textures/` in the same folder. Open it in Blender (File → Import → glTF 2.0) or an online viewer such as [https://gltf-viewer.donmccurdy.com](https://gltf-viewer.donmccurdy.com).
 
 ## Troubleshooting
 

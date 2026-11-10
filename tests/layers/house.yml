@@ -1,0 +1,91 @@
+# One room with elements on several layers, shared by the floor plans of project_main.yml
+- type: room
+  label: "Room"
+  anchor_point: [1, 1]
+  elements:
+    - type: wall
+      anchor_point: [0, 0]
+      length: 4
+      thickness: 0.2
+      orientation_angle: 0
+      room_edge: true
+      color: orange
+    - type: wall
+      anchor_point: [4, 0]
+      length: 3
+      thickness: 0.2
+      orientation_angle: 90
+      room_edge: true
+      color: orange
+    - type: wall
+      anchor_point: [4, 3]
+      length: 4
+      thickness: 0.2
+      orientation_angle: 180
+      room_edge: true
+      color: orange
+    - type: wall
+      anchor_point: [0, 3]
+      length: 3
+      thickness: 0.2
+      orientation_angle: 270
+      room_edge: true
+      color: orange
+    # construction: cuts a hole in its wall
+    - type: door
+      anchor_point: [0.5, 0]
+      doorway_width: 1.0
+      door_width: 0.9
+      thickness: 0.2
+      label: "door"
+    # moved to furniture: no hole when only construction is shown
+    - type: door
+      anchor_point: [4, 1]
+      orientation_angle: 90
+      doorway_width: 0.9
+      door_width: 0.8
+      thickness: 0.2
+      layer: furniture
+      label: "wardrobe door"
+    - type: window
+      anchor_point: [2.0, 3]
+      orientation_angle: 180
+      length: 1.2
+      overall_thickness: 0.2
+      single_line_thickness: 0.02
+      color: lightblue
+    # furniture
+    - type: bathtub
+      anchor_point: [2.2, 0.3]
+      label: "bathtub"
+    - type: sofa
+      anchor_point: [0.4, 1.8]
+      num_seats: 2
+      label: "sofa"
+    # generic_storage moved to construction (a chimney)
+    - type: generic_storage
+      anchor_point: [3.5, 2.5]
+      length: 0.5
+      thickness: 0.5
+      layer: construction
+      label: "chimney"
+    # electric
+    - type: power_outlet
+      anchor_point: [1.5, 2.9]
+      length: 0.3
+      orientation_angle: 180
+    - type: switch
+      anchor_point: [0.2, 0.2]
+      symbol_length: 0.3
+    - type: electrical_cable
+      anchor_point: [0.4, 1.0]
+      symbol_length: 0.6
+      orientation_angle: 90
+    - type: ground_cable
+      first_point: [0.2, 0.2]
+      second_point: [0.2, 2.8]
+# custom layer
+- type: line
+  first_point: [0.5, 0.5]
+  second_point: [5.5, 0.5]
+  layer: measurements

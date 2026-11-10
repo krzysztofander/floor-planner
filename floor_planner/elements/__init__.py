@@ -28,7 +28,7 @@ from .lightning.lighting import CeilingLamp, LEDStrip, WallLamp, Switch
 from .symbols.multipurpose import Line, Polygon
 from .foundation.room import Room
 from .foundation.group import Group
-from .landscaping import (Tree, Shrub, Hedge, Lawn, Fence, GardenPath, RetainingWall,
+from .landscaping import (Tree, Shrub, Hedge, Lawn, Fence, FencePost, GardenPath, RetainingWall,
                            Fountain, Pond, Pergola, RaisedBed, Gazebo, Deck, GenericSurface,
                            GardenHouse, Greenhouse,
                            GlassDoor, GlassPanel, GlassSlope, SolidGlassDoor, AluFrame, Composite_GlassDoor,

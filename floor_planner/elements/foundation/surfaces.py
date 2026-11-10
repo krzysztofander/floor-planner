@@ -30,6 +30,8 @@ class Floor(VertInfoFloors, SurfaceElement):
         textures  – optional per-face textures and lighting (see floor_planner.face_textures)
     """
 
+    default_layer = 'construction'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -72,6 +74,8 @@ class Ceiling(VertInfoCeilingSurface, SurfaceElement):
         id        – optional explicit ID
         textures  – optional per-face textures and lighting (see floor_planner.face_textures)
     """
+
+    default_layer = 'construction'
 
     def __init__(
             self,

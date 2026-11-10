@@ -27,9 +27,10 @@ IMAGE_TOLERANCE = 2.0  # RMS difference allowed by compare_images
 
 
 def check_run_invariants(config_path: Path, result: RunResult) -> None:
-    """(a) the run produced one PNG / glTF (with its .bin) per floor plan where configured."""
+    """(a) the run produced one PNG per floor plan and one glTF (with its .bin) per exported floor plan."""
     settings = yaml.load(config_path.read_text(), Loader=yaml.FullLoader)
     floor_plans = len(settings['floor_plans'])
+    exported = sum(1 for fp in settings['floor_plans'] if fp.get('export_3d', True))
     project = settings['project']
 
     if project.get('png_dir') is not None:
@@ -39,8 +40,8 @@ def check_run_invariants(config_path: Path, result: RunResult) -> None:
             assert png.exists(), f"PNG {png} was not written"
 
     if project.get('visualisation_dir') is not None:
-        assert len(result.gltf_files) == floor_plans, \
-            f"expected {floor_plans} glTF files, got {[p.name for p in result.gltf_files]}"
+        assert len(result.gltf_files) == exported, \
+            f"expected {exported} glTF files, got {[p.name for p in result.gltf_files]}"
         for gltf in result.gltf_files:
             assert gltf.exists(), f"glTF {gltf} was not written"
             for buffer in json.loads(gltf.read_text()).get('buffers', []):

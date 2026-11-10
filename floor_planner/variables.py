@@ -5,6 +5,8 @@ Author: Krzysztof Bartczak
 
 import re
 
+from .constants import MAX_REPEAT_COUNT
+
 # Matches {variable_name} references used inside string parameter values.
 _BRACE_REF_RE = re.compile(r'\{(\w+)\}')
 
@@ -90,6 +92,40 @@ def resolve_constants(value, constants_dict: dict):
     else:
         # For other types, return as-is
         return value
+
+
+def resolve_repeat_count(value, vars_dict: dict, where: str = "group") -> int:
+    """
+    Resolve a group's ``repeat_count`` to a whole number of iterations.
+
+    :param value:
+        raw ``repeat_count`` from YAML: a number, a variable name or an
+        arithmetic expression
+    :param vars_dict:
+        variables visible in the group (outer scopes plus the group's own vars)
+    :param where:
+        description of the group, used in error messages
+    :return:
+        number of iterations, ``0 <= n <= MAX_REPEAT_COUNT``
+    :raises ValueError:
+        if the value is not a whole number (``5.0`` is accepted), is negative
+        or exceeds ``MAX_REPEAT_COUNT``
+    """
+    resolved = None if isinstance(value, bool) else resolve_constants(value, vars_dict)
+    if not isinstance(resolved, (int, float)) or isinstance(resolved, bool) \
+            or not float(resolved).is_integer():
+        raise ValueError(
+            f"{where}: repeat_count must be a whole number, got {value!r}"
+            + (f" (= {resolved!r})" if resolved is not None and resolved != value else "")
+        )
+    count = int(resolved)
+    if count < 0:
+        raise ValueError(f"{where}: repeat_count must not be negative, got {value!r} (= {count})")
+    if count > MAX_REPEAT_COUNT:
+        raise ValueError(
+            f"{where}: repeat_count {value!r} (= {count}) exceeds the limit of {MAX_REPEAT_COUNT}"
+        )
+    return count
 
 
 def resolve_string_param(value, vars_dict: dict) -> str:

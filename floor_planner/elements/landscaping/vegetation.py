@@ -22,6 +22,8 @@ class VegetationElement:
     This is a mixin class, not a base class - it provides vegetation-specific
     properties and methods to be used alongside geometric base classes.
     """
+
+    default_layer = 'vegetation'
     
     def __init__(
             self,
@@ -239,6 +241,8 @@ class CircularVegetation2D(VegetationElement):
 
 class CircularVegetation(VertInfoLvl01, CircularElement):
     """Base class for circular vegetation elements (Tree, Shrub)."""
+
+    default_layer = 'vegetation'
     
     def __init__(
             self,
@@ -613,6 +617,8 @@ class Hedge(VertInfoLvl01, VegetationElement, RectangularElement):
   
 class Lawn(VertInfoLvl00, SurfaceElement):
     """Lawn/grass area element."""
+
+    default_layer = 'vegetation'
 
     def __init__(
             self,

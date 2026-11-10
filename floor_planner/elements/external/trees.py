@@ -28,6 +28,9 @@ class LeafyTree(ExternalModelElement, VertInfoLvl01):
     """
     
     """
+
+    default_layer = 'vegetation'
+
     def __init__(
         self,
         anchor_point: tuple[float, float],
@@ -123,6 +126,9 @@ class LeafyShrub1(ExternalModelElement, VertInfoLvl01):
     """
     
     """
+
+    default_layer = 'vegetation'
+
     def __init__(
         self,
         anchor_point: tuple[float, float],

@@ -31,6 +31,7 @@ Parameter reference for the YAML element types of floor_planner, except landscap
 26. [Vertical Positioning (v_anchor and height)](#vertical-positioning-v_anchor-and-height)
 27. [3D Visualization Parameters](#3d-visualization-parameters)
 28. [Floor Plan v_anchor (3D Elevation)](#floor-plan-v_anchor-3d-elevation)
+29. [Floor Plan Layers](#floor-plan-layers)
 
 ---
 
@@ -300,6 +301,7 @@ Room defined by 4 walls forming a rectangle, with optional other elements. A roo
 - `label`: str | None = None - optional label; drawn at the inner bottom-left corner when `Room.label_color` is set, and required for the room to be listed in the floor plan `report`
 - `purpose`: str | None = None - optional purpose (e.g. living space, outdoor, storage); the `report` area list groups labeled rooms by `purpose` under the heading "`<purpose>` room areas:" (rooms without a purpose go under "Other"), each group with its own total
 - `vars`: dict = {} - scoped variables (alias: `constants`), same rules as for [Group](#group)
+- `embedded_dimensions`: bool = True - if `false`, `dimension_arrow` elements defined within the room (including nested groups/rooms) are not rendered; same rules as for [Group](#group). Does not affect the `dimensions` display option below
 
 **Display options** (`default_options.Room` or per-floor-plan `options.Room`):
 - `label_color`: str - color of the room label
@@ -307,6 +309,7 @@ Room defined by 4 walls forming a rectangle, with optional other elements. A roo
 - `inner_area`: bool = False - show inner area (m²) in the room centre
 - `inner_corner_label_color`: str - color for inner corner coordinate labels
 - `outer_corner_label_color`: str - color for outer corner coordinate labels
+- `embedded_dimensions`: bool = True - default for the `embedded_dimensions` parameter of every room on the floor plan; a value set on the room itself wins
 
 **Floor plan report** (`report` key of a floor plan): `anchor_point`, `areas` (list labeled room inner areas), `total_area` (sum per purpose group), `notes` (list of strings), `fontsize` = 11.
 
@@ -383,17 +386,21 @@ A lightweight container that positions child elements relative to a shared `anch
 **YAML type:** `group`
 
 **Parameters:**
-- `anchor_point`: tuple[float, float] = (0, 0) — origin for all child coordinates; child `anchor_point`, `first_point` and `second_point` values are expressed relative to this point
+- `anchor_point`: tuple[float, float] = (0, 0) — origin for all child coordinates; child `anchor_point`, `first_point` and `second_point` values are expressed relative to this point. It is resolved in the group's own scope (it can use the group's `vars`) and, for a nested group, is relative to the parent's anchor; without it, a nested group sits at the parent's anchor
 - `color`: str = 'black' — default wall color inherited by child `wall` / `wallnd` elements that have no explicit `color`
 - `label`: str | None = None — optional informational label
 - `vars`: dict = {} — scoped variables (alias: `constants`); evaluated in order after global vars; each can reference global vars, parent-container vars and previously defined vars of this group using arithmetic expressions; nested containers inherit them
 - `elements`: list = [] — child element definitions; each must have a `type` key
 - `from_template`: str | None = None — name of a registered group template; see [Group Templates](#group-templates)
+- `embedded_dimensions`: bool = True — if `false`, `dimension_arrow` elements defined within the group are not rendered (they are skipped when the group is built). Applies to nested groups and rooms too: a nested container cannot set it back to `true`, but a nested container may set it to `false` while its parent keeps its own arrows. Can also be set in a template and overridden by the instance. When the group does not set it, the default comes from the floor plan option `options.Group.embedded_dimensions` (or `default_options.Group`), then `true`. `options.Group` applies to groups only; rooms use `options.Room`
+- `repeat_count`: int | str = 1 — how many times the group's elements are created: a whole number ≥ 0, a variable or an expression (`5`, `n`, `n - 1`; `5.0` is accepted). Evaluated once, after `vars`. `0` creates nothing, so a count taken from a `0`/`1` variable works as a condition. Limit: 10 000 per group. See [Repetition](#repetition)
+- `repeat_next`: dict = {} — `variable: expression` pairs giving the values of the group's own `vars` for the next iteration; see [Repetition](#repetition)
 
 **Merge rules when `from_template` is used:**
 - template `vars` supply defaults; instance `vars` override them
+- template `repeat_next` entries come first; instance `repeat_next` entries override or are added (per variable, like `vars`)
 - template `elements` come first; instance `elements` are appended after
-- any other instance key (`anchor_point`, `color`, `label`, …) overrides the template value
+- any other instance key (`anchor_point`, `color`, `label`, `repeat_count`, …) overrides the template value
 
 **Example — standalone group:**
 ```yaml
@@ -433,6 +440,40 @@ A lightweight container that positions child elements relative to a shared `anch
 ```
 
 **Note:** `Group` itself draws nothing — only its children are rendered. A `group` can contain a `room` as a child. String fields of children (e.g. `color`, `label`) can reference string vars with `{var_name}`.
+
+### Repetition
+
+A group creates its `elements` `repeat_count` times. The first iteration uses the values from `vars`; after each iteration except the last, `repeat_next` computes the next values:
+
+```yaml
+- type: group
+  vars:
+    anchor_x: 100
+  repeat_next:
+    anchor_x: anchor_x + 10      # 100, 110, 120, ..., 190
+  repeat_count: 10
+  anchor_point: [anchor_x, 0]    # resolved again on every iteration
+  elements:
+    - type: tree
+      anchor_point: [0, 0]
+      diameter: 1.2
+      label: tree                # tree_i1 ... tree_i10
+```
+
+Rules:
+- `repeat_next` can only change variables defined in the group's own `vars`; a variable that exists only outside the group, or nowhere, raises an error. To step an outer value, cover it locally first: `vars: {x: x}`
+- the right-hand side can use any visible variable (the group's, outer containers', global)
+- entries are applied in order: a later entry sees the new value of an earlier one
+- `vars` that depend on a changed variable are not recomputed; recompute them in `repeat_next` if needed: `repeat_next: {x: x + 1, x2: x + 1}`
+- an expression that does not give a number for a numeric variable (e.g. a typo: `x + ofset`) raises an error
+- there is no built-in loop index; use an ordinary variable (`vars: {i: 1}`, `repeat_next: {i: i + 1}`)
+- with `repeat_count` above 1, the `label` and explicit `id` of everything created in iteration N (elements, nested groups and rooms, walls, floors) get `_i<N>` appended (N from 1). Nested repetitions append the outer one first: `apple_i2_i3`. The repeating group's own `label` / `id` is not changed. With a count of 0 or 1 nothing is appended
+- a warning is printed for `repeat_next` without `repeat_count`, and for `repeat_count` above 1 without `repeat_next` (all copies on top of each other)
+- **nesting:** an inner repeating group is created again, with fresh `vars`, on every outer iteration, so its counters start over and its `repeat_count` may depend on outer variables
+- **templates:** a template and its instance form one group with one repetition; an instance can change the repetition by overriding `vars` (e.g. the count or the step), and its own `elements` are repeated too. For two levels, put a template instance inside a repeating group
+- **rooms** cannot repeat: `repeat_count` / `repeat_next` on a `room` raises an error. Put the room in a repeating group instead
+
+Example with all cases: `examples/templates/groups/repeat_demo/project_main.yml`.
 
 ---
 
@@ -1329,6 +1370,9 @@ A glass greenhouse (procedural): four glass walls with a gable glass roof. In 2D
 - String variables are not substituted inside arithmetic expressions
 - Inside `textures`, numeric keys (`scale_relative`, `scale_meters`, `shininess`, `opacity`, colour components) accept variables and expressions, and `texture` accepts `{var}` references
 
+### Layer
+- Every element (not `group` / `room`) accepts an optional `layer`: the layer it belongs to, a built-in one or any custom name; without it the element type's default layer is used. See [Floor Plan Layers](#floor-plan-layers)
+
 ### Container Integration
 - `Room` and `Group` are containers; child `anchor_point` values are relative to the container's own `anchor_point`
 - `Room` validates that exactly 4 child walls have `room_edge=True` forming an axis-aligned rectangle; `Group` has no such requirement
@@ -1350,7 +1394,7 @@ Every element has a `v_anchor` and a `height` attribute. They control 2D drawing
 |---------|---------------|
 | `v_anchor` and `height` | `wall`, `wallnd`, `window`, `door`, `floor`, `ceiling`, roofs (`gable_roof`, `hipped_roof`, `single_slope_roof`, gable-end and hipped-octant parts), `glass_panel`, `glass_slope`, `alu_frame`, `deck`, `surface`, `greenhouse`, `generic_storage`, `storage40`, `storage60`, `generic_tank` |
 | `v_anchor` only | `fish_tank`, `tv`, external `model_*` elements (their height is fixed by the model; passing `height` raises an error) |
-| `height` only | `basin`, `bathtub`, `fence`, `fountain`, `hedge`, `retaining_wall`, `shrub`, `tree`, `raised_bed`, `garden_house`, `model_leafy_tree`, `model_leafy_shrub_1`, `model_window_single_any` |
+| `height` only | `basin`, `bathtub`, `fence`, `fence_post`, `fountain`, `hedge`, `retaining_wall`, `shrub`, `tree`, `raised_bed`, `garden_house`, `model_leafy_tree`, `model_leafy_shrub_1`, `model_window_single_any` |
 
 ### v_anchor (Vertical Anchor)
 
@@ -1369,7 +1413,7 @@ Every element has a `v_anchor` and a `height` attribute. They control 2D drawing
 | `VertInfoLvlGround` | -0.10 | 0.09 | `ground` |
 | `VertInfoLvl00` | -0.01 | – | `lawn`, `garden_path` |
 | `VertInfoFloors` | 0.00 | 0.02 | `floor` |
-| `VertInfoLvl01` | 0.01 | – | walls, `fence`, `retaining_wall`, `hedge`, `shrub`, `tree`, `deck`, `surface`, `greenhouse`, `gazebo`, pools, `fountain`, `glass_panel`, `alu_frame` |
+| `VertInfoLvl01` | 0.01 | – | walls, `fence`, `fence_post`, `retaining_wall`, `hedge`, `shrub`, `tree`, `deck`, `surface`, `greenhouse`, `gazebo`, pools, `fountain`, `glass_panel`, `alu_frame` |
 | `VertInfoDoor` | 0.02 | 2.1 | `door`, `glass_door`, `solid_glass_door`, `model_balcony_door`, `model_window_door(_double)`, `model_solid_door_1/2` |
 | `VertInfoLvl03` | 0.03 | – | furniture, appliances, bathroom fixtures, beds, `tabletop`, `fish_tank`, `generic_tank` |
 | `VertInfoLvl04` | 0.04 | – | `generic_storage`, `storage40`, `storage60`, `tv` |
@@ -1440,7 +1484,7 @@ The physical height of the element. It is not used for 2D drawing; in the 3D exp
 | `ground` | 0.09 |
 | `lawn` / `garden_path` / `deck` | 0.0 / 0.02 / 0.015 |
 | `surface` | 0.30 |
-| `fence`, `hedge` | 1.8 |
+| `fence`, `fence_post`, `hedge` | 1.8 |
 | `retaining_wall`, `fountain` | 1.0 |
 | `rect_pool` | 1.4 |
 | `gazebo` / `greenhouse` | 2.5 / 2.0 |
@@ -1453,7 +1497,7 @@ The physical height of the element. It is not used for 2D drawing; in the 3D exp
 
 ## 3D Visualization Parameters
 
-The 3D model is exported only when `project.visualisation_dir` is set: one glTF 2.0 file per floor plan (named after the floor-plan title), with textures copied to `<visualisation_dir>/textures/`, plus a `camera.json` viewer file.
+The 3D model is exported only when `project.visualisation_dir` is set: each floor plan goes to its own folder `<visualisation_dir>/<name>/` with `<name>.gltf` (and `.bin`), its textures in `textures/` and a `camera.json` viewer file. `<name>` is the floor-plan title with spaces and `/` replaced by `_` (`floor_plan_<index>` without a title); floor-plan names must be unique. A floor plan with a [`layers.3d`](#floor-plan-layers) section exports only the elements of those layers; one with `export_3d: false` is not exported.
 
 ### Textures and Materials
 
@@ -1638,5 +1682,34 @@ floor_plans:
 ### Notes
 
 - `v_anchor: 0.0` (or omitting the key) produces no wrapper node.
+- Each floor plan is a separate glTF in its own folder (`<visualisation_dir>/<name>/`); load the files of several floor plans together to see the storeys stacked.
 - The value is independent of the element-level `v_anchor`: element-level `v_anchor` positions an element within its floor plan (and sets its 2D draw order); this key positions the whole floor plan on the Y axis in 3D.
 - Element `v_anchor` values are therefore relative to the floor plan origin. A `ceiling` at `v_anchor: 2.69` in a floor plan with `v_anchor: 3.0` appears at Y = 5.69 m in the merged 3D scene.
+
+---
+
+## Floor Plan Layers
+
+Each entry in `floor_plans:` accepts an optional `layers` mapping with a `2d` and/or a `3d` section. `2d` lists the layers drawn, each with optional 2D modifiers; `3d` lists the layers exported to the glTF. A missing section (or no `layers` at all) means everything, without restyling. `layers` without `2d` and `3d`, an empty section or any other key raises `ValueError`.
+
+```yaml
+floor_plans:
+  - title: {text: "Electric", font_size: 14}
+    inherited_elements: [house]
+    layers:
+      2d:
+        construction: {force_color: grey, alpha: 0.3}
+        electric: {z_order: 1, force_color: red}
+        furniture:                      # no modifiers
+      3d: [construction, electric]
+```
+
+2D modifiers of a `2d` entry:
+- `z_order`: int = 0 - 0 to 8; higher layers are drawn on top, within one value elements keep their `v_anchor` order; texts of all layers are drawn above everything (level 9)
+- `force_color`: colour | None = None - colour for all lines, edges, fills and texts of the layer; white and transparent colours are kept
+- `alpha`: float = 1.0 - 0 to 1, multiplies the opacity of the layer
+
+A floor plan also accepts `export_3d`: bool = true; `false` skips its 3D export.
+
+Built-in layers: `construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`. Each element type has one of them as default; the `layer` parameter of an element overrides it. In 3D, a wall gets openings from the doors and windows exported with it, whatever their layer. Details and the default layer of each element type: [docs/features/layers.md](features/layers.md).
+

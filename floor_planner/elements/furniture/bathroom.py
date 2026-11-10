@@ -22,6 +22,8 @@ class Shower(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -160,6 +162,8 @@ class Bathtub(VertInfoLvl03, VesselElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -272,6 +276,8 @@ class Basin(VertInfoLvl03, VesselElement):
     Bathroom basin/sink
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,
@@ -403,6 +409,8 @@ class Toilet(VertInfoLvl03, VesselElement):
     Toilet
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,

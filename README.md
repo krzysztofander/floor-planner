@@ -60,7 +60,7 @@ The section named `project` defines properties of output such as:
 * Location
 * DPI (dots-per-inch, resolution)
 
-In the section named `default_layout`, below parameters are set for floor plans that do not override them in their `layout` sections:
+In the section named `default_layout`, below parameters are set for all floor plans. A floor plan's `layout` section overrides single parameters of it, e.g. `layout: {scale_denominator: 50}` keeps the area and grid of `default_layout` and changes only the scale:
 * Dimensions of area to be drawn (in real-world meters, i.e., meters prior to scaling)
 * Scale
 * Grid settings
@@ -102,6 +102,24 @@ Reusable blueprints can be defined in the top-level `group_templates` section an
   vars:
     w: 4   # wider variant
 ```
+
+A group can repeat its elements: `repeat_count` says how many times, and `repeat_next` gives the next values of the group's own `vars`. Useful for lamp posts, stair treads, trees in an orchard. Repetitions can be nested, also with templates:
+```yaml
+- type: group
+  vars:
+    lamp_x: 0
+  repeat_count: 6                 # 0 draws nothing: works as a condition
+  repeat_next:
+    lamp_x: lamp_x + 4            # computed from the previous iteration
+  anchor_point: [lamp_x, 1.5]
+  elements:
+    - type: wall_lamp
+      anchor_point: [0, 0]
+      symbol_diameter: 0.4
+      label: lamp                 # lamp_i1 ... lamp_i6
+```
+With a count above 1, labels and IDs inside get `_i<N>` appended. Example: `examples/templates/groups/repeat_demo`.
+
 See `examples/templates/groups` and the *Groups* section of `docs/element-parameters-reference.md`.
 
 ## Element Categories
@@ -129,7 +147,7 @@ This fork includes comprehensive landscaping elements for creating site plans an
 - **Species database** - default sizes and bloom seasons by species name
 
 ### Hardscaping
-- **Fences** - multiple styles (solid, picket, chain-link, rail)
+- **Fences** - multiple styles (solid, picket, chain-link, rail), round fence posts (`fence_post`)
 - **Garden Paths** - various materials (gravel, stone, paving, wood, mulch)
 - **Retaining Walls** - stone course patterns
 - **Ground** - base terrain surface
@@ -178,8 +196,13 @@ When doors or windows are positioned in walls, the system automatically:
 Enable 3D export in your YAML config:
 ```yaml
 project:
-  visualisation_dir: "visualisation_3d"  # Output directory for glTF files
+  visualisation_dir: "visualisation_3d"  # Output directory: one <floor plan name>/ folder per floor plan
 ```
+
+Each floor plan is written to `<visualisation_dir>/<name>/<name>.gltf` with its own `textures/` and `camera.json` (`<name>`: the title with spaces replaced by `_`; titles must be unique).
+
+### Layers
+A floor plan's `layers` selects which layers are drawn in 2D (`2d`, with per-layer `z_order`, `force_color` and `alpha`) and which are exported to 3D (`3d`), e.g. only the walls, or shaded walls under the electrical installation; `export_3d: false` skips a floor plan's 3D export. Every element has a default layer (`construction`, `furniture`, `vegetation`, `electric`, `water`, `roof`, `default`) and accepts a `layer` parameter to change it. See [docs/features/layers.md](docs/features/layers.md).
 
 Elements with `color: invisible` are excluded from 3D export. Set `v_anchor` and `height` on individual elements to control vertical positioning within a floor plan.
 

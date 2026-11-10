@@ -224,6 +224,8 @@ class GlassSlope(VertInfoRoof, ExternalModelElement):
         label             – optional label string
     """
 
+    default_layer = 'roof'
+
     _registry_key = 'glass_slope'
     _requires_external_model = True
 
@@ -371,7 +373,7 @@ class SolidGlassDoor(Door):
             thickness: float = 0.01,
             orientation_angle: float = 0,
             to_the_right: bool = False,
-            color: str = '#C8E8F4',
+            color: str = "#2681A2",
             hinges_point: float = 0.95,
             opening_outside: bool = False,
             label: str | None = None,
@@ -521,6 +523,7 @@ class Composite_GlassDoor(ElementBase):
                             (see floor_planner.face_textures); the frame is an external model
     """
 
+    default_layer = 'construction'
     _MARGIN     = 0.005       # z-fighting / clearance margin (m) on every side
     _GLASS_T    = 0.01        # glass panel thickness (m)
     _BAR_H_FRAC = 0.03 / 2.1  # top/bottom bar height fraction from AluFrame base model

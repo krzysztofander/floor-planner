@@ -22,6 +22,8 @@ class Dishwasher(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -214,6 +216,8 @@ class Fridge(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -342,6 +346,8 @@ class Freezer(VertInfoLvl03, RectangularElement):
     Freezer appliance
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,
@@ -477,6 +483,8 @@ class WashingMachine(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -588,6 +596,8 @@ class Dryer(VertInfoLvl03, RectangularElement):
     Dryer appliance
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,
@@ -711,6 +721,8 @@ class Stovetop(VertInfoLvl03, RectangularElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -821,6 +833,8 @@ class SingleSink(VertInfoLvl03, VesselElement):
     Single sink appliance
 
     """
+
+    default_layer = 'furniture'
 
     def __init__(
             self,
@@ -965,6 +979,8 @@ class DoubleSink(VertInfoLvl03, VesselElement):
 
     """
 
+    default_layer = 'furniture'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
@@ -1104,6 +1120,8 @@ class TV(VertInfoLvl04, RectangularElement):
 
     Length and height are derived from the screen diagonal given in inches.
     """
+
+    default_layer = 'furniture'
 
     INCH_TO_METER = 0.0254
     ASPECT_WIDTH = 16

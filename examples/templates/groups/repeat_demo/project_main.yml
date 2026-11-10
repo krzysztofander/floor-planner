@@ -1,0 +1,211 @@
+project:
+  dpi: 200
+  pdf_file: null
+  png_dir: "output"
+
+# Repeatable groups: repeat_count / repeat_next on a group.
+# See docs/features/repeatable-groups.md.
+#
+#   repeat_count  how many times the group's elements are created (0 = none)
+#   repeat_next   new values of the group's own vars for the next iteration,
+#                 computed from the values of the previous one, in order
+#
+# With repeat_count above 1, labels and ids inside get "_i<N>" appended
+# (N = iteration, from 1); nested repetitions append outer first: "_i2_i3".
+
+default_options:
+  Room:
+    label_color: orange
+  Line:
+    label_color: gray
+
+default_layout:
+  bottom_left_corner: [-1, -1]
+  top_right_corner: [33, 23]
+  scale_numerator: 1
+  scale_denominator: 100
+  grid_major_step: 1
+  grid_minor_step: 0.5
+
+vars:
+  wall_t: 0.2
+  show_bench: 1          # 0 hides the bench group (repeat_count used as a condition)
+
+group_templates:
+
+  # A row of trees: count and spacing are vars, so instances can override them.
+  tree_row:
+    vars:
+      tree_x: 0
+      spacing: 2.0
+      trees: 5
+    repeat_count: trees
+    repeat_next:
+      tree_x: tree_x + spacing
+    elements:
+      - type: tree
+        anchor_point: [tree_x, 0]
+        diameter: 1.2
+        height: 4.0
+        trunk_diameter: 0.2
+        color: '#228B22'
+
+floor_plans:
+  - title:
+      text: "repeat_demo"
+      font_size: 18
+
+    elements:
+
+      # ── 1. Pattern A: the group's own anchor moves ───────────────────────
+      - type: text_box
+        anchor_point: [5, 21.5]
+        lines: ["1. Lamps along a wall: the group's anchor_point moves"]
+        font_size: 9
+        edgecolor: none
+
+      - type: wall
+        anchor_point: [0, 20]
+        length: 10
+        thickness: wall_t
+        orientation_angle: 0
+
+      - type: group
+        label: lamps
+        vars:
+          lamp_x: 1
+          spacing: 2
+        repeat_count: 5
+        repeat_next:
+          lamp_x: lamp_x + spacing
+        anchor_point: [lamp_x, 20]            # resolved again on every iteration
+        elements:
+          - type: wall_lamp
+            anchor_point: [0, 0]
+            symbol_diameter: 0.4
+            orientation_angle: 270
+
+      # ── 2. Pattern B: the children move ──────────────────────────────────
+      - type: text_box
+        anchor_point: [16.5, 21.5]
+        lines: ["2. Stairs: children use the stepped variable"]
+        font_size: 9
+        edgecolor: none
+
+      - type: group
+        label: stairs
+        anchor_point: [14, 14]
+        vars:
+          tread_y: 0
+          tread_depth: 0.3
+          steps: 16
+        repeat_count: steps
+        repeat_next:
+          tread_y: tread_y + tread_depth
+        elements:
+          - type: line
+            first_point: [0, tread_y]
+            second_point: [1.2, tread_y]
+            width: 0.8
+
+      - type: line                            # one labelled line, outside the repetition
+        first_point: [14, 13.5]
+        second_point: [15.2, 13.5]
+        style: dashed
+        label: "16 treads"
+
+      # ── 3. Nested repetition: a staggered orchard ────────────────────────
+      - type: text_box
+        anchor_point: [5, 12.5]
+        lines: ["3. Orchard: 4 rows x 6 trees, rows shifted alternately"]
+        font_size: 9
+        edgecolor: none
+
+      - type: group
+        label: orchard
+        anchor_point: [0.5, 2]
+        vars:
+          row_y: 0
+          row_shift: 0
+        repeat_count: 4
+        repeat_next:
+          row_y: row_y + 2.5
+          row_shift: 0.8 - row_shift          # alternates 0 / 0.8
+        elements:
+          - type: group
+            label: row                        # row_i1 ... row_i4
+            anchor_point: [row_shift, row_y]
+            vars:
+              tree_x: 0
+            repeat_count: 6
+            repeat_next:
+              tree_x: tree_x + 1.6
+            elements:
+              - type: tree
+                anchor_point: [tree_x, 0]
+                diameter: 1.2
+                height: 4.0
+                trunk_diameter: 0.2
+                color: '#6B8E23'
+
+      # ── 4. Template with a repetition, two instances ─────────────────────
+      - type: text_box
+        anchor_point: [16.5, 11.5]
+        lines: ["4. Template tree_row: defaults (5 x 2 m)", "and instance vars (7 x 1.4 m)"]
+        font_size: 9
+        edgecolor: none
+
+      - type: group
+        from_template: tree_row
+        anchor_point: [13, 9]
+
+      - type: group
+        from_template: tree_row
+        anchor_point: [13, 7]
+        vars:
+          trees: 7
+          spacing: 1.4
+
+      # ── 5. Rooms repeated through a wrapping group ───────────────────────
+      - type: text_box
+        anchor_point: [25.5, 21.5]
+        lines: ["5. Rooms: a repeating group around a room"]
+        font_size: 9
+        edgecolor: none
+
+      - type: group
+        label: boxes
+        anchor_point: [21, 16]
+        vars:
+          box_x: 0
+          box_w: 3
+        repeat_count: 3
+        repeat_next:
+          box_x: box_x + box_w + 0.5
+        elements:
+          - type: room
+            label: box                        # box_i1 ... box_i3
+            anchor_point: [box_x, 0]
+            elements:
+              - {type: wall, anchor_point: [0, 0], length: box_w, thickness: wall_t, orientation_angle: 0, room_edge: true}
+              - {type: wall, anchor_point: [box_w, 0], length: 3, thickness: wall_t, orientation_angle: 90, room_edge: true}
+              - {type: wall, anchor_point: [box_w, 3], length: box_w, thickness: wall_t, orientation_angle: 180, room_edge: true}
+              - {type: wall, anchor_point: [0, 3], length: 3, thickness: wall_t, orientation_angle: 270, room_edge: true}
+
+      # ── 6. repeat_count as a condition ───────────────────────────────────
+      - type: text_box
+        anchor_point: [27.5, 11.5]
+        lines: ["6. repeat_count: show_bench", "(0 hides the bench)"]
+        font_size: 9
+        edgecolor: none
+
+      - type: group
+        label: bench
+        anchor_point: [24, 8]
+        repeat_count: show_bench              # 0 or 1: no _i suffix either way
+        elements:
+          - type: line
+            first_point: [0, 0]
+            second_point: [3, 0]
+            width: 4
+            label: bench

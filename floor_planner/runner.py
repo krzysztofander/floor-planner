@@ -14,6 +14,7 @@ import yaml
 
 from floor_planner import elements
 from floor_planner.floor_plan import FloorPlan
+from floor_planner.layers import BUILTIN_LAYERS, parse_layers, pop_layer
 from floor_planner.project import Project
 from floor_planner.markdown_report import generate_elements_report
 from floor_planner.state import reset_global_state
@@ -196,6 +197,16 @@ def _write_camera_json(
     print(f"  ✓ Written: camera.json")
 
 
+def _warn_unused_layers(floor_plan: FloorPlan, index: int) -> None:
+    """Warn about listed layers that are not built-in and that no element of the floor plan uses (typos)."""
+    used = {element.get_layer() for element in floor_plan.elements}
+    for section, names in (('2d', floor_plan.layers.layers_2d), ('3d', floor_plan.layers.layers_3d)):
+        for name in names or ():
+            if name not in BUILTIN_LAYERS and name not in used:
+                print(f"WARNING: floor_plans[{index}].layers.{section}: no element is on layer {name!r} "
+                      f"(built-in layers: {', '.join(BUILTIN_LAYERS)})")
+
+
 @dataclass
 class RunResult:
     """Files and objects produced by ``run_project``."""
@@ -297,14 +308,17 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
             elements_by_id[container.get_id()] = container
         else:
             element_params.pop('type')
+            layer = pop_layer(element_params, element_type)
             element_params = resolve_element_params(element_params, global_vars)
             element = element_class(**element_params)
+            element.set_layer(layer)
             floor_plan.add_element(element)
             all_elements.append(element)
             elements_by_id[element.get_id()] = element
 
     floor_plans = []
-    for floor_plan_params in settings['floor_plans']:
+    floor_plan_layouts = []
+    for floor_plan_index, floor_plan_params in enumerate(settings['floor_plans']):
         # Merge floor plan options with defaults (floor plan options override defaults)
         floor_plan_options = floor_plan_params.get('options', {})
         if floor_plan_options:
@@ -324,9 +338,21 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
             # Use default options
             elements.set_element_options(default_options)
 
-        layout_params = floor_plan_params.get('layout') or settings['default_layout']
+        # A floor plan's layout overrides single keys of default_layout (e.g. only scale_denominator)
+        floor_plan_layout = floor_plan_params.get('layout') or {}
+        if not isinstance(floor_plan_layout, dict):
+            raise ValueError(f"floor_plans[{floor_plan_index}].layout: expected a mapping, got {floor_plan_layout!r}")
+        layout_params = {**(settings.get('default_layout') or {}), **floor_plan_layout}
         floor_plan = FloorPlan(**layout_params)
         floor_plan.v_anchor = float(floor_plan_params.get('v_anchor', 0.0))
+        floor_plan.layers = parse_layers(floor_plan_params.get('layers'),
+                                         f"floor_plans[{floor_plan_index}].layers")
+        export_3d = floor_plan_params.get('export_3d', True)
+        if not isinstance(export_3d, bool):
+            raise ValueError(f"floor_plans[{floor_plan_index}].export_3d: expected true or false, got {export_3d!r}")
+        floor_plan.export_3d = export_3d
+        if export_3d:
+            floor_plan_layouts.append(layout_params)
         title_params = floor_plan_params.get('title')
         if title_params:
             floor_plan.add_title(**title_params)
@@ -335,6 +361,7 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
                 _add_element(element_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
         for element_params in floor_plan_params.get('elements', []):
             _add_element(element_params, elements_registry, floor_plan, all_elements, elements_by_id, global_vars)
+        _warn_unused_layers(floor_plan, floor_plan_index)
         floor_plan.draw_elements()
 
         # Draw report if specified
@@ -389,12 +416,10 @@ def run_project(config_path: str | Path, *, dpi: float | None = None) -> RunResu
     if vis_dir_resolved:
         result.gltf_files = project.export_to_gltf()  # glTF 2.0 (modern, feature-rich)
 
-        # Write camera.json with initial viewer position
-        _write_camera_json(
-            settings['project'].get('visualisation_camera'),
-            settings.get('default_layout', {}),
-            vis_dir_path,
-        )
+        # Write camera.json with initial viewer position next to each floor plan's glTF
+        # (floor_plan_layouts has the layouts of the exported floor plans, in the same order)
+        for gltf_file, layout in zip(result.gltf_files, floor_plan_layouts, strict=True):
+            _write_camera_json(settings['project'].get('visualisation_camera'), layout, gltf_file.parent)
 
     # Generate elements report
     report_path = config_path.with_suffix(".md")

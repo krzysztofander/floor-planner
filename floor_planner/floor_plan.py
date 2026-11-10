@@ -14,6 +14,7 @@ import numpy as np
 
 from .constants import METERS_PER_INCH
 from .elements import ElementBase, Room
+from .layers import FloorPlanLayers, apply_layer
 
 class FloorPlan:
     """Floor plan."""
@@ -103,6 +104,10 @@ class FloorPlan:
         self.title = None
         self.elements: list[ElementBase] = []
         self.v_anchor: float = 0.0  # Y-axis elevation for 3D export (set from YAML)
+        # Layers to draw (2D) and export (3D), see floor_planner.layers; default = everything
+        self.layers = FloorPlanLayers()
+        # False = no 3D export of this floor plan (set from YAML)
+        self.export_3d: bool = True
 
     def add_title(
             self, text: str, font_size: int, rel_x: float = 0.5, rel_y: float = 0.95, **kwargs
@@ -153,8 +158,58 @@ class FloorPlan:
         """
         print (f"Drawing floor plan {self.title} elements...")
 
-        for element in self.elements:
+        layers_2d = self.layers.layers_2d
+        self._print_excluded_layers(layers_2d)
+        if layers_2d is None:
+            for element in self.elements:
+                element.draw(self.ax)
+            return
+
+        for element in self.get_drawn_elements():
+            before = set(self.ax.get_children())
             element.draw(self.ax)
+            drawn = [artist for artist in self.ax.get_children() if artist not in before]
+            spec = None if self._is_container(element) else layers_2d[element.get_layer()]
+            apply_layer(drawn, spec)
+
+    @staticmethod
+    def _is_container(element: ElementBase) -> bool:
+        """Group and Room do not belong to a layer."""
+        return getattr(element, 'IS_CONTAINER', False)
+
+    def _elements_on(self, layer_names) -> list[ElementBase]:
+        """All elements if ``layer_names`` is None, else containers and the elements on those layers."""
+        if layer_names is None:
+            return list(self.elements)
+        return [element for element in self.elements
+                if self._is_container(element) or element.get_layer() in layer_names]
+
+    def excluded_layers(self, layer_names) -> list[str]:
+        """
+        Layers that elements of this floor plan are on but that ``layer_names`` does not list.
+
+        :param layer_names:
+            the layers drawn (``layers.2d``) or exported (``layers.3d``); None = no filtering
+        :return:
+            sorted layer names; empty if nothing is filtered out
+        """
+        if layer_names is None:
+            return []
+        used = {element.get_layer() for element in self.elements if not self._is_container(element)}
+        return sorted(used - set(layer_names))
+
+    def _print_excluded_layers(self, layer_names) -> None:
+        """Tell which layers of this floor plan are left out of the 2D drawing / 3D export."""
+        for name in self.excluded_layers(layer_names):
+            print(f"    Elements of layer '{name}' not included")
+
+    def get_drawn_elements(self) -> list[ElementBase]:
+        """Elements drawn in 2D (``layers.2d``)."""
+        return self._elements_on(self.layers.layers_2d)
+
+    def get_exported_elements(self) -> list[ElementBase]:
+        """Elements exported to 3D (``layers.3d``); only they cut openings in the exported walls."""
+        return self._elements_on(self.layers.layers_3d)
 
     def draw_report(
             self, 
@@ -295,7 +350,7 @@ class FloorPlan:
         from floor_planner.gltf_exporter import export_floor_plan_to_gltf
         
         output_path = export_floor_plan_to_gltf(
-            elements=self.elements,
+            elements=self.get_exported_elements(),
             output_dir=Path(output_dir),
             filename=filename,
             v_anchor=self.v_anchor if v_anchor is None else v_anchor,
@@ -303,4 +358,5 @@ class FloorPlan:
         )
         
         print(f"Exported glTF file: {output_path}")
+        self._print_excluded_layers(self.layers.layers_3d)
         return output_path

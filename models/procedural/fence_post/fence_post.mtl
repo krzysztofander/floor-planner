@@ -1,0 +1,7 @@
+# Material for fence_post
+newmtl fence_post
+Ka 0.500000 0.500000 0.500000
+Kd 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ns 10.0
+map_Kd plain_named/green-medium-green-shrub.jpg

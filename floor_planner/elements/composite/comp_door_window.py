@@ -12,6 +12,8 @@ import math
 
 
 class Composite_WindowDoorDouble(ElementBase):
+    default_layer = 'construction'
+
     def __init__(
             self,
             anchor_point: tuple[float, float],
