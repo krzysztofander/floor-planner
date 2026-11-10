@@ -440,7 +440,7 @@ anchor in **its own** scope (`global + parent + own vars`) and adds `parent_offs
 - [x] Unit tests that pin the existing scoping rules (rule 3 in [Variable scoping](#variable-scoping-decided)): `X: X + 1` uses the outer `X`, a later `Y: X` uses the inner one, inner names cover outer names in elements and nested containers
 - [x] `make check`: golden images must not change
 - [x] Real-plan regression (see [Real-plan regression check](#real-plan-regression-check)): PNGs of the `../../rzuty` plans identical before and after
-- [x] Also fixed: a nested container **without** `anchor_point` was placed at `(0, 0)`, ignoring the parent's anchor; it now sits at the parent's anchor. No config in the repo or in `../../rzuty` has such a container, so no output changes
+- [x] Also fixed: a nested container **without** `anchor_point` was placed at `(0, 0)`, ignoring the parent's anchor. It now assumes `anchor_point: [0, 0]` relative to the parent: an element at `[1, 0]` in such a container, inside a parent at `[5, 0]`, is placed at `(6, 0)`. No config in the repo or in `../../rzuty` has such a container, so no output changes
 - [x] An `anchor_point` that cannot be resolved now raises `ValueError` naming the container (was `TypeError` for nested containers)
 
 ### Phase 2: Repetition core

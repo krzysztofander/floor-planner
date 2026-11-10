@@ -8,7 +8,7 @@ Rules (docs/features/repeatable-groups.md, "Variable scoping"):
   is the outer one, a later ``Y: X`` sees the new, inner ``X``;
 * a container's ``anchor_point`` is resolved in the container's own scope and
   translated by the anchor of the enclosing container, at top level and when
-  nested alike; without ``anchor_point`` the container sits at the parent's anchor.
+  nested alike; without ``anchor_point`` the container assumes ``[0, 0]`` relative to its parent.
 """
 
 import pytest

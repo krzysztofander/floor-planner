@@ -182,8 +182,8 @@ class Group(Element):
         scope (``global_vars`` plus this container's vars, which cover outer
         names) and then translated by ``parent_offset``.  This is the same for
         top-level containers (offset ``(0, 0)``) and nested ones (offset = the
-        parent's absolute anchor).  A container without ``anchor_point`` sits
-        at ``parent_offset``.
+        parent's absolute anchor).  A container without ``anchor_point`` assumes
+        ``(0, 0)`` relative to its parent, i.e. it sits at ``parent_offset``.
 
         :param params:
             raw YAML parameter dict for this container
