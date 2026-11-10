@@ -1394,7 +1394,7 @@ Every element has a `v_anchor` and a `height` attribute. They control 2D drawing
 |---------|---------------|
 | `v_anchor` and `height` | `wall`, `wallnd`, `window`, `door`, `floor`, `ceiling`, roofs (`gable_roof`, `hipped_roof`, `single_slope_roof`, gable-end and hipped-octant parts), `glass_panel`, `glass_slope`, `alu_frame`, `deck`, `surface`, `greenhouse`, `generic_storage`, `storage40`, `storage60`, `generic_tank` |
 | `v_anchor` only | `fish_tank`, `tv`, external `model_*` elements (their height is fixed by the model; passing `height` raises an error) |
-| `height` only | `basin`, `bathtub`, `fence`, `fountain`, `hedge`, `retaining_wall`, `shrub`, `tree`, `raised_bed`, `garden_house`, `model_leafy_tree`, `model_leafy_shrub_1`, `model_window_single_any` |
+| `height` only | `basin`, `bathtub`, `fence`, `fence_post`, `fountain`, `hedge`, `retaining_wall`, `shrub`, `tree`, `raised_bed`, `garden_house`, `model_leafy_tree`, `model_leafy_shrub_1`, `model_window_single_any` |
 
 ### v_anchor (Vertical Anchor)
 
@@ -1413,7 +1413,7 @@ Every element has a `v_anchor` and a `height` attribute. They control 2D drawing
 | `VertInfoLvlGround` | -0.10 | 0.09 | `ground` |
 | `VertInfoLvl00` | -0.01 | – | `lawn`, `garden_path` |
 | `VertInfoFloors` | 0.00 | 0.02 | `floor` |
-| `VertInfoLvl01` | 0.01 | – | walls, `fence`, `retaining_wall`, `hedge`, `shrub`, `tree`, `deck`, `surface`, `greenhouse`, `gazebo`, pools, `fountain`, `glass_panel`, `alu_frame` |
+| `VertInfoLvl01` | 0.01 | – | walls, `fence`, `fence_post`, `retaining_wall`, `hedge`, `shrub`, `tree`, `deck`, `surface`, `greenhouse`, `gazebo`, pools, `fountain`, `glass_panel`, `alu_frame` |
 | `VertInfoDoor` | 0.02 | 2.1 | `door`, `glass_door`, `solid_glass_door`, `model_balcony_door`, `model_window_door(_double)`, `model_solid_door_1/2` |
 | `VertInfoLvl03` | 0.03 | – | furniture, appliances, bathroom fixtures, beds, `tabletop`, `fish_tank`, `generic_tank` |
 | `VertInfoLvl04` | 0.04 | – | `generic_storage`, `storage40`, `storage60`, `tv` |
@@ -1484,7 +1484,7 @@ The physical height of the element. It is not used for 2D drawing; in the 3D exp
 | `ground` | 0.09 |
 | `lawn` / `garden_path` / `deck` | 0.0 / 0.02 / 0.015 |
 | `surface` | 0.30 |
-| `fence`, `hedge` | 1.8 |
+| `fence`, `fence_post`, `hedge` | 1.8 |
 | `retaining_wall`, `fountain` | 1.0 |
 | `rect_pool` | 1.4 |
 | `gazebo` / `greenhouse` | 2.5 / 2.0 |

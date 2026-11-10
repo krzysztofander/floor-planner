@@ -79,7 +79,7 @@ Each element type has a default layer:
 | `electric` | `power_outlet`, `electrical_cable`, `ground_cable`, `switch`, lamps, `led_strip` |
 | `water` | `generic_tank` |
 | `roof` | roofs, roof octants, gable ends |
-| `default` | everything else: landscaping (paths, fences, decks, ground, structures, glass panels, greenhouse), annotations (`dimension_arrow`, `text_box`), `line`, `polygon`, `circle` , other elements |
+| `default` | everything else: landscaping (paths, fences, fence posts, decks, ground, structures, glass panels, greenhouse), annotations (`dimension_arrow`, `text_box`), `line`, `polygon`, `circle` , other elements |
 
 Any element takes an optional `layer` parameter that puts it on another layer, built-in or custom:
 

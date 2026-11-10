@@ -147,7 +147,7 @@ This fork includes comprehensive landscaping elements for creating site plans an
 - **Species database** - default sizes and bloom seasons by species name
 
 ### Hardscaping
-- **Fences** - multiple styles (solid, picket, chain-link, rail)
+- **Fences** - multiple styles (solid, picket, chain-link, rail), round fence posts (`fence_post`)
 - **Garden Paths** - various materials (gravel, stone, paving, wood, mulch)
 - **Retaining Walls** - stone course patterns
 - **Ground** - base terrain surface

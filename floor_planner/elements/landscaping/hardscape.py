@@ -1,15 +1,15 @@
 """
-Hardscape elements: fences, paths, walls.
+Hardscape elements: fences, fence posts, paths, walls.
 
 Author: Krzysztof Bartczak
 """
 
 import matplotlib.axes
-from matplotlib.patches import Rectangle, FancyBboxPatch
+from matplotlib.patches import Circle, Rectangle, FancyBboxPatch
 import matplotlib.patches as mpatches
 
 from ...utils import rotate_point, render_label_and_id
-from ..element import RectangularElement, SurfaceElement
+from ..element import CircularElement, RectangularElement, SurfaceElement
 from ..vertical_levels import VertInfoLvl01, VertInfoLvl00, VertInfoLvlGround
 
 
@@ -204,6 +204,80 @@ class Fence(VertInfoLvl01, RectangularElement):
         if self.height:
             parts.append(f"h={self.height}m")
         return " ".join(parts) if parts else ""
+
+
+class FencePost(VertInfoLvl01, CircularElement):
+    """
+    Round fence post: a vertical cylinder.
+
+    Drawn in 2D as a filled circle; exported to 3D as a cylinder of the given
+    diameter and height, standing on the same level as ``Fence``.  Several
+    posts along a fence are easiest to place with a repeating group
+    (``repeat_count`` / ``repeat_next``).
+    """
+
+    def __init__(
+            self,
+            anchor_point: tuple[float, float],
+            diameter: float = 0.07,
+            height: float = 1.8,
+            color: str = 'green',
+            label: str | None = None,
+            id: str | None = None,
+    ):
+        """
+        Initialize a FencePost instance.
+
+        :param anchor_point:
+            coordinates (x, y) of the post's center, in meters
+        :param diameter:
+            post diameter in meters
+        :param height:
+            post height in meters (3D)
+        :param color:
+            fill color of the circle in 2D; 'invisible' hides the post
+        :param label:
+            optional label for the post
+        :param id:
+            optional explicit ID; if None, generated from class name and label
+        """
+        super().__init__(
+            anchor_point=anchor_point,
+            diameter=diameter,
+            color=color,
+            label=label,
+            id=id,
+            height=height,
+        )
+
+    def _default_height(self) -> float:
+        """Return default height for a fence post."""
+        return 1.8
+
+    def draw(self, ax: matplotlib.axes.Axes) -> None:
+        """Draw the post as a filled circle."""
+        draw_color = self.get_draw_color()
+        if draw_color is None:
+            return
+
+        post = Circle(
+            self.anchor_point,
+            0.1 if self.radius < 0.1 else self.radius,
+            facecolor=draw_color,
+            edgecolor=draw_color,
+            linewidth=0.5,
+        )
+        post.set_zorder(self.get_zorder())
+        ax.add_patch(post)
+
+        # Label / ID only when label_color / id_color are configured for FencePost
+        render_label_and_id(
+            ax=ax,
+            element=self,
+            element_type='FencePost',
+            position=(self.anchor_point[0], self.anchor_point[1] + self.radius + 0.15),
+            rotation=0,
+        )
 
 
 class GardenPath(VertInfoLvl00, SurfaceElement):
